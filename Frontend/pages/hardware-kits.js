@@ -1,0 +1,1 @@
+export default function HardwareKits() { return <div className="p-8">Hardware Kits placeholder</div>; }

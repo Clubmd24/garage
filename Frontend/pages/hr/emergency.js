@@ -1,0 +1,1 @@
+export default function EmergencyContacts() { return <div className="p-8">Next of Kin & Emergency Contacts</div>; }

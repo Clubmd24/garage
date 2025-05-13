@@ -1,0 +1,1 @@
+export default function MechanicJobs() { return <div className="p-8">Today's Jobs</div>; }

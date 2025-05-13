@@ -1,0 +1,1 @@
+export default function Clock() { return <div className="p-8">Clock In/Out</div>; }

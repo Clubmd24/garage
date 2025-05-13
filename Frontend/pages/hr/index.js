@@ -1,0 +1,1 @@
+export default function HrHome() { return <div className="p-8">HR Portal Home</div>; }

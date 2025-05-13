@@ -1,0 +1,1 @@
+export default function CustomerInvoices() { return <div className="p-8">Invoices & Payments</div>; }

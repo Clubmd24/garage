@@ -1,0 +1,1 @@
+export default function RemindersQuotes() { return <div className="p-8">Reminders & Quotes</div>; }

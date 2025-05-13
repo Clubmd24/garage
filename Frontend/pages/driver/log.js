@@ -1,0 +1,1 @@
+export default function LogIssues() { return <div className="p-8">Log Issues</div>; }

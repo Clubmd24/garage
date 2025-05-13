@@ -1,0 +1,1 @@
+export default function PartsStock() { return <div className="p-8">Parts & Stock</div>; }

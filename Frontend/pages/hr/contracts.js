@@ -1,0 +1,1 @@
+export default function Contracts() { return <div className="p-8">Contracts & Compliance Docs</div>; }
