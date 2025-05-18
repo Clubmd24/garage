@@ -1,46 +1,64 @@
 // File: pages/admin/users.js
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { Sidebar } from '../../components/Sidebar';
 import { Header } from '../../components/Header';
 
 export default function Users() {
+  const router = useRouter();
   const [users, setUsers] = useState([]);
   const [form, setForm] = useState({ username: '', email: '', password: '', role: 'developer' });
   const [loading, setLoading] = useState(false);
 
   const loadUsers = async () => {
-    const res = await fetch('/api/admin/users');
-    const data = await res.json();
-    setUsers(data);
+    try {
+      const res = await fetch('/api/auth/me', { credentials: 'include' });
+      if (!res.ok) throw new Error('Unauthorized');
+      // Fetch users once authenticated
+      const usersRes = await fetch('/api/admin/users', { credentials: 'include' });
+      if (!usersRes.ok) throw new Error('Failed to load users');
+      const data = await usersRes.json();
+      setUsers(data);
+    } catch (err) {
+      router.replace('/login');
+    }
   };
 
-  useEffect(() => {
-    loadUsers();
-  }, []);
+  useEffect(() => { loadUsers(); }, []);
 
   const handleAdd = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const res = await fetch('/api/admin/users', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    });
-    if (res.ok) {
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error('Failed to add user');
       setForm({ username: '', email: '', password: '', role: 'developer' });
       await loadUsers();
-    } else {
-      console.error('Failed to add user');
+    } catch (err) {
+      console.error(err.message);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this user?')) return;
-    const res = await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
-    if (res.ok) loadUsers();
-    else console.error('Failed to delete user');
+    try {
+      const res = await fetch(`/api/admin/users/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('Failed to delete user');
+      await loadUsers();
+    } catch (err) {
+      console.error(err.message);
+    }
   };
 
   return (
