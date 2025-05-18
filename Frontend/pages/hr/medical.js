@@ -1,1 +1,0 @@
-export default function MedicalTracker() { return <div className="p-8">Annual Medical Cert Tracker</div>; }

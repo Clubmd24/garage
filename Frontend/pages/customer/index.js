@@ -1,1 +1,0 @@
-export default function CustomerHome() { return <div className="p-8">Customer Portal Home</div>; }

@@ -1,1 +1,0 @@
-export default function SickDays() { return <div className="p-8">Sick Days & Medical Notes</div>; }

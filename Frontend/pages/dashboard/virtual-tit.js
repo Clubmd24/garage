@@ -1,1 +1,0 @@
-export default function VirtualTit() { return <div className="p-8">Virtual Titling</div>; }

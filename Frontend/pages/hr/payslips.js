@@ -1,1 +1,0 @@
-export default function Payslips() { return <div className="p-8">Payslips & Contributions Archive</div>; }

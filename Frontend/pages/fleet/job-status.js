@@ -1,1 +1,0 @@
-export default function JobStatus() { return <div className="p-8">Job Status</div>; }

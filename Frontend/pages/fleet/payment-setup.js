@@ -1,1 +1,0 @@
-export default function PaymentSetup() { return <div className="p-8">Payment Terms & Setup</div>; }

@@ -1,1 +1,0 @@
-export default function InvoiceHistory() { return <div className="p-8">Invoice History</div>; }

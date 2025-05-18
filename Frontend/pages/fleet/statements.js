@@ -1,1 +1,0 @@
-export default function Statements() { return <div className="p-8">Monthly Statements</div>; }

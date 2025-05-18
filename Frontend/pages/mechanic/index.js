@@ -1,1 +1,0 @@
-export default function MechanicHome() { return <div className="p-8">Mechanic App Home</div>; }

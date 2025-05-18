@@ -1,1 +1,0 @@
-export default function Invoicing() { return <div className="p-8">Invoicing & Payments</div>; }

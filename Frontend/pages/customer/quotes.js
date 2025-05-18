@@ -1,1 +1,0 @@
-export default function CustomerQuotes() { return <div className="p-8">Quotes</div>; }

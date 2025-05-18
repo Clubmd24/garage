@@ -1,1 +1,0 @@
-export default function Upcoming() { return <div className="p-8">Upcoming Appointments</div>; }

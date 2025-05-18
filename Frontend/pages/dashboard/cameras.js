@@ -1,1 +1,0 @@
-export default function Cameras() { return <div className="p-8">Camera & VisionCams</div>; }

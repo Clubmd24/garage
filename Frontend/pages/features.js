@@ -1,1 +1,0 @@
-export default function Features() { return <div className="p-8">Features page placeholder</div>; }

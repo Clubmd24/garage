@@ -1,1 +1,0 @@
-export default function LightTests() { return <div className="p-8">Lights Test Wizard</div>; }

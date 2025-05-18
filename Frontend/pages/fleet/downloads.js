@@ -1,1 +1,0 @@
-export default function Downloads() { return <div className="p-8">Download PDFs & CSVs</div>; }
