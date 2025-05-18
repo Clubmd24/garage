@@ -1,0 +1,1 @@
+(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[332],{2936:(n,_,e)=>{(window.__NEXT_P=window.__NEXT_P||[]).push(["/",function(){return e(9287)}])},9287:(n,_,e)=>{"use strict";e.r(_),e.d(_,{default:()=>u});var s=e(7876);function u(){return(0,s.jsx)("div",{className:"p-6",children:"Landing Page"})}}},n=>{var _=_=>n(n.s=_);n.O(0,[636,593,792],()=>_(2936)),_N_E=n.O()}]);
