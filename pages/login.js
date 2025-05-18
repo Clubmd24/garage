@@ -35,10 +35,17 @@ export default function Login() {
         credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
-      if (!res.ok) {
-        const { error } = await res.json();
-        throw new Error(error || 'Login failed');
-      }
+       if (!res.ok) {
+         let errMsg = 'Login failed';
+         try {
+           const body = await res.json();
+           if (body.error) errMsg = body.error;
+         } catch (_) {
+           /* parsing failed, keep generic */
+         }
+         throw new Error(errMsg);
+     }
+     
       // Redirect to admin or dev portal based on role
       router.push('/admin/users');
     } catch (err) {
