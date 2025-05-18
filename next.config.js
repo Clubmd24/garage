@@ -1,5 +1,12 @@
 /** @type {import('next').NextConfig} */
-module.exports = {
+const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true
+  images: {
+    domains: [],    // add any external domains you need for next/image
+  },
+  experimental: {
+    appDir: false,  // only enable if you want to use the /app directory
+  },
 };
+
+module.exports = nextConfig;
