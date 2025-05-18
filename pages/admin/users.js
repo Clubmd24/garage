@@ -1,4 +1,4 @@
-// Updated File: pages/admin/users.js
+// File: pages/admin/users.js
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { Sidebar } from '../../components/Sidebar';
@@ -15,25 +15,32 @@ export default function Users() {
     setUsers(data);
   };
 
-  useEffect(() => { loadUsers(); }, []);
+  useEffect(() => {
+    loadUsers();
+  }, []);
 
-  const handleAdd = async e => {
+  const handleAdd = async (e) => {
     e.preventDefault();
     setLoading(true);
-    await fetch('/api/admin/users', {
+    const res = await fetch('/api/admin/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
     });
-    setForm({ username: '', email: '', password: '', role: 'developer' });
-    await loadUsers();
+    if (res.ok) {
+      setForm({ username: '', email: '', password: '', role: 'developer' });
+      await loadUsers();
+    } else {
+      console.error('Failed to add user');
+    }
     setLoading(false);
   };
 
-  const handleDelete = async id => {
+  const handleDelete = async (id) => {
     if (!confirm('Delete this user?')) return;
-    await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
-    loadUsers();
+    const res = await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+    if (res.ok) loadUsers();
+    else console.error('Failed to delete user');
   };
 
   return (
@@ -55,7 +62,7 @@ export default function Users() {
                   placeholder="Username"
                   className="input"
                   value={form.username}
-                  onChange={e => setForm({...form, username: e.target.value})}
+                  onChange={(e) => setForm({ ...form, username: e.target.value })}
                   required
                 />
                 <input
@@ -63,7 +70,7 @@ export default function Users() {
                   placeholder="Email"
                   className="input"
                   value={form.email}
-                  onChange={e => setForm({...form, email: e.target.value})}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
                   required
                 />
               </div>
@@ -73,13 +80,13 @@ export default function Users() {
                   placeholder="Password"
                   className="input"
                   value={form.password}
-                  onChange={e => setForm({...form, password: e.target.value})}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
                   required
                 />
                 <select
                   className="input"
                   value={form.role}
-                  onChange={e => setForm({...form, role: e.target.value})}
+                  onChange={(e) => setForm({ ...form, role: e.target.value })}
                 >
                   <option value="admin">admin</option>
                   <option value="developer">developer</option>
@@ -104,7 +111,7 @@ export default function Users() {
                 </tr>
               </thead>
               <tbody>
-                {users.map(u => (
+                {users.map((u) => (
                   <tr key={u.id} className="border-t">
                     <td className="p-2 text-[var(--color-text-primary)]">{u.username}</td>
                     <td className="p-2 text-[var(--color-text-primary)]">{u.email}</td>
@@ -130,55 +137,4 @@ export default function Users() {
       </div>
     </div>
   );
-}
-
-
-// API: Create User - pages/api/admin/users/index.js
-import pool from '../../../../lib/db';
-import { hashPassword } from '../../../../lib/auth';
-export default async function handler(req, res) {
-  if (req.method === 'GET') {
-    const [users] = await pool.query(
-      'SELECT u.id, u.username, u.email, r.name AS role FROM users u JOIN user_roles ur ON u.id=ur.user_id JOIN roles r ON ur.role_id=r.id'
-    );
-    return res.status(200).json(users);
-  }
-  if (req.method === 'POST') {
-    const { username, email, password, role } = req.body;
-    const pwHash = await hashPassword(password);
-    const conn = await pool.getConnection();
-    try {
-      await conn.beginTransaction();
-      const [result] = await conn.query(
-        'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)',
-        [username, email, pwHash]
-      );
-      const userId = result.insertId;
-      const [[r]] = await conn.query('SELECT id FROM roles WHERE name=?', [role]);
-      await conn.query('INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)', [userId, r.id]);
-      await conn.commit();
-      res.status(201).json({ id: userId });
-    } catch (error) {
-      await conn.rollback();
-      res.status(500).json({ error: 'Failed to create user' });
-    } finally {
-      conn.release();
-    }
-  }
-  res.setHeader('Allow', ['GET','POST']);
-  res.status(405).end('Method Not Allowed');
-}
-
-
-// API: Delete User - pages/api/admin/users/[id].js
-import pool from '../../../../../lib/db';
-export default async function handler(req, res) {
-  const { id } = req.query;
-  if (req.method === 'DELETE') {
-    await pool.query('DELETE FROM user_roles WHERE user_id=?', [id]);
-    await pool.query('DELETE FROM users WHERE id=?', [id]);
-    return res.status(200).json({ ok: true });
-  }
-  res.setHeader('Allow', ['DELETE']);
-  res.status(405).end('Method Not Allowed');
 }
