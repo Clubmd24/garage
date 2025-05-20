@@ -1,5 +1,6 @@
 // File: pages/api/dev/projects/index.js
 import pool from '../../../../lib/db';
+import { getUserFromReq } from '../../../../lib/auth';  // or however you read the JWT
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
@@ -25,16 +26,32 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    const { name, description, created_by } = req.body;
-    if (!name || !created_by) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    const { name, description } = req.body;
+    if (!name) {
+      return res.status(400).json({ error: 'Missing project name' });
     }
+
+    let user;
+    try {
+      user = await getUserFromReq(req);    // validate JWT, throw if not logged in
+    } catch {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
     try {
       const [{ insertId }] = await pool.query(
-        'INSERT INTO dev_projects (name, description, created_by) VALUES (?, ?, ?)',
-        [name, description || null, created_by]
+        `INSERT INTO dev_projects
+           (name, description, status, created_by)
+         VALUES (?, ?, 'active', ?)`,
+        [ name, description || null, user.id ]
       );
-      return res.status(201).json({ id: insertId, name, description, created_by });
+      return res.status(201).json({ 
+        id: insertId,
+        name,
+        description: description || null,
+        status: 'active',
+        created_by: user.id
+      });
     } catch (err) {
       console.error('CREATE PROJECT ERROR:', err);
       return res.status(500).json({ error: 'Internal server error' });
