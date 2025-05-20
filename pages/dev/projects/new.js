@@ -1,4 +1,5 @@
 // File: pages/dev/projects/new.js
+
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -11,28 +12,28 @@ export default function NewProject() {
   const [user, setUser] = useState(null);
   const [form, setForm] = useState({ name: '', description: '' });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // Redirect to login if not authenticated
+  // Protect route
   useEffect(() => {
     fetch('/api/auth/me', { credentials: 'include' })
-      .then((r) => {
-        if (!r.ok) throw new Error('Not authenticated');
-        return r.json();
+      .then(res => {
+        if (!res.ok) throw new Error('Unauthorized');
+        return res.json();
       })
       .then(setUser)
-      .catch(() => {
-        router.replace('/login');
-      });
+      .catch(() => router.replace('/login'));
   }, []);
 
-  const handleSubmit = async (e) => {
+  const handleCreate = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
     const res = await fetch('/api/dev/projects', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: form.name,
         description: form.description,
@@ -40,18 +41,16 @@ export default function NewProject() {
       }),
     });
 
-    if (res.status === 401) {
+    if (res.ok) {
+      router.push('/dev/projects');
+    } else if (res.status === 401) {
       router.replace('/login');
-      return;
+    } else {
+      const data = await res.json().catch(() => ({}));
+      setError(data.error || 'Failed to create project');
     }
 
-    if (!res.ok) {
-      const body = await res.json();
-      setError(body.error || 'Something went wrong');
-      return;
-    }
-
-    router.push('/dev/projects');
+    setLoading(false);
   };
 
   return (
@@ -59,33 +58,26 @@ export default function NewProject() {
       <Sidebar />
       <div className="flex-1 flex flex-col">
         <Header />
-        <main className="p-8">
+        <main className="p-8 space-y-8">
           <Head>
             <title>Create New Project – Garage Vision</title>
           </Head>
+          <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">
+            Create New Project
+          </h1>
 
           <Card>
-            <h1 className="text-3xl font-bold text-[var(--color-text-primary)] mb-4">
-              Create New Project
-            </h1>
-
-            {error && (
-              <p className="text-red-500 mb-4">
-                {error}
-              </p>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleCreate} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
                   Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  required
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
                   className="input w-full"
+                  value={form.name}
+                  onChange={e => setForm({ ...form, name: e.target.value })}
+                  required
                 />
               </div>
               <div>
@@ -93,18 +85,18 @@ export default function NewProject() {
                   Description
                 </label>
                 <textarea
+                  className="input w-full h-24"
                   value={form.description}
-                  onChange={(e) =>
-                    setForm({ ...form, description: e.target.value })
-                  }
-                  className="input w-full h-24 resize-none"
+                  onChange={e => setForm({ ...form, description: e.target.value })}
                 />
               </div>
+              {error && <p className="text-red-500">{error}</p>}
               <button
                 type="submit"
-                className="button w-36"
+                className="button w-full"
+                disabled={loading}
               >
-                Create Project
+                {loading ? 'Creating…' : 'Create Project'}
               </button>
             </form>
           </Card>
