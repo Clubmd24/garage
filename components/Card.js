@@ -1,7 +1,9 @@
+// File: components/Card.js
 import cn from 'classnames';
 
 /**
- * Card component for our design system
+ * Card component: wraps content in a rounded, shadowed container with padding.
+ * @param {{children: React.ReactNode, className?: string}} props
  */
 export function Card({ children, className = '' }) {
   return (

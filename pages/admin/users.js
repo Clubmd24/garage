@@ -1,3 +1,4 @@
+// File: pages/admin/users.js
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -13,37 +14,53 @@ export default function Users() {
 
   const loadUsers = async () => {
     try {
-      await fetch('/api/auth/me', { credentials: 'include' }).then(r => { if (!r.ok) throw 0 });
-      const data = await fetch('/api/admin/users', { credentials: 'include' }).then(r => r.json());
+      const res = await fetch('/api/auth/me', { credentials: 'include' });
+      if (!res.ok) throw new Error('Unauthorized');
+      const usersRes = await fetch('/api/admin/users', { credentials: 'include' });
+      if (!usersRes.ok) throw new Error('Failed to load users');
+      const data = await usersRes.json();
       setUsers(data);
-    } catch {
+    } catch (err) {
       router.replace('/login');
     }
   };
 
-  useEffect(loadUsers, []);
+  useEffect(() => {
+    loadUsers();
+  }, []);
 
   const handleAdd = async (e) => {
     e.preventDefault();
     setLoading(true);
-    await fetch('/api/admin/users', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify(form),
-    });
-    setForm({ username: '', email: '', password: '', role: 'developer' });
-    await loadUsers();
-    setLoading(false);
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error('Failed to add user');
+      setForm({ username: '', email: '', password: '', role: 'developer' });
+      await loadUsers();
+    } catch (err) {
+      console.error(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this user?')) return;
-    await fetch(`/api/admin/users/${id}`, {
-      method: 'DELETE',
-      credentials: 'include',
-    });
-    await loadUsers();
+    try {
+      const res = await fetch(`/api/admin/users/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('Failed to delete user');
+      await loadUsers();
+    } catch (err) {
+      console.error(err.message);
+    }
   };
 
   return (
@@ -52,45 +69,47 @@ export default function Users() {
       <div className="flex-1 flex flex-col">
         <Header />
         <main className="p-8 space-y-8">
-          <Head><title>Admin – User Management</title></Head>
+          <Head>
+            <title>Admin - User Management</title>
+          </Head>
 
           <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">
             User Management
           </h1>
 
           <Card>
-            <h2 className="text-xl font-semibold mb-4 text-[var(--color-text-primary)]">
+            <h2 className="text-xl font-semibold text-[var(--color-text-primary)] mb-4">
               Add New User
             </h2>
             <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <input
                 type="text"
                 placeholder="Username"
-                className="input"
+                className="input bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500"
                 value={form.username}
-                onChange={e => setForm({ ...form, username: e.target.value })}
+                onChange={(e) => setForm({ ...form, username: e.target.value })}
                 required
               />
               <input
                 type="email"
                 placeholder="Email"
-                className="input"
+                className="input bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500"
                 value={form.email}
-                onChange={e => setForm({ ...form, email: e.target.value })}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
                 required
               />
               <input
                 type="password"
                 placeholder="Password"
-                className="input"
+                className="input bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500"
                 value={form.password}
-                onChange={e => setForm({ ...form, password: e.target.value })}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
                 required
               />
               <select
-                className="input"
+                className="input bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500"
                 value={form.role}
-                onChange={e => setForm({ ...form, role: e.target.value })}
+                onChange={(e) => setForm({ ...form, role: e.target.value })}
               >
                 <option value="admin">admin</option>
                 <option value="developer">developer</option>
@@ -105,7 +124,7 @@ export default function Users() {
           <Card>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-[var(--color-surface)]">
+                <thead className="bg-[var(--color-surface)] dark:bg-[var(--color-surface)]">
                   <tr>
                     <th className="px-6 py-3 text-left text-sm font-medium text-[var(--color-text-secondary)]">
                       Username
@@ -121,21 +140,21 @@ export default function Users() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-[var(--color-surface)] divide-y divide-gray-200">
-                  {users.map(u => (
-                    <tr key={u.id} className="hover:bg-gray-100 transition">
-                      <td className="px-6 py-4 text-sm text-[var(--color-text-primary)]">
+                <tbody className="bg-[var(--color-surface)] dark:bg-[var(--color-surface)] divide-y divide-gray-200 dark:divide-gray-700">
+                  {users.map((u) => (
+                    <tr key={u.id} className="hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--color-text-primary)]">
                         {u.username}
                       </td>
-                      <td className="px-6 py-4 text-sm text-[var(--color-text-primary)]">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--color-text-primary)]">
                         {u.email}
                       </td>
-                      <td className="px-6 py-4 text-sm">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <span className="px-3 py-1 rounded-full bg-[var(--color-primary-light)] text-white text-xs">
                           {u.role}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <button
                           onClick={() => handleDelete(u.id)}
                           className="text-red-500 hover:underline"
