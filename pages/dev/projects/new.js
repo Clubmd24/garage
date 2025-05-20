@@ -14,7 +14,7 @@ export default function NewProject() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Protect route
+  // Protect the page on mount
   useEffect(() => {
     fetch('/api/auth/me', { credentials: 'include' })
       .then(res => {
@@ -46,10 +46,9 @@ export default function NewProject() {
     } else if (res.status === 401) {
       router.replace('/login');
     } else {
-      const data = await res.json().catch(() => ({}));
-      setError(data.error || 'Failed to create project');
+      const { error: msg } = await res.json().catch(() => ({}));
+      setError(msg || 'Failed to create project');
     }
-
     setLoading(false);
   };
 
