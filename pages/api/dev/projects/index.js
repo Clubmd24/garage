@@ -1,14 +1,23 @@
 // File: pages/api/dev/projects/index.js
+
 import pool from '../../../../lib/db';
-import { getTokenFromReq } from '../../../../lib/auth';  // <-- your JWT helper
+import { getTokenFromReq, verifyToken } from '../../../../lib/auth';
 
 export default async function handler(req, res) {
-  // 1️⃣ Extract & verify JWT from the cookie
+  // 1️⃣ Grab the raw token from the cookie
   const token = getTokenFromReq(req);
   if (!token) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
-  const userId = token.sub; // your signToken used { sub: userId }
+
+  // 2️⃣ Verify & decode it
+  let payload;
+  try {
+    payload = verifyToken(token);
+  } catch (err) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  const userId = payload.sub;
 
   if (req.method === 'GET') {
     try {
@@ -23,7 +32,7 @@ export default async function handler(req, res) {
            u.username AS creator
          FROM dev_projects p
          JOIN users u ON p.created_by = u.id
-         WHERE p.created_by = ?     -- optionally only show your own
+         WHERE p.created_by = ?
          ORDER BY p.created_at DESC`,
         [userId]
       );
