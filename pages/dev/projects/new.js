@@ -1,9 +1,9 @@
 // pages/dev/projects/new.js
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import { Header } from '../../components/Header'
-import { Sidebar } from '../../components/Sidebar'
-import { Card } from '../../components/Card'
+import { Header } from '../../../components/Header'
+import { Sidebar } from '../../../components/Sidebar'
+import { Card } from '../../../components/Card'
 
 export default function NewProject() {
   const router = useRouter()
