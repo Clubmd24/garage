@@ -1,23 +1,15 @@
 // File: pages/api/dev/projects/index.js
 
 import pool from '../../../../lib/db';
-import { getTokenFromReq, verifyToken } from '../../../../lib/auth';
+import { getTokenFromReq } from '../../../../lib/auth';
 
 export default async function handler(req, res) {
-  // 1️⃣ Grab the raw token from the cookie
+  // → Validate JWT
   const token = getTokenFromReq(req);
   if (!token) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
-
-  // 2️⃣ Verify & decode it
-  let payload;
-  try {
-    payload = verifyToken(token);
-  } catch (err) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-  const userId = payload.sub;
+  const userId = token.sub;
 
   if (req.method === 'GET') {
     try {

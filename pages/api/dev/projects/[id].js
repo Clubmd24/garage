@@ -1,21 +1,14 @@
 // File: pages/api/dev/projects/[id].js
 
 import pool from '../../../../lib/db';
-import { getTokenFromReq, verifyToken } from '../../../../lib/auth';
+import { getTokenFromReq } from '../../../../lib/auth';
 
 export default async function handler(req, res) {
-  // 1️⃣ Grab & verify JWT
+  // → Validate JWT
   const token = getTokenFromReq(req);
   if (!token) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
-  let payload;
-  try {
-    payload = verifyToken(token);
-  } catch {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-  const userId = payload.sub;
 
   const { id } = req.query;
 
@@ -32,8 +25,8 @@ export default async function handler(req, res) {
            u.username AS creator
          FROM dev_projects p
          JOIN users u ON p.created_by = u.id
-         WHERE p.id = ? AND p.created_by = ?`,
-        [id, userId]
+         WHERE p.id = ?`,
+        [id]
       );
       if (!project) {
         return res.status(404).json({ error: 'Project not found' });
@@ -52,13 +45,11 @@ export default async function handler(req, res) {
     }
     try {
       const [result] = await pool.query(
-        `UPDATE dev_projects 
-           SET name = ?, description = ?, status = ? 
-         WHERE id = ? AND created_by = ?`,
-        [name, description || null, status || 'active', id, userId]
+        'UPDATE dev_projects SET name = ?, description = ?, status = ? WHERE id = ?',
+        [name, description || null, status || 'active', id]
       );
       if (result.affectedRows === 0) {
-        return res.status(404).json({ error: 'Project not found or not yours' });
+        return res.status(404).json({ error: 'Project not found' });
       }
       return res.status(200).json({ id, name, description, status });
     } catch (err) {
@@ -70,11 +61,11 @@ export default async function handler(req, res) {
   if (req.method === 'DELETE') {
     try {
       const [result] = await pool.query(
-        'DELETE FROM dev_projects WHERE id = ? AND created_by = ?',
-        [id, userId]
+        'DELETE FROM dev_projects WHERE id = ?',
+        [id]
       );
       if (result.affectedRows === 0) {
-        return res.status(404).json({ error: 'Project not found or not yours' });
+        return res.status(404).json({ error: 'Project not found' });
       }
       return res.status(200).json({ success: true });
     } catch (err) {
