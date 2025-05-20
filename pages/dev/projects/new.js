@@ -1,90 +1,88 @@
-// File: pages/dev/projects/new.js
-import { useState } from 'react';
-import { useRouter } from 'next/router';
-import Head from 'next/head';
-import { Sidebar } from '../../../components/Sidebar';
-import { Header } from '../../../components/Header';
-import { Card } from '../../../components/Card';
+// pages/dev/projects/new.js
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
+import { Header } from '../../components/Header'
+import { Sidebar } from '../../components/Sidebar'
+import { Card } from '../../components/Card'
 
 export default function NewProject() {
-  const router = useRouter();
-  const [form, setForm] = useState({ name: '', description: '' });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const router = useRouter()
+  const [form, setForm] = useState({ name: '', description: '' })
+  const [user, setUser] = useState(null)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleCreate = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    try {
-      const res = await fetch('/api/dev/projects', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      if (!res.ok) {
-        const body = await res.json();
-        throw new Error(body.error || res.statusText);
-      }
-      // go back to list
-      router.push('/dev/projects');
-    } catch (err) {
-      setError(err.message);
-      setLoading(false);
+  useEffect(() => {
+    // load current user
+    fetch('/api/auth/me', { credentials: 'include' })
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(setUser)
+      .catch(() => router.replace('/login'))
+  }, [])
+
+  const handleSubmit = async e => {
+    e.preventDefault()
+    setError('')
+    if (!form.name) {
+      setError('Missing required fields')
+      return
     }
-  };
+    setLoading(true)
+    const res = await fetch('/api/dev/projects', {
+      method: 'POST',
+      credentials: 'include',                  // ← include the auth cookie
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: form.name,
+        description: form.description,
+        created_by: user.id                    // ← pass the current user’s ID
+      })
+    })
+    setLoading(false)
+
+    if (res.ok) {
+      router.push('/dev/projects')
+    } else if (res.status === 401) {
+      setError('Unauthorized – please log in again')
+      router.replace('/login')
+    } else {
+      const { error } = await res.json().catch(() => ({}))
+      setError(error || 'Something went wrong')
+    }
+  }
 
   return (
-    <div className="flex min-h-screen bg-[var(--color-bg)] dark:bg-[var(--color-bg)]">
+    <div className="flex min-h-screen">
       <Sidebar />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1">
         <Header />
         <main className="p-8">
-          <Head>
-            <title>New Project – Garage Vision</title>
-          </Head>
-
-          <h1 className="text-3xl font-bold text-[var(--color-text-primary)] mb-6">
-            Create New Project
-          </h1>
-
+          <h1 className="text-3xl font-bold mb-6">Create New Project</h1>
           <Card>
-            <form onSubmit={handleCreate} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
-                  Name <span className="text-red-500">*</span>
-                </label>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <label className="block">
+                <span className="text-sm">Name <span className="text-red-500">*</span></span>
                 <input
                   type="text"
-                  required
                   value={form.name}
-                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                  onChange={e => setForm({ ...form, name: e.target.value })}
                   className="input w-full"
-                  placeholder="Project name"
+                  required
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
-                  Description
-                </label>
+              </label>
+              <label className="block">
+                <span className="text-sm">Description</span>
                 <textarea
-                  rows={3}
                   value={form.description}
-                  onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-                  className="input w-full"
-                  placeholder="Brief description (optional)"
+                  onChange={e => setForm({ ...form, description: e.target.value })}
+                  className="input w-full h-24"
                 />
-              </div>
-
-              {error && (
-                <p className="text-red-500 text-sm">{error}</p>
-              )}
-
+              </label>
+              {error && <p className="text-red-500">{error}</p>}
               <button
                 type="submit"
-                disabled={loading}
                 className="button"
+                disabled={loading}
               >
                 {loading ? 'Creating…' : 'Create Project'}
               </button>
@@ -93,5 +91,5 @@ export default function NewProject() {
         </main>
       </div>
     </div>
-  );
+  )
 }
