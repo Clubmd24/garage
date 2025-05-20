@@ -30,20 +30,25 @@ export default function Users() {
   }, []);
 
   const handleAdd = async (e) => {
-  e.preventDefault();
-  console.log('🛠️ handleAdd fired', form);    // ← Add this line
-  setLoading(true);
-  try {
-    const res = await fetch('/api/admin/users', { … });
-    console.log('🛠️ POST /api/admin/users status:', res.status);
-    // …
-  } catch (err) {
-    console.error('🛠️ handleAdd error', err);
-  } finally {
-    setLoading(false);
-  }
-};
-
+    e.preventDefault();
+    console.log('🛠️ handleAdd fired', form);
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(form),
+      });
+      console.log('🛠️ POST /api/admin/users status:', res.status);
+    } catch (err) {
+      console.error('🛠️ handleAdd error', err);
+    } finally {
+      setForm({ username: '', email: '', password: '', role: 'developer' });
+      await loadUsers();
+      setLoading(false);
+    }
+  };
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this user?')) return;
