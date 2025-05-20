@@ -11,7 +11,6 @@ export default async function handler(req, res) {
            p.description,
            p.status,
            p.created_at,
-           p.updated_at,
            p.created_by,
            u.username AS creator
          FROM dev_projects p
