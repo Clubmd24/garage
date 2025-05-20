@@ -7,9 +7,17 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
       const [[project]] = await pool.query(
-        `SELECT p.id, p.name, p.description, p.owner_id, p.created_at, p.updated_at, u.username AS owner
+        `SELECT
+           p.id,
+           p.name,
+           p.description,
+           p.status,
+           p.created_at,
+           p.updated_at,
+           p.created_by,
+           u.username AS creator
          FROM dev_projects p
-         JOIN users u ON p.owner_id = u.id
+         JOIN users u ON p.created_by = u.id
          WHERE p.id = ?`,
         [id]
       );
@@ -22,14 +30,17 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'PUT') {
-    const { name, description } = req.body;
+    const { name, description, status } = req.body;
+    if (!name) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
     try {
       const [result] = await pool.query(
-        'UPDATE dev_projects SET name = ?, description = ?, updated_at = NOW() WHERE id = ?',
-        [name, description, id]
+        'UPDATE dev_projects SET name = ?, description = ?, status = ?, updated_at = NOW() WHERE id = ?',
+        [name, description || null, status || 'active', id]
       );
       if (result.affectedRows === 0) return res.status(404).json({ error: 'Project not found' });
-      return res.status(200).json({ id, name, description });
+      return res.status(200).json({ id, name, description, status });
     } catch (err) {
       console.error('UPDATE PROJECT ERROR:', err);
       return res.status(500).json({ error: 'Internal server error' });
@@ -47,6 +58,6 @@ export default async function handler(req, res) {
     }
   }
 
-  res.setHeader('Allow', ['GET','PUT','DELETE']);
+  res.setHeader('Allow', ['GET', 'PUT', 'DELETE']);
   res.status(405).end(`Method ${req.method} Not Allowed`);
 }
