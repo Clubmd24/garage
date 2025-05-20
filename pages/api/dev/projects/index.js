@@ -1,8 +1,15 @@
 // File: pages/api/dev/projects/index.js
 import pool from '../../../../lib/db';
-import { getUserFromReq } from '../../../../lib/auth';  // or however you read the JWT
+import { getTokenFromReq } from '../../../../lib/auth';  // <-- your JWT helper
 
 export default async function handler(req, res) {
+  // 1️⃣ Extract & verify JWT from the cookie
+  const token = getTokenFromReq(req);
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  const userId = token.sub; // your signToken used { sub: userId }
+
   if (req.method === 'GET') {
     try {
       const [projects] = await pool.query(
@@ -16,7 +23,9 @@ export default async function handler(req, res) {
            u.username AS creator
          FROM dev_projects p
          JOIN users u ON p.created_by = u.id
-         ORDER BY p.created_at DESC`
+         WHERE p.created_by = ?     -- optionally only show your own
+         ORDER BY p.created_at DESC`,
+        [userId]
       );
       return res.status(200).json(projects);
     } catch (err) {
@@ -28,30 +37,18 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     const { name, description } = req.body;
     if (!name) {
-      return res.status(400).json({ error: 'Missing project name' });
+      return res.status(400).json({ error: 'Missing required fields' });
     }
-
-    let user;
-    try {
-      user = await getUserFromReq(req);    // validate JWT, throw if not logged in
-    } catch {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
     try {
       const [{ insertId }] = await pool.query(
         `INSERT INTO dev_projects
-           (name, description, status, created_by)
-         VALUES (?, ?, 'active', ?)`,
-        [ name, description || null, user.id ]
+           (name, description, created_by)
+         VALUES (?, ?, ?)`,
+        [name, description || null, userId]
       );
-      return res.status(201).json({ 
-        id: insertId,
-        name,
-        description: description || null,
-        status: 'active',
-        created_by: user.id
-      });
+      return res
+        .status(201)
+        .json({ id: insertId, name, description, created_by: userId });
     } catch (err) {
       console.error('CREATE PROJECT ERROR:', err);
       return res.status(500).json({ error: 'Internal server error' });
@@ -59,5 +56,5 @@ export default async function handler(req, res) {
   }
 
   res.setHeader('Allow', ['GET', 'POST']);
-  res.status(405).end(`Method ${req.method} Not Allowed`);
+  return res.status(405).end(`Method ${req.method} Not Allowed`);
 }
