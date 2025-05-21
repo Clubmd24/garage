@@ -1,16 +1,16 @@
-// File: pages/dev/projects/[project_id]/tasks/new.js
+// File: pages/dev/projects/[id]/tasks/new.js
 
-import { useRouter } from 'next/router'
-import { useState, useEffect } from 'react'
-import Head from 'next/head'
-import Link from 'next/link'
-import { Sidebar } from '../../../../../components/Sidebar'
-import { Header } from '../../../../../components/Header'
-import { Card } from '../../../../../components/Card'
+import { useRouter } from 'next/router';
+import { useState, useEffect } from 'react';
+import Head from 'next/head';
+import Link from 'next/link';
+import { Sidebar } from '../../../../../components/Sidebar';
+import { Header } from '../../../../../components/Header';
+import { Card } from '../../../../../components/Card';
 
 export default function NewTask() {
-  const router = useRouter()
-  const { project_id } = router.query
+  const router = useRouter();
+  const { id } = router.query;  // ← use `id`, not `project_id`
 
   const [form, setForm] = useState({
     title: '',
@@ -18,48 +18,48 @@ export default function NewTask() {
     status: 'todo',
     assigned_to: '',
     due_date: ''
-  })
-  const [users, setUsers] = useState([])
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  });
+  const [users, setUsers] = useState([]);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // fetch all users so we can assign
+  // fetch users for “Assign To”
   useEffect(() => {
     fetch('/api/admin/users', { credentials: 'include' })
       .then(r => r.json())
       .then(setUsers)
-      .catch(console.error)
-  }, [])
+      .catch(console.error);
+  }, []);
 
   const handleSubmit = async e => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+    e.preventDefault();
+    setLoading(true);
+    setError('');
 
     const res = await fetch('/api/dev/tasks', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        project_id,
+        project_id: id,               // ← use `id`
         title: form.title,
         description: form.description || null,
         status: form.status,
         assigned_to: form.assigned_to || null,
         due_date: form.due_date || null
       })
-    })
+    });
 
     if (!res.ok) {
-      const json = await res.json().catch(() => ({}))
-      setError(json.error || `Server returned ${res.status}`)
-      setLoading(false)
-      return
+      const json = await res.json().catch(() => ({}));
+      setError(json.error || `Server returned ${res.status}`);
+      setLoading(false);
+      return;
     }
 
     // back to project detail on success
-    router.push(`/dev/projects/${project_id}`)
-  }
+    router.push(`/dev/projects/${id}`);  // ← use `id`
+  };
 
   return (
     <div className="flex min-h-screen bg-[var(--color-bg)]">
@@ -67,11 +67,11 @@ export default function NewTask() {
       <div className="flex-1 flex flex-col">
         <Header />
         <main className="p-8">
-          <Head>
-            <title>New Task</title>
-          </Head>
+          <Head><title>New Task</title></Head>
 
-          <h1 className="text-3xl font-bold mb-6">Add Task to Project #{project_id}</h1>
+          <h1 className="text-3xl font-bold mb-6">
+            Add Task to Project #{id}
+          </h1>
 
           <Card>
             <form onSubmit={handleSubmit} className="grid gap-4">
@@ -153,7 +153,7 @@ export default function NewTask() {
                 >
                   {loading ? 'Creating…' : 'Create Task'}
                 </button>
-                <Link href={`/dev/projects/${project_id}`}>
+                <Link href={`/dev/projects/${id}`}>
                   <a className="button-secondary">Cancel</a>
                 </Link>
               </div>
@@ -162,5 +162,5 @@ export default function NewTask() {
         </main>
       </div>
     </div>
-  )
+  );
 }
