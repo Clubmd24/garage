@@ -70,7 +70,7 @@ export default function ProjectDetail() {
 
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-semibold text-[var(--color-text-primary)]">Tasks</h2>
-            <Link href={`/dev/tasks/new?project_id=${id}`}>
+            <Link href={`/dev/projects/${id}/tasks/new`}>
               <a className="button">+ Add Task</a>
             </Link>
           </div>
