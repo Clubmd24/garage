@@ -34,7 +34,6 @@ export default function NewProject() {
       return;
     }
 
-    await res.json();
     router.push('/dev/projects');
   };
 
