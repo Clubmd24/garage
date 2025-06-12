@@ -1,5 +1,3 @@
-#! /usr/bin/env bash
-# (Paste the full bootstrap_dev_portal.sh content I provided earlier here)
 #!/usr/bin/env bash
 set -e
 
