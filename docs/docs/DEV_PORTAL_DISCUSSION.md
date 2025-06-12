@@ -39,8 +39,8 @@ _This file captures the high-level decisions and context from our ChatGPT sessio
 ## Environment & Infrastructure
 - **Heroku** auto-deploy from `main`  
 - **MariaDB** on AWS RDS (`DATABASE_URL`)  
-- **AWS S3** for file storage (`S3_BUCKET`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`)  
-- **OpenAI** integration (`OPENAI_API_KEY`)  
+- **AWS S3** for file storage (`S3_BUCKET`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`)
+- **Codex** integration (`CODEX_API_KEY`, `CODEX_API_URL`)
 - Secrets managed in **GitHub Codespaces** & **Actions**
 
 ## GitHub Integration
