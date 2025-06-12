@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import Head from 'next/head';
+import Link from 'next/link';
 import { Sidebar } from '../../../components/Sidebar';
 import { Header } from '../../../components/Header';
 import { Card } from '../../../components/Card';
@@ -17,9 +19,12 @@ export default function NewProject() {
 
     const res = await fetch('/api/dev/projects', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify(form),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: form.name,
+        description: form.description || null,
+      }),
     });
 
     if (!res.ok) {
@@ -29,8 +34,8 @@ export default function NewProject() {
       return;
     }
 
-    const { id } = await res.json();
-    router.push(`/dev/projects/${id}`);
+    await res.json();
+    router.push('/dev/projects');
   };
 
   return (
@@ -39,6 +44,8 @@ export default function NewProject() {
       <div className="flex-1 flex flex-col">
         <Header />
         <main className="p-8">
+          <Head><title>New Project</title></Head>
+
           <h1 className="text-3xl font-bold mb-6">New Project</h1>
           <Card>
             <form onSubmit={handleSubmit} className="grid gap-4">
@@ -66,9 +73,9 @@ export default function NewProject() {
                 <button type="submit" className="button" disabled={loading}>
                   {loading ? 'Creating…' : 'Create Project'}
                 </button>
-                <a href="/dev/projects" className="button-secondary">
-                  Cancel
-                </a>
+                <Link href="/dev/projects">
+                  <a className="button-secondary">Cancel</a>
+                </Link>
               </div>
             </form>
           </Card>
