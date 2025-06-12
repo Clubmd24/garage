@@ -1,0 +1,47 @@
+-- Dev Portal schema
+
+CREATE TABLE IF NOT EXISTS dev_projects (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  status VARCHAR(50) DEFAULT 'active',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  created_by INT NOT NULL,
+  FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS dev_tasks (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  dev_project_id INT NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  status VARCHAR(50) DEFAULT 'todo',
+  created_by INT NOT NULL,
+  assigned_to INT,
+  due_date DATE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (dev_project_id) REFERENCES dev_projects(id) ON DELETE CASCADE,
+  FOREIGN KEY (created_by) REFERENCES users(id),
+  FOREIGN KEY (assigned_to) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS messages (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  room_id BIGINT DEFAULT 1,
+  user VARCHAR(80),
+  body TEXT,
+  s3_key VARCHAR(256),
+  content_type VARCHAR(80),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS embeddings (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  doc_title VARCHAR(200),
+  chunk_no INT,
+  txt TEXT,
+  vec VECTOR(1536) NOT NULL,
+  INDEX vss_idx (vec) USING VSS
+);

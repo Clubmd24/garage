@@ -1,11 +1,12 @@
-import { verifyToken } from '../../../lib/auth';
-export default function handler(req, res) {
-  const token = req.cookies.auth_token;
-  if (!token) return res.status(401).end();
-  try {
-    const payload = verifyToken(token);
-    res.status(200).json({ id:payload.sub, role: payload.role });
-  } catch {
-    res.status(401).end();
-  }
+import pool from '../../../lib/db';
+import { getTokenFromReq } from '../../../lib/auth';
+
+export default async function handler(req, res) {
+  const t = getTokenFromReq(req);
+  if (!t) return res.status(401).json({ error: 'Unauthorized' });
+  const [user] = await pool.query(
+    'SELECT id, username, email FROM users WHERE id=?',
+    [t.sub]
+  );
+  res.status(200).json(user[0]);
 }
