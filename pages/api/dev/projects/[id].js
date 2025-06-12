@@ -8,10 +8,10 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     const [[project]] = await pool.query(
-      \`SELECT p.*, u.username AS creator
+      `SELECT p.*, u.username AS creator
          FROM dev_projects p
          JOIN users u ON p.created_by = u.id
-       WHERE p.id=?\`,
+       WHERE p.id=?`,
       [id]
     );
     return project

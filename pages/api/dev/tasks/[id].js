@@ -8,10 +8,10 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     const [[task]] = await pool.query(
-      \`SELECT t.*, u.username AS assignee
+      `SELECT t.*, u.username AS assignee
          FROM dev_tasks t
     LEFT JOIN users u ON t.assigned_to=u.id
-        WHERE t.id=?\`,
+        WHERE t.id=?`,
       [id]
     );
     return task ? res.json(task) : res.status(404).json({ error: 'Not found' });
@@ -20,9 +20,9 @@ export default async function handler(req, res) {
   if (req.method === 'PUT') {
     const { title, description, status, assigned_to, due_date } = req.body;
     await pool.query(
-      \`UPDATE dev_tasks
+      `UPDATE dev_tasks
          SET title=?,description=?,status=?,assigned_to=?,due_date=?
-       WHERE id=?\`,
+       WHERE id=?`,
       [title, description||null, status, assigned_to||null, due_date||null, id]
     );
     return res.json({ ok: true });
