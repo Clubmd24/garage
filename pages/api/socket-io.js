@@ -1,5 +1,5 @@
 import { Server } from 'socket.io';
-import pool from '../lib/db';
+import pool from '../../lib/db';
 
 export default function handler(req, res) {
   if (!res.socket.server.io) {
