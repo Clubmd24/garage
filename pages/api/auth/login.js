@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   const token = signToken({ sub: rows[0].id });
   res.setHeader(
     'Set-Cookie',
-    \`auth_token=\${token}; HttpOnly; Path=/; Max-Age=28800; SameSite=Strict\`
+    `auth_token=${token}; HttpOnly; Path=/; Max-Age=28800; SameSite=Strict`
   );
   res.status(200).json({ ok: true });
 }
