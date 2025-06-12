@@ -6,4 +6,3 @@
 2. Install dependencies: `npm install`
 3. Run migrations: `npm run migrate`
 4. Start dev server: `npm run dev`
-added chatgpt
