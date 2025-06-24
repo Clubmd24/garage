@@ -26,6 +26,9 @@ const userColor = (name) => {
 
 export default function Chat() {
   const [messages, setMessages] = useState([]);
+  const [topics, setTopics] = useState([]);
+  const [topicId, setTopicId] = useState(null);
+  const [newTopic, setNewTopic] = useState("");
   const [input, setInput] = useState("");
   const [user, setUser] = useState(null);
   const socketRef = useRef(null);
@@ -40,10 +43,11 @@ export default function Chat() {
       }
 
       try {
-        const hist = await fetch("/api/chat/history");
-        if (hist.ok) {
-          const msgs = await hist.json();
-          setMessages(msgs);
+        const r = await fetch("/api/chat/topics");
+        if (r.ok) {
+          const ts = await r.json();
+          setTopics(ts);
+          if (!topicId && ts.length) setTopicId(ts[0].id);
         }
       } catch (err) {
         // ignore
@@ -65,11 +69,26 @@ export default function Chat() {
     return () => socketRef.current && socketRef.current.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (!socketRef.current || !topicId) return;
+    socketRef.current.emit("chat:join", topicId);
+    const load = async () => {
+      try {
+        const hist = await fetch(`/api/chat/history?room_id=${topicId}`);
+        if (hist.ok) setMessages(await hist.json());
+      } catch (err) {
+        // ignore
+      }
+    };
+    load();
+  }, [topicId]);
+
   const sendMessage = () => {
     if (!input || !socketRef.current) return;
     const msg = {
       user: user?.username || "anon",
       body: input,
+      room_id: topicId,
     };
     socketRef.current.emit("chat:send", msg);
     setInput("");
@@ -94,9 +113,46 @@ export default function Chat() {
           <Head>
             <title>Chat</title>
           </Head>
-          <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">
-            Chat
-          </h1>
+          <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">Chat</h1>
+          <div className="flex items-center space-x-2">
+            <select
+              className="input"
+              value={topicId || ""}
+              onChange={(e) => setTopicId(parseInt(e.target.value, 10))}
+            >
+              {topics.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+            <input
+              className="input"
+              placeholder="New topic"
+              value={newTopic}
+              onChange={(e) => setNewTopic(e.target.value)}
+            />
+            <button
+              className="button"
+              onClick={async () => {
+                if (!newTopic.trim()) return;
+                const r = await fetch("/api/chat/topics", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ name: newTopic.trim() }),
+                });
+                if (r.ok) {
+                  const { id } = await r.json();
+                  const t = { id, name: newTopic.trim() };
+                  setTopics((ts) => [...ts, t]);
+                  setTopicId(id);
+                  setNewTopic("");
+                }
+              }}
+            >
+              Create
+            </button>
+          </div>
           <div className="space-y-2">
             {messages.map((m) => (
               <div
