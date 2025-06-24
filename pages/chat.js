@@ -36,6 +36,10 @@ export default function Chat() {
       socket.on('chat:recv', msg => {
         setMessages(m => [...m, msg]);
       });
+
+      socket.on('chat:delete', id => {
+        setMessages(m => m.filter(msg => msg.id !== id));
+      });
     };
     init();
     return () => socketRef.current && socketRef.current.disconnect();
@@ -51,6 +55,12 @@ export default function Chat() {
     setInput('');
   };
 
+  const deleteMessage = id => {
+    if (socketRef.current) {
+      socketRef.current.emit('chat:delete', id);
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-[var(--color-bg)]">
       <Sidebar />
@@ -61,10 +71,20 @@ export default function Chat() {
           <Head><title>Chat</title></Head>
           <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">Chat</h1>
           <div className="space-y-2">
-            {messages.map((m, idx) => (
-              <div key={idx} className="p-2 bg-[var(--color-surface)] rounded-2xl shadow">
-                <span className="font-semibold mr-2">{m.user}:</span>
-                <span>{m.body}</span>
+            {messages.map(m => (
+              <div key={m.id} className="p-2 bg-[var(--color-surface)] rounded-2xl shadow flex justify-between">
+                <div>
+                  <span className="font-semibold mr-2">{m.user}:</span>
+                  <span>{m.body}</span>
+                </div>
+                {user?.username === m.user && (
+                  <button
+                    className="text-red-500 ml-4"
+                    onClick={() => deleteMessage(m.id)}
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
             ))}
           </div>
