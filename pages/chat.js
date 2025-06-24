@@ -4,16 +4,7 @@ import Head from "next/head";
 import { Sidebar } from "../components/Sidebar";
 import { Header } from "../components/Header";
 
-const highlightMentions = (text) =>
-  text.split(/(@[A-Za-z0-9_]+)/g).map((part, i) =>
-    part.startsWith("@") ? (
-      <span key={i} className="text-[var(--color-mention)]">
-        {part}
-      </span>
-    ) : (
-      <span key={i}>{part}</span>
-    ),
-  );
+import { highlightMentions } from "../lib/highlightMentions.js";
 
 const userColor = (name) => {
   let hash = 0;
