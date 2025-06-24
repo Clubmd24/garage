@@ -1,8 +1,19 @@
 // File: pages/api/admin/users/index.js
-import pool        from '../../../../lib/db';
-import { hashPassword } from '../../../../lib/auth';
+import pool from '../../../../lib/db';
+import { hashPassword, getTokenFromReq } from '../../../../lib/auth';
 
 export default async function handler(req, res) {
+  const t = getTokenFromReq(req);
+  if (!t) return res.status(401).json({ error: 'Unauthorized' });
+  const [[roleRow]] = await pool.query(
+    `SELECT r.name FROM user_roles ur
+       JOIN roles r ON ur.role_id = r.id
+     WHERE ur.user_id = ?`,
+    [t.sub]
+  );
+  if (!roleRow || roleRow.name !== 'admin') {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
   if (req.method === 'GET') {
     // return all users + roles
     const [users] = await pool.query(
