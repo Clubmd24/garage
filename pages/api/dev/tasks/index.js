@@ -11,14 +11,23 @@ export default async function handler(req, res) {
     if (!project_id) {
       return res.status(400).json({ error: 'project_id required' });
     }
-    const [tasks] = await pool.query(
-      `SELECT t.*, u.username AS assignee
+    // allow developers (role id 1) to see all tasks
+    const [[role]] = await pool.query(
+      'SELECT role_id FROM user_roles WHERE user_id=?',
+      [userId]
+    );
+    const isDeveloper = role && role.role_id === 1;
+
+    const baseQuery = `SELECT t.*, u.username AS assignee
          FROM dev_tasks t
     LEFT JOIN users u ON t.assigned_to=u.id
-        WHERE t.dev_project_id=? AND t.created_by=?
-     ORDER BY t.created_at DESC`,
-      [project_id, userId]
-    );
+        WHERE t.dev_project_id=?`;
+    const [tasks] = isDeveloper
+      ? await pool.query(`${baseQuery} ORDER BY t.created_at DESC`, [project_id])
+      : await pool.query(
+          `${baseQuery} AND t.created_by=? ORDER BY t.created_at DESC`,
+          [project_id, userId]
+        );
     return res.json(tasks);
   }
 
