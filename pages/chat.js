@@ -11,19 +11,34 @@ export default function Chat() {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    fetch('/api/auth/me', { credentials: 'include' })
-      .then(r => r.ok ? r.json() : null)
-      .then(setUser)
-      .catch(() => null);
+    const init = async () => {
+      try {
+        const r = await fetch('/api/auth/me', { credentials: 'include' });
+        setUser(r.ok ? await r.json() : null);
+      } catch (err) {
+        setUser(null);
+      }
 
-    fetch('/api/socket-io'); // start socket endpoint
-    const socket = window.io({ path: '/api/socket-io' });
-    socketRef.current = socket;
+      try {
+        const hist = await fetch('/api/chat/history');
+        if (hist.ok) {
+          const msgs = await hist.json();
+          setMessages(msgs);
+        }
+      } catch (err) {
+        // ignore
+      }
 
-    socket.on('chat:recv', msg => {
-      setMessages(m => [...m, msg]);
-    });
-    return () => socket.disconnect();
+      await fetch('/api/socket-io'); // start socket endpoint
+      const socket = window.io({ path: '/api/socket-io' });
+      socketRef.current = socket;
+
+      socket.on('chat:recv', msg => {
+        setMessages(m => [...m, msg]);
+      });
+    };
+    init();
+    return () => socketRef.current && socketRef.current.disconnect();
   }, []);
 
   const sendMessage = () => {
