@@ -25,10 +25,18 @@ export default function NewTask() {
 
   // fetch users for “Assign To”
   useEffect(() => {
-    fetch('/api/admin/users', { credentials: 'include' })
-      .then(r => r.json())
-      .then(setUsers)
-      .catch(console.error);
+    async function loadUsers() {
+      try {
+        const r = await fetch('/api/admin/users', { credentials: 'include' });
+        if (!r.ok) throw new Error(`Users fetch failed (${r.status})`);
+        const data = await r.json();
+        setUsers(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error(err);
+        setError('Unable to load users');
+      }
+    }
+    loadUsers();
   }, []);
 
   const handleSubmit = async e => {
