@@ -27,7 +27,7 @@ export default function NewTask() {
   useEffect(() => {
     async function loadUsers() {
       try {
-        const r = await fetch('/api/admin/users', { credentials: 'include' });
+        const r = await fetch('/api/users', { credentials: 'include' });
         if (!r.ok) throw new Error(`Users fetch failed (${r.status})`);
         const data = await r.json();
         setUsers(Array.isArray(data) ? data : []);
