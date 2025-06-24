@@ -8,3 +8,8 @@
    `chmod +x bootstrap_dev_portal.sh && ./bootstrap_dev_portal.sh`
 4. Run migrations: `npm run migrate`
 5. Start dev server: `npm run dev`
+
+## Database
+
+The schema used by the migration script lives in `migrations/garage.sql`.
+This file is the single source of truth for the initial database structure.
