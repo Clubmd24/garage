@@ -76,6 +76,10 @@ export default function Chat() {
 
   const sendMessage = () => {
     if (!input || !socketRef.current) return;
+    if (!topicId) {
+      console.warn("topicId not set; refusing to send message");
+      return;
+    }
     const msg = {
       user: user?.username || "anon",
       body: input,
