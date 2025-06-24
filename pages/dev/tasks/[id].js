@@ -43,9 +43,14 @@ export default function TaskDetail() {
             <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">
               {task.title}
             </h1>
-            <Link href={`/dev/projects/${task.dev_project_id}`} className="text-[var(--color-primary)] hover:underline">
-              &larr; Back to Project
-            </Link>
+            <div className="flex items-center space-x-4">
+              <Link href={`/dev/tasks/${id}/edit`} className="button-secondary">
+                Edit Task
+              </Link>
+              <Link href={`/dev/projects/${task.dev_project_id}`} className="text-[var(--color-primary)] hover:underline">
+                &larr; Back to Project
+              </Link>
+            </div>
           </div>
 
           <Card className="space-y-2">
