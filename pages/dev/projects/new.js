@@ -72,8 +72,8 @@ export default function NewProject() {
                 <button type="submit" className="button" disabled={loading}>
                   {loading ? 'Creating…' : 'Create Project'}
                 </button>
-                <Link href="/dev/projects">
-                  <a className="button-secondary">Cancel</a>
+                <Link href="/dev/projects" className="button-secondary">
+                  Cancel
                 </Link>
               </div>
             </form>
