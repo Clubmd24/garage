@@ -59,8 +59,8 @@ export default function ProjectDetail() {
             <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">
               {project.name}
             </h1>
-            <Link href="/dev/projects">
-              <a className="text-[var(--color-primary)] hover:underline">&larr; Back to Projects</a>
+            <Link href="/dev/projects" className="text-[var(--color-primary)] hover:underline">
+              &larr; Back to Projects
             </Link>
           </div>
 
@@ -70,8 +70,8 @@ export default function ProjectDetail() {
 
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-semibold text-[var(--color-text-primary)]">Tasks</h2>
-            <Link href={`/dev/projects/${id}/tasks/new`}>
-              <a className="button">+ Add Task</a>
+            <Link href={`/dev/projects/${id}/tasks/new`} className="button">
+              + Add Task
             </Link>
           </div>
 
@@ -81,15 +81,13 @@ export default function ProjectDetail() {
             <div className="grid gap-4">
               {tasks.map(t => (
                 <Card key={t.id} className="group relative">
-                  <Link href={`/dev/tasks/${t.id}`}>
-                    <a className="block">
-                      <h3 className="text-xl font-semibold text-[var(--color-text-primary)]">
-                        {t.title}
-                      </h3>
-                      <p className="mt-1 text-[var(--color-text-secondary)]">
-                        Status: {t.status}
-                      </p>
-                    </a>
+                  <Link href={`/dev/tasks/${t.id}`} className="block">
+                    <h3 className="text-xl font-semibold text-[var(--color-text-primary)]">
+                      {t.title}
+                    </h3>
+                    <p className="mt-1 text-[var(--color-text-secondary)]">
+                      Status: {t.status}
+                    </p>
                   </Link>
                   <button
                     onClick={async () => {

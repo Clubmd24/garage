@@ -17,14 +17,14 @@ export default function Projects() {
         <Header/>
         <main className="p-8">
           <h1 className="text-3xl mb-4">Projects</h1>
-          <Link href="/dev/projects/new"><a className="button">+ New Project</a></Link>
+          <Link href="/dev/projects/new" className="button">+ New Project</Link>
           <div className="mt-4 space-y-4">
             {projects.map(p=>(
               <Card key={p.id}>
-                <Link href={`/dev/projects/${p.id}`}><a>
+                <Link href={`/dev/projects/${p.id}`} className="block">
                   <h2 className="font-semibold">{p.name}</h2>
                   <p className="text-sm">{p.description}</p>
-                </a></Link>
+                </Link>
               </Card>
             ))}
           </div>

@@ -153,8 +153,8 @@ export default function NewTask() {
                 >
                   {loading ? 'Creating…' : 'Create Task'}
                 </button>
-                <Link href={`/dev/projects/${id}`}>
-                  <a className="button-secondary">Cancel</a>
+                <Link href={`/dev/projects/${id}`} className="button-secondary">
+                  Cancel
                 </Link>
               </div>
             </form>
