@@ -10,24 +10,33 @@ export default function handler(req, res) {
   if (!res.socket.server.io) {
     const io = new Server(res.socket.server, { path: "/api/socket-io" });
     io.on("connection", (socket) => {
+      socket.on("chat:join", (room) => {
+        if (socket.currentRoom) socket.leave(String(socket.currentRoom));
+        socket.join(String(room));
+        socket.currentRoom = room;
+      });
+
       socket.on("chat:send", async (msg) => {
+        const roomId = msg.room_id || 1;
         const [result] = await pool.execute(
-          "INSERT INTO messages (user, body, s3_key, content_type) VALUES (?,?,?,?)",
-          [msg.user, msg.body, msg.s3_key || null, msg.content_type || null],
+          "INSERT INTO messages (room_id, user, body, s3_key, content_type) VALUES (?,?,?,?,?)",
+          [roomId, msg.user, msg.body, msg.s3_key || null, msg.content_type || null],
         );
-        io.emit("chat:recv", {
+        const full = {
           ...msg,
+          room_id: roomId,
           id: result.insertId,
           created_at: new Date().toISOString(),
           mentions: extractMentions(msg.body),
-        });
+        };
+        io.to(String(roomId)).emit("chat:recv", full);
       });
 
       socket.on("chat:delete", async (id) => {
-        await pool.execute("UPDATE messages SET deleted_at=NOW() WHERE id=?", [
-          id,
-        ]);
-        io.emit("chat:delete", id);
+        await pool.execute("UPDATE messages SET deleted_at=NOW() WHERE id=?", [id]);
+        const [[row]] = await pool.query("SELECT room_id FROM messages WHERE id=?", [id]);
+        const roomId = row ? row.room_id : 1;
+        io.to(String(roomId)).emit("chat:delete", id);
       });
     });
     res.socket.server.io = io;
