@@ -15,6 +15,15 @@ const highlightMentions = (text) =>
     ),
   );
 
+const userColor = (name) => {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const hue = Math.abs(hash) % 360;
+  return `hsl(${hue} 65% 45%)`;
+};
+
 export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -95,7 +104,12 @@ export default function Chat() {
                 className="p-2 bg-[var(--color-surface)] rounded-2xl shadow flex justify-between"
               >
                 <div>
-                  <span className="font-semibold mr-2">{m.user}:</span>
+                  <span
+                    className="font-semibold mr-2"
+                    style={{ color: userColor(m.user) }}
+                  >
+                    {m.user}:
+                  </span>
                   <span>{highlightMentions(m.body)}</span>
                 </div>
                 {user?.username === m.user && (
