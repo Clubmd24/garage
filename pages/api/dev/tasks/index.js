@@ -5,9 +5,12 @@ export default async function handler(req, res) {
   const t = getTokenFromReq(req);
   if (!t) return res.status(401).json({ error: 'Unauthorized' });
   const userId = t.sub;
-  const { project_id } = req.query;
+  const project_id = req.query.project_id || req.body.project_id;
 
   if (req.method === 'GET') {
+    if (!project_id) {
+      return res.status(400).json({ error: 'project_id required' });
+    }
     const [tasks] = await pool.query(
       `SELECT t.*, u.username AS assignee
          FROM dev_tasks t
@@ -20,6 +23,9 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
+    if (!project_id) {
+      return res.status(400).json({ error: 'project_id required' });
+    }
     const { title, description, status, assigned_to, due_date } = req.body;
     const [{ insertId }] = await pool.query(
       `INSERT INTO dev_tasks
