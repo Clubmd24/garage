@@ -59,9 +59,14 @@ export default function ProjectDetail() {
             <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">
               {project.name}
             </h1>
-            <Link href="/dev/projects" className="text-[var(--color-primary)] hover:underline">
-              &larr; Back to Projects
-            </Link>
+            <div className="flex items-center space-x-4">
+              <Link href={`/dev/projects/${id}/edit`} className="button-secondary">
+                Edit Project
+              </Link>
+              <Link href="/dev/projects" className="text-[var(--color-primary)] hover:underline">
+                &larr; Back to Projects
+              </Link>
+            </div>
           </div>
 
           {project.description && (
