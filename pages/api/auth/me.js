@@ -4,9 +4,13 @@ import { getTokenFromReq } from '../../../lib/auth';
 export default async function handler(req, res) {
   const t = getTokenFromReq(req);
   if (!t) return res.status(401).json({ error: 'Unauthorized' });
-  const [user] = await pool.query(
-    'SELECT id, username, email FROM users WHERE id=?',
+  const [rows] = await pool.query(
+    `SELECT u.id, u.username, u.email, r.name AS role
+       FROM users u
+  LEFT JOIN user_roles ur ON u.id = ur.user_id
+  LEFT JOIN roles r ON ur.role_id = r.id
+      WHERE u.id=?`,
     [t.sub]
   );
-  res.status(200).json(user[0]);
+  res.status(200).json(rows[0]);
 }
