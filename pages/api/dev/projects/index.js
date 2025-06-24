@@ -7,14 +7,22 @@ export default async function handler(req, res) {
   const userId = t.sub;
 
   if (req.method === 'GET') {
-    const [projects] = await pool.query(
-      `SELECT p.*, u.username AS creator
-         FROM dev_projects p
-         JOIN users u ON p.created_by = u.id
-       WHERE p.created_by=?
-       ORDER BY p.created_at DESC`,
+    // check role id. role_id 1 should see all projects
+    const [[role]] = await pool.query(
+      'SELECT role_id FROM user_roles WHERE user_id=?',
       [userId]
     );
+    const isDeveloper = role && role.role_id === 1;
+
+    const baseQuery = `SELECT p.*, u.username AS creator
+         FROM dev_projects p
+         JOIN users u ON p.created_by = u.id`;
+    const [projects] = isDeveloper
+      ? await pool.query(`${baseQuery} ORDER BY p.created_at DESC`)
+      : await pool.query(
+          `${baseQuery} WHERE p.created_by=? ORDER BY p.created_at DESC`,
+          [userId]
+        );
     return res.json(projects);
   }
 
