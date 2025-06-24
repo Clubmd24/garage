@@ -1,4 +1,5 @@
 export default function handler(req, res) {
-  res.setHeader('Set-Cookie', 'auth_token=; HttpOnly; Path=/; Max-Age=0');
+  const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+  res.setHeader('Set-Cookie', `auth_token=; HttpOnly; Path=/; Max-Age=0${secure}`);
   res.status(200).json({ ok:true });
 }
