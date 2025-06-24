@@ -23,5 +23,5 @@
 }
 
 /* Component utils */
-.input { @apply bg-[var(--color-input-bg)] text-[var(--color-text-primary)] rounded-2xl p-3 focus:outline-none focus:ring-4 focus:ring-[var(--color-primary-light)]; }
+.input { @apply bg-[var(--color-input-bg)] text-[var(--color-text-primary)] rounded-2xl p-3 border shadow-sm focus:outline-none focus:ring focus:ring-[var(--color-primary-light)]; }
 .button { @apply bg-[var(--color-primary)] text-white rounded-full py-3 shadow-xl hover:bg-[var(--color-primary-light)] transition; }
