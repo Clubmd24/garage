@@ -10,7 +10,8 @@ async function runMigrations() {
     process.exit(1);
   }
   const sql = fs.readFileSync(path.resolve('./migrations/garage.sql'), 'utf8');
-  const conn = await mysql.createConnection(url);
+  // Ensure multiple statements are allowed like in lib/db.js
+  const conn = await mysql.createConnection(url + '?multipleStatements=true');
   try {
     console.log('Running migrations...');
     await conn.query(sql);
