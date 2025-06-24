@@ -50,8 +50,7 @@ CREATE TABLE IF NOT EXISTS embeddings (
   doc_title VARCHAR(200),
   chunk_no INT,
   txt TEXT,
-  vec VECTOR(1536) NOT NULL,
-  INDEX vss_idx (vec) USING VSS
+  vec BLOB NOT NULL
 );
 EOF
 
