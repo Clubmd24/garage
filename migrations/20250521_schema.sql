@@ -45,8 +45,10 @@ CREATE TABLE IF NOT EXISTS messages (
   deleted_at TIMESTAMP NULL
 );
 
+-- Ensure the room foreign key is only added once
 ALTER TABLE messages
-  ADD CONSTRAINT fk_messages_room FOREIGN KEY (room_id) REFERENCES chat_rooms(id);
+  ADD CONSTRAINT IF NOT EXISTS fk_messages_room
+  FOREIGN KEY (room_id) REFERENCES chat_rooms(id);
 
 CREATE TABLE IF NOT EXISTS embeddings (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
