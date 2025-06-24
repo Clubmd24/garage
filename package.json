@@ -21,9 +21,9 @@
     "cookie": "^1.0.2",
     "jsonwebtoken": "^9.0.0",
     "mysql2": "^3.14.1",
-    "next": "latest",
-    "react": "latest",
-    "react-dom": "latest",
+    "next": "13.x",
+    "react": "18.x",
+    "react-dom": "18.x",
     "socket.io": "^4.7.5"
   },
   "devDependencies": {
