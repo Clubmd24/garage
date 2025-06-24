@@ -3,7 +3,7 @@ import pool from "../../lib/db";
 
 const extractMentions = (body) =>
   Array.from(
-    new Set((body.match(/@([A-Za-z0-9_]+)/g) || []).map((m) => m.slice(1))),
+    new Set((body.match(/@([\w.-]+)/g) || []).map((m) => m.slice(1))),
   );
 
 export default function handler(req, res) {
