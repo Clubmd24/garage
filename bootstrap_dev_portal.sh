@@ -5,7 +5,7 @@ echo "🛠  Bootstrapping Dev Portal..."
 
 # 1) Migrations
 mkdir -p migrations
-cat > migrations/20250521_schema.sql <<'EOF'
+cat > migrations/garage.sql <<'EOF'
 -- Dev Portal schema
 
 CREATE TABLE IF NOT EXISTS dev_projects (
