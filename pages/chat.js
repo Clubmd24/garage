@@ -22,6 +22,7 @@ export default function Chat() {
   const [newTopic, setNewTopic] = useState("");
   const [input, setInput] = useState("");
   const [user, setUser] = useState(null);
+  const [socketReady, setSocketReady] = useState(false);
   const socketRef = useRef(null);
 
   useEffect(() => {
@@ -47,6 +48,7 @@ export default function Chat() {
       await fetch("/api/socket-io"); // start socket endpoint
       const socket = window.io({ path: "/api/socket-io" });
       socketRef.current = socket;
+      setSocketReady(true);
 
       socket.on("chat:recv", (msg) => {
         setMessages((m) => [...m, msg]);
@@ -61,7 +63,7 @@ export default function Chat() {
   }, []);
 
   useEffect(() => {
-    if (!socketRef.current || !topicId) return;
+    if (!socketReady || !socketRef.current || !topicId) return;
     socketRef.current.emit("chat:join", topicId);
     const load = async () => {
       try {
@@ -72,7 +74,7 @@ export default function Chat() {
       }
     };
     load();
-  }, [topicId]);
+  }, [topicId, socketReady]);
 
   const sendMessage = () => {
     if (!input || !socketRef.current) return;
