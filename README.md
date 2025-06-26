@@ -6,12 +6,14 @@
 2. Install dependencies: `npm install`
 3. Make the bootstrap script executable and run it to scaffold the portal:
    `chmod +x bootstrap_dev_portal.sh && ./bootstrap_dev_portal.sh`
-4. Run migrations (this will also create the `clients` table): `npm run migrate`
-5. If upgrading from an earlier version, apply `migrations/20250701_extend_clients.sql`
-   to add new client columns before starting the app.
-6. Start dev server: `npm run dev`
+4. Run migrations: `npm run migrate`
+   - This command executes every `.sql` file in the `migrations/` directory in
+     order and records which have been run.
+   - Running the script again safely skips already-applied migrations.
+5. Start dev server: `npm run dev`
 
 ## Database
 
-The schema used by the migration script lives in `migrations/garage.sql`.
-This file is the single source of truth for the initial database structure.
+All database schema changes are stored as `.sql` files in the `migrations/`
+directory. The migration script executes them sequentially and records the
+results so it can be run repeatedly without errors.
