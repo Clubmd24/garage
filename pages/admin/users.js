@@ -11,16 +11,33 @@ export default function Users() {
   const [users, setUsers] = useState([]);
   const [form, setForm] = useState({ username: '', email: '', password: '', role: 'developer' });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const loadUsers = async () => {
     try {
       const res = await fetch('/api/auth/me', { credentials: 'include' });
-      if (!res.ok) throw new Error('Unauthorized');
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          setError('Access denied');
+          return;
+        }
+        throw new Error(`Auth error: ${res.status}`);
+      }
+
       const usersRes = await fetch('/api/admin/users', { credentials: 'include' });
-      if (!usersRes.ok) throw new Error('Failed to load users');
+      if (!usersRes.ok) {
+        if (usersRes.status === 401 || usersRes.status === 403) {
+          setError('Access denied');
+          return;
+        }
+        throw new Error(`Failed to load users: ${usersRes.status}`);
+      }
+
       const data = await usersRes.json();
       setUsers(data);
+      setError('');
     } catch (err) {
+      setError(err.message);
       router.replace('/login');
     }
   };
@@ -73,6 +90,11 @@ export default function Users() {
           <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">
             User Management
           </h1>
+          {error && (
+            <p className="text-red-600 font-semibold" data-testid="error-message">
+              {error}
+            </p>
+          )}
 
           <Card>
             <h2 className="text-xl font-semibold text-[var(--color-text-primary)] mb-4">
