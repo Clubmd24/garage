@@ -1,11 +1,71 @@
-import React from 'react';
+// pages/office/clients/index.js
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { Layout } from '@/components/Layout';
+import { fetchClients } from '@/lib/clients';
 
-const ClientsPage = () => (
-  <Layout>
-    <h1 className="text-xl font-semibold">Clients</h1>
-    {/* TODO: Fetch and display client list */}
-  </Layout>
-);
+const ClientsPage = () => {
+  const [clients, setClients] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const load = () => {
+    setLoading(true);
+    fetchClients()
+      .then(setClients)
+      .catch(() => setError('Failed to load clients'))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(load, []);
+
+  const handleDelete = async id => {
+    if (!confirm('Delete this client?')) return;
+    await fetch(`/api/clients/${id}`, { method: 'DELETE' });
+    load();
+  };
+
+  return (
+    <Layout>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-semibold">Clients</h1>
+        <Link href="/office/clients/new">
+          <a className="btn">+ New Client</a>
+        </Link>
+      </div>
+      {loading && <p>Loading…</p>}
+      {error && <p className="text-red-500">{error}</p>}
+      {!loading && !error && (
+        <table className="min-w-full bg-white border">
+          <thead>
+            <tr>
+              <th className="px-4 py-2 border">Name</th>
+              <th className="px-4 py-2 border">Email</th>
+              <th className="px-4 py-2 border">Phone</th>
+              <th className="px-4 py-2 border">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {clients.map(c => (
+              <tr key={c.id}>
+                <td className="px-4 py-2 border">{c.name}</td>
+                <td className="px-4 py-2 border">{c.email}</td>
+                <td className="px-4 py-2 border">{c.phone}</td>
+                <td className="px-4 py-2 border">
+                  <Link href={`/office/clients/${c.id}`}>
+                    <a className="mr-2 underline">Edit</a>
+                  </Link>
+                  <button onClick={() => handleDelete(c.id)} className="underline text-red-600">
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </Layout>
+  );
+};
 
 export default ClientsPage;
