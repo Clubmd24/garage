@@ -85,6 +85,17 @@ export default function ProjectDetail() {
     e.target.value = '';
   }
 
+  async function handleDelete() {
+    if (!confirm('Delete this project?')) return;
+    const r = await fetch(`/api/dev/projects/${id}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    });
+    if (r.ok) {
+      router.push('/dev/projects');
+    }
+  }
+
   if (error) {
     return <p className="p-8 text-red-500">Error: {error}</p>;
   }
@@ -104,14 +115,17 @@ export default function ProjectDetail() {
             <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">
               {project.name}
             </h1>
-            <div className="flex items-center space-x-4">
-              <Link href={`/dev/projects/${id}/edit`} className="button-secondary">
-                Edit Project
-              </Link>
-              <Link href="/dev/projects" className="text-[var(--color-primary)] hover:underline">
-                &larr; Back to Projects
-              </Link>
-            </div>
+          <div className="flex items-center space-x-4">
+            <Link href={`/dev/projects/${id}/edit`} className="button-secondary">
+              Edit Project
+            </Link>
+            <button onClick={handleDelete} className="text-red-500 hover:underline">
+              Delete Project
+            </button>
+            <Link href="/dev/projects" className="text-[var(--color-primary)] hover:underline">
+              &larr; Back to Projects
+            </Link>
+          </div>
           </div>
 
           {project.description && (
