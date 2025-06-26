@@ -41,11 +41,11 @@ export default async function handler(req, res) {
   const params = isDeveloper ? [] : [userId, userId];
   const [projects] = await pool.query(projectQuery, params);
 
-  // Important announcements tagged with @dashboard
+  // Important announcements flagged as important
   const [announcements] = await pool.query(
     `SELECT id, user, body, s3_key, content_type, created_at
        FROM messages
-      WHERE deleted_at IS NULL AND body LIKE '%@dashboard%'
+      WHERE deleted_at IS NULL AND is_important=1
       ORDER BY created_at DESC
       LIMIT 20`
   );
