@@ -1,5 +1,5 @@
 // pages/api/clients/[id].js
-import { getClientById, updateClient, deleteClient } from '@/services/clientsService';
+import { getClientById, updateClient, deleteClient } from '../../../services/clientsService';
 
 export default async function handler(req, res) {
   const { id } = req.query;

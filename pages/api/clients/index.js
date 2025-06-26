@@ -1,5 +1,5 @@
 // pages/api/clients/index.js
-import { getAllClients, createClient } from '@/services/clientsService';
+import { getAllClients, createClient } from '../../../services/clientsService';
 
 export default async function handler(req, res) {
   try {
