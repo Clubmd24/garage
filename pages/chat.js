@@ -6,6 +6,8 @@ import { Header } from "../components/Header";
 
 import { highlightMentions } from "../lib/highlightMentions.js";
 
+const S3_BASE_URL = `https://${process.env.NEXT_PUBLIC_S3_BUCKET}.s3.${process.env.NEXT_PUBLIC_AWS_REGION}.amazonaws.com`;
+
 const userColor = (name) => {
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
@@ -21,6 +23,7 @@ export default function Chat() {
   const [topicId, setTopicId] = useState(null);
   const [newTopic, setNewTopic] = useState("");
   const [input, setInput] = useState("");
+  const [file, setFile] = useState(null);
   const [user, setUser] = useState(null);
   const [socketReady, setSocketReady] = useState(false);
   const socketRef = useRef(null);
@@ -76,19 +79,46 @@ export default function Chat() {
     load();
   }, [topicId, socketReady]);
 
-  const sendMessage = () => {
-    if (!input || !socketRef.current) return;
+  const sendMessage = async () => {
+    if (!input && !file) return;
+    if (!socketRef.current) return;
     if (!topicId) {
       console.warn("topicId not set; refusing to send message");
       return;
     }
+    let s3Key = null;
+    let contentType = null;
+    if (file) {
+      try {
+        const r = await fetch('/api/chat/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contentType: file.type }),
+        });
+        if (r.ok) {
+          const { url, key } = await r.json();
+          await fetch(url, {
+            method: 'PUT',
+            body: file,
+            headers: { 'Content-Type': file.type },
+          });
+          s3Key = key;
+          contentType = file.type;
+        }
+      } catch (err) {
+        console.error('upload error', err);
+      }
+    }
     const msg = {
-      user: user?.username || "anon",
+      user: user?.username || 'anon',
       body: input,
       room_id: topicId,
+      s3_key: s3Key,
+      content_type: contentType,
     };
-    socketRef.current.emit("chat:send", msg);
-    setInput("");
+    socketRef.current.emit('chat:send', msg);
+    setInput('');
+    setFile(null);
   };
 
   const deleteMessage = (id) => {
@@ -164,6 +194,24 @@ export default function Chat() {
                     {m.user}:
                   </span>
                   <span>{highlightMentions(m.body)}</span>
+                  {m.s3_key && (
+                    m.content_type && m.content_type.startsWith('image/') ? (
+                      <img
+                        src={`${S3_BASE_URL}/${m.s3_key}`}
+                        alt="uploaded"
+                        className="mt-2 max-w-xs"
+                      />
+                    ) : (
+                      <a
+                        href={`${S3_BASE_URL}/${m.s3_key}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block mt-2 text-blue-500 underline"
+                      >
+                        {m.s3_key.split('/').pop()}
+                      </a>
+                    )
+                  )}
                 </div>
                 {user?.username === m.user && (
                   <button
@@ -185,6 +233,11 @@ export default function Chat() {
                 if (e.key === "Enter") sendMessage();
               }}
               placeholder="Type a message..."
+            />
+            <input
+              type="file"
+              className="input"
+              onChange={(e) => setFile(e.target.files[0])}
             />
             <button className="button" onClick={sendMessage}>
               Send
