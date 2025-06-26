@@ -11,12 +11,12 @@ export function Sidebar() {
   }, []);
 
   return (
-    <nav className="w-64 bg-[var(--color-surface)] h-screen p-4 space-y-2">
-      <a href="/" className="block font-bold mb-4">Garage Vision</a>
-      <a href="/dev/projects" className="block hover:underline">Dev → Projects</a>
-      <a href="/chat" className="block hover:underline">Dev → Chat</a>
+    <nav className="w-64 bg-[var(--color-surface)] h-screen p-4 space-y-4 text-[var(--color-text-primary)]">
+      <a href="/" className="block font-bold mb-4 text-center">Garage Vision</a>
+      <a href="/dev/projects" className="button block text-center w-full">Dev → Projects</a>
+      <a href="/chat" className="button block text-center w-full">Dev → Chat</a>
       {(userRole === 'admin' || userRole === 'developer') && (
-        <a href="/admin/users" className="block hover:underline">Admin → Users</a>
+        <a href="/admin/users" className="button block text-center w-full">Admin → Users</a>
       )}
     </nav>
   );
