@@ -18,9 +18,10 @@ export default function handler(req, res) {
 
       socket.on("chat:send", async (msg) => {
         const roomId = msg.room_id || 1;
+        const isImportant = msg.body && msg.body.includes("@dashboard");
         const [result] = await pool.execute(
-          "INSERT INTO messages (room_id, user, body, s3_key, content_type) VALUES (?,?,?,?,?)",
-          [roomId, msg.user, msg.body, msg.s3_key || null, msg.content_type || null],
+          "INSERT INTO messages (room_id, user, body, s3_key, content_type, is_important) VALUES (?,?,?,?,?,?)",
+          [roomId, msg.user, msg.body, msg.s3_key || null, msg.content_type || null, isImportant],
         );
         const full = {
           ...msg,
@@ -28,6 +29,7 @@ export default function handler(req, res) {
           id: result.insertId,
           created_at: new Date().toISOString(),
           mentions: extractMentions(msg.body),
+          is_important: isImportant,
         };
         io.to(String(roomId)).emit("chat:recv", full);
       });
