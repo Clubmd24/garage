@@ -128,9 +128,9 @@ export default function Chat() {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="min-h-screen flex flex-col sm:flex-row">
       <Sidebar />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-y-auto">
         <Header />
         <Script
           src="/api/socket-io/socket.io.js"

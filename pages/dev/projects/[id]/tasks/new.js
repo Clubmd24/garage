@@ -70,9 +70,9 @@ export default function NewTask() {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="min-h-screen flex flex-col sm:flex-row">
       <Sidebar />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-y-auto">
         <Header />
         <main className="p-8">
           <Head><title>New Task</title></Head>
