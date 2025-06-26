@@ -39,19 +39,19 @@ const ClientsPage = () => {
         <table className="min-w-full bg-white border">
           <thead>
             <tr>
-              <th className="px-4 py-2 border">Name</th>
-              <th className="px-4 py-2 border">Email</th>
-              <th className="px-4 py-2 border">Phone</th>
-              <th className="px-4 py-2 border">Actions</th>
+              <th className="px-4 py-2 border text-black">Name</th>
+              <th className="px-4 py-2 border text-black">Email</th>
+              <th className="px-4 py-2 border text-black">Phone</th>
+              <th className="px-4 py-2 border text-black">Actions</th>
             </tr>
           </thead>
           <tbody>
             {clients.map(c => (
               <tr key={c.id}>
-                <td className="px-4 py-2 border">{c.name}</td>
-                <td className="px-4 py-2 border">{c.email}</td>
-                <td className="px-4 py-2 border">{c.phone}</td>
-                <td className="px-4 py-2 border">
+                <td className="px-4 py-2 border text-black">{c.name}</td>
+                <td className="px-4 py-2 border text-black">{c.email}</td>
+                <td className="px-4 py-2 border text-black">{c.phone}</td>
+                <td className="px-4 py-2 border text-black">
                   <Link href={`/office/clients/${c.id}`}>
                     <a className="mr-2 underline">Edit</a>
                   </Link>
