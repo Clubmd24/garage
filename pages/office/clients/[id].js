@@ -1,7 +1,7 @@
 // pages/office/clients/[id].js
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Layout } from '@/components/Layout';
+import { Layout } from '../../../components/Layout';
 
 const EditClientPage = () => {
   const { id } = useRouter().query;

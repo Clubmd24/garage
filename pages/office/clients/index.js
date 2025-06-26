@@ -1,8 +1,8 @@
 // pages/office/clients/index.js
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Layout } from '@/components/Layout';
-import { fetchClients } from '@/lib/clients';
+import { Layout } from '../../../components/Layout';
+import { fetchClients } from '../../../lib/clients';
 
 const ClientsPage = () => {
   const [clients, setClients] = useState([]);
