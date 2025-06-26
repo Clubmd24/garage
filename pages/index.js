@@ -2,7 +2,33 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
-import { Users, Briefcase, MessageCircle } from 'lucide-react';
+
+// Inline SVG icons
+function UsersIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" className="mb-2">
+      <circle cx="12" cy="8" r="4" />
+      <path d="M6 20c0-4 4-6 6-6s6 2 6 6" />
+    </svg>
+  );
+}
+
+function ProjectsIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" className="mb-2">
+      <path d="M2 7h20v14H2z" />
+      <path d="M22 7V5a2 2 0 0 0-2-2h-4V1H8v2H4a2 2 0 0 0-2 2v2h20z" />
+    </svg>
+  );
+}
+
+function ChatIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" className="mb-2">
+      <path d="M2 2h20v14H6l-4 4z" />
+    </svg>
+  );
+}
 
 // Custom hook to fetch current user
 function useCurrentUser() {
@@ -33,7 +59,7 @@ function DashboardCard({ href, title, Icon }) {
       href={href}
       className="flex flex-col items-center justify-center bg-gradient-to-r from-blue-500 to-blue-400 text-white font-bold rounded-full py-6 px-6 shadow-2xl transform hover:scale-105 transition-transform duration-300"
     >
-      <Icon size={32} className="mb-2" />
+      <Icon />
       <span className="text-lg">{title}</span>
     </Link>
   );
@@ -78,9 +104,9 @@ export default function Home() {
         <h1 className="text-6xl font-bold tracking-tight">Garage Vision</h1>
         <p className="text-xl opacity-90">Welcome, {user.username}!</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-xl">
-          <DashboardCard href="/admin/users" title="User Setup" Icon={Users} />
-          <DashboardCard href="/dev/projects" title="Projects" Icon={Briefcase} />
-          <DashboardCard href="/chat" title="Dev Chat" Icon={MessageCircle} />
+          <DashboardCard href="/admin/users" title="User Setup" Icon={UsersIcon} />
+          <DashboardCard href="/dev/projects" title="Projects" Icon={ProjectsIcon} />
+          <DashboardCard href="/chat" title="Dev Chat" Icon={ChatIcon} />
         </div>
         <button
           onClick={handleLogout}
