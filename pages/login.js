@@ -49,12 +49,10 @@ export default function Login() {
       // Fetch user info to determine role, then route accordingly
       const meRes = await fetch('/api/auth/me', { credentials: 'include' });
       if (meRes.ok) {
-        const me = await meRes.json();
-        const dest = me.role?.toLowerCase() === 'admin' ? '/admin/users' : '/dev/projects';
-        router.push(dest);
+        await meRes.json();
+        router.push('/');
       } else {
-        // default to developer portal if role cannot be fetched
-        router.push('/dev/projects');
+        router.push('/');
       }
     } catch (err) {
       setError(err.message);
