@@ -54,7 +54,7 @@ const NewClientPage = () => {
           'post_code',
         ].map(field => (
           <div key={field}>
-            <label className="block mb-1">{field.replace('_',' ').replace(/\b\w/g,c=>c.toUpperCase())}</label>
+            <label className="block mb-1">{field.replace('_',' ').replace(/\b\w/g, c => c.toUpperCase())}</label>
             <input
               name={field}
               value={form[field]}
