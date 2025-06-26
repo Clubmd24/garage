@@ -1,7 +1,7 @@
 // pages/office/clients/new.js
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import { Layout } from '@/components/Layout';
+import { Layout } from '../../../components/Layout';
 
 const NewClientPage = () => {
   const [form, setForm] = useState({ name: '', email: '', phone: '' });
