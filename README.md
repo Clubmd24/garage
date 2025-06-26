@@ -6,7 +6,7 @@
 2. Install dependencies: `npm install`
 3. Make the bootstrap script executable and run it to scaffold the portal:
    `chmod +x bootstrap_dev_portal.sh && ./bootstrap_dev_portal.sh`
-4. Run migrations: `npm run migrate`
+4. Run migrations (this will also create the `clients` table): `npm run migrate`
 5. Start dev server: `npm run dev`
 
 ## Database
