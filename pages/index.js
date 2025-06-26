@@ -31,6 +31,14 @@ function ChatIcon() {
   );
 }
 
+function DashboardIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" className="mb-2">
+      <path d="M3 13h8V3H3v10zM13 21h8V11h-8v10zM3 21h8v-6H3v6zM13 3v6h8V3h-8z" />
+    </svg>
+  );
+}
+
 // Custom hook to fetch current user
 function useCurrentUser() {
   const [user, setUser] = useState(null);
@@ -109,6 +117,7 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-xl">
           <DashboardCard href="/admin/users" title="User Setup" Icon={UsersIcon} />
           <DashboardCard href="/dev/projects" title="Projects" Icon={ProjectsIcon} />
+          <DashboardCard href="/dev/dashboard" title="Dashboard" Icon={DashboardIcon} />
           <DashboardCard href="/chat" title="Dev Chat" Icon={ChatIcon} />
         </div>
         <button
