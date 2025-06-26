@@ -36,6 +36,6 @@
 }
 
 body {
-  @apply bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700;
+  @apply bg-[var(--color-bg)] dark:bg-gradient-to-br dark:from-blue-900 dark:via-blue-800 dark:to-blue-700;
   color: var(--color-text-primary);
 }
