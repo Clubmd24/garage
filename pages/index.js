@@ -39,6 +39,14 @@ function DashboardIcon() {
   );
 }
 
+function OfficeIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" className="mb-2">
+      <path d="M4 22h16V2H4v20zm5-5h6v5H9v-5z" />
+    </svg>
+  );
+}
+
 // Custom hook to fetch current user
 function useCurrentUser() {
   const [user, setUser] = useState(null);
@@ -119,6 +127,7 @@ export default function Home() {
           <DashboardCard href="/dev/projects" title="Projects" Icon={ProjectsIcon} />
           <DashboardCard href="/dev/dashboard" title="Dashboard" Icon={DashboardIcon} />
           <DashboardCard href="/chat" title="Dev Chat" Icon={ChatIcon} />
+          <DashboardCard href="/office" title="Office" Icon={OfficeIcon} />
         </div>
         <button
           onClick={handleLogout}
