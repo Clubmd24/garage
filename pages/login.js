@@ -66,7 +66,8 @@ export default function Login() {
       <Head>
         <title>Login - Garage Vision</title>
       </Head>
-      <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)] dark:bg-[var(--color-bg)]">
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <img src="/logo.png" alt="Garage Vision Logo" width={120} height={120} className="mb-6 rounded-full shadow-lg" />
         <div className="absolute top-4 right-4">
           <button
             onClick={toggleTheme}

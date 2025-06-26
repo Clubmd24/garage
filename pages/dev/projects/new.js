@@ -38,7 +38,7 @@ export default function NewProject() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[var(--color-bg)]">
+    <div className="flex min-h-screen">
       <Sidebar />
       <div className="flex-1 flex flex-col">
         <Header />

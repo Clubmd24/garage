@@ -16,8 +16,11 @@ export function Header() {
     }
   }
   return (
-    <header className="bg-[var(--color-primary)] text-white p-4 flex justify-between items-center">
-      <div>Dev Portal</div>
+    <header className="bg-gradient-to-r from-blue-600 to-blue-500 text-white p-4 flex justify-between items-center shadow-lg">
+      <div className="flex items-center space-x-3">
+        <img src="/logo.png" alt="Garage Vision Logo" className="w-8 h-8 rounded-full" />
+        <span className="font-bold text-lg">Garage Vision</span>
+      </div>
       {user && (
         <div className="flex items-center space-x-4">
           <span>{user.username}</span>
