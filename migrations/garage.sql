@@ -53,3 +53,16 @@ CREATE TABLE IF NOT EXISTS embeddings (
   txt TEXT,
   vec BLOB NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS task_files (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  task_id INT DEFAULT NULL,
+  project_id INT DEFAULT NULL,
+  s3_key VARCHAR(256) NOT NULL,
+  content_type VARCHAR(100),
+  uploaded_by INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (task_id) REFERENCES dev_tasks(id) ON DELETE CASCADE,
+  FOREIGN KEY (project_id) REFERENCES dev_projects(id) ON DELETE CASCADE,
+  FOREIGN KEY (uploaded_by) REFERENCES users(id)
+);
