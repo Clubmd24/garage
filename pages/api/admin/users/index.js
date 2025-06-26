@@ -11,7 +11,7 @@ export default async function handler(req, res) {
      WHERE ur.user_id = ?`,
     [t.sub]
   );
-  if (!roleRow || roleRow.name !== 'admin') {
+  if (!roleRow || !['admin', 'developer'].includes(roleRow.name)) {
     return res.status(403).json({ error: 'Forbidden' });
   }
   if (req.method === 'GET') {

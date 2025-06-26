@@ -15,7 +15,7 @@ export function Sidebar() {
       <a href="/" className="block font-bold mb-4 text-center">Garage Vision</a>
       <a href="/dev/projects" className="button block text-center w-full">Dev → Projects</a>
       <a href="/chat" className="button block text-center w-full">Dev → Chat</a>
-      {userRole === 'admin' && (
+      {['admin', 'developer'].includes(userRole) && (
         <a href="/admin/users" className="button block text-center w-full">Admin → Users</a>
       )}
     </nav>
