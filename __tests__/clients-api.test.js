@@ -8,7 +8,7 @@ afterEach(() => {
 // GET /clients success
 
 test('clients index returns list of clients', async () => {
-  const clients = [{ id: 1, name: 'Alice' }];
+  const clients = [{ id: 1, first_name: 'Alice', last_name: 'A' }];
   const getAllMock = jest.fn().mockResolvedValue(clients);
   jest.unstable_mockModule('../services/clientsService.js', () => ({
     getAllClients: getAllMock,
@@ -25,14 +25,18 @@ test('clients index returns list of clients', async () => {
 
 
 test('clients index creates client', async () => {
-  const newClient = { id: 2, name: 'Bob' };
+  const newClient = { id: 2, first_name: 'Bob' };
   const createMock = jest.fn().mockResolvedValue(newClient);
   jest.unstable_mockModule('../services/clientsService.js', () => ({
     getAllClients: jest.fn(),
     createClient: createMock,
   }));
   const { default: handler } = await import('../pages/api/clients/index.js');
-  const req = { method: 'POST', body: { name: 'Bob' }, headers: {} };
+  const req = {
+    method: 'POST',
+    body: { first_name: 'Bob' },
+    headers: {},
+  };
   const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn(), end: jest.fn() };
   await handler(req, res);
   expect(res.status).toHaveBeenCalledWith(201);
@@ -75,7 +79,7 @@ test('clients index handles errors', async () => {
 
 
 test('client detail returns client by id', async () => {
-  const client = { id: 1, name: 'Alice' };
+  const client = { id: 1, first_name: 'Alice' };
   const getMock = jest.fn().mockResolvedValue(client);
   jest.unstable_mockModule('../services/clientsService.js', () => ({
     getClientById: getMock,
@@ -101,7 +105,12 @@ test('client update returns updated data', async () => {
     deleteClient: jest.fn(),
   }));
   const { default: handler } = await import('../pages/api/clients/[id].js');
-  const req = { method: 'PUT', query: { id: '2' }, body: { name: 'Bob' }, headers: {} };
+  const req = {
+    method: 'PUT',
+    query: { id: '2' },
+    body: { first_name: 'Bob' },
+    headers: {},
+  };
   const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn(), end: jest.fn() };
   await handler(req, res);
   expect(res.status).toHaveBeenCalledWith(200);

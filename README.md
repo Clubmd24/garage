@@ -7,7 +7,9 @@
 3. Make the bootstrap script executable and run it to scaffold the portal:
    `chmod +x bootstrap_dev_portal.sh && ./bootstrap_dev_portal.sh`
 4. Run migrations (this will also create the `clients` table): `npm run migrate`
-5. Start dev server: `npm run dev`
+5. If upgrading from an earlier version, apply `migrations/20250701_extend_clients.sql`
+   to add new client columns before starting the app.
+6. Start dev server: `npm run dev`
 
 ## Database
 
