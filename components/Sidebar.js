@@ -46,6 +46,9 @@ export function Sidebar() {
         <a href="/dev/projects" {...linkProps}>
           Dev → Projects
         </a>
+        <a href="/dev/dashboard" {...linkProps}>
+          Dev → Dashboard
+        </a>
         <a href="/chat" {...linkProps}>
           Dev → Chat
         </a>
