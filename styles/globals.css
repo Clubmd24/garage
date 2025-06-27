@@ -38,7 +38,11 @@
 }
 
 .item-card {
-  @apply bg-[var(--color-surface)] rounded-2xl shadow p-4;
+  @apply bg-white rounded-2xl p-4 shadow;
+}
+
+.action-buttons button {
+  @apply bg-blue-600 text-white rounded-full shadow px-4 py-2 hover:bg-blue-700;
 }
 
 body {
