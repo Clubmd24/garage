@@ -207,6 +207,7 @@ export default function Chat() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="block mt-2 text-blue-500 underline"
+                        download
                       >
                         {m.s3_key.split('/').pop()}
                       </a>
