@@ -42,15 +42,21 @@ const ClientsPage = () => {
               <th className="px-4 py-2 border text-black">Name</th>
               <th className="px-4 py-2 border text-black">Email</th>
               <th className="px-4 py-2 border text-black">Mobile</th>
+              <th className="px-4 py-2 border text-black">NIE Number</th>
+              <th className="px-4 py-2 border text-black">Street Address</th>
+              <th className="px-4 py-2 border text-black">Post Code</th>
               <th className="px-4 py-2 border text-black">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {clients.map(c => (
+              {clients.map(c => (
               <tr key={c.id}>
                 <td className="px-4 py-2 border text-black">{`${c.first_name || ''} ${c.last_name || ''}`.trim()}</td>
                 <td className="px-4 py-2 border text-black">{c.email}</td>
                 <td className="px-4 py-2 border text-black">{c.mobile}</td>
+                <td className="px-4 py-2 border text-black">{c.nie_number}</td>
+                <td className="px-4 py-2 border text-black">{c.street_address}</td>
+                <td className="px-4 py-2 border text-black">{c.post_code}</td>
                 <td className="px-4 py-2 border text-black">
                   <Link href={`/office/clients/${c.id}`}>
                     <a className="mr-2 underline">Edit</a>
