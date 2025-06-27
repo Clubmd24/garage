@@ -36,6 +36,8 @@
 }
 
 body {
-  @apply bg-[var(--color-bg)] dark:bg-gradient-to-br dark:from-blue-900 dark:via-blue-800 dark:to-blue-700;
-  color: var(--color-text-primary);
+  /* Use a gradient background regardless of theme */
+  background-image: linear-gradient(to bottom right, #0f172a, #1e3a8a);
+  /* Light text ensures readability on the dark gradient */
+  color: #e2e8f0;
 }
