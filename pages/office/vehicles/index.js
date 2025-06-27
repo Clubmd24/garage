@@ -43,7 +43,7 @@ const VehiclesPage = () => {
           + New Vehicle
         </Link>
       </div>
-      <Link href="/office" className="underline block mb-4">
+      <Link href="/office" className="button inline-block mb-4">
         Return to Office
       </Link>
       {loading && <p>Loading…</p>}

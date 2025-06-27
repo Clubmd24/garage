@@ -44,7 +44,7 @@ const ClientsPage = () => {
           + New Client
         </Link>
       </div>
-      <Link href="/office" className="underline block mb-4">Return to Office</Link>
+      <Link href="/office" className="button inline-block mb-4">Return to Office</Link>
       {loading && <p>Loading…</p>}
       {error && <p className="text-red-500">{error}</p>}
       {!loading && !error && (
