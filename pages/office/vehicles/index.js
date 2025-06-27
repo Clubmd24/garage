@@ -39,9 +39,9 @@ const VehiclesPage = () => {
     <Layout>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-semibold">Vehicles</h1>
-        <Link href="/office/vehicles/new">
-          <a className="btn">+ New Vehicle</a>
-        </Link>
+          <Link href="/office/vehicles/new">
+            <a className="button">+ New Vehicle</a>
+          </Link>
       </div>
       {loading && <p>Loading…</p>}
       {error && <p className="text-red-500">{error}</p>}

@@ -90,7 +90,7 @@ const NewClientPage = () => {
             />
           </div>
         ))}
-        <button type="submit" className="btn">Save</button>
+          <button type="submit" className="button">Save</button>
       </form>
     </Layout>
   );

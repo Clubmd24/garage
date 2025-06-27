@@ -40,9 +40,9 @@ const ClientsPage = () => {
     <Layout>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-semibold">Clients</h1>
-        <Link href="/office/clients/new">
-          <a className="btn">+ New Client</a>
-        </Link>
+          <Link href="/office/clients/new">
+            <a className="button">+ New Client</a>
+          </Link>
       </div>
       {loading && <p>Loading…</p>}
       {error && <p className="text-red-500">{error}</p>}

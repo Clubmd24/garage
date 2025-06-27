@@ -89,7 +89,7 @@ const EditClientPage = () => {
             />
           </div>
         ))}
-        <button type="submit" className="btn">Update</button>
+          <button type="submit" className="button">Update</button>
       </form>
       <div className="mt-8">
         <div className="flex justify-between items-center mb-2">
