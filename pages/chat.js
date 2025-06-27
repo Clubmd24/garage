@@ -93,7 +93,7 @@ export default function Chat() {
         const r = await fetch('/api/chat/upload', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contentType: file.type }),
+          body: JSON.stringify({ contentType: file.type, file_name: file.name }),
         });
         if (r.ok) {
           const { url, key } = await r.json();
@@ -114,6 +114,7 @@ export default function Chat() {
       body: input,
       room_id: topicId,
       s3_key: s3Key,
+      file_name: file ? file.name : null,
       content_type: contentType,
     };
     socketRef.current.emit('chat:send', msg);
@@ -209,7 +210,7 @@ export default function Chat() {
                         className="block mt-2 text-blue-500 underline"
                         download
                       >
-                        {m.s3_key.split('/').pop()}
+                        {m.file_name || m.s3_key.split('/').pop()}
                       </a>
                     )
                   )}

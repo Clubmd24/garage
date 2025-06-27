@@ -27,14 +27,14 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    const { s3_key, content_type } = req.body;
+    const { s3_key, content_type, file_name } = req.body;
     if (!s3_key || (!task_id && !project_id)) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
     const [{ insertId }] = await pool.query(
-      `INSERT INTO task_files (task_id, project_id, s3_key, content_type, uploaded_by)
-       VALUES (?,?,?,?,?)`,
-      [task_id || null, project_id || null, s3_key, content_type || null, userId]
+      `INSERT INTO task_files (task_id, project_id, s3_key, file_name, content_type, uploaded_by)
+       VALUES (?,?,?,?,?,?)`,
+      [task_id || null, project_id || null, s3_key, file_name || null, content_type || null, userId]
     );
     return res.status(201).json({ id: insertId });
   }

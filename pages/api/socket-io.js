@@ -20,8 +20,8 @@ export default function handler(req, res) {
         const roomId = msg.room_id || 1;
         const isImportant = msg.body && msg.body.includes("@dashboard");
         const [result] = await pool.execute(
-          "INSERT INTO messages (room_id, user, body, s3_key, content_type, is_important) VALUES (?,?,?,?,?,?)",
-          [roomId, msg.user, msg.body, msg.s3_key || null, msg.content_type || null, isImportant],
+          "INSERT INTO messages (room_id, user, body, s3_key, file_name, content_type, is_important) VALUES (?,?,?,?,?,?,?)",
+          [roomId, msg.user, msg.body, msg.s3_key || null, msg.file_name || null, msg.content_type || null, isImportant],
         );
         const full = {
           ...msg,

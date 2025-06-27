@@ -64,7 +64,7 @@ export default function ProjectDetail() {
       const r = await fetch('/api/chat/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contentType: file.type })
+        body: JSON.stringify({ contentType: file.type, file_name: file.name })
       });
       if (!r.ok) throw new Error('Failed to get upload URL');
       const { url, key } = await r.json();
@@ -73,11 +73,11 @@ export default function ProjectDetail() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ project_id: id, s3_key: key, content_type: file.type })
+        body: JSON.stringify({ project_id: id, s3_key: key, file_name: file.name, content_type: file.type })
       });
       if (!r2.ok) throw new Error('Failed to save file record');
       const { id: fid } = await r2.json();
-      setFiles([...files, { id: fid, project_id: id, s3_key: key, content_type: file.type }]);
+      setFiles([...files, { id: fid, project_id: id, s3_key: key, file_name: file.name, content_type: file.type }]);
     } catch (err) {
       setError(err.message);
     }
@@ -185,7 +185,7 @@ export default function ProjectDetail() {
                     <img src={`${S3_BASE_URL}/${f.s3_key}`} alt="attachment" className="max-w-xs" />
                   ) : (
                     <a href={`${S3_BASE_URL}/${f.s3_key}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline" download>
-                      {f.s3_key.split('/').pop()}
+                      {f.file_name || f.s3_key.split('/').pop()}
                     </a>
                   )}
                 </li>
