@@ -40,10 +40,11 @@ const ClientsPage = () => {
     <Layout>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-semibold">Clients</h1>
-          <Link href="/office/clients/new">
-            <a className="button">+ New Client</a>
-          </Link>
+        <Link href="/office/clients/new" className="button">
+          + New Client
+        </Link>
       </div>
+      <Link href="/office" className="underline block mb-4">Return to Office</Link>
       {loading && <p>Loading…</p>}
       {error && <p className="text-red-500">{error}</p>}
       {!loading && !error && (
@@ -53,44 +54,33 @@ const ClientsPage = () => {
           placeholder="Search…"
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
-          className="mb-4 border px-3 py-2 rounded text-black w-full"
+          className="input mb-4 w-full"
         />
-        <table className="min-w-full bg-white border">
-          <thead>
-            <tr>
-              <th className="px-4 py-2 border text-black">Name</th>
-              <th className="px-4 py-2 border text-black">Email</th>
-              <th className="px-4 py-2 border text-black">Mobile</th>
-              <th className="px-4 py-2 border text-black">NIE Number</th>
-              <th className="px-4 py-2 border text-black">Street Address</th>
-              <th className="px-4 py-2 border text-black">Post Code</th>
-              <th className="px-4 py-2 border text-black">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-              {filteredClients.map(c => (
-              <tr key={c.id}>
-                <td className="px-4 py-2 border text-black">{`${c.first_name || ''} ${c.last_name || ''}`.trim()}</td>
-                <td className="px-4 py-2 border text-black">{c.email}</td>
-                <td className="px-4 py-2 border text-black">{c.mobile}</td>
-                <td className="px-4 py-2 border text-black">{c.nie_number}</td>
-                <td className="px-4 py-2 border text-black">{c.street_address}</td>
-                <td className="px-4 py-2 border text-black">{c.post_code}</td>
-                <td className="px-4 py-2 border text-black">
-                  <Link href={`/office/clients/view/${c.id}`}>
-                    <a className="mr-2 underline">View</a>
-                  </Link>
-                  <Link href={`/office/clients/${c.id}`}>
-                    <a className="mr-2 underline">Edit</a>
-                  </Link>
-                  <button onClick={() => handleDelete(c.id)} className="underline text-red-600">
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {filteredClients.map(c => (
+            <div key={c.id} className="item-card">
+              <h2 className="font-semibold text-[var(--color-text-primary)] text-lg mb-1">
+                {`${c.first_name || ''} ${c.last_name || ''}`.trim() || 'Unnamed'}
+              </h2>
+              <p className="text-sm text-[var(--color-text-secondary)]">{c.email}</p>
+              <p className="text-sm text-[var(--color-text-secondary)]">{c.mobile}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Link href={`/office/clients/view/${c.id}`} className="button px-4 text-sm">
+                  View
+                </Link>
+                <Link href={`/office/clients/${c.id}`} className="button px-4 text-sm">
+                  Edit
+                </Link>
+                <button
+                  onClick={() => handleDelete(c.id)}
+                  className="button px-4 text-sm bg-red-600 hover:bg-red-700"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
         </>
       )}
     </Layout>
