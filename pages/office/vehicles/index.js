@@ -39,10 +39,13 @@ const VehiclesPage = () => {
     <Layout>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-semibold">Vehicles</h1>
-          <Link href="/office/vehicles/new">
-            <a className="button">+ New Vehicle</a>
-          </Link>
+        <Link href="/office/vehicles/new" className="button">
+          + New Vehicle
+        </Link>
       </div>
+      <Link href="/office" className="underline block mb-4">
+        Return to Office
+      </Link>
       {loading && <p>Loading…</p>}
       {error && <p className="text-red-500">{error}</p>}
       {!loading && !error && (
@@ -52,42 +55,36 @@ const VehiclesPage = () => {
             placeholder="Search…"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="mb-4 border px-3 py-2 rounded text-black w-full"
+            className="input mb-4 w-full"
           />
-          <table className="min-w-full bg-white border">
-            <thead>
-              <tr>
-                <th className="px-4 py-2 border text-black">Plate</th>
-                <th className="px-4 py-2 border text-black">Make</th>
-                <th className="px-4 py-2 border text-black">Model</th>
-                <th className="px-4 py-2 border text-black">Color</th>
-                <th className="px-4 py-2 border text-black">Client</th>
-                <th className="px-4 py-2 border text-black">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(v => (
-                <tr key={v.id}>
-                  <td className="px-4 py-2 border text-black">{v.licence_plate}</td>
-                  <td className="px-4 py-2 border text-black">{v.make}</td>
-                  <td className="px-4 py-2 border text-black">{v.model}</td>
-                  <td className="px-4 py-2 border text-black">{v.color}</td>
-                  <td className="px-4 py-2 border text-black">{v.customer_name}</td>
-                  <td className="px-4 py-2 border text-black">
-                    <Link href={`/office/vehicles/view/${v.id}`}>
-                      <a className="mr-2 underline">View</a>
-                    </Link>
-                    <Link href={`/office/vehicles/${v.id}`}>
-                      <a className="mr-2 underline">Edit</a>
-                    </Link>
-                    <button onClick={() => handleDelete(v.id)} className="underline text-red-600">
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {filtered.map(v => (
+              <div key={v.id} className="item-card">
+                <h2 className="font-semibold text-[var(--color-text-primary)] text-lg mb-1">
+                  {v.licence_plate}
+                </h2>
+                <p className="text-sm text-[var(--color-text-secondary)]">
+                  {v.make} {v.model}
+                </p>
+                <p className="text-sm text-[var(--color-text-secondary)]">{v.color}</p>
+                <p className="text-sm text-[var(--color-text-secondary)]">{v.customer_name}</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link href={`/office/vehicles/view/${v.id}`} className="button px-4 text-sm">
+                    View
+                  </Link>
+                  <Link href={`/office/vehicles/${v.id}`} className="button px-4 text-sm">
+                    Edit
+                  </Link>
+                  <button
+                    onClick={() => handleDelete(v.id)}
+                    className="button px-4 text-sm bg-red-600 hover:bg-red-700"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </>
       )}
     </Layout>
