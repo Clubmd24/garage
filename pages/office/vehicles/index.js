@@ -74,6 +74,9 @@ const VehiclesPage = () => {
                   <td className="px-4 py-2 border text-black">{v.color}</td>
                   <td className="px-4 py-2 border text-black">{v.customer_name}</td>
                   <td className="px-4 py-2 border text-black">
+                    <Link href={`/office/vehicles/view/${v.id}`}>
+                      <a className="mr-2 underline">View</a>
+                    </Link>
                     <Link href={`/office/vehicles/${v.id}`}>
                       <a className="mr-2 underline">Edit</a>
                     </Link>
