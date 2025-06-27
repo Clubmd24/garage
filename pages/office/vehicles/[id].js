@@ -60,7 +60,7 @@ const EditVehiclePage = () => {
             />
           </div>
         ))}
-        <button type="submit" className="btn">Update</button>
+          <button type="submit" className="button">Update</button>
       </form>
     </Layout>
   );
