@@ -117,7 +117,7 @@ export default function TaskDetail() {
                   {f.content_type && f.content_type.startsWith('image/') ? (
                     <img src={`${S3_BASE_URL}/${f.s3_key}`} alt="attachment" className="max-w-xs" />
                   ) : (
-                    <a href={`${S3_BASE_URL}/${f.s3_key}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+                    <a href={`${S3_BASE_URL}/${f.s3_key}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline" download>
                       {f.s3_key.split('/').pop()}
                     </a>
                   )}
