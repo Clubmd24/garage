@@ -8,6 +8,7 @@ const ClientsPage = () => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const load = () => {
     setLoading(true);
@@ -25,6 +26,16 @@ const ClientsPage = () => {
     load();
   };
 
+  const filteredClients = clients.filter(c => {
+    const q = searchQuery.toLowerCase();
+    const name = `${c.first_name || ''} ${c.last_name || ''}`.toLowerCase();
+    return (
+      name.includes(q) ||
+      (c.email || '').toLowerCase().includes(q) ||
+      (c.nie_number || '').toLowerCase().includes(q)
+    );
+  });
+
   return (
     <Layout>
       <div className="flex justify-between items-center mb-4">
@@ -36,6 +47,14 @@ const ClientsPage = () => {
       {loading && <p>Loading…</p>}
       {error && <p className="text-red-500">{error}</p>}
       {!loading && !error && (
+        <>
+        <input
+          type="text"
+          placeholder="Search…"
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          className="mb-4 border px-3 py-2 rounded text-black w-full"
+        />
         <table className="min-w-full bg-white border">
           <thead>
             <tr>
@@ -49,7 +68,7 @@ const ClientsPage = () => {
             </tr>
           </thead>
           <tbody>
-              {clients.map(c => (
+              {filteredClients.map(c => (
               <tr key={c.id}>
                 <td className="px-4 py-2 border text-black">{`${c.first_name || ''} ${c.last_name || ''}`.trim()}</td>
                 <td className="px-4 py-2 border text-black">{c.email}</td>
@@ -69,6 +88,7 @@ const ClientsPage = () => {
             ))}
           </tbody>
         </table>
+        </>
       )}
     </Layout>
   );
