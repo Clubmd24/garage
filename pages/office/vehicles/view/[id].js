@@ -51,7 +51,7 @@ export default function VehicleViewPage() {
           <Link href={`/office/clients/${client.id}`}><a className="button">Edit Client</a></Link>
         )}
         <button onClick={deleteVehicle} className="button bg-red-600 hover:bg-red-700">Delete</button>
-        <Link href="/office/vehicles"><a className="button-secondary">Back to Vehicles</a></Link>
+        <Link href="/office/vehicles"><a className="button">Back to Vehicles</a></Link>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card>
