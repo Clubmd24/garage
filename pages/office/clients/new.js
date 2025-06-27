@@ -59,7 +59,7 @@ const NewClientPage = () => {
               name={field}
               value={form[field]}
               onChange={change}
-              className="w-full border px-3 py-2 rounded"
+              className="w-full border px-3 py-2 rounded text-black"
             />
           </div>
         ))}
