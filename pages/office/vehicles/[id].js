@@ -1,0 +1,69 @@
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import { Layout } from '../../../components/Layout';
+
+const EditVehiclePage = () => {
+  const router = useRouter();
+  const { id } = router.query;
+  const [form, setForm] = useState({
+    licence_plate: '',
+    make: '',
+    model: '',
+    color: '',
+    customer_id: '',
+    fleet_id: '',
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!id) return;
+    fetch(`/api/vehicles/${id}`)
+      .then(r => r.json())
+      .then(setForm)
+      .catch(() => setError('Failed to load'))
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  const submit = async e => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`/api/vehicles/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error();
+      router.push('/office/vehicles');
+    } catch {
+      setError('Failed to update');
+    }
+  };
+
+  const change = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+
+  if (loading) return <Layout><p>Loading…</p></Layout>;
+
+  return (
+    <Layout>
+      <h1 className="text-2xl font-semibold mb-4">Edit Vehicle</h1>
+      {error && <p className="text-red-500">{error}</p>}
+      <form onSubmit={submit} className="space-y-4 max-w-md">
+        {['licence_plate','make','model','color','customer_id','fleet_id'].map(field => (
+          <div key={field}>
+            <label className="block mb-1">{field.replace('_',' ').replace(/\b\w/g,c=>c.toUpperCase())}</label>
+            <input
+              name={field}
+              value={form[field] || ''}
+              onChange={change}
+              className="w-full border px-3 py-2 rounded text-black"
+            />
+          </div>
+        ))}
+        <button type="submit" className="btn">Update</button>
+      </form>
+    </Layout>
+  );
+};
+
+export default EditVehiclePage;

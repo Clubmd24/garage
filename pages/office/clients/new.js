@@ -16,6 +16,12 @@ const NewClientPage = () => {
     province: '',
     post_code: '',
   });
+  const [vehicle, setVehicle] = useState({
+    licence_plate: '',
+    make: '',
+    model: '',
+    color: '',
+  });
   const [error, setError] = useState(null);
   const router = useRouter();
 
@@ -28,6 +34,14 @@ const NewClientPage = () => {
         body: JSON.stringify(form),
       });
       if (!res.ok) throw new Error();
+      const created = await res.json();
+      if (vehicle.licence_plate) {
+        await fetch('/api/vehicles', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...vehicle, customer_id: created.id }),
+        });
+      }
       router.push('/office/clients');
     } catch {
       setError('Failed to create client');
@@ -35,15 +49,16 @@ const NewClientPage = () => {
   };
 
   const change = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+  const changeVehicle = e => setVehicle(v => ({ ...v, [e.target.name]: e.target.value }));
 
   return (
     <Layout>
       <h1 className="text-2xl font-semibold mb-4">New Client</h1>
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={submit} className="space-y-4 max-w-md">
-        {[
-          'first_name',
-          'last_name',
+      {[
+        'first_name',
+        'last_name',
           'email',
           'mobile',
           'landline',
@@ -51,14 +66,26 @@ const NewClientPage = () => {
           'street_address',
           'town',
           'province',
-          'post_code',
-        ].map(field => (
+        'post_code',
+      ].map(field => (
+        <div key={field}>
+          <label className="block mb-1">{field.replace('_',' ').replace(/\b\w/g, c => c.toUpperCase())}</label>
+          <input
+            name={field}
+            value={form[field]}
+            onChange={change}
+            className="w-full border px-3 py-2 rounded text-black"
+          />
+        </div>
+      ))}
+        <h2 className="text-xl font-semibold mt-6">Vehicle (optional)</h2>
+        {['licence_plate','make','model','color'].map(field => (
           <div key={field}>
-            <label className="block mb-1">{field.replace('_',' ').replace(/\b\w/g, c => c.toUpperCase())}</label>
+            <label className="block mb-1">{field.replace('_',' ').replace(/\b\w/g,c=>c.toUpperCase())}</label>
             <input
               name={field}
-              value={form[field]}
-              onChange={change}
+              value={vehicle[field]}
+              onChange={changeVehicle}
               className="w-full border px-3 py-2 rounded text-black"
             />
           </div>
