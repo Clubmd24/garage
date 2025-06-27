@@ -77,6 +77,9 @@ const ClientsPage = () => {
                 <td className="px-4 py-2 border text-black">{c.street_address}</td>
                 <td className="px-4 py-2 border text-black">{c.post_code}</td>
                 <td className="px-4 py-2 border text-black">
+                  <Link href={`/office/clients/view/${c.id}`}>
+                    <a className="mr-2 underline">View</a>
+                  </Link>
                   <Link href={`/office/clients/${c.id}`}>
                     <a className="mr-2 underline">Edit</a>
                   </Link>
