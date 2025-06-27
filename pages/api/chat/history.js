@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   const room = parseInt(req.query.room_id || "1", 10);
   try {
     const [rows] = await pool.query(
-      `SELECT id, user, body, s3_key, content_type, created_at
+      `SELECT id, user, body, s3_key, file_name, content_type, created_at
          FROM (
            SELECT * FROM messages
             WHERE deleted_at IS NULL AND room_id=?

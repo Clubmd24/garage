@@ -86,7 +86,7 @@ export default function DevDashboard() {
                           <img src={`${S3_BASE_URL}/${a.s3_key}`} alt="attachment" className="mt-2 max-w-xs" />
                         ) : (
                           <a href={`${S3_BASE_URL}/${a.s3_key}`} target="_blank" rel="noopener noreferrer" className="block mt-2 text-blue-500 underline" download>
-                            {a.s3_key.split('/').pop()}
+                            {a.file_name || a.s3_key.split('/').pop()}
                           </a>
                         )
                       )}

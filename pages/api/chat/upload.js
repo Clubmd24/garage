@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   const bucket = process.env.S3_BUCKET;
   if (!bucket) return res.status(500).json({ error: 'S3_BUCKET not set' });
 
-  const { contentType } = req.body || {};
+  const { contentType, file_name } = req.body || {};
   const key = `${Date.now()}-${crypto.randomBytes(8).toString('hex')}`;
 
   try {
@@ -29,7 +29,7 @@ export default async function handler(req, res) {
       ContentType: contentType || 'application/octet-stream',
     });
     const url = await getSignedUrl(client, command, { expiresIn: 60 });
-    res.status(200).json({ url, key });
+    res.status(200).json({ url, key, file_name });
   } catch (err) {
     console.error('UPLOAD_URL_ERROR:', err);
     res.status(500).json({ error: 'Failed to generate URL' });

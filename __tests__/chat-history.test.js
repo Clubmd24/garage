@@ -7,7 +7,7 @@ afterEach(() => {
 
 test('history excludes messages marked deleted', async () => {
   const rows = [
-    { id: 2, user: 'bob', body: 'hi', s3_key: null, content_type: null, created_at: '2024-01-01T00:00:00Z' },
+    { id: 2, user: 'bob', body: 'hi', s3_key: null, file_name: null, content_type: null, created_at: '2024-01-01T00:00:00Z' },
   ];
   const queryMock = jest.fn().mockResolvedValueOnce([rows]);
   jest.unstable_mockModule('../lib/db.js', () => ({
