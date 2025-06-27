@@ -53,7 +53,7 @@ export default function ClientViewPage() {
       <div className="mb-6 flex flex-wrap gap-4">
         <Link href={`/office/clients/${id}`}><a className="button">Edit Client</a></Link>
         <button onClick={deleteClient} className="button bg-red-600 hover:bg-red-700">Delete Client</button>
-        <Link href="/office/clients"><a className="button-secondary">Back to Clients</a></Link>
+        <Link href="/office/clients"><a className="button">Back to Clients</a></Link>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card>
