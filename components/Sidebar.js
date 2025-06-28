@@ -39,7 +39,7 @@ export function Sidebar() {
         </svg>
       </button>
       <nav
-        className={`rounded-r-3xl shadow-lg bg-gradient-to-r from-gray-200 via-gray-100 to-transparent text-[var(--color-text-primary)] space-y-4 p-4 sm:h-screen sm:block ${open ? "block" : "hidden"}`}
+        className={`rounded-r-3xl shadow-lg bg-gradient-to-r from-blue-100 via-blue-200 to-blue-300 dark:from-blue-900 dark:via-blue-800 dark:to-blue-700 text-[var(--color-text-primary)] space-y-4 p-4 sm:h-screen sm:block ${open ? "block" : "hidden"}`}
       >
         <a
           href="/"
