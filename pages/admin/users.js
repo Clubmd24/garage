@@ -145,16 +145,16 @@ export default function Users() {
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-[var(--color-surface)] dark:bg-[var(--color-surface)]">
                   <tr>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-[var(--color-text-secondary)]">
+                    <th className="px-6 py-3 text-left text-sm font-medium text-black">
                       Username
                     </th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-[var(--color-text-secondary)]">
+                    <th className="px-6 py-3 text-left text-sm font-medium text-black">
                       Email
                     </th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-[var(--color-text-secondary)]">
+                    <th className="px-6 py-3 text-left text-sm font-medium text-black">
                       Role
                     </th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-[var(--color-text-secondary)]">
+                    <th className="px-6 py-3 text-left text-sm font-medium text-black">
                       Actions
                     </th>
                   </tr>
@@ -162,10 +162,10 @@ export default function Users() {
                 <tbody className="bg-[var(--color-surface)] dark:bg-[var(--color-surface)] divide-y divide-gray-200 dark:divide-gray-700">
                   {users.map((u) => (
                     <tr key={u.id} className="hover:bg-gray-100 dark:hover:bg-gray-800 transition">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--color-text-primary)]">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
                         {u.username}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--color-text-primary)]">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
                         {u.email}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
