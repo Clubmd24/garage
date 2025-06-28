@@ -65,7 +65,7 @@ export function Sidebar() {
         {(userRole === "developer" || userRole === "admin") && (
           <>
             <a
-              href="/dev"
+              href="/dev/dashboard"
               className="bg-red-800 text-white font-bold rounded-full px-4 py-2 shadow hover:bg-red-900 block text-center w-full"
               onClick={() => setOpen(false)}
             >
