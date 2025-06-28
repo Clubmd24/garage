@@ -16,7 +16,7 @@ export function Header() {
     }
   }
   return (
-    <header className="bg-gradient-to-r from-blue-600 to-blue-500 text-white p-4 flex justify-between items-center shadow-lg">
+    <header className="bg-gradient-to-r from-blue-600 to-blue-500 text-white p-4 flex justify-between items-center shadow-lg rounded-b-3xl">
       <div className="flex items-center space-x-3">
         <img src="/logo.png" alt="Garage Vision Logo" className="w-8 h-8 rounded-full" />
         <span className="font-bold text-lg">Garage Vision</span>
@@ -24,7 +24,10 @@ export function Header() {
       {user && (
         <div className="flex items-center space-x-4">
           <span>{user.username}</span>
-          <button onClick={handleLogout} className="underline">
+          <button
+            onClick={handleLogout}
+            className="bg-gray-200 text-red-600 rounded-full px-4 py-2 shadow hover:bg-gray-300"
+          >
             Logout
           </button>
         </div>
