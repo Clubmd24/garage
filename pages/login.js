@@ -47,13 +47,17 @@ export default function Login() {
      }
      
       // Fetch user info to determine role, then route accordingly
-      const meRes = await fetch('/api/auth/me', { credentials: 'include' });
-      if (meRes.ok) {
-        await meRes.json();
-        router.push('/');
-      } else {
-        router.push('/');
+      let dest = '/';
+      try {
+        const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+        if (meRes.ok) {
+          const me = await meRes.json();
+          if (me && me.role === 'engineer') dest = '/engineer';
+        }
+      } catch {
+        /* ignore fetch errors and fallback to default */
       }
+      router.push(dest);
     } catch (err) {
       setError(err.message);
     } finally {
