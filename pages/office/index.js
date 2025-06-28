@@ -183,7 +183,7 @@ export default function OfficeHome() {
         </div>
         <button
           onClick={handleLogout}
-          className="mt-6 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold rounded-full shadow-lg hover:scale-105 transition-transform duration-300"
+          className="mt-6 bg-gray-200 text-red-600 rounded-full px-4 py-2 shadow hover:bg-gray-300"
         >
           Logout
         </button>
