@@ -58,10 +58,10 @@ const EngineersPage = () => {
           <div className="grid gap-4 sm:grid-cols-2">
             {filtered.map(e => (
               <div key={e.id} className="item-card">
-                <h2 className="font-semibold text-[var(--color-text-primary)] dark:text-black text-lg mb-1">
+                <h2 className="font-semibold text-black text-lg mb-1">
                   {e.username}
                 </h2>
-                <p className="text-sm text-[var(--color-text-secondary)] dark:text-black">
+                <p className="text-sm text-black">
                   {e.email || '—'}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
