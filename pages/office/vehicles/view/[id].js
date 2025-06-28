@@ -45,7 +45,7 @@ export default function VehicleViewPage() {
 
   return (
     <Layout>
-      <div className="mb-6 flex flex-wrap gap-4">
+      <div className="mb-6 flex flex-wrap items-center gap-4">
         <Link href={`/office/vehicles/${id}`}><a className="button">Edit Vehicle</a></Link>
         {client && (
           <Link href={`/office/clients/${client.id}`}><a className="button">Edit Client</a></Link>

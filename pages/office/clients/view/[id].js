@@ -50,7 +50,7 @@ export default function ClientViewPage() {
 
   return (
     <Layout>
-      <div className="mb-6 flex flex-wrap gap-4">
+      <div className="mb-6 flex flex-wrap items-center gap-4">
         <Link href={`/office/clients/${id}`}><a className="button">Edit Client</a></Link>
         <button onClick={deleteClient} className="button bg-red-600 hover:bg-red-700">Delete Client</button>
         <Link href="/office/clients"><a className="button">Back to Clients</a></Link>
