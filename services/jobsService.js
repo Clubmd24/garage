@@ -59,3 +59,16 @@ export async function removeAssignment(id) {
   await pool.query('DELETE FROM job_assignments WHERE id=?', [id]);
   return { ok: true };
 }
+
+export async function listActiveJobsForEngineer(user_id) {
+  const [rows] = await pool.query(
+    `SELECT j.id, j.customer_id, j.vehicle_id, j.scheduled_start, j.scheduled_end,
+            j.status, j.bay, j.created_at
+       FROM jobs j
+       JOIN job_assignments ja ON j.id = ja.job_id
+      WHERE ja.user_id=? AND j.status='active'
+      ORDER BY j.id`,
+    [user_id]
+  );
+  return rows;
+}
