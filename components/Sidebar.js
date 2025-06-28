@@ -48,7 +48,21 @@ export function Sidebar() {
         >
           Garage Vision
         </a>
-        {userRole === "developer" && (
+        {userRole === "engineer" && (
+          <>
+            <a
+              href="/engineer"
+              className="bg-red-800 text-white font-bold rounded-full px-4 py-2 shadow hover:bg-red-900 block text-center w-full"
+              onClick={() => setOpen(false)}
+            >
+              Engineer Portal
+            </a>
+            <a href="/engineer/wiki" {...linkProps}>
+              Wiki
+            </a>
+          </>
+        )}
+        {(userRole === "developer" || userRole === "admin") && (
           <>
             <a
               href="/dev"
@@ -57,16 +71,10 @@ export function Sidebar() {
             >
               Dev Portal
             </a>
-            <a
-              href="/dev/projects"
-              {...linkProps}
-            >
+            <a href="/dev/projects" {...linkProps}>
               Projects
             </a>
-            <a
-              href="/dev/dashboard"
-              {...linkProps}
-            >
+            <a href="/dev/dashboard" {...linkProps}>
               Dashboard
             </a>
             <a href="/office" {...linkProps}>
