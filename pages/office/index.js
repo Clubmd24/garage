@@ -102,6 +102,15 @@ function VehiclesIcon() {
   );
 }
 
+function CompanySettingsIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" className="mb-2">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+    </svg>
+  );
+}
+
 function useCurrentUser() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -180,6 +189,7 @@ export default function OfficeHome() {
           <DashboardCard href="/office/reporting" title="Reporting" Icon={ReportingIcon} />
           <DashboardCard href="/office/scheduling" title="Scheduling" Icon={SchedulingIcon} />
           <DashboardCard href="/office/vehicles" title="Vehicles" Icon={VehiclesIcon} />
+          <DashboardCard href="/office/company-settings" title="Company Settings" Icon={CompanySettingsIcon} />
         </div>
         <button
           onClick={handleLogout}
