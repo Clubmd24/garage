@@ -60,14 +60,14 @@ const VehiclesPage = () => {
           <div className="grid gap-4 sm:grid-cols-2">
             {filtered.map(v => (
               <div key={v.id} className="item-card">
-                <h2 className="font-semibold text-black text-lg mb-1">
+                <h2 className="font-semibold text-black dark:text-white text-lg mb-1">
                   {v.licence_plate}
                 </h2>
-                <p className="text-sm text-black">
+                <p className="text-sm text-black dark:text-white">
                   {v.make} {v.model}
                 </p>
-                <p className="text-sm text-black">{v.color}</p>
-                <p className="text-sm text-black">{v.customer_name}</p>
+                <p className="text-sm text-black dark:text-white">{v.color}</p>
+                <p className="text-sm text-black dark:text-white">{v.customer_name}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Link href={`/office/vehicles/view/${v.id}`} className="button px-4 text-sm">
                     View
