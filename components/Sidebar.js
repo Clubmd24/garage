@@ -1,18 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 export function Sidebar() {
   const [userRole, setUserRole] = useState(null);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    fetch('/api/auth/me', { credentials: 'include' })
+    fetch("/api/auth/me", { credentials: "include" })
       .then((r) => (r.ok ? r.json() : null))
       .then((u) => setUserRole(u?.role?.toLowerCase()))
       .catch(() => null);
   }, []);
 
   const linkProps = {
-    className: 'button block text-center w-full',
+    className:
+      "bg-gray-200 text-black rounded-full px-4 py-2 shadow hover:bg-gray-300 block text-center w-full",
     onClick: () => setOpen(false),
   };
 
@@ -38,23 +39,27 @@ export function Sidebar() {
         </svg>
       </button>
       <nav
-        className={`bg-[var(--color-surface)] text-[var(--color-text-primary)] space-y-4 p-4 sm:h-screen sm:block ${open ? 'block' : 'hidden'}`}
+        className={`rounded-r-3xl shadow-lg bg-gradient-to-r from-gray-200 via-gray-100 to-transparent text-[var(--color-text-primary)] space-y-4 p-4 sm:h-screen sm:block ${open ? "block" : "hidden"}`}
       >
-        <a href="/" className="block font-bold mb-4 text-center" onClick={() => setOpen(false)}>
+        <a
+          href="/"
+          className="block font-bold mb-4 text-center"
+          onClick={() => setOpen(false)}
+        >
           Garage Vision
         </a>
         <a href="/dev/projects" {...linkProps}>
-          Dev → Projects
+          Projects
         </a>
         <a href="/dev/dashboard" {...linkProps}>
-          Dev → Dashboard
+          Dashboard
         </a>
         <a href="/chat" {...linkProps}>
-          Dev → Chat
+          Chat
         </a>
-        {['admin', 'developer'].includes(userRole) && (
+        {["admin", "developer"].includes(userRole) && (
           <a href="/admin/users" {...linkProps}>
-            Admin → Users
+            Users
           </a>
         )}
       </nav>
