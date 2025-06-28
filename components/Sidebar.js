@@ -48,6 +48,20 @@ export function Sidebar() {
         >
           Garage Vision
         </a>
+        <a
+          href="/dev"
+          className="bg-red-800 text-white font-bold rounded-full px-4 py-2 shadow hover:bg-red-900 block text-center w-full"
+          onClick={() => setOpen(false)}
+        >
+          Dev Portal
+        </a>
+        <a
+          href="/office"
+          className="bg-red-800 text-white font-bold rounded-full px-4 py-2 shadow hover:bg-red-900 block text-center w-full"
+          onClick={() => setOpen(false)}
+        >
+          Office
+        </a>
         <a href="/dev/projects" {...linkProps}>
           Projects
         </a>
