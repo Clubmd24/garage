@@ -59,11 +59,11 @@ const ClientsPage = () => {
         <div className="grid gap-4 sm:grid-cols-2">
           {filteredClients.map(c => (
             <div key={c.id} className="item-card">
-              <h2 className="font-semibold text-black text-lg mb-1">
+              <h2 className="font-semibold text-black dark:text-white text-lg mb-1">
                 {`${c.first_name || ''} ${c.last_name || ''}`.trim() || 'Unnamed'}
               </h2>
-              <p className="text-sm text-black">{c.email}</p>
-              <p className="text-sm text-black">{c.mobile}</p>
+              <p className="text-sm text-black dark:text-white">{c.email}</p>
+              <p className="text-sm text-black dark:text-white">{c.mobile}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <Link href={`/office/clients/view/${c.id}`} className="button px-4 text-sm">
                   View

@@ -146,10 +146,10 @@ export default function ProjectDetail() {
               {tasks.map(t => (
                 <Card key={t.id} className="group relative">
                   <Link href={`/dev/tasks/${t.id}`} className="block">
-                    <h3 className="text-xl font-semibold text-black">
+                    <h3 className="text-xl font-semibold text-black dark:text-white">
                       {t.title}
                     </h3>
-                    <p className="mt-1 text-black">
+                    <p className="mt-1 text-black dark:text-white">
                       Status: {t.status}
                     </p>
                   </Link>
