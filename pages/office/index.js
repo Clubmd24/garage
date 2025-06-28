@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
+import { fetchClients } from '../../lib/clients';
+import { fetchVehicles } from '../../lib/vehicles';
+import { fetchEngineers } from '../../lib/engineers';
 
 function ClientsIcon() {
   return (
@@ -147,10 +150,36 @@ function DashboardCard({ href, title, Icon }) {
 export default function OfficeHome() {
   const router = useRouter();
   const { user, loading } = useCurrentUser();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [clients, setClients] = useState([]);
+  const [vehicles, setVehicles] = useState([]);
+  const [engineers, setEngineers] = useState([]);
+  const [searchLoaded, setSearchLoaded] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) router.replace('/login');
   }, [loading, user, router]);
+
+  useEffect(() => {
+    if (!loading && user) {
+      (async () => {
+        try {
+          const [c, v, e] = await Promise.all([
+            fetchClients(),
+            fetchVehicles(),
+            fetchEngineers(),
+          ]);
+          setClients(c);
+          setVehicles(v);
+          setEngineers(e);
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setSearchLoaded(true);
+        }
+      })();
+    }
+  }, [loading, user]);
 
   async function handleLogout() {
     try {
@@ -168,6 +197,46 @@ export default function OfficeHome() {
     );
   }
 
+  const query = searchQuery.toLowerCase();
+  const filteredClients = clients.filter(c => {
+    const name = `${c.first_name || ''} ${c.last_name || ''}`.toLowerCase();
+    return (
+      name.includes(query) ||
+      (c.email || '').toLowerCase().includes(query) ||
+      (c.nie_number || '').toLowerCase().includes(query)
+    );
+  });
+  const filteredVehicles = vehicles.filter(v =>
+    v.licence_plate.toLowerCase().includes(query) ||
+    (v.make || '').toLowerCase().includes(query) ||
+    (v.model || '').toLowerCase().includes(query) ||
+    (v.customer_name || '').toLowerCase().includes(query)
+  );
+  const filteredEngineers = engineers.filter(e =>
+    e.username.toLowerCase().includes(query) ||
+    (e.email || '').toLowerCase().includes(query)
+  );
+  const results = [
+    ...filteredClients.map(c => ({
+      id: c.id,
+      type: 'Client',
+      label: `${c.first_name || ''} ${c.last_name || ''}`.trim() || 'Unnamed',
+      href: `/office/clients/view/${c.id}`,
+    })),
+    ...filteredVehicles.map(v => ({
+      id: v.id,
+      type: 'Vehicle',
+      label: v.licence_plate,
+      href: `/office/vehicles/view/${v.id}`,
+    })),
+    ...filteredEngineers.map(e => ({
+      id: e.id,
+      type: 'Engineer',
+      label: e.username,
+      href: `/office/engineers/view/${e.id}`,
+    })),
+  ];
+
   return (
     <>
       <Head>
@@ -176,6 +245,30 @@ export default function OfficeHome() {
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white space-y-8 p-6">
         <img src="/logo.png" alt="Garage Vision Logo" width={120} height={120} className="mb-4 rounded-full shadow-lg" />
         <h1 className="text-6xl font-bold tracking-tight">Garage Vision</h1>
+        <input
+          type="text"
+          placeholder="Search…"
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          className="input mb-4 w-full max-w-xl"
+        />
+        {searchQuery && (
+          <div className="bg-white dark:bg-gray-800 text-black dark:text-white rounded-xl shadow-lg p-4 mb-4 w-full max-w-xl">
+            <ul className="space-y-2">
+              {results.length === 0 ? (
+                <li>No results found.</li>
+              ) : (
+                results.map(r => (
+                  <li key={r.type + r.id}>
+                    <Link href={r.href} className="hover:underline">
+                      {r.label} <span className="text-sm text-gray-500">({r.type})</span>
+                    </Link>
+                  </li>
+                ))
+              )}
+            </ul>
+          </div>
+        )}
         <p className="text-xl opacity-90">Welcome, {user.username}!</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-xl">
           <DashboardCard href="/office/clients" title="Clients" Icon={ClientsIcon} />
