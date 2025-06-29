@@ -6,8 +6,8 @@ export default function JobRequestsPage() {
   const [requests, setRequests] = useState([]);
 
   useEffect(() => {
-    fetch('/api/job-requests')
-      .then(r => r.json())
+    fetch('/api/job-requests', { credentials: 'include' })
+      .then(r => (r.ok ? r.json() : Promise.reject()))
       .then(setRequests)
       .catch(() => setRequests([]));
   }, []);

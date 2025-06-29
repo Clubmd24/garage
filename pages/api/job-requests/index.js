@@ -1,10 +1,12 @@
 import { createJobRequest, getAllJobRequests } from '../../../services/jobRequestsService.js';
-import { verifyToken } from '../../../lib/auth.js';
+import { verifyToken, getTokenFromReq } from '../../../lib/auth.js';
 import { parse } from 'cookie';
 
 export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
+      const t = getTokenFromReq(req);
+      if (!t) return res.status(401).json({ error: 'Unauthorized' });
       const requests = await getAllJobRequests();
       return res.status(200).json(requests);
     }
