@@ -3,12 +3,14 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { Layout } from '../../../../components/Layout';
 import { Card } from '../../../../components/Card';
+import { fetchDocuments } from '../../../../lib/documents';
 
 export default function VehicleViewPage() {
   const router = useRouter();
   const { id } = router.query;
   const [vehicle, setVehicle] = useState(null);
   const [client, setClient] = useState(null);
+  const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -25,6 +27,8 @@ export default function VehicleViewPage() {
           if (!cRes.ok) throw new Error();
           setClient(await cRes.json());
         }
+        const docs = await fetchDocuments('vehicle', id);
+        setDocuments(docs);
       } catch (err) {
         setError('Failed to load');
       } finally {
@@ -76,6 +80,22 @@ export default function VehicleViewPage() {
           <p><strong>Model:</strong> {vehicle.model}</p>
           <p><strong>Color:</strong> {vehicle.color}</p>
           <p><strong>Fleet ID:</strong> {vehicle.fleet_id || 'N/A'}</p>
+        </Card>
+        <Card>
+          <h2 className="text-xl font-semibold mb-4">Documents</h2>
+          {documents.length === 0 ? (
+            <p>No documents</p>
+          ) : (
+            <ul className="list-disc pl-5 space-y-1">
+              {documents.map(doc => (
+                <li key={doc.id}>
+                  <a href={doc.url} className="underline text-blue-600" download>
+                    {doc.filename}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
         </Card>
       </div>
     </Layout>
