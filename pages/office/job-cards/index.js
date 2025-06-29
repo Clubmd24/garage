@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Layout } from '../../../components/Layout';
 import { fetchQuotes, updateQuote } from '../../../lib/quotes';
 import { createInvoice } from '../../../lib/invoices';
+import { fetchClients } from '../../../lib/clients';
 
 const JobCardsPage = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [clients, setClients] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const load = () => {
     setLoading(true);
@@ -19,6 +22,12 @@ const JobCardsPage = () => {
   };
 
   useEffect(load, []);
+
+  useEffect(() => {
+    fetchClients()
+      .then(setClients)
+      .catch(() => setClients([]));
+  }, []);
 
   const completeJob = async id => {
     await updateQuote(id, { status: 'completed' });
@@ -37,6 +46,25 @@ const JobCardsPage = () => {
     load();
   };
 
+  const clientMap = useMemo(() => {
+    const map = {};
+    clients.forEach(c => {
+      map[c.id] = `${c.first_name || ''} ${c.last_name || ''}`.trim();
+    });
+    return map;
+  }, [clients]);
+
+  const filteredJobs = jobs.filter(j => {
+    const q = searchQuery.toLowerCase();
+    const name = (clientMap[j.customer_id] || '').toLowerCase();
+    return (
+      name.includes(q) ||
+      String(j.id).includes(q) ||
+      String(j.customer_id).includes(q) ||
+      (j.status || '').toLowerCase().includes(q)
+    );
+  });
+
   return (
     <Layout>
       <h1 className="text-2xl font-semibold mb-4">Job Cards</h1>
@@ -44,8 +72,16 @@ const JobCardsPage = () => {
       {loading ? (
         <p>Loading…</p>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {jobs.map(j => (
+        <>
+          <input
+            type="text"
+            placeholder="Search…"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="input mb-4 w-full"
+          />
+          <div className="grid gap-4 sm:grid-cols-2">
+          {filteredJobs.map(j => (
             <div key={j.id} className="item-card">
               <h2 className="font-semibold mb-1">Job #{j.id}</h2>
               <p className="text-sm">Client ID: {j.customer_id}</p>
@@ -71,7 +107,8 @@ const JobCardsPage = () => {
               </div>
             </div>
           ))}
-        </div>
+          </div>
+        </>
       )}
     </Layout>
   );

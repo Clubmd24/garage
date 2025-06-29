@@ -1,17 +1,46 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Layout } from '../../../components/Layout';
 import { fetchInvoices } from '../../../lib/invoices';
+import { fetchClients } from '../../../lib/clients';
 
 const InvoicesPage = () => {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [clients, setClients] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchInvoices()
       .then(setInvoices)
       .catch(() => setError('Failed to load invoices'))
       .finally(() => setLoading(false));
+  }, []);
+
+  const clientMap = useMemo(() => {
+    const m = {};
+    clients.forEach(c => {
+      m[c.id] = `${c.first_name || ''} ${c.last_name || ''}`.trim();
+    });
+    return m;
+  }, [clients]);
+
+  const filteredInvoices = invoices.filter(inv => {
+    const q = searchQuery.toLowerCase();
+    const name = (clientMap[inv.customer_id] || '').toLowerCase();
+    return (
+      name.includes(q) ||
+      String(inv.id).includes(q) ||
+      String(inv.customer_id).includes(q) ||
+      String(inv.amount).includes(q) ||
+      (inv.status || '').toLowerCase().includes(q)
+    );
+  });
+
+  useEffect(() => {
+    fetchClients()
+      .then(setClients)
+      .catch(() => setClients([]));
   }, []);
 
   return (
@@ -21,8 +50,16 @@ const InvoicesPage = () => {
       {loading ? (
         <p>Loading…</p>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {invoices.map(inv => (
+        <>
+          <input
+            type="text"
+            placeholder="Search…"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="input mb-4 w-full"
+          />
+          <div className="grid gap-4 sm:grid-cols-2">
+          {filteredInvoices.map(inv => (
             <div key={inv.id} className="item-card">
               <h2 className="font-semibold mb-1">Invoice #{inv.id}</h2>
               <p className="text-sm">Client ID: {inv.customer_id}</p>
@@ -30,7 +67,8 @@ const InvoicesPage = () => {
               <p className="text-sm">Status: {inv.status}</p>
             </div>
           ))}
-        </div>
+          </div>
+        </>
       )}
     </Layout>
   );
