@@ -11,6 +11,7 @@ export default function VehicleViewPage() {
   const [vehicle, setVehicle] = useState(null);
   const [client, setClient] = useState(null);
   const [documents, setDocuments] = useState([]);
+  const [fleet, setFleet] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -26,6 +27,11 @@ export default function VehicleViewPage() {
           const cRes = await fetch(`/api/clients/${v.customer_id}`);
           if (!cRes.ok) throw new Error();
           setClient(await cRes.json());
+        }
+        if (v.fleet_id) {
+          const fRes = await fetch(`/api/fleets/${v.fleet_id}`);
+          if (!fRes.ok) throw new Error();
+          setFleet(await fRes.json());
         }
         const docs = await fetchDocuments('vehicle', id);
         setDocuments(docs);
@@ -81,7 +87,7 @@ export default function VehicleViewPage() {
           <p><strong>Make:</strong> {vehicle.make}</p>
           <p><strong>Model:</strong> {vehicle.model}</p>
           <p><strong>Color:</strong> {vehicle.color}</p>
-          <p><strong>Fleet ID:</strong> {vehicle.fleet_id || 'N/A'}</p>
+          <p><strong>Fleet:</strong> {fleet ? fleet.company_name : (vehicle.fleet_id || 'N/A')}</p>
         </Card>
         <Card>
           <h2 className="text-xl font-semibold mb-4">Documents</h2>
