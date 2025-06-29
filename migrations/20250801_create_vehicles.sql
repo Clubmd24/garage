@@ -6,5 +6,6 @@ CREATE TABLE IF NOT EXISTS vehicles (
   color VARCHAR(30),
   customer_id INT,
   fleet_id INT,
-  CONSTRAINT fk_vehicles_customer_id FOREIGN KEY (customer_id) REFERENCES clients(id)
+  CONSTRAINT fk_vehicles_customer_id FOREIGN KEY (customer_id) REFERENCES clients(id),
+  CONSTRAINT fk_vehicles_fleet_id FOREIGN KEY (fleet_id) REFERENCES fleets(id)
 );
