@@ -1,0 +1,24 @@
+import { getInvoiceById, updateInvoice, deleteInvoice } from '../../../services/invoicesService.js';
+
+export default async function handler(req, res) {
+  const { id } = req.query;
+  try {
+    if (req.method === 'GET') {
+      const invoice = await getInvoiceById(id);
+      return res.status(200).json(invoice);
+    }
+    if (req.method === 'PUT') {
+      const updated = await updateInvoice(id, req.body);
+      return res.status(200).json(updated);
+    }
+    if (req.method === 'DELETE') {
+      await deleteInvoice(id);
+      return res.status(204).end();
+    }
+    res.setHeader('Allow', ['GET','PUT','DELETE']);
+    res.status(405).end(`Method ${req.method} Not Allowed`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
