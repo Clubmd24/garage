@@ -1,12 +1,14 @@
 import pool from '../lib/db.js';
 
-export async function getAllVehicles(customer_id) {
+export async function getAllVehicles(customer_id, fleet_id) {
   const base = `SELECT v.id, v.licence_plate, v.make, v.model, v.color, v.customer_id, v.fleet_id,
                        CONCAT(c.first_name, ' ', c.last_name) AS customer_name
                   FROM vehicles v
              LEFT JOIN clients c ON v.customer_id=c.id`;
   const [rows] = customer_id
     ? await pool.query(`${base} WHERE v.customer_id=? ORDER BY v.id`, [customer_id])
+    : fleet_id
+    ? await pool.query(`${base} WHERE v.fleet_id=? ORDER BY v.id`, [fleet_id])
     : await pool.query(`${base} ORDER BY v.id`);
   return rows;
 }

@@ -36,9 +36,18 @@ test('createQuote inserts quote', async () => {
     default: { query: queryMock },
   }));
   const { createQuote } = await import('../services/quotesService.js');
-  const data = { customer_id: 1, job_id: 2, total_amount: 50, status: 'new' };
+  const data = {
+    customer_id: 1,
+    fleet_id: 2,
+    job_id: 3,
+    total_amount: 50,
+    status: 'new',
+  };
   const result = await createQuote(data);
-  expect(queryMock).toHaveBeenCalledWith(expect.stringMatching(/INSERT INTO quotes/), [1, 2, 50, 'new']);
+  expect(queryMock).toHaveBeenCalledWith(
+    expect.stringMatching(/INSERT INTO quotes/),
+    [1, 2, 3, 50, 'new']
+  );
   expect(result).toEqual({ id: 3, ...data });
 });
 
@@ -48,9 +57,18 @@ test('updateQuote updates row', async () => {
     default: { query: queryMock },
   }));
   const { updateQuote } = await import('../services/quotesService.js');
-  const data = { customer_id: 4, job_id: 5, total_amount: 6, status: 'sent' };
-  const result = await updateQuote(7, data);
-  expect(queryMock).toHaveBeenCalledWith(expect.stringMatching(/UPDATE quotes/), [4, 5, 6, 'sent', 7]);
+  const data = {
+    customer_id: 4,
+    fleet_id: 5,
+    job_id: 6,
+    total_amount: 7,
+    status: 'sent',
+  };
+  const result = await updateQuote(8, data);
+  expect(queryMock).toHaveBeenCalledWith(
+    expect.stringMatching(/UPDATE quotes/),
+    [4, 5, 6, 7, 'sent', 8]
+  );
   expect(result).toEqual({ ok: true });
 });
 
