@@ -1,7 +1,10 @@
 // scripts/migrate.js
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import mysql from 'mysql2/promise';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 async function runMigrations() {
   const urlStr = process.env.DATABASE_URL;
