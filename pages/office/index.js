@@ -105,6 +105,14 @@ function VehiclesIcon() {
   );
 }
 
+function FleetsIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" className="mb-2">
+      <path d="M4 6h16v4H4zM4 14h16v4H4z" />
+    </svg>
+  );
+}
+
 function CompanySettingsIcon() {
   return (
     <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" className="mb-2">
@@ -301,6 +309,7 @@ export default function OfficeHome() {
           <DashboardCard href="/office/quotations" title="Quotations" Icon={QuotationsIcon} />
           <DashboardCard href="/office/reporting" title="Reporting" Icon={ReportingIcon} />
           <DashboardCard href="/office/scheduling" title="Scheduling" Icon={SchedulingIcon} />
+          <DashboardCard href="/office/fleets" title="Fleets" Icon={FleetsIcon} />
           <DashboardCard href="/office/vehicles" title="Vehicles" Icon={VehiclesIcon} />
           <DashboardCard href="/office/company-settings" title="Company Settings" Icon={CompanySettingsIcon} />
         </div>
