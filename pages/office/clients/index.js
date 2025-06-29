@@ -3,17 +3,26 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Layout } from '../../../components/Layout';
 import { fetchClients } from '../../../lib/clients';
+import { fetchVehicles } from '../../../lib/vehicles';
+import { fetchFleets } from '../../../lib/fleets';
 
 const ClientsPage = () => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [vehicles, setVehicles] = useState([]);
+  const [fleets, setFleets] = useState([]);
+  const [selectedFleet, setSelectedFleet] = useState('');
 
   const load = () => {
     setLoading(true);
-    fetchClients()
-      .then(setClients)
+    Promise.all([fetchClients(), fetchVehicles(), fetchFleets()])
+      .then(([c, v, f]) => {
+        setClients(c);
+        setVehicles(v);
+        setFleets(f);
+      })
       .catch(() => setError('Failed to load clients'))
       .finally(() => setLoading(false));
   };
@@ -27,6 +36,13 @@ const ClientsPage = () => {
   };
 
   const filteredClients = clients.filter(c => {
+    if (
+      selectedFleet &&
+      !vehicles.some(
+        v => v.customer_id === c.id && String(v.fleet_id) === selectedFleet,
+      )
+    )
+      return false;
     const q = searchQuery.toLowerCase();
     const name = `${c.first_name || ''} ${c.last_name || ''}`.toLowerCase();
     return (
@@ -56,6 +72,18 @@ const ClientsPage = () => {
           onChange={e => setSearchQuery(e.target.value)}
           className="input mb-4 w-full"
         />
+        <select
+          value={selectedFleet}
+          onChange={e => setSelectedFleet(e.target.value)}
+          className="input mb-4 w-full"
+        >
+          <option value="">All Fleets</option>
+          {fleets.map(f => (
+            <option key={f.id} value={f.id}>
+              {f.company_name}
+            </option>
+          ))}
+        </select>
         <div className="grid gap-4 sm:grid-cols-2">
           {filteredClients.map(c => (
             <div key={c.id} className="item-card">
