@@ -25,14 +25,15 @@ test('fleets index rejects unsupported method', async () => {
   jest.unstable_mockModule('../services/fleetsService.js', () => ({
     getAllFleets: jest.fn(),
     getFleetById: jest.fn(),
+    createFleet: jest.fn(),
   }));
   const { default: handler } = await import('../pages/api/fleets/index.js');
-  const req = { method: 'POST', headers: {} };
+  const req = { method: 'PUT', headers: {} };
   const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn(), end: jest.fn() };
   await handler(req, res);
-  expect(res.setHeader).toHaveBeenCalledWith('Allow', ['GET']);
+  expect(res.setHeader).toHaveBeenCalledWith('Allow', ['GET','POST']);
   expect(res.status).toHaveBeenCalledWith(405);
-  expect(res.end).toHaveBeenCalledWith('Method POST Not Allowed');
+  expect(res.end).toHaveBeenCalledWith('Method PUT Not Allowed');
 });
 
 test('fleets index handles errors', async () => {
@@ -72,14 +73,16 @@ test('fleet detail rejects unsupported method', async () => {
   jest.unstable_mockModule('../services/fleetsService.js', () => ({
     getFleetById: jest.fn(),
     getAllFleets: jest.fn(),
+    updateFleet: jest.fn(),
+    deleteFleet: jest.fn(),
   }));
   const { default: handler } = await import('../pages/api/fleets/[id].js');
-  const req = { method: 'POST', query: { id: '1' }, headers: {} };
+  const req = { method: 'PATCH', query: { id: '1' }, headers: {} };
   const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn(), end: jest.fn() };
   await handler(req, res);
-  expect(res.setHeader).toHaveBeenCalledWith('Allow', ['GET']);
+  expect(res.setHeader).toHaveBeenCalledWith('Allow', ['GET','PUT','DELETE']);
   expect(res.status).toHaveBeenCalledWith(405);
-  expect(res.end).toHaveBeenCalledWith('Method POST Not Allowed');
+  expect(res.end).toHaveBeenCalledWith('Method PATCH Not Allowed');
 });
 
 test('fleet detail handles errors', async () => {
