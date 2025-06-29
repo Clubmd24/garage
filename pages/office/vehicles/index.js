@@ -2,17 +2,23 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Layout } from '../../../components/Layout';
 import { fetchVehicles } from '../../../lib/vehicles';
+import { fetchFleets } from '../../../lib/fleets';
 
 const VehiclesPage = () => {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [fleets, setFleets] = useState([]);
+  const [selectedFleet, setSelectedFleet] = useState('');
 
   const load = () => {
     setLoading(true);
-    fetchVehicles()
-      .then(setVehicles)
+    Promise.all([fetchVehicles(), fetchFleets()])
+      .then(([v, f]) => {
+        setVehicles(v);
+        setFleets(f);
+      })
       .catch(() => setError('Failed to load vehicles'))
       .finally(() => setLoading(false));
   };
@@ -26,6 +32,7 @@ const VehiclesPage = () => {
   };
 
   const filtered = vehicles.filter(v => {
+    if (selectedFleet && String(v.fleet_id) !== selectedFleet) return false;
     const q = searchQuery.toLowerCase();
     return (
       v.licence_plate.toLowerCase().includes(q) ||
@@ -57,6 +64,18 @@ const VehiclesPage = () => {
             onChange={e => setSearchQuery(e.target.value)}
             className="input mb-4 w-full"
           />
+          <select
+            value={selectedFleet}
+            onChange={e => setSelectedFleet(e.target.value)}
+            className="input mb-4 w-full"
+          >
+            <option value="">All Fleets</option>
+            {fleets.map(f => (
+              <option key={f.id} value={f.id}>
+                {f.company_name}
+              </option>
+            ))}
+          </select>
           <div className="grid gap-4 sm:grid-cols-2">
             {filtered.map(v => (
               <div key={v.id} className="item-card">
