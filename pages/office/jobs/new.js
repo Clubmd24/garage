@@ -1,0 +1,19 @@
+import React from 'react';
+import { useRouter } from 'next/router';
+import { Layout } from '../../../components/Layout';
+
+export default function NewJobPage() {
+  const { query } = useRouter();
+  return (
+    <Layout>
+      <h1 className="text-2xl font-semibold mb-4">New Job</h1>
+      <p className="text-sm">Placeholder page for creating a job.</p>
+      {query.client_id && (
+        <p className="text-sm">Client ID: {query.client_id}</p>
+      )}
+      {query.vehicle_id && (
+        <p className="text-sm">Vehicle ID: {query.vehicle_id}</p>
+      )}
+    </Layout>
+  );
+}

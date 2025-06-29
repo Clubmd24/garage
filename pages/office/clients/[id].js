@@ -94,9 +94,17 @@ const EditClientPage = () => {
       <div className="mt-8">
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-xl font-semibold">Vehicles</h2>
-          <Link href={`/office/vehicles/new?customer_id=${id}`}>
-            <a className="underline">Add Vehicle</a>
-          </Link>
+          <div className="flex gap-4">
+            <Link href={`/office/vehicles/new?customer_id=${id}`}>
+              <a className="underline">Add Vehicle</a>
+            </Link>
+            <Link href={`/office/quotations/new?client_id=${id}`}>
+              <a className="underline">New Quote</a>
+            </Link>
+            <Link href={`/office/jobs/new?client_id=${id}`}>
+              <a className="underline">New Job</a>
+            </Link>
+          </div>
         </div>
         {vehicles.length === 0 ? (
           <p>No vehicles</p>
