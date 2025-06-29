@@ -270,6 +270,26 @@ export default function OfficeHome() {
           </div>
         )}
         <p className="text-xl opacity-90">Welcome, {user.username}!</p>
+        <div className="w-full max-w-xl text-left">
+          <h2 className="text-2xl font-semibold mb-4">Quick Links</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <DashboardCard
+              href="/office/quotations/new"
+              title="New Quotation"
+              Icon={QuotationsIcon}
+            />
+            <DashboardCard
+              href="/office/jobs/new"
+              title="New Job"
+              Icon={JobManagementIcon}
+            />
+            <DashboardCard
+              href="/office/invoices?status=unpaid"
+              title="Pay Invoice"
+              Icon={InvoicesIcon}
+            />
+          </div>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-xl">
           <DashboardCard href="/office/clients" title="Clients" Icon={ClientsIcon} />
           <DashboardCard href="/office/crm" title="CRM" Icon={CRMIcon} />
