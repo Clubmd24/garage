@@ -122,6 +122,16 @@ function CompanySettingsIcon() {
   );
 }
 
+function LiveScreenIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" className="mb-2">
+      <path d="M3 4h18v12H3z" />
+      <path d="M8 20h8" />
+      <path d="M12 16v4" />
+    </svg>
+  );
+}
+
 function useCurrentUser() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -305,6 +315,7 @@ export default function OfficeHome() {
           <DashboardCard href="/office/invoices" title="Invoices" Icon={InvoicesIcon} />
           <DashboardCard href="/office/job-cards" title="Job Cards" Icon={JobCardsIcon} />
           <DashboardCard href="/office/job-management" title="Job Management" Icon={JobManagementIcon} />
+          <DashboardCard href="/office/live-screen" title="Live Screen" Icon={LiveScreenIcon} />
           <DashboardCard href="/office/parts" title="Parts" Icon={PartsIcon} />
           <DashboardCard href="/office/quotations" title="Quotations" Icon={QuotationsIcon} />
           <DashboardCard href="/office/reporting" title="Reporting" Icon={ReportingIcon} />
