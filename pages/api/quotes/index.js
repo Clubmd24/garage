@@ -1,13 +1,22 @@
-import { getAllQuotes, createQuote } from '../../../services/quotesService.js';
+import * as service from '../../../services/quotesService.js';
 
 export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
-      const quotes = await getAllQuotes();
+      const { fleet_id, customer_id } = req.query || {};
+      if (fleet_id) {
+        const rows = await service.getQuotesByFleet?.(fleet_id) ?? [];
+        return res.status(200).json(rows);
+      }
+      if (customer_id) {
+        const rows = await service.getQuotesByCustomer?.(customer_id) ?? [];
+        return res.status(200).json(rows);
+      }
+      const quotes = await service.getAllQuotes();
       return res.status(200).json(quotes);
     }
     if (req.method === 'POST') {
-      const newQuote = await createQuote(req.body);
+      const newQuote = await service.createQuote(req.body);
       return res.status(201).json(newQuote);
     }
     res.setHeader('Allow', ['GET','POST']);

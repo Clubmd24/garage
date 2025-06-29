@@ -1,9 +1,18 @@
-import { getAllJobs } from '../../../services/jobsService.js';
+import * as service from '../../../services/jobsService.js';
 
 export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
-      const jobs = await getAllJobs();
+      const { fleet_id, customer_id } = req.query || {};
+      if (fleet_id) {
+        const jobs = await service.getJobsByFleet?.(fleet_id) ?? [];
+        return res.status(200).json(jobs);
+      }
+      if (customer_id) {
+        const jobs = await service.getJobsByCustomer?.(customer_id) ?? [];
+        return res.status(200).json(jobs);
+      }
+      const jobs = await service.getAllJobs();
       return res.status(200).json(jobs);
     }
     res.setHeader('Allow', ['GET']);
