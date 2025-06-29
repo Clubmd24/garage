@@ -490,6 +490,17 @@
 | `fleet_id` | int(11) DEFAULT NULL |
 | `license_plate` | (`license_plate`) |
 
+## Table: `documents`
+
+| Column | Definition |
+|--------|------------|
+| `id` | int(11) NOT NULL AUTO_INCREMENT |
+| `entity_type` | enum('client','vehicle') NOT NULL |
+| `entity_id` | int(11) NOT NULL |
+| `filename` | varchar(512) NOT NULL |
+| `url` | text NOT NULL |
+| `uploaded_at` | datetime DEFAULT current_timestamp() |
+
 ## Table: `virtual_titles`
 
 | Column | Definition |
