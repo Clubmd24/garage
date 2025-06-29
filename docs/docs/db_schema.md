@@ -510,3 +510,20 @@
 | `data_payload` | longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`data_payload`)) |
 | `status` | varchar(50) DEFAULT NULL |
 | `created_ts` | datetime DEFAULT current_timestamp() |
+
+## Table: `job_requests`
+
+| Column | Definition |
+|--------|------------|
+| `id` | int(11) NOT NULL AUTO_INCREMENT |
+| `fleet_id` | int(11) DEFAULT NULL |
+| `client_id` | int(11) DEFAULT NULL |
+| `vehicle_id` | int(11) DEFAULT NULL |
+| `description` | text DEFAULT NULL |
+| `created_at` | datetime DEFAULT current_timestamp() |
+| `fk_job_requests_fleet` | (`fleet_id`) |
+| `fk_job_requests_client` | (`client_id`) |
+| `fk_job_requests_vehicle` | (`vehicle_id`) |
+| `fk_job_requests_fleet` | FOREIGN KEY (`fleet_id`) REFERENCES `fleets` (`id`) |
+| `fk_job_requests_client` | FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`) |
+| `fk_job_requests_vehicle` | FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles` (`id`) |
