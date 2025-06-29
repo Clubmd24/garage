@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS parts (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  part_number VARCHAR(100) NOT NULL UNIQUE,
+  description TEXT,
+  unit_cost DECIMAL(10,2)
+);
