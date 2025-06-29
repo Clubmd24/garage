@@ -8,6 +8,27 @@ export async function getAllJobs() {
   return rows;
 }
 
+export async function getJobsByFleet(fleet_id) {
+  const [rows] = await pool.query(
+    `SELECT j.id, j.customer_id, j.vehicle_id, j.scheduled_start, j.scheduled_end, j.status, j.bay, j.created_at
+       FROM jobs j
+       JOIN vehicles v ON j.vehicle_id = v.id
+      WHERE v.fleet_id=?
+      ORDER BY j.id`,
+    [fleet_id]
+  );
+  return rows;
+}
+
+export async function getJobsByCustomer(customer_id) {
+  const [rows] = await pool.query(
+    `SELECT id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay, created_at
+       FROM jobs WHERE customer_id=? ORDER BY id`,
+    [customer_id]
+  );
+  return rows;
+}
+
 export async function getJobById(id) {
   const [[row]] = await pool.query(
     `SELECT id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay, created_at

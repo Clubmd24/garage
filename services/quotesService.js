@@ -8,6 +8,24 @@ export async function getAllQuotes() {
   return rows;
 }
 
+export async function getQuotesByFleet(fleet_id) {
+  const [rows] = await pool.query(
+    `SELECT id, customer_id, fleet_id, job_id, total_amount, status, created_ts
+       FROM quotes WHERE fleet_id=? ORDER BY id`,
+    [fleet_id]
+  );
+  return rows;
+}
+
+export async function getQuotesByCustomer(customer_id) {
+  const [rows] = await pool.query(
+    `SELECT id, customer_id, fleet_id, job_id, total_amount, status, created_ts
+       FROM quotes WHERE customer_id=? ORDER BY id`,
+    [customer_id]
+  );
+  return rows;
+}
+
 export async function getQuoteById(id) {
   const [[row]] = await pool.query(
     `SELECT id, customer_id, fleet_id, job_id, total_amount, status, created_ts

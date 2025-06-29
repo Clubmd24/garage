@@ -1,13 +1,22 @@
-import { getAllInvoices, createInvoice } from '../../../services/invoicesService.js';
+import * as service from '../../../services/invoicesService.js';
 
 export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
-      const invoices = await getAllInvoices();
+      const { customer_id, fleet_id, status } = req.query || {};
+      if (fleet_id) {
+        const rows = await service.getInvoicesByFleet?.(fleet_id, status) ?? [];
+        return res.status(200).json(rows);
+      }
+      if (customer_id) {
+        const rows = await service.getInvoicesByCustomer?.(customer_id, status) ?? [];
+        return res.status(200).json(rows);
+      }
+      const invoices = await service.getAllInvoices();
       return res.status(200).json(invoices);
     }
     if (req.method === 'POST') {
-      const newInvoice = await createInvoice(req.body);
+      const newInvoice = await service.createInvoice(req.body);
       return res.status(201).json(newInvoice);
     }
     res.setHeader('Allow', ['GET','POST']);
