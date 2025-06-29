@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react';
 
-export default function PartAutocomplete({ onSelect }) {
-  const [term, setTerm] = useState('');
+export default function PartAutocomplete({ value, onChange, onSelect }) {
+  const [term, setTerm] = useState(value || '');
   const [results, setResults] = useState([]);
   const [showAdd, setShowAdd] = useState(false);
+
+  useEffect(() => {
+    if (value !== undefined) setTerm(value);
+  }, [value]);
 
   useEffect(() => {
     if (!term) return setResults([]);
@@ -45,7 +49,10 @@ export default function PartAutocomplete({ onSelect }) {
       <input
         className="input w-full"
         value={term}
-        onChange={e => setTerm(e.target.value)}
+        onChange={e => {
+          setTerm(e.target.value);
+          onChange && onChange(e.target.value);
+        }}
         placeholder="Part number or description"
       />
       {term && (
@@ -56,7 +63,12 @@ export default function PartAutocomplete({ onSelect }) {
               className="px-2 py-1 cursor-pointer hover:bg-gray-200"
               onClick={() => {
                 onSelect && onSelect(p);
-                setTerm('');
+                if (value === undefined) {
+                  setTerm('');
+                } else {
+                  setTerm(p.part_number);
+                  onChange && onChange(p.part_number);
+                }
                 setResults([]);
               }}
             >

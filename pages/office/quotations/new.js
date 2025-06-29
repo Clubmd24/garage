@@ -5,8 +5,9 @@ import { fetchClients } from '../../../lib/clients';
 import { fetchFleets } from '../../../lib/fleets';
 import { fetchVehicles } from '../../../lib/vehicles';
 import { createQuote } from '../../../lib/quotes';
+import PartAutocomplete from '../../../components/PartAutocomplete';
 
-const emptyItem = { description: '', qty: 1, price: 0 };
+const emptyItem = { part_number: '', description: '', qty: 1, price: 0 };
 
 export default function NewQuotationPage() {
   const router = useRouter();
@@ -156,11 +157,20 @@ export default function NewQuotationPage() {
           </select>
         </div>
         <div>
-          <h2 className="font-semibold mb-2">Items</h2>
+          <h2 className="font-semibold mb-2">Item Details</h2>
           {items.map((it, i) => (
-            <div key={i} className="grid grid-cols-4 gap-2 mb-2">
+            <div key={i} className="grid grid-cols-5 gap-2 mb-2">
+              <PartAutocomplete
+                value={it.part_number}
+                onChange={v => changeItem(i, 'part_number', v)}
+                onSelect={p => {
+                  changeItem(i, 'part_number', p.part_number);
+                  changeItem(i, 'description', p.description || '');
+                  changeItem(i, 'price', p.unit_cost || 0);
+                }}
+              />
               <input
-                className="input col-span-2"
+                className="input"
                 placeholder="Description"
                 value={it.description}
                 onChange={e => changeItem(i, 'description', e.target.value)}
@@ -175,17 +185,23 @@ export default function NewQuotationPage() {
               <input
                 type="number"
                 className="input"
-                placeholder="Price"
+                placeholder="Unit cost"
                 value={it.price}
                 onChange={e => changeItem(i, 'price', e.target.value)}
               />
+              <div className="flex items-center px-2 border rounded bg-gray-50">
+                €{(Number(it.qty) * Number(it.price)).toFixed(2)}
+              </div>
             </div>
           ))}
           <button type="button" onClick={addItem} className="button-secondary px-4">
             Add Item
           </button>
         </div>
-        <p className="font-semibold">Total: €{total.toFixed(2)}</p>
+        <div>
+          <h2 className="font-semibold mb-2">Summary</h2>
+          <p className="font-semibold">Total: €{total.toFixed(2)}</p>
+        </div>
         <button type="submit" className="button">
           Create Quote
         </button>
