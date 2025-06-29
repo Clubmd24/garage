@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Layout } from '../../../components/Layout';
 import { fetchQuotes, updateQuote } from '../../../lib/quotes';
+import { fetchClients } from '../../../lib/clients';
 
 const QuotationsPage = () => {
   const [quotes, setQuotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [clients, setClients] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const load = () => {
     setLoading(true);
@@ -17,6 +20,12 @@ const QuotationsPage = () => {
   };
 
   useEffect(load, []);
+
+  useEffect(() => {
+    fetchClients()
+      .then(setClients)
+      .catch(() => setClients([]));
+  }, []);
 
   const approve = async id => {
     await updateQuote(id, { status: 'approved' });
@@ -32,6 +41,26 @@ const QuotationsPage = () => {
     q => !['job-card', 'completed', 'invoiced'].includes(q.status)
   );
 
+  const clientMap = useMemo(() => {
+    const m = {};
+    clients.forEach(c => {
+      m[c.id] = `${c.first_name || ''} ${c.last_name || ''}`.trim();
+    });
+    return m;
+  }, [clients]);
+
+  const filtered = visible.filter(q => {
+    const qStr = searchQuery.toLowerCase();
+    const name = (clientMap[q.customer_id] || '').toLowerCase();
+    return (
+      name.includes(qStr) ||
+      String(q.id).includes(qStr) ||
+      String(q.customer_id).includes(qStr) ||
+      String(q.total_amount).includes(qStr) ||
+      (q.status || '').toLowerCase().includes(qStr)
+    );
+  });
+
   return (
     <Layout>
       <div className="flex items-center justify-between mb-4">
@@ -44,8 +73,16 @@ const QuotationsPage = () => {
       {loading ? (
         <p>Loading…</p>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {visible.map(q => (
+        <>
+          <input
+            type="text"
+            placeholder="Search…"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="input mb-4 w-full"
+          />
+          <div className="grid gap-4 sm:grid-cols-2">
+          {filtered.map(q => (
             <div key={q.id} className="item-card">
               <h2 className="font-semibold mb-1">Quote #{q.id}</h2>
               <p className="text-sm">Client ID: {q.customer_id}</p>
@@ -77,7 +114,8 @@ const QuotationsPage = () => {
               </div>
             </div>
           ))}
-        </div>
+          </div>
+        </>
       )}
     </Layout>
   );
