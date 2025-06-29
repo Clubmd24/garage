@@ -22,8 +22,9 @@ async function runMigrations() {
       run_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`);
 
+    const migrationsDir = path.resolve(__dirname, '../migrations');
     const files = fs
-      .readdirSync(path.resolve('./migrations'))
+      .readdirSync(migrationsDir)
       .filter((f) => f.endsWith('.sql'))
       .sort();
 
@@ -38,7 +39,7 @@ async function runMigrations() {
       }
 
       const sql = fs.readFileSync(
-        path.resolve('./migrations', file),
+        path.join(migrationsDir, file),
         'utf8'
       );
       console.log(`Applying ${file}...`);
