@@ -182,6 +182,12 @@ const QuotationsPage = () => {
                     Create Job Card
                   </button>
                 )}
+                <a
+                  href={`/api/quotes/${q.id}/pdf`}
+                  className="button-secondary px-4 text-sm"
+                >
+                  Download PDF
+                </a>
               </div>
             </div>
           ))}
