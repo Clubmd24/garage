@@ -68,58 +68,63 @@ export function PortalDashboard({
         </select>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {filteredVehicles.map(v => (
-          <Card key={v.id} className="hover:shadow-xl transition-shadow">
-            <div className="p-4">
-              <h2 className="text-xl font-medium">{v.licence_plate}</h2>
-              <p className="text-sm text-gray-200">{v.make} {v.model}</p>
-              <Link href={`/vehicles/${v.id}`} className="button-secondary mt-3 inline-block text-center">View Details</Link>
-            </div>
-          </Card>
-        ))}
+      <div className="lg:flex lg:space-x-6">
+        <div className="lg:w-1/3 space-y-6">
+          <section id="jobs">
+            <h2 className="text-xl font-semibold mb-2">Open Jobs</h2>
+            <ul className="list-disc ml-6">
+              {jobs.map(j => (
+                <li key={j.id}>Job #{j.id} - {j.status}</li>
+              ))}
+            </ul>
+          </section>
+          <section id="quotes">
+            <h2 className="text-xl font-semibold mb-2">Quotes</h2>
+            <ul className="list-disc ml-6">
+              {quotes.map(q => (
+                <li key={q.id} className="mb-1">
+                  Quote #{q.id} - {q.status}
+                  {q.status !== 'accepted' && (
+                    <button onClick={() => acceptQuote(q.id)} className="ml-2 underline">
+                      Accept
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+          <section id="invoices">
+            <h2 className="text-xl font-semibold mb-2">Invoices</h2>
+            <select
+              value={filter}
+              onChange={e => setFilter(e.target.value)}
+              className="input mb-2"
+            >
+              <option value="all">All</option>
+              <option value="paid">Paid</option>
+              <option value="unpaid">Unpaid</option>
+            </select>
+            <ul className="list-disc ml-6">
+              {invFiltered.map(inv => (
+                <li key={inv.id}>Invoice #{inv.id} - {inv.status}</li>
+              ))}
+            </ul>
+          </section>
+        </div>
+        <div className="flex-1">
+          <div id="vehicles" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {filteredVehicles.map(v => (
+              <Card key={v.id} className="hover:shadow-xl transition-shadow">
+                <div className="p-3">
+                  <h2 className="text-lg font-medium">{v.licence_plate}</h2>
+                  <p className="text-sm text-gray-200">{v.make} {v.model}</p>
+                  <Link href={`/vehicles/${v.id}`} className="button-secondary mt-2 inline-block text-center">View Details</Link>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
       </div>
-
-      <section>
-        <h2 className="text-xl font-semibold mb-2">Open Jobs</h2>
-        <ul className="list-disc ml-6">
-          {jobs.map(j => (
-            <li key={j.id}>Job #{j.id} - {j.status}</li>
-          ))}
-        </ul>
-      </section>
-      <section>
-        <h2 className="text-xl font-semibold mb-2">Quotes</h2>
-        <ul className="list-disc ml-6">
-          {quotes.map(q => (
-            <li key={q.id} className="mb-1">
-              Quote #{q.id} - {q.status}
-              {q.status !== 'accepted' && (
-                <button onClick={() => acceptQuote(q.id)} className="ml-2 underline">
-                  Accept
-                </button>
-              )}
-            </li>
-          ))}
-        </ul>
-      </section>
-      <section>
-        <h2 className="text-xl font-semibold mb-2">Invoices</h2>
-        <select
-          value={filter}
-          onChange={e => setFilter(e.target.value)}
-          className="input mb-2"
-        >
-          <option value="all">All</option>
-          <option value="paid">Paid</option>
-          <option value="unpaid">Unpaid</option>
-        </select>
-        <ul className="list-disc ml-6">
-          {invFiltered.map(inv => (
-            <li key={inv.id}>Invoice #{inv.id} - {inv.status}</li>
-          ))}
-        </ul>
-      </section>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { fetchVehicles } from '../../lib/vehicles';
 import { fetchInvoices } from '../../lib/invoices';
 import { PortalDashboard } from '../../components/PortalDashboard';
+import { FleetNav } from '../../components/FleetNav';
 
 export default function FleetDashboard() {
   const router = useRouter();
@@ -35,14 +36,19 @@ export default function FleetDashboard() {
   if (!fleet) return <p className="p-8">Loading…</p>;
 
   return (
-    <PortalDashboard
-      title={`${fleet.company_name} Dashboard`}
-      requestJobPath="/fleet/request-job"
-      vehicles={vehicles}
-      jobs={jobs}
-      quotes={quotes}
-      setQuotes={setQuotes}
-      invoices={invoices}
-    />
+    <div className="flex space-x-4">
+      <FleetNav />
+      <div className="flex-1">
+        <PortalDashboard
+          title={`${fleet.company_name} Dashboard`}
+          requestJobPath="/fleet/request-job"
+          vehicles={vehicles}
+          jobs={jobs}
+          quotes={quotes}
+          setQuotes={setQuotes}
+          invoices={invoices}
+        />
+      </div>
+    </div>
   );
 }
