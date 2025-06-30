@@ -3,7 +3,7 @@ import Script from 'next/script';
 
 export default function Document() {
   return (
-    <Html>
+    <Html lang="en">
       <Head>
         <Script src="/api/socket-io/socket.io.js" strategy="beforeInteractive" />
       </Head>
