@@ -19,3 +19,7 @@
 All database schema changes are stored as `.sql` files in the `migrations/`
 directory. The migration script executes them sequentially and records the
 results so it can be run repeatedly without errors.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
