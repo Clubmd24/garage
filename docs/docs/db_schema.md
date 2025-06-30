@@ -528,3 +528,43 @@
 | `fk_job_requests_fleet` | FOREIGN KEY (`fleet_id`) REFERENCES `fleets` (`id`) |
 | `fk_job_requests_client` | FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`) |
 | `fk_job_requests_vehicle` | FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles` (`id`) |
+
+## Table: `suppliers`
+
+| Column | Definition |
+|--------|------------|
+| `id` | int(11) NOT NULL AUTO_INCREMENT |
+| `name` | varchar(255) NOT NULL |
+| `address` | text DEFAULT NULL |
+| `contact_number` | varchar(50) DEFAULT NULL |
+| `email_address` | varchar(255) DEFAULT NULL |
+| `payment_terms` | varchar(100) DEFAULT NULL |
+| `credit_limit` | decimal(10,2) DEFAULT NULL |
+
+## Table: `purchase_orders`
+
+| Column | Definition |
+|--------|------------|
+| `id` | int(11) NOT NULL AUTO_INCREMENT |
+| `job_id` | int(11) DEFAULT NULL |
+| `supplier_id` | int(11) NOT NULL |
+| `status` | varchar(50) DEFAULT NULL |
+| `created_at` | datetime DEFAULT current_timestamp() |
+| `fk_po_job` | (`job_id`) |
+| `fk_po_supplier` | (`supplier_id`) |
+| `fk_po_job` | FOREIGN KEY (`job_id`) REFERENCES `jobs` (`id`) |
+| `fk_po_supplier` | FOREIGN KEY (`supplier_id`) REFERENCES `suppliers` (`id`) |
+
+## Table: `purchase_order_items`
+
+| Column | Definition |
+|--------|------------|
+| `id` | int(11) NOT NULL AUTO_INCREMENT |
+| `purchase_order_id` | int(11) NOT NULL |
+| `part_id` | int(11) NOT NULL |
+| `qty` | int(11) DEFAULT NULL |
+| `unit_price` | decimal(10,2) DEFAULT NULL |
+| `fk_poi_po` | (`purchase_order_id`) |
+| `fk_poi_part` | (`part_id`) |
+| `fk_poi_po` | FOREIGN KEY (`purchase_order_id`) REFERENCES `purchase_orders` (`id`) |
+| `fk_poi_part` | FOREIGN KEY (`part_id`) REFERENCES `parts` (`id`) |

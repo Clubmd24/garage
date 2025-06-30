@@ -5,9 +5,9 @@ import { fetchClients } from '../../../lib/clients';
 import { fetchFleets } from '../../../lib/fleets';
 import { fetchVehicles } from '../../../lib/vehicles';
 import { createQuote } from '../../../lib/quotes';
-import PartAutocomplete from '../../../components/PartAutocomplete';
 
-const emptyItem = { part_number: '', description: '', qty: 1, price: 0 };
+const emptyItem = { part_number: '', part_id: '', description: '', qty: 1, price: 0 };
+import PartAutocomplete from '../../../components/PartAutocomplete';
 
 export default function NewQuotationPage() {
   const router = useRouter();
@@ -68,13 +68,26 @@ export default function NewQuotationPage() {
   const submit = async e => {
     e.preventDefault();
     try {
-      await createQuote({
+      const quote = await createQuote({
         customer_id: mode === 'client' ? form.customer_id : null,
         fleet_id: mode === 'fleet' ? form.fleet_id : null,
         job_id: null,
         total_amount: total,
         status: 'new',
       });
+      for (const it of items) {
+        await fetch('/api/quote-items', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            quote_id: quote.id,
+            part_id: it.part_id || null,
+            description: it.description,
+            qty: it.qty,
+            unit_price: it.price,
+          }),
+        });
+      }
       router.push('/office/quotations');
     } catch {
       setError('Failed to create quote');
@@ -165,6 +178,7 @@ export default function NewQuotationPage() {
                 onChange={v => changeItem(i, 'part_number', v)}
                 onSelect={p => {
                   changeItem(i, 'part_number', p.part_number);
+                  changeItem(i, 'part_id', p.id);
                   changeItem(i, 'description', p.description || '');
                   changeItem(i, 'price', p.unit_cost || 0);
                 }}
