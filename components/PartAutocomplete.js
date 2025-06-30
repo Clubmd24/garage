@@ -80,7 +80,7 @@ export default function PartAutocomplete({ value, onChange, onSelect }) {
               className="px-2 py-1 cursor-pointer hover:bg-gray-200"
               onClick={addPart}
             >
-              Add Part "{term}"
+              Add Part &quot;{term}&quot;
             </div>
           )}
         </div>
