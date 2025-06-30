@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
+import { DashboardCard } from '../../components/DashboardCard.js';
 import { useRouter } from 'next/router';
 import logout from '../../lib/logout.js';
 
@@ -48,17 +48,7 @@ function RequestIcon() {
   );
 }
 
-function DashboardCard({ href, title, Icon }) {
-  return (
-    <Link
-      href={href}
-      className="flex flex-col items-center justify-center bg-gradient-to-r from-blue-500 to-blue-400 text-white font-bold rounded-full py-6 px-6 shadow-2xl transform hover:scale-105 transition-transform duration-300"
-    >
-      <Icon />
-      <span className="text-lg">{title}</span>
-    </Link>
-  );
-}
+
 
 function useCurrentFleet() {
   const [fleet, setFleet] = useState(null);

@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import logout from '../lib/logout.js';
 import Head from 'next/head';
-import Link from 'next/link';
+import { DashboardCard } from '../components/DashboardCard.js';
+import { useCurrentUser } from '../components/useCurrentUser.js';
 
 
 // Inline SVG icons
@@ -48,40 +49,7 @@ function OfficeIcon() {
   );
 }
 
-// Custom hook to fetch current user
-function useCurrentUser() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch('/api/auth/me', { credentials: 'include' });
-        if (!res.ok) throw new Error('Auth failed');
-        setUser(await res.json());
-      } catch {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
-
-  return { user, loading };
-}
-
-// Reusable dashboard card with icon and pop effect
-function DashboardCard({ href, title, Icon }) {
-  return (
-    <Link
-      href={href}
-      className="flex flex-col items-center justify-center bg-gradient-to-r from-blue-500 to-blue-400 text-white font-bold rounded-full py-6 px-6 shadow-2xl transform hover:scale-105 transition-transform duration-300"
-    >
-      <Icon />
-      <span className="text-lg">{title}</span>
-    </Link>
-  );
-}
 
 export default function Home() {
   const router = useRouter();
