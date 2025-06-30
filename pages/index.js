@@ -94,7 +94,11 @@ export default function Home() {
   // Logout handler
   async function handleLogout() {
     try {
-      await fetch('/api/auth/logout', { credentials: 'include' });
+      await Promise.all([
+        fetch('/api/auth/logout', { credentials: 'include' }),
+        fetch('/api/portal/fleet/logout', { credentials: 'include' }),
+        fetch('/api/portal/local/logout', { credentials: 'include' }),
+      ]);
     } catch (err) {
       console.error('Logout failed', err);
     } finally {

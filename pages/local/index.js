@@ -12,6 +12,15 @@ export default function LocalDashboard() {
   const [quotes, setQuotes] = useState([]);
   const [invoices, setInvoices] = useState([]);
 
+  async function handleLogout() {
+    try {
+      await fetch('/api/portal/local/logout', { credentials: 'include' });
+      await fetch('/api/auth/logout', { credentials: 'include' });
+    } finally {
+      router.push('/local/login');
+    }
+  }
+
   useEffect(() => {
     (async () => {
       const res = await fetch('/api/portal/local/me');
@@ -34,14 +43,19 @@ export default function LocalDashboard() {
   if (!client) return <p className="p-8">Loading…</p>;
 
   return (
-    <PortalDashboard
-      title={`Welcome ${client.first_name}`}
-      requestJobPath="/local/request-job"
-      vehicles={vehicles.filter(v => !v.fleet_id)}
-      jobs={jobs}
-      quotes={quotes}
-      setQuotes={setQuotes}
-      invoices={invoices}
-    />
+    <>
+      <div className="p-4 text-right">
+        <button onClick={handleLogout} className="button-secondary px-4">Logout</button>
+      </div>
+      <PortalDashboard
+        title={`Welcome ${client.first_name}`}
+        requestJobPath="/local/request-job"
+        vehicles={vehicles.filter(v => !v.fleet_id)}
+        jobs={jobs}
+        quotes={quotes}
+        setQuotes={setQuotes}
+        invoices={invoices}
+      />
+    </>
   );
 }

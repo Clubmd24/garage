@@ -10,7 +10,11 @@ export default function useIdleLogout(timeoutMs = 15 * 60 * 1000) {
       if (timer.current) clearTimeout(timer.current);
       timer.current = setTimeout(async () => {
         try {
-          await fetch('/api/auth/logout', { credentials: 'include' });
+          await Promise.all([
+            fetch('/api/auth/logout', { credentials: 'include' }),
+            fetch('/api/portal/fleet/logout', { credentials: 'include' }),
+            fetch('/api/portal/local/logout', { credentials: 'include' }),
+          ]);
         } finally {
           router.push('/login');
         }
