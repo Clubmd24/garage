@@ -14,7 +14,7 @@ export default function FleetLogin() {
       body: JSON.stringify({ company_name: company }),
     });
     if (res.ok) {
-      router.push('/fleet');
+      router.push('/fleet/home');
     } else {
       setError('Login failed');
     }
