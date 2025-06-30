@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Card } from './Card';
 import { updateQuote } from '../lib/quotes';
+import { JOB_STATUSES } from '../lib/jobStatuses.js';
 
 export function PortalDashboard({
   title,
@@ -16,6 +17,7 @@ export function PortalDashboard({
   const [query, setQuery] = useState('');
   const [brand, setBrand] = useState('All');
   const [filter, setFilter] = useState('all');
+  const [jobFilter, setJobFilter] = useState('all');
 
   async function acceptQuote(id) {
     await updateQuote(id, { status: 'accepted' });
@@ -39,6 +41,10 @@ export function PortalDashboard({
     'All',
     ...Array.from(new Set(vehicles.filter(vehicleFilter).map(v => v.make))),
   ];
+
+  const jobsFiltered = jobs.filter(j =>
+    jobFilter === 'all' ? true : j.status === jobFilter
+  );
 
   const invFiltered = invoices.filter(i =>
     filter === 'all' ? true : i.status === filter
@@ -82,8 +88,18 @@ export function PortalDashboard({
 
       <section>
         <h2 className="text-xl font-semibold mb-2">Open Jobs</h2>
+        <select
+          value={jobFilter}
+          onChange={e => setJobFilter(e.target.value)}
+          className="input mb-2"
+        >
+          <option value="all">All</option>
+          {JOB_STATUSES.map(s => (
+            <option key={s} value={s}>{s}</option>
+          ))}
+        </select>
         <ul className="list-disc ml-6">
-          {jobs.map(j => (
+          {jobsFiltered.map(j => (
             <li key={j.id}>Job #{j.id} - {j.status}</li>
           ))}
         </ul>

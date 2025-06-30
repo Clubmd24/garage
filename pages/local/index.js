@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { fetchVehicles } from '../../lib/vehicles';
 import { fetchInvoices } from '../../lib/invoices';
+import { fetchJobs } from '../../lib/jobs.js';
 import { PortalDashboard } from '../../components/PortalDashboard';
 import logout from '../../lib/logout.js';
 
@@ -29,7 +30,7 @@ export default function LocalDashboard() {
       setClient(c);
       const [veh, j, q, inv] = await Promise.all([
         fetchVehicles(c.id, null),
-        fetch(`/api/jobs?customer_id=${c.id}`).then(r => r.json()),
+        fetchJobs({ customer_id: c.id, status: 'in progress' }),
         fetch(`/api/quotes?customer_id=${c.id}`).then(r => r.json()),
         fetch(`/api/invoices?customer_id=${c.id}`).then(r => r.json()),
       ]);

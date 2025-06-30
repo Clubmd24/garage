@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import logout from '../../lib/logout.js';
 import { fetchVehicles } from '../../lib/vehicles';
 import { fetchInvoices } from '../../lib/invoices';
+import { fetchJobs } from '../../lib/jobs.js';
 import { PortalDashboard } from '../../components/PortalDashboard';
 
 export default function FleetDashboard() {
@@ -29,7 +30,7 @@ export default function FleetDashboard() {
       setFleet(f);
       const [veh, j, q, inv] = await Promise.all([
         fetchVehicles(null, f.id),
-        fetch(`/api/jobs?fleet_id=${f.id}`).then(r => r.json()),
+        fetchJobs({ fleet_id: f.id, status: 'in progress' }),
         fetch(`/api/quotes?fleet_id=${f.id}`).then(r => r.json()),
         fetch(`/api/invoices?fleet_id=${f.id}`).then(r => r.json()),
       ]);

@@ -277,6 +277,7 @@
 | `scheduled_start` | datetime DEFAULT NULL |
 | `scheduled_end` | datetime DEFAULT NULL |
 | `status` | varchar(50) DEFAULT NULL |
+| *Allowed* | awaiting collection, awaiting assessment, awaiting parts, in progress, awaiting return, completed |
 | `bay` | varchar(50) DEFAULT NULL |
 | `created_at` | datetime DEFAULT current_timestamp() |
 
