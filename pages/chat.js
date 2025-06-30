@@ -63,7 +63,7 @@ export default function Chat() {
     };
     init();
     return () => socketRef.current && socketRef.current.disconnect();
-  }, []);
+  }, [topicId]);
 
   useEffect(() => {
     if (!socketReady || !socketRef.current || !topicId) return;
