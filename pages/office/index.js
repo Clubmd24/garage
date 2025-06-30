@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import logout from '../../lib/logout.js';
 import Head from 'next/head';
 import Link from 'next/link';
 import { fetchClients } from '../../lib/clients';
@@ -201,11 +202,7 @@ export default function OfficeHome() {
 
   async function handleLogout() {
     try {
-      await Promise.all([
-        fetch('/api/auth/logout', { credentials: 'include' }),
-        fetch('/api/portal/fleet/logout', { credentials: 'include' }),
-        fetch('/api/portal/local/logout', { credentials: 'include' }),
-      ]);
+      await logout();
     } finally {
       router.push('/login');
     }

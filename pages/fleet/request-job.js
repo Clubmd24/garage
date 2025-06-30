@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { fetchVehicles } from '../../lib/vehicles';
+import logout from '../../lib/logout.js';
 
 export default function FleetRequestJob() {
   const router = useRouter();
@@ -12,8 +13,7 @@ export default function FleetRequestJob() {
 
   async function handleLogout() {
     try {
-      await fetch('/api/portal/fleet/logout', { credentials: 'include' });
-      await fetch('/api/auth/logout', { credentials: 'include' });
+      await logout();
     } finally {
       router.push('/fleet/login');
     }
