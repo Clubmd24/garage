@@ -1,31 +1,33 @@
 import pool from '../lib/db.js';
+import { JOB_STATUSES } from '../lib/jobStatuses.js';
 
-export async function getAllJobs() {
-  const [rows] = await pool.query(
-    `SELECT id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay, created_at
-       FROM jobs ORDER BY id`
-  );
+export async function getAllJobs(status) {
+  const base =
+    'SELECT id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay, created_at FROM jobs';
+  const [rows] = status
+    ? await pool.query(`${base} WHERE status=? ORDER BY id`, [status])
+    : await pool.query(`${base} ORDER BY id`);
   return rows;
 }
 
-export async function getJobsByFleet(fleet_id) {
-  const [rows] = await pool.query(
+export async function getJobsByFleet(fleet_id, status) {
+  const base =
     `SELECT j.id, j.customer_id, j.vehicle_id, j.scheduled_start, j.scheduled_end, j.status, j.bay, j.created_at
        FROM jobs j
        JOIN vehicles v ON j.vehicle_id = v.id
-      WHERE v.fleet_id=?
-      ORDER BY j.id`,
-    [fleet_id]
-  );
+      WHERE v.fleet_id=?`;
+  const [rows] = status
+    ? await pool.query(`${base} AND j.status=? ORDER BY j.id`, [fleet_id, status])
+    : await pool.query(`${base} ORDER BY j.id`, [fleet_id]);
   return rows;
 }
 
-export async function getJobsByCustomer(customer_id) {
-  const [rows] = await pool.query(
-    `SELECT id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay, created_at
-       FROM jobs WHERE customer_id=? ORDER BY id`,
-    [customer_id]
-  );
+export async function getJobsByCustomer(customer_id, status) {
+  const base =
+    `SELECT id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay, created_at FROM jobs WHERE customer_id=?`;
+  const [rows] = status
+    ? await pool.query(`${base} AND status=? ORDER BY id`, [customer_id, status])
+    : await pool.query(`${base} ORDER BY id`, [customer_id]);
   return rows;
 }
 
@@ -39,6 +41,9 @@ export async function getJobById(id) {
 }
 
 export async function createJob({ customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay }) {
+  if (status && !JOB_STATUSES.includes(status)) {
+    throw new Error('Invalid job status');
+  }
   const [{ insertId }] = await pool.query(
     `INSERT INTO jobs (customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay)
      VALUES (?,?,?,?,?,?)`,
@@ -48,6 +53,9 @@ export async function createJob({ customer_id, vehicle_id, scheduled_start, sche
 }
 
 export async function updateJob(id, { customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay }) {
+  if (status && !JOB_STATUSES.includes(status)) {
+    throw new Error('Invalid job status');
+  }
   await pool.query(
     `UPDATE jobs SET customer_id=?, vehicle_id=?, scheduled_start=?, scheduled_end=?, status=?, bay=? WHERE id=?`,
     [customer_id || null, vehicle_id || null, scheduled_start || null, scheduled_end || null, status || null, bay || null, id]
@@ -87,7 +95,7 @@ export async function listActiveJobsForEngineer(user_id) {
             j.status, j.bay, j.created_at
        FROM jobs j
        JOIN job_assignments ja ON j.id = ja.job_id
-      WHERE ja.user_id=? AND j.status='active'
+      WHERE ja.user_id=? AND j.status='in progress'
       ORDER BY j.id`,
     [user_id]
   );

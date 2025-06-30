@@ -3,6 +3,7 @@ import { Layout } from '../../../components/Layout';
 import { fetchQuotes } from '../../../lib/quotes';
 import { fetchJobs } from '../../../lib/jobs';
 import { fetchInvoices } from '../../../lib/invoices';
+import { JOB_STATUSES } from '../../../lib/jobStatuses.js';
 
 const LiveScreenPage = () => {
   const [quotes, setQuotes] = useState([]);
@@ -37,9 +38,12 @@ const LiveScreenPage = () => {
 
   const jobStatusCounts = useMemo(() => {
     const counts = {};
+    JOB_STATUSES.forEach(s => {
+      counts[s] = 0;
+    });
     jobs.forEach(j => {
-      const s = j.status || 'unknown';
-      counts[s] = (counts[s] || 0) + 1;
+      const s = j.status;
+      if (counts[s] !== undefined) counts[s] += 1;
     });
     return counts;
   }, [jobs]);
@@ -65,8 +69,8 @@ const LiveScreenPage = () => {
           <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
             <h2 className="text-lg font-semibold mb-2">Jobs</h2>
             <ul className="space-y-1">
-              {Object.entries(jobStatusCounts).map(([s, c]) => (
-                <li key={s} className="capitalize">{s}: {c}</li>
+              {JOB_STATUSES.map(s => (
+                <li key={s} className="capitalize">{s}: {jobStatusCounts[s] || 0}</li>
               ))}
             </ul>
             <ul className="space-y-1 max-h-60 overflow-y-auto mt-2">
