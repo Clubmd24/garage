@@ -49,17 +49,19 @@ export default function Chat() {
       }
 
       await fetch("/api/socket-io"); // start socket endpoint
-      const socket = window.io({ path: "/api/socket-io" });
-      socketRef.current = socket;
-      setSocketReady(true);
+      if (typeof window !== "undefined" && window.io) {
+        const socket = window.io({ path: "/api/socket-io" });
+        socketRef.current = socket;
+        setSocketReady(true);
 
-      socket.on("chat:recv", (msg) => {
-        setMessages((m) => [...m, msg]);
-      });
+        socket.on("chat:recv", (msg) => {
+          setMessages((m) => [...m, msg]);
+        });
 
-      socket.on("chat:delete", (id) => {
-        setMessages((m) => m.filter((msg) => msg.id !== id));
-      });
+        socket.on("chat:delete", (id) => {
+          setMessages((m) => m.filter((msg) => msg.id !== id));
+        });
+      }
     };
     init();
     return () => socketRef.current && socketRef.current.disconnect();
