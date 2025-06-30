@@ -10,6 +10,15 @@ export default function FleetRequestJob() {
   const [description, setDescription] = useState('');
   const [message, setMessage] = useState('');
 
+  async function handleLogout() {
+    try {
+      await fetch('/api/portal/fleet/logout', { credentials: 'include' });
+      await fetch('/api/auth/logout', { credentials: 'include' });
+    } finally {
+      router.push('/fleet/login');
+    }
+  }
+
   useEffect(() => {
     (async () => {
       const res = await fetch('/api/portal/fleet/me');
@@ -39,7 +48,10 @@ export default function FleetRequestJob() {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">New Job Request</h1>
+      <div className="flex justify-between mb-4">
+        <h1 className="text-2xl font-bold">New Job Request</h1>
+        <button onClick={handleLogout} className="button-secondary px-4">Logout</button>
+      </div>
       {message && <p className="text-green-600 mb-2">{message}</p>}
       <form onSubmit={submit} className="space-y-4 max-w-sm">
         <select value={vehicleId} onChange={e => setVehicleId(e.target.value)} className="input w-full" required>

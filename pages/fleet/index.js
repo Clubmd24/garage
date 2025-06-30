@@ -12,6 +12,15 @@ export default function FleetDashboard() {
   const [quotes, setQuotes] = useState([]);
   const [invoices, setInvoices] = useState([]);
 
+  async function handleLogout() {
+    try {
+      await fetch('/api/portal/fleet/logout', { credentials: 'include' });
+      await fetch('/api/auth/logout', { credentials: 'include' });
+    } finally {
+      router.push('/fleet/login');
+    }
+  }
+
   useEffect(() => {
     (async () => {
       const res = await fetch('/api/portal/fleet/me');
@@ -35,14 +44,19 @@ export default function FleetDashboard() {
   if (!fleet) return <p className="p-8">Loading…</p>;
 
   return (
-    <PortalDashboard
-      title={`${fleet.company_name} Dashboard`}
-      requestJobPath="/fleet/request-job"
-      vehicles={vehicles}
-      jobs={jobs}
-      quotes={quotes}
-      setQuotes={setQuotes}
-      invoices={invoices}
-    />
+    <>
+      <div className="p-4 text-right">
+        <button onClick={handleLogout} className="button-secondary px-4">Logout</button>
+      </div>
+      <PortalDashboard
+        title={`${fleet.company_name} Dashboard`}
+        requestJobPath="/fleet/request-job"
+        vehicles={vehicles}
+        jobs={jobs}
+        quotes={quotes}
+        setQuotes={setQuotes}
+        invoices={invoices}
+      />
+    </>
   );
 }
