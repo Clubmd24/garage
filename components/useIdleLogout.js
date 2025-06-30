@@ -20,12 +20,15 @@ export default function useIdleLogout(timeoutMs = 15 * 60 * 1000) {
       }, timeoutMs);
     }
 
-    reset();
-    const events = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart'];
-    events.forEach((e) => window.addEventListener(e, reset));
-    return () => {
-      events.forEach((e) => window.removeEventListener(e, reset));
-      if (timer.current) clearTimeout(timer.current);
-    };
+    if (typeof window !== 'undefined') {
+      reset();
+      const events = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart'];
+      events.forEach((e) => window.addEventListener(e, reset));
+      return () => {
+        events.forEach((e) => window.removeEventListener(e, reset));
+        if (timer.current) clearTimeout(timer.current);
+      };
+    }
+    return undefined;
   }, [router, timeoutMs]);
 }
