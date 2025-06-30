@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 
 export function Header() {
   const [user, setUser] = useState(null);
@@ -18,7 +19,7 @@ export function Header() {
   return (
     <header className="bg-gradient-to-r from-blue-600 to-blue-500 text-white p-4 flex justify-between items-center shadow-lg rounded-b-3xl">
       <div className="flex items-center space-x-3">
-        <img src="/logo.png" alt="Garage Vision Logo" className="w-8 h-8 rounded-full" />
+        <Image src="/logo.png" alt="Garage Vision Logo" width={32} height={32} className="w-8 h-8 rounded-full" />
         <span className="font-bold text-lg">Garage Vision</span>
       </div>
       {user && (
