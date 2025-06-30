@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { fetchVehicles } from '../../lib/vehicles';
 import { fetchInvoices } from '../../lib/invoices';
 import { PortalDashboard } from '../../components/PortalDashboard';
+import logout from '../../lib/logout.js';
 
 export default function LocalDashboard() {
   const router = useRouter();
@@ -14,8 +15,7 @@ export default function LocalDashboard() {
 
   async function handleLogout() {
     try {
-      await fetch('/api/portal/local/logout', { credentials: 'include' });
-      await fetch('/api/auth/logout', { credentials: 'include' });
+      await logout();
     } finally {
       router.push('/local/login');
     }

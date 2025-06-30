@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import logout from '../../lib/logout.js';
 import { fetchVehicles } from '../../lib/vehicles';
 import { fetchInvoices } from '../../lib/invoices';
 import { PortalDashboard } from '../../components/PortalDashboard';
@@ -14,8 +15,7 @@ export default function FleetDashboard() {
 
   async function handleLogout() {
     try {
-      await fetch('/api/portal/fleet/logout', { credentials: 'include' });
-      await fetch('/api/auth/logout', { credentials: 'include' });
+      await logout();
     } finally {
       router.push('/fleet/login');
     }

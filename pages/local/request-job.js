@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { fetchVehicles } from '../../lib/vehicles';
+import logout from '../../lib/logout.js';
 
 export default function LocalRequestJob() {
   const router = useRouter();
@@ -12,8 +13,7 @@ export default function LocalRequestJob() {
 
   async function handleLogout() {
     try {
-      await fetch('/api/portal/local/logout', { credentials: 'include' });
-      await fetch('/api/auth/logout', { credentials: 'include' });
+      await logout();
     } finally {
       router.push('/local/login');
     }

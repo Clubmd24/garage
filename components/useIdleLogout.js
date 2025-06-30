@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
+import logout from '../lib/logout.js';
 
 export default function useIdleLogout(timeoutMs = 15 * 60 * 1000) {
   const router = useRouter();
@@ -10,11 +11,7 @@ export default function useIdleLogout(timeoutMs = 15 * 60 * 1000) {
       if (timer.current) clearTimeout(timer.current);
       timer.current = setTimeout(async () => {
         try {
-          await Promise.all([
-            fetch('/api/auth/logout', { credentials: 'include' }),
-            fetch('/api/portal/fleet/logout', { credentials: 'include' }),
-            fetch('/api/portal/local/logout', { credentials: 'include' }),
-          ]);
+          await logout();
         } finally {
           router.push('/login');
         }

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import logout from '../../lib/logout.js';
 
 function VehiclesIcon() {
   return (
@@ -90,10 +91,7 @@ export default function FleetHome() {
 
   async function handleLogout() {
     try {
-      await Promise.all([
-        fetch('/api/portal/fleet/logout', { credentials: 'include' }),
-        fetch('/api/auth/logout', { credentials: 'include' }),
-      ]);
+      await logout();
     } finally {
       router.push('/fleet/login');
     }

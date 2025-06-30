@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import logout from '../lib/logout.js';
 import Head from 'next/head';
 import Link from 'next/link';
 
@@ -94,11 +95,7 @@ export default function Home() {
   // Logout handler
   async function handleLogout() {
     try {
-      await Promise.all([
-        fetch('/api/auth/logout', { credentials: 'include' }),
-        fetch('/api/portal/fleet/logout', { credentials: 'include' }),
-        fetch('/api/portal/local/logout', { credentials: 'include' }),
-      ]);
+      await logout();
     } catch (err) {
       console.error('Logout failed', err);
     } finally {

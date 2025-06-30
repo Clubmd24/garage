@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import logout from '../lib/logout.js';
 
 export function Header() {
   const [user, setUser] = useState(null);
@@ -10,11 +11,7 @@ export function Header() {
   }, []);
   async function handleLogout() {
     try {
-      await Promise.all([
-        fetch('/api/auth/logout', { credentials: 'include' }),
-        fetch('/api/portal/fleet/logout', { credentials: 'include' }),
-        fetch('/api/portal/local/logout', { credentials: 'include' }),
-      ]);
+      await logout();
     } finally {
       router.push('/login');
     }
