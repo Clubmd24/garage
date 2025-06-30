@@ -290,6 +290,7 @@ export default function OfficeHome() {
           <DashboardCard href="/office/job-requests" title="Job Requests" Icon={JobManagementIcon} />
           <DashboardCard href="/office/live-screen" title="Live Screen" Icon={LiveScreenIcon} />
           <DashboardCard href="/office/parts" title="Parts" Icon={PartsIcon} />
+          <DashboardCard href="/office/suppliers" title="Suppliers" Icon={PartsIcon} />
           <DashboardCard href="/office/quotations" title="Quotations" Icon={QuotationsIcon} />
           <DashboardCard href="/office/reporting" title="Reporting" Icon={ReportingIcon} />
           <DashboardCard href="/office/scheduling" title="Scheduling" Icon={SchedulingIcon} />

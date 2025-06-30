@@ -28,11 +28,55 @@ const QuotationsPage = () => {
   }, []);
 
   const approve = async id => {
+    const itemsRes = await fetch(`/api/quote-items?quote_id=${id}`);
+    const items = itemsRes.ok ? await itemsRes.json() : [];
+    const bySupplier = {};
+    items.forEach(it => {
+      if (!it.supplier_id) return;
+      bySupplier[it.supplier_id] ||= [];
+      bySupplier[it.supplier_id].push(it);
+    });
+    for (const [supplier_id, group] of Object.entries(bySupplier)) {
+      await fetch('/api/purchase-orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order: { job_id: null, supplier_id, status: 'new' },
+          items: group.map(g => ({
+            part_id: g.part_id,
+            qty: g.qty,
+            unit_price: g.unit_price,
+          })),
+        }),
+      });
+    }
     await updateQuote(id, { status: 'approved' });
     load();
   };
 
   const convert = async id => {
+    const itemsRes = await fetch(`/api/quote-items?quote_id=${id}`);
+    const items = itemsRes.ok ? await itemsRes.json() : [];
+    const bySupplier = {};
+    items.forEach(it => {
+      if (!it.supplier_id) return;
+      bySupplier[it.supplier_id] ||= [];
+      bySupplier[it.supplier_id].push(it);
+    });
+    for (const [supplier_id, group] of Object.entries(bySupplier)) {
+      await fetch('/api/purchase-orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order: { job_id: null, supplier_id, status: 'new' },
+          items: group.map(g => ({
+            part_id: g.part_id,
+            qty: g.qty,
+            unit_price: g.unit_price,
+          })),
+        }),
+      });
+    }
     await updateQuote(id, { status: 'job-card' });
     load();
   };

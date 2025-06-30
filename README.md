@@ -19,3 +19,10 @@
 All database schema changes are stored as `.sql` files in the `migrations/`
 directory. The migration script executes them sequentially and records the
 results so it can be run repeatedly without errors.
+
+## New Endpoints
+
+- `/api/suppliers` - list and create suppliers.
+- `/api/suppliers/[id]` - view, update and delete a supplier.
+- `/api/purchase-orders` - create purchase orders with items.
+- `/api/quote-items` - create or fetch quote items.
