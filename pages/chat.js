@@ -133,10 +133,6 @@ export default function Chat() {
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-y-auto">
         <Header />
-        <Script
-          src="/api/socket-io/socket.io.js"
-          strategy="beforeInteractive"
-        />
         <main className="p-8 space-y-4">
           <Head>
             <title>Chat</title>
