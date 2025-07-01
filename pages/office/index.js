@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { useCurrentUser } from '../../components/useCurrentUser.js';
 import OfficeDashboard from '../../components/OfficeDashboard.jsx';
+import OfficeLayout from '../../components/OfficeLayout.jsx';
 
 export default function OfficePage() {
   const router = useRouter();
@@ -27,7 +28,9 @@ export default function OfficePage() {
       <Head>
         <title>Garage Vision - Office</title>
       </Head>
-      <OfficeDashboard />
+      <OfficeLayout>
+        <OfficeDashboard />
+      </OfficeLayout>
     </>
   );
 }

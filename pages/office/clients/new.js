@@ -1,7 +1,7 @@
 // pages/office/clients/new.js
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import { Layout } from '../../../components/Layout';
+import OfficeLayout from '../../../components/OfficeLayout';
 
 const NewClientPage = () => {
   const [form, setForm] = useState({
@@ -52,7 +52,7 @@ const NewClientPage = () => {
   const changeVehicle = e => setVehicle(v => ({ ...v, [e.target.name]: e.target.value }));
 
   return (
-    <Layout>
+    <OfficeLayout>
       <h1 className="text-2xl font-semibold mb-4">New Client</h1>
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={submit} className="space-y-4 max-w-md">
@@ -92,7 +92,7 @@ const NewClientPage = () => {
         ))}
           <button type="submit" className="button">Save</button>
       </form>
-    </Layout>
+    </OfficeLayout>
   );
 };
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Layout } from '../../../components/Layout';
+import OfficeLayout from '../../../components/OfficeLayout';
 import { fetchEngineers } from '../../../lib/engineers';
 
 const EngineersPage = () => {
@@ -34,16 +34,13 @@ const EngineersPage = () => {
   });
 
   return (
-    <Layout>
+    <OfficeLayout>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-semibold">Engineers</h1>
         <Link href="/office/engineers/new" className="button">
           + New Engineer
         </Link>
       </div>
-      <Link href="/office" className="button inline-block mb-4">
-        Return to Office
-      </Link>
       {loading && <p>Loading…</p>}
       {error && <p className="text-red-500">{error}</p>}
       {!loading && !error && (
@@ -83,7 +80,7 @@ const EngineersPage = () => {
           </div>
         </>
       )}
-    </Layout>
+    </OfficeLayout>
   );
 };
 

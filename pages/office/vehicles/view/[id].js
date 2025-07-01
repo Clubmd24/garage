@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { Layout } from '../../../../components/Layout';
+import OfficeLayout from '../../../../components/OfficeLayout';
 import { Card } from '../../../../components/Card';
 import { fetchDocuments } from '../../../../lib/documents';
 
@@ -50,11 +50,11 @@ export default function VehicleViewPage() {
     router.push('/office/vehicles');
   };
 
-  if (loading) return <Layout><p>Loading…</p></Layout>;
-  if (error) return <Layout><p className="text-red-500">{error}</p></Layout>;
+  if (loading) return <OfficeLayout><p>Loading…</p></OfficeLayout>;
+  if (error) return <OfficeLayout><p className="text-red-500">{error}</p></OfficeLayout>;
 
   return (
-    <Layout>
+    <OfficeLayout>
       <div className="mb-6 flex flex-wrap items-center gap-4">
         <Link href={`/office/vehicles/${id}`}><a className="button">Edit Vehicle</a></Link>
         {client && (
@@ -106,6 +106,6 @@ export default function VehicleViewPage() {
           )}
         </Card>
       </div>
-    </Layout>
+    </OfficeLayout>
   );
 }

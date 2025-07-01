@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Layout } from '../../../components/Layout';
+import OfficeLayout from '../../../components/OfficeLayout';
 import { fetchQuotes } from '../../../lib/quotes';
 import { fetchJobs } from '../../../lib/jobs';
 import { fetchInvoices } from '../../../lib/invoices';
@@ -51,7 +51,7 @@ const LiveScreenPage = () => {
   }, [jobs, statuses]);
 
   return (
-    <Layout>
+    <OfficeLayout>
       <h1 className="text-2xl font-semibold mb-4">Live Screen</h1>
       {error && <p className="text-red-500">{error}</p>}
       {loading ? (
@@ -93,7 +93,7 @@ const LiveScreenPage = () => {
           </div>
         </div>
       )}
-    </Layout>
+    </OfficeLayout>
   );
 };
 

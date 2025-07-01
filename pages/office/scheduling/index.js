@@ -1,11 +1,11 @@
 import React from 'react';
-import { Layout } from '../../../components/Layout';
+import OfficeLayout from '../../../components/OfficeLayout';
 
 const SchedulingPage = () => (
-  <Layout>
+  <OfficeLayout>
     <h1 className="text-xl font-semibold">Scheduling</h1>
     {/* TODO: Calendar component */}
-  </Layout>
+  </OfficeLayout>
 );
 
 export default SchedulingPage;

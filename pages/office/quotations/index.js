@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Layout } from '../../../components/Layout';
+import OfficeLayout from '../../../components/OfficeLayout';
 import { fetchQuotes, updateQuote } from '../../../lib/quotes';
 import { fetchClients } from '../../../lib/clients';
 
@@ -71,7 +71,7 @@ const QuotationsPage = () => {
   });
 
   return (
-    <Layout>
+    <OfficeLayout>
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">Quotations</h1>
         <Link href="/office/quotations/new" className="button px-4 text-sm">
@@ -126,7 +126,7 @@ const QuotationsPage = () => {
           </div>
         </>
       )}
-    </Layout>
+    </OfficeLayout>
   );
 };
 

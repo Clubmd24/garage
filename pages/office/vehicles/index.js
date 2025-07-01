@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Layout } from '../../../components/Layout';
+import OfficeLayout from '../../../components/OfficeLayout';
 import { fetchVehicles } from '../../../lib/vehicles';
 import { fetchFleets } from '../../../lib/fleets';
 
@@ -43,16 +43,13 @@ const VehiclesPage = () => {
   });
 
   return (
-    <Layout>
+    <OfficeLayout>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-semibold">Vehicles</h1>
         <Link href="/office/vehicles/new" className="button">
           + New Vehicle
         </Link>
       </div>
-      <Link href="/office" className="button inline-block mb-4">
-        Return to Office
-      </Link>
       {loading && <p>Loading…</p>}
       {error && <p className="text-red-500">{error}</p>}
       {!loading && !error && (
@@ -106,7 +103,7 @@ const VehiclesPage = () => {
           </div>
         </>
       )}
-    </Layout>
+    </OfficeLayout>
   );
 };
 

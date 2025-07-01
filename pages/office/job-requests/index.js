@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Layout } from '../../../components/Layout';
+import OfficeLayout from '../../../components/OfficeLayout';
 
 export default function JobRequestsPage() {
   const [requests, setRequests] = useState([]);
@@ -13,9 +13,8 @@ export default function JobRequestsPage() {
   }, []);
 
   return (
-    <Layout>
+    <OfficeLayout>
       <h1 className="text-2xl font-semibold mb-4">Job Requests</h1>
-      <Link href="/office" className="button mb-4 inline-block">Return to Office</Link>
       <ul className="space-y-2">
         {requests.map(r => (
           <li key={r.id} className="p-2 rounded bg-gray-100 dark:bg-gray-800">
@@ -23,6 +22,6 @@ export default function JobRequestsPage() {
           </li>
         ))}
       </ul>
-    </Layout>
+    </OfficeLayout>
   );
 }

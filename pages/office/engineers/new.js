@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import { Layout } from '../../../components/Layout';
+import OfficeLayout from '../../../components/OfficeLayout';
 
 const NewEngineerPage = () => {
   const [form, setForm] = useState({ username: '', email: '', password: '' });
@@ -25,7 +25,7 @@ const NewEngineerPage = () => {
   const change = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 
   return (
-    <Layout>
+    <OfficeLayout>
       <h1 className="text-2xl font-semibold mb-4">New Engineer</h1>
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={submit} className="space-y-4 max-w-md">
@@ -46,7 +46,7 @@ const NewEngineerPage = () => {
         ))}
         <button type="submit" className="button">Save</button>
       </form>
-    </Layout>
+    </OfficeLayout>
   );
 };
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Layout } from '../../../components/Layout';
+import OfficeLayout from '../../../components/OfficeLayout';
 import { fetchInvoices } from '../../../lib/invoices';
 import { fetchClients } from '../../../lib/clients';
 
@@ -44,7 +44,7 @@ const InvoicesPage = () => {
   }, []);
 
   return (
-    <Layout>
+    <OfficeLayout>
       <h1 className="text-2xl font-semibold mb-4">Invoices</h1>
       {error && <p className="text-red-500">{error}</p>}
       {loading ? (
@@ -70,7 +70,7 @@ const InvoicesPage = () => {
           </div>
         </>
       )}
-    </Layout>
+    </OfficeLayout>
   );
 };
 

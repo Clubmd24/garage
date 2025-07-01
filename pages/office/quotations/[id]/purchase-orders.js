@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { Layout } from '../../../../components/Layout';
+import OfficeLayout from '../../../../components/OfficeLayout';
 
 export default function QuotePurchaseOrdersPage() {
   const router = useRouter();
@@ -54,10 +54,10 @@ export default function QuotePurchaseOrdersPage() {
     router.push('/office/quotations');
   };
 
-  if (loading) return <Layout><p>Loading…</p></Layout>;
+  if (loading) return <OfficeLayout><p>Loading…</p></OfficeLayout>;
 
   return (
-    <Layout>
+    <OfficeLayout>
       <h1 className="text-2xl font-semibold mb-4">Quote #{id} Parts</h1>
       {error && <p className="text-red-500">{error}</p>}
       {Object.keys(groups).length === 0 ? (
@@ -82,6 +82,6 @@ export default function QuotePurchaseOrdersPage() {
       <Link href="/office/quotations" className="button mt-4 inline-block">
         Back to Quotes
       </Link>
-    </Layout>
+    </OfficeLayout>
   );
 }

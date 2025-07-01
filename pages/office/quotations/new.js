@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Layout } from '../../../components/Layout';
+import OfficeLayout from '../../../components/OfficeLayout';
 import { fetchClients } from '../../../lib/clients';
 import { fetchFleets } from '../../../lib/fleets';
 import { fetchVehicles } from '../../../lib/vehicles';
@@ -108,7 +108,7 @@ export default function NewQuotationPage() {
   };
 
   return (
-    <Layout>
+    <OfficeLayout>
       <h1 className="text-2xl font-semibold mb-4">New Quote</h1>
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={submit} className="space-y-4 mb-8 max-w-lg">
@@ -260,6 +260,6 @@ export default function NewQuotationPage() {
           Create Quote
         </button>
       </form>
-    </Layout>
+    </OfficeLayout>
   );
 }
