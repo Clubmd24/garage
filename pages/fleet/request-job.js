@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { fetchVehicles } from '../../lib/vehicles';
 import logout from '../../lib/logout.js';
 
@@ -52,6 +53,9 @@ export default function FleetRequestJob() {
         <h1 className="text-2xl font-bold">New Job Request</h1>
         <button onClick={handleLogout} className="button-secondary px-4">Logout</button>
       </div>
+      <Link href="/fleet/home" className="button inline-block mb-4">
+        Return to Home
+      </Link>
       {message && <p className="text-green-600 mb-2">{message}</p>}
       <form onSubmit={submit} className="space-y-4 max-w-sm">
         <select value={vehicleId} onChange={e => setVehicleId(e.target.value)} className="input w-full" required>

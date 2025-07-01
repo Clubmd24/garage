@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import logout from '../../lib/logout.js';
 import { fetchVehicles } from '../../lib/vehicles';
 import { fetchInvoices } from '../../lib/invoices';
@@ -49,6 +50,9 @@ export default function FleetDashboard() {
       <div className="p-4 text-right">
         <button onClick={handleLogout} className="button-secondary px-4">Logout</button>
       </div>
+      <Link href="/fleet/home" className="button inline-block mb-4">
+        Return to Home
+      </Link>
       <PortalDashboard
         title={`${fleet.company_name} Dashboard`}
         requestJobPath="/fleet/request-job"
