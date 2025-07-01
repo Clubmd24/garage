@@ -28,6 +28,23 @@ export default function OfficeLayout({ children }) {
       <aside className="w-64 bg-blue-900 p-6 space-y-6">
         <nav className="space-y-4">
           <div>
+            <h3 className="uppercase text-sm font-semibold mb-2 text-cyan-400">Main</h3>
+            <ul className="space-y-1">
+              <li>
+                <Link href="/dashboard" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  Dashboard
+                </Link>
+              </li>
+              <li>
+                <Link href="/office" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  Office Home
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
             <h3 className="uppercase text-sm font-semibold mb-2 text-cyan-400">Sales</h3>
             <ul className="space-y-1">
               <li>
