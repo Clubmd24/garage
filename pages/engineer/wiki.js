@@ -64,7 +64,15 @@ export default function EngineerWiki() {
     <Layout>
       <h1 className="text-2xl font-semibold mb-4">Engineer Wiki</h1>
       {error && <p className="text-red-500 mb-4">{error}</p>}
-      <Card className="mb-6">Holiday allowance remaining: {remaining} days</Card>
+      <Card className="mb-6">
+        <h2 className="text-xl font-semibold mb-2">Holiday Summary</h2>
+        <p>You have {remaining} days of holiday remaining this year.</p>
+      </Card>
+      <h2 className="text-xl font-semibold mb-2">Monthly Calendar</h2>
+      <p className="mb-4">
+        Days marked "Holiday" are your approved time off. Other days list any
+        jobs scheduled to start on that date.
+      </p>
       <div className="grid grid-cols-7 gap-2 text-sm">
         {days.map((d) => (
           <Card key={d.toISOString()} className="p-2">
