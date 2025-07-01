@@ -9,6 +9,7 @@ const NewVehiclePage = () => {
     make: '',
     model: '',
     color: '',
+    company_vehicle_id: '',
     customer_id: router.query.customer_id || '',
     fleet_id: '',
   });
@@ -36,7 +37,7 @@ const NewVehiclePage = () => {
       <h1 className="text-2xl font-semibold mb-4">New Vehicle</h1>
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={submit} className="space-y-4 max-w-md">
-        {['licence_plate','make','model','color','customer_id','fleet_id'].map(field => (
+        {['licence_plate','make','model','color','company_vehicle_id','customer_id','fleet_id'].map(field => (
           <div key={field}>
             <label className="block mb-1">{field.replace('_',' ').replace(/\b\w/g,c=>c.toUpperCase())}</label>
             <input
