@@ -79,7 +79,7 @@ export function PortalDashboard({
           <Card key={v.id} className="hover:shadow-xl transition-shadow">
             <div className="p-4">
               <h2 className="text-xl font-medium">{v.licence_plate}</h2>
-              <p className="text-sm text-gray-200">{v.make} {v.model}</p>
+              <p className="text-sm text-black">{v.make} {v.model}</p>
               <Link href={`/vehicles/${v.id}`} className="button-secondary mt-3 inline-block text-center">View Details</Link>
             </div>
           </Card>
