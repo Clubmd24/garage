@@ -13,11 +13,17 @@ export default function Landing() {
         <title>Garage-Vision | Revolutionize Your Garage</title>
       </Head>
       <section className="hero">
+        <img src="/logo.png" alt="Garage Vision Logo" className="hero-logo" />
         <h1>Revolutionize Your Garage. Own Your Future.</h1>
         <p>
           From first tap to final drive-away, Garage-Vision orchestrates every phase
           of your repair shop with precision, power, and profitability.
         </p>
+        <img
+          src="https://source.unsplash.com/800x400/?garage,car"
+          alt="Modern garage workspace"
+          className="hero-image"
+        />
         <div className="hero-buttons">
           <a href="/login" className="garage-login">Garage Login</a>
           <a href="/local/login" className="owner-login">Car Owner Login</a>
@@ -28,6 +34,11 @@ export default function Landing() {
         <h2>Why Every Shop Deserves Garage-Vision</h2>
         <div className="features-grid">
           <div className="feature">
+            <img
+              src="https://source.unsplash.com/400x300/?mechanic,tools"
+              alt="Mechanic tools organized"
+              className="feature-image"
+            />
             <h3>Laser-Focused Efficiency</h3>
             <p>
               Slash admin overhead by 20%—jobs auto-assign, parts auto-order,
@@ -35,6 +46,11 @@ export default function Landing() {
             </p>
           </div>
           <div className="feature">
+            <img
+              src="https://source.unsplash.com/400x300/?car,diagnostic"
+              alt="Vehicle diagnostic screen"
+              className="feature-image"
+            />
             <h3>Ultimate Transparency</h3>
             <p>
               Customers track their vehicle in real time—no more endless
@@ -42,6 +58,11 @@ export default function Landing() {
             </p>
           </div>
           <div className="feature">
+            <img
+              src="https://source.unsplash.com/400x300/?analytics,graph"
+              alt="Analytics dashboard"
+              className="feature-image"
+            />
             <h3>Data-Driven Growth</h3>
             <p>
               Dashboards reveal your most profitable services and busiest hours—pivot
@@ -49,6 +70,11 @@ export default function Landing() {
             </p>
           </div>
           <div className="feature">
+            <img
+              src="https://source.unsplash.com/400x300/?garage,workflow"
+              alt="Team collaborating in garage"
+              className="feature-image"
+            />
             <h3>Seamless Ecosystem</h3>
             <p>Ditch whiteboards and silos. Your shop—powered by a unified workflow that just works.</p>
           </div>
@@ -120,6 +146,18 @@ export default function Landing() {
           max-width: 600px;
           margin: 0 auto 40px;
         }
+        .hero-logo {
+          width: 150px;
+          margin: 0 auto 20px;
+          display: block;
+        }
+        .hero-image {
+          width: 80%;
+          max-width: 800px;
+          display: block;
+          margin: 40px auto;
+          border-radius: 8px;
+        }
         .hero-buttons a {
           display: inline-block;
           margin: 0 10px;
@@ -152,6 +190,12 @@ export default function Landing() {
           padding: 20px;
           border-radius: 12px;
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        .feature-image {
+          width: 100%;
+          height: auto;
+          margin-bottom: 15px;
+          border-radius: 8px;
         }
         .impact-stats {
           display: flex;
