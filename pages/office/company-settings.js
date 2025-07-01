@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { Layout } from '../../components/Layout';
 
 const S3_BASE_URL = `https://${process.env.NEXT_PUBLIC_S3_BUCKET}.s3.${process.env.NEXT_PUBLIC_AWS_REGION}.amazonaws.com`;
@@ -84,7 +85,10 @@ export default function CompanySettingsPage() {
 
   return (
     <Layout>
-      <h1 className="text-2xl font-semibold mb-4">Company Settings</h1>
+      <h1 className="text-2xl font-semibold mb-2">Company Settings</h1>
+      <Link href="/office/document-templates" className="text-blue-600 underline mb-4 inline-block">
+        View Document Templates
+      </Link>
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={submit} className="space-y-4 max-w-md">
         <div>
