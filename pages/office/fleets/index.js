@@ -68,6 +68,9 @@ const FleetsPage = () => {
                   {f.payment_terms || '—'}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
+                  <Link href={`/office/fleets/view/${f.id}`} className="button px-4 text-sm">
+                    View
+                  </Link>
                   <Link href={`/office/fleets/${f.id}`} className="button px-4 text-sm">
                     Edit
                   </Link>
