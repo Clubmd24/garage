@@ -12,4 +12,4 @@ INSERT INTO job_statuses (name)
     ('awaiting return'),
     ('completed');
 
-ALTER TABLE jobs DROP CHECK chk_jobs_status;
+ALTER TABLE jobs DROP CONSTRAINT chk_jobs_status;
