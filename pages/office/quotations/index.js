@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { Layout } from '../../../components/Layout';
 import { fetchQuotes, updateQuote } from '../../../lib/quotes';
 import { fetchClients } from '../../../lib/clients';
@@ -27,56 +28,20 @@ const QuotationsPage = () => {
       .catch(() => setClients([]));
   }, []);
 
-  const approve = async id => {
-    const itemsRes = await fetch(`/api/quote-items?quote_id=${id}`);
-    const items = itemsRes.ok ? await itemsRes.json() : [];
-    const bySupplier = {};
-    items.forEach(it => {
-      if (!it.supplier_id) return;
-      bySupplier[it.supplier_id] ||= [];
-      bySupplier[it.supplier_id].push(it);
+  const router = useRouter();
+
+  const approve = async quote => {
+    const res = await fetch('/api/jobs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customer_id: quote.customer_id, vehicle_id: null, status: 'new' }),
     });
-    for (const [supplier_id, group] of Object.entries(bySupplier)) {
-      await fetch('/api/purchase-orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          order: { job_id: null, supplier_id, status: 'new' },
-          items: group.map(g => ({
-            part_id: g.part_id,
-            qty: g.qty,
-            unit_price: g.unit_price,
-          })),
-        }),
-      });
-    }
-    await updateQuote(id, { status: 'approved' });
-    load();
+    const job = res.ok ? await res.json() : null;
+    await updateQuote(quote.id, { status: 'approved', job_id: job?.id });
+    router.push(`/office/quotations/${quote.id}/purchase-orders?job_id=${job?.id}`);
   };
 
   const convert = async id => {
-    const itemsRes = await fetch(`/api/quote-items?quote_id=${id}`);
-    const items = itemsRes.ok ? await itemsRes.json() : [];
-    const bySupplier = {};
-    items.forEach(it => {
-      if (!it.supplier_id) return;
-      bySupplier[it.supplier_id] ||= [];
-      bySupplier[it.supplier_id].push(it);
-    });
-    for (const [supplier_id, group] of Object.entries(bySupplier)) {
-      await fetch('/api/purchase-orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          order: { job_id: null, supplier_id, status: 'new' },
-          items: group.map(g => ({
-            part_id: g.part_id,
-            qty: g.qty,
-            unit_price: g.unit_price,
-          })),
-        }),
-      });
-    }
     await updateQuote(id, { status: 'job-card' });
     load();
   };
@@ -135,7 +100,7 @@ const QuotationsPage = () => {
               <div className="mt-3 flex flex-wrap gap-2">
                 {q.status !== 'approved' && q.status !== 'job-card' && (
                   <button
-                    onClick={() => approve(q.id)}
+                    onClick={() => approve(q)}
                     className="button px-4 text-sm"
                   >
                     Approve
