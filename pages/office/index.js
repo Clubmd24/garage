@@ -12,7 +12,15 @@ export default function OfficePage() {
     if (!loading && !user) router.replace('/login');
   }, [loading, user, router]);
 
-  if (loading || !user) return null;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white">
+        <p className="text-xl">Loading...</p>
+      </div>
+    );
+  }
+
+  if (!user) return null;
 
   return (
     <>
