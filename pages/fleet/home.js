@@ -105,11 +105,11 @@ export default function FleetHome() {
         <h1 className="text-6xl font-bold tracking-tight">Fleet Portal</h1>
         <p className="text-xl opacity-90">Welcome, {fleet.company_name}!</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-xl">
-          <DashboardCard href="/fleet" title="Vehicles" Icon={VehiclesIcon} />
-          <DashboardCard href="/fleet" title="Invoices" Icon={InvoicesIcon} />
-          <DashboardCard href="/fleet" title="Quotes" Icon={QuotationsIcon} />
-          <DashboardCard href="/fleet" title="Jobs in progress" Icon={JobManagementIcon} />
-          <DashboardCard href="/fleet" title="Request new quotation" Icon={RequestIcon} />
+          <DashboardCard href="/fleet/vehicles" title="Vehicles" Icon={VehiclesIcon} />
+          <DashboardCard href="/fleet/invoices" title="Invoices" Icon={InvoicesIcon} />
+          <DashboardCard href="/fleet/quotes" title="Quotes" Icon={QuotationsIcon} />
+          <DashboardCard href="/fleet/jobs" title="Jobs in progress" Icon={JobManagementIcon} />
+          <DashboardCard href="/fleet/request-quotation" title="Request new quotation" Icon={RequestIcon} />
           <DashboardCard href="/fleet/request-job" title="Book a job" Icon={JobManagementIcon} />
         </div>
         <button
