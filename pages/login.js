@@ -47,7 +47,7 @@ export default function Login() {
      }
      
       // Fetch user info to determine role, then route accordingly
-      let dest = '/';
+      let dest = '/dashboard';
       try {
         const meRes = await fetch('/api/auth/me', { credentials: 'include' });
         if (meRes.ok) {
