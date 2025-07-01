@@ -33,3 +33,24 @@ export async function createPart({
   );
   return { id: insertId, part_number, description, unit_cost, supplier_id };
 }
+
+export async function getPartById(id) {
+  const [[row]] = await pool.query(
+    `SELECT id, part_number, description, unit_cost, supplier_id FROM parts WHERE id=?`,
+    [id]
+  );
+  return row || null;
+}
+
+export async function updatePart(id, { part_number, description, unit_cost, supplier_id }) {
+  await pool.query(
+    `UPDATE parts SET part_number=?, description=?, unit_cost=?, supplier_id=? WHERE id=?`,
+    [part_number, description || null, unit_cost || null, supplier_id || null, id]
+  );
+  return { ok: true };
+}
+
+export async function deletePart(id) {
+  await pool.query('DELETE FROM parts WHERE id=?', [id]);
+  return { ok: true };
+}

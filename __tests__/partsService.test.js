@@ -17,3 +17,24 @@ test('createPart inserts row', async () => {
   );
   expect(result).toEqual({ id: 3, ...data });
 });
+
+test('updatePart updates row', async () => {
+  const queryMock = jest.fn().mockResolvedValue([]);
+  jest.unstable_mockModule('../lib/db.js', () => ({ default: { query: queryMock } }));
+  const { updatePart } = await import('../services/partsService.js');
+  const result = await updatePart(1, { part_number: 'X', supplier_id: 5 });
+  expect(queryMock).toHaveBeenCalledWith(
+    expect.stringMatching(/UPDATE parts/),
+    ['X', null, null, 5, 1]
+  );
+  expect(result).toEqual({ ok: true });
+});
+
+test('deletePart removes row', async () => {
+  const queryMock = jest.fn().mockResolvedValue([]);
+  jest.unstable_mockModule('../lib/db.js', () => ({ default: { query: queryMock } }));
+  const { deletePart } = await import('../services/partsService.js');
+  const result = await deletePart(2);
+  expect(queryMock).toHaveBeenCalledWith('DELETE FROM parts WHERE id=?', [2]);
+  expect(result).toEqual({ ok: true });
+});
