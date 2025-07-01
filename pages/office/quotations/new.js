@@ -15,7 +15,13 @@ export default function NewQuotationPage() {
   const [vehicles, setVehicles] = useState([]);
   const [fleets, setFleets] = useState([]);
   const [mode, setMode] = useState('client');
-  const [form, setForm] = useState({ customer_id: '', fleet_id: '', vehicle_id: '' });
+  const [form, setForm] = useState({
+    customer_id: '',
+    fleet_id: '',
+    vehicle_id: '',
+    customer_ref: '',
+    po_number: '',
+  });
   const [items, setItems] = useState([emptyItem]);
   const [error, setError] = useState(null);
 
@@ -65,6 +71,11 @@ export default function NewQuotationPage() {
     0
   );
 
+  const formatEuro = n =>
+    new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR' }).format(
+      n || 0
+    );
+
   const submit = async e => {
     e.preventDefault();
     try {
@@ -72,6 +83,8 @@ export default function NewQuotationPage() {
         customer_id: mode === 'client' ? form.customer_id : null,
         fleet_id: mode === 'fleet' ? form.fleet_id : null,
         job_id: null,
+        customer_reference: form.customer_ref || null,
+        po_number: form.po_number || null,
         total_amount: total,
         status: 'new',
       });
@@ -170,7 +183,34 @@ export default function NewQuotationPage() {
           </select>
         </div>
         <div>
+          <label className="block mb-1">Customer Ref #</label>
+          <input
+            className="input w-full"
+            value={form.customer_ref}
+            onChange={e =>
+              setForm(f => ({ ...f, customer_ref: e.target.value }))
+            }
+          />
+        </div>
+        <div>
+          <label className="block mb-1">PO Number</label>
+          <input
+            className="input w-full"
+            value={form.po_number}
+            onChange={e =>
+              setForm(f => ({ ...f, po_number: e.target.value }))
+            }
+          />
+        </div>
+        <div>
           <h2 className="font-semibold mb-2">Item Details</h2>
+          <div className="grid grid-cols-5 gap-2 mb-2 font-semibold text-sm">
+            <div>Part #</div>
+            <div>Description</div>
+            <div>Qty</div>
+            <div>Unit Cost</div>
+            <div>Line Cost</div>
+          </div>
           {items.map((it, i) => (
             <div key={i} className="grid grid-cols-5 gap-2 mb-2">
               <PartAutocomplete
@@ -204,7 +244,7 @@ export default function NewQuotationPage() {
                 onChange={e => changeItem(i, 'price', e.target.value)}
               />
               <div className="flex items-center px-2 border rounded bg-gray-50">
-                €{(Number(it.qty) * Number(it.price)).toFixed(2)}
+                {formatEuro(Number(it.qty) * Number(it.price))}
               </div>
             </div>
           ))}
@@ -214,7 +254,7 @@ export default function NewQuotationPage() {
         </div>
         <div>
           <h2 className="font-semibold mb-2">Summary</h2>
-          <p className="font-semibold">Total: €{total.toFixed(2)}</p>
+          <p className="font-semibold">Total: {formatEuro(total)}</p>
         </div>
         <button type="submit" className="button">
           Create Quote
