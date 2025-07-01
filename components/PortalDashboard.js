@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Card } from './Card';
 import { updateQuote } from '../lib/quotes';
-import { JOB_STATUSES } from '../lib/jobStatuses.js';
+import { fetchJobStatuses } from '../lib/jobStatuses.js';
 
 export function PortalDashboard({
   title,
@@ -18,6 +18,13 @@ export function PortalDashboard({
   const [brand, setBrand] = useState('All');
   const [filter, setFilter] = useState('all');
   const [jobFilter, setJobFilter] = useState('all');
+  const [statuses, setStatuses] = useState([]);
+
+  useEffect(() => {
+    fetchJobStatuses()
+      .then(setStatuses)
+      .catch(() => setStatuses([]));
+  }, []);
 
   async function acceptQuote(id) {
     await updateQuote(id, { status: 'accepted' });
@@ -94,8 +101,8 @@ export function PortalDashboard({
           className="input mb-2"
         >
           <option value="all">All</option>
-          {JOB_STATUSES.map(s => (
-            <option key={s} value={s}>{s}</option>
+          {statuses.map(s => (
+            <option key={s.name} value={s.name}>{s.name}</option>
           ))}
         </select>
         <ul className="list-disc ml-6">

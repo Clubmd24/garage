@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { fetchQuotes } from '../lib/quotes';
 import { fetchJobs } from '../lib/jobs';
 import { fetchInvoices } from '../lib/invoices';
-import { JOB_STATUSES } from '../lib/jobStatuses';
+import { fetchJobStatuses } from '../lib/jobStatuses';
 import logout from '../lib/logout.js';
 
 export default function OfficeDashboard() {
@@ -13,13 +13,15 @@ export default function OfficeDashboard() {
   const [jobs, setJobs] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [statuses, setStatuses] = useState([]);
 
   useEffect(() => {
-    Promise.all([fetchQuotes(), fetchJobs(), fetchInvoices()])
-      .then(([q, j, i]) => {
+    Promise.all([fetchQuotes(), fetchJobs(), fetchInvoices(), fetchJobStatuses()])
+      .then(([q, j, i, s]) => {
         setQuotes(q);
         setJobs(j);
         setInvoices(i);
+        setStatuses(s);
       })
       .catch(() => null);
   }, []);
@@ -36,14 +38,14 @@ export default function OfficeDashboard() {
 
   const jobStatusCounts = useMemo(() => {
     const counts = {};
-    JOB_STATUSES.forEach(s => {
-      counts[s] = 0;
+    statuses.forEach(s => {
+      counts[s.name] = 0;
     });
     jobs.forEach(j => {
       if (counts[j.status] !== undefined) counts[j.status] += 1;
     });
     return counts;
-  }, [jobs]);
+  }, [jobs, statuses]);
 
   async function handleLogout() {
     try {
@@ -123,8 +125,8 @@ export default function OfficeDashboard() {
             <div className="bg-white text-black rounded-2xl p-4 shadow">
               <h2 className="text-lg font-semibold mb-2">Jobs</h2>
               <ul className="text-sm space-y-1">
-                {JOB_STATUSES.map(s => (
-                  <li key={s} className="capitalize">{s}: {jobStatusCounts[s] || 0}</li>
+                {statuses.map(s => (
+                  <li key={s.id} className="capitalize">{s.name}: {jobStatusCounts[s.name] || 0}</li>
                 ))}
               </ul>
             </div>

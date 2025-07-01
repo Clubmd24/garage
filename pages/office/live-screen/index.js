@@ -3,7 +3,7 @@ import { Layout } from '../../../components/Layout';
 import { fetchQuotes } from '../../../lib/quotes';
 import { fetchJobs } from '../../../lib/jobs';
 import { fetchInvoices } from '../../../lib/invoices';
-import { JOB_STATUSES } from '../../../lib/jobStatuses.js';
+import { fetchJobStatuses } from '../../../lib/jobStatuses.js';
 
 const LiveScreenPage = () => {
   const [quotes, setQuotes] = useState([]);
@@ -11,14 +11,16 @@ const LiveScreenPage = () => {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [statuses, setStatuses] = useState([]);
 
   const load = () => {
     setLoading(true);
-    Promise.all([fetchQuotes(), fetchJobs(), fetchInvoices()])
-      .then(([q, j, i]) => {
+    Promise.all([fetchQuotes(), fetchJobs(), fetchInvoices(), fetchJobStatuses()])
+      .then(([q, j, i, s]) => {
         setQuotes(q);
         setJobs(j);
         setInvoices(i);
+        setStatuses(s);
       })
       .catch(() => setError('Failed to load data'))
       .finally(() => setLoading(false));
@@ -38,15 +40,15 @@ const LiveScreenPage = () => {
 
   const jobStatusCounts = useMemo(() => {
     const counts = {};
-    JOB_STATUSES.forEach(s => {
-      counts[s] = 0;
+    statuses.forEach(s => {
+      counts[s.name] = 0;
     });
     jobs.forEach(j => {
       const s = j.status;
       if (counts[s] !== undefined) counts[s] += 1;
     });
     return counts;
-  }, [jobs]);
+  }, [jobs, statuses]);
 
   return (
     <Layout>
@@ -69,8 +71,8 @@ const LiveScreenPage = () => {
           <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
             <h2 className="text-lg font-semibold mb-2">Jobs</h2>
             <ul className="space-y-1">
-              {JOB_STATUSES.map(s => (
-                <li key={s} className="capitalize">{s}: {jobStatusCounts[s] || 0}</li>
+              {statuses.map(s => (
+                <li key={s.id} className="capitalize">{s.name}: {jobStatusCounts[s.name] || 0}</li>
               ))}
             </ul>
             <ul className="space-y-1 max-h-60 overflow-y-auto mt-2">
