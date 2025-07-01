@@ -8,6 +8,15 @@ const NewFleetPage = () => {
     company_name: '',
     account_rep: '',
     payment_terms: '',
+    street_address: '',
+    contact_number_1: '',
+    contact_number_2: '',
+    email_1: '',
+    email_2: '',
+    credit_limit: '',
+    tax_number: '',
+    contact_name_1: '',
+    contact_name_2: '',
   });
   const [error, setError] = useState(null);
 
@@ -33,7 +42,20 @@ const NewFleetPage = () => {
       <h1 className="text-2xl font-semibold mb-4">New Fleet</h1>
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={submit} className="space-y-4 max-w-md">
-        {['company_name','account_rep','payment_terms'].map(field => (
+        {[
+          'company_name',
+          'account_rep',
+          'payment_terms',
+          'street_address',
+          'contact_number_1',
+          'contact_number_2',
+          'email_1',
+          'email_2',
+          'credit_limit',
+          'tax_number',
+          'contact_name_1',
+          'contact_name_2',
+        ].map(field => (
           <div key={field}>
             <label className="block mb-1">{field.replace('_',' ').replace(/\b\w/g,c=>c.toUpperCase())}</label>
             <input
