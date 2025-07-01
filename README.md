@@ -26,3 +26,17 @@ results so it can be run repeatedly without errors.
 - `/api/suppliers/[id]` - view, update and delete a supplier.
 - `/api/purchase-orders` - create purchase orders with items.
 - `/api/quote-items` - create or fetch quote items.
+
+## Invoice Generation
+
+An invoice template lives in `templates/invoice_template.docx`. Use the helper
+script `generate_invoice.py` to render this template with data in JSON format
+and produce a PDF invoice. Example usage:
+
+```bash
+pip install docxtpl python-docx2pdf
+python generate_invoice.py invoice_data.json
+```
+
+The resulting files are written to the `output/` directory as
+`invoice_<invoice_number>.docx` and `invoice_<invoice_number>.pdf`.
