@@ -117,7 +117,8 @@ export default function CompanySettingsPage() {
         View Document Templates
       </Link>
       {error && <p className="text-red-500">{error}</p>}
-      <form onSubmit={submit} className="space-y-4 max-w-md">
+      <div className="grid gap-8 md:grid-cols-2">
+      <form onSubmit={submit} className="space-y-4 max-w-md md:flex-1">
         <div>
           <label className="block mb-1">Logo</label>
           {form.logo_url && (
@@ -152,7 +153,7 @@ export default function CompanySettingsPage() {
           {saving ? 'Saving…' : 'Save Settings'}
         </button>
       </form>
-      <div className="mt-8">
+      <div className="mt-8 md:mt-0 md:flex-1">
         <h2 className="text-xl font-semibold mb-2">Job Statuses</h2>
         <form onSubmit={addStatus} className="flex gap-2 mb-4">
           <input
@@ -163,14 +164,23 @@ export default function CompanySettingsPage() {
           />
           <button type="submit" className="button">Add</button>
         </form>
-        <ul className="space-y-1">
-          {statuses.map(s => (
-            <li key={s.id} className="flex justify-between bg-gray-100 px-2 py-1 rounded">
-              <span>{s.name}</span>
-              <button onClick={() => removeStatus(s.id)} className="text-red-600 hover:underline">Delete</button>
-            </li>
-          ))}
-        </ul>
+          <ul className="space-y-1">
+            {statuses.map(s => (
+              <li
+                key={s.id}
+                className="flex justify-between bg-gray-100 px-2 py-1 rounded text-black"
+              >
+                <span>{s.name}</span>
+                <button
+                  onClick={() => removeStatus(s.id)}
+                  className="text-red-600 hover:underline"
+                >
+                  Delete
+                </button>
+              </li>
+            ))}
+          </ul>
+      </div>
       </div>
     </Layout>
   );
