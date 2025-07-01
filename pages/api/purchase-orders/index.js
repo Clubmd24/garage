@@ -1,15 +1,10 @@
-import { createPurchaseOrder, addPurchaseOrderItem } from '../../../services/purchaseOrdersService.js';
+import { createPurchaseOrder } from '../../../services/purchaseOrdersService.js';
 
 export default async function handler(req, res) {
   try {
     if (req.method === 'POST') {
       const { order, items } = req.body || {};
-      const po = await createPurchaseOrder(order);
-      if (items && Array.isArray(items)) {
-        for (const it of items) {
-          await addPurchaseOrderItem({ purchase_order_id: po.id, ...it });
-        }
-      }
+      const po = await createPurchaseOrder({ ...order, items });
       return res.status(201).json(po);
     }
     res.setHeader('Allow', ['POST']);
