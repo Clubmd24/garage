@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Layout } from '../../components/Layout';
+import OfficeLayout from '../../components/OfficeLayout';
 
 const S3_BASE_URL = `https://${process.env.NEXT_PUBLIC_S3_BUCKET}.s3.${process.env.NEXT_PUBLIC_AWS_REGION}.amazonaws.com`;
 
@@ -103,15 +103,15 @@ export default function CompanySettingsPage() {
   }
 
   if (loading) return (
-    <Layout>
+    <OfficeLayout>
       <p>Loading…</p>
-    </Layout>
+    </OfficeLayout>
   );
 
   const fields = ['company_name', 'address', 'phone', 'website', 'social_links', 'terms'];
 
   return (
-    <Layout>
+    <OfficeLayout>
       <h1 className="text-2xl font-semibold mb-2">Company Settings</h1>
       <Link href="/office/document-templates" className="text-blue-600 underline mb-4 inline-block">
         View Document Templates
@@ -182,6 +182,6 @@ export default function CompanySettingsPage() {
           </ul>
       </div>
       </div>
-    </Layout>
+    </OfficeLayout>
   );
 }

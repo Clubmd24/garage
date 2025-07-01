@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Layout } from '../../components/Layout';
+import OfficeLayout from '../../components/OfficeLayout';
 
 function TemplateBox({ title, company }) {
   return (
@@ -34,18 +34,18 @@ export default function DocumentTemplatesPage() {
   }, []);
 
   if (loading) return (
-    <Layout>
+    <OfficeLayout>
       <p>Loading…</p>
-    </Layout>
+    </OfficeLayout>
   );
 
   return (
-    <Layout>
+    <OfficeLayout>
       <h1 className="text-2xl font-semibold mb-4">Document Templates</h1>
       <TemplateBox title="Invoice" company={settings} />
       <TemplateBox title="Quotation" company={settings} />
       <TemplateBox title="Job Card" company={settings} />
       <TemplateBox title="Purchase Order" company={settings} />
-    </Layout>
+    </OfficeLayout>
   );
 }

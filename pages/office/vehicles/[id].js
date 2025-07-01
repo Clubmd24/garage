@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Layout } from '../../../components/Layout';
+import OfficeLayout from '../../../components/OfficeLayout';
 
 const EditVehiclePage = () => {
   const router = useRouter();
@@ -43,10 +43,10 @@ const EditVehiclePage = () => {
 
   const change = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 
-  if (loading) return <Layout><p>Loading…</p></Layout>;
+  if (loading) return <OfficeLayout><p>Loading…</p></OfficeLayout>;
 
   return (
-    <Layout>
+    <OfficeLayout>
       <h1 className="text-2xl font-semibold mb-4">Edit Vehicle</h1>
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={submit} className="space-y-4 max-w-md">
@@ -63,7 +63,7 @@ const EditVehiclePage = () => {
         ))}
           <button type="submit" className="button">Update</button>
       </form>
-    </Layout>
+    </OfficeLayout>
   );
 };
 

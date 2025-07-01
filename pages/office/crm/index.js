@@ -1,11 +1,11 @@
 import React from 'react';
-import { Layout } from '../../../components/Layout';
+import OfficeLayout from '../../../components/OfficeLayout';
 
 const CrmPage = () => (
-  <Layout>
+  <OfficeLayout>
     <h1 className="text-xl font-semibold">CRM</h1>
     {/* TODO: CRM tools and client interactions */}
-  </Layout>
+  </OfficeLayout>
 );
 
 export default CrmPage;

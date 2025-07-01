@@ -1,7 +1,7 @@
 // pages/office/clients/index.js
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Layout } from '../../../components/Layout';
+import OfficeLayout from '../../../components/OfficeLayout';
 import { fetchClients } from '../../../lib/clients';
 import { fetchVehicles } from '../../../lib/vehicles';
 import { fetchFleets } from '../../../lib/fleets';
@@ -53,14 +53,13 @@ const ClientsPage = () => {
   });
 
   return (
-    <Layout>
+    <OfficeLayout>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-semibold">Clients</h1>
         <Link href="/office/clients/new" className="button">
           + New Client
         </Link>
       </div>
-      <Link href="/office" className="button inline-block mb-4">Return to Office</Link>
       {loading && <p>Loading…</p>}
       {error && <p className="text-red-500">{error}</p>}
       {!loading && !error && (
@@ -111,7 +110,7 @@ const ClientsPage = () => {
         </div>
         </>
       )}
-    </Layout>
+    </OfficeLayout>
   );
 };
 

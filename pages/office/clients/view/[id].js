@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { Layout } from '../../../../components/Layout';
+import OfficeLayout from '../../../../components/OfficeLayout';
 import { Card } from '../../../../components/Card';
 import { fetchVehicles } from '../../../../lib/vehicles';
 import { fetchDocuments } from '../../../../lib/documents';
@@ -49,11 +49,11 @@ export default function ClientViewPage() {
     setVehicles(vs);
   };
 
-  if (loading) return <Layout><p>Loading…</p></Layout>;
-  if (error) return <Layout><p className="text-red-500">{error}</p></Layout>;
+  if (loading) return <OfficeLayout><p>Loading…</p></OfficeLayout>;
+  if (error) return <OfficeLayout><p className="text-red-500">{error}</p></OfficeLayout>;
 
   return (
-    <Layout>
+    <OfficeLayout>
       <div className="mb-6 flex flex-wrap items-center gap-4">
         <Link href={`/office/clients/${id}`}><a className="button">Edit Client</a></Link>
         <button onClick={deleteClient} className="button bg-red-600 hover:bg-red-700">Delete Client</button>
@@ -111,6 +111,6 @@ export default function ClientViewPage() {
           )}
         </Card>
       </div>
-    </Layout>
+    </OfficeLayout>
   );
 }

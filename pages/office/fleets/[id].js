@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { Layout } from '../../../components/Layout';
+import OfficeLayout from '../../../components/OfficeLayout';
 
 const EditFleetPage = () => {
   const router = useRouter();
@@ -60,10 +60,10 @@ const EditFleetPage = () => {
     setVehicles(vs => vs.filter(v => v.id !== vid));
   };
 
-  if (loading) return <Layout><p>Loading…</p></Layout>;
+  if (loading) return <OfficeLayout><p>Loading…</p></OfficeLayout>;
 
   return (
-    <Layout>
+    <OfficeLayout>
       <h1 className="text-2xl font-semibold mb-4">Edit Fleet</h1>
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={submit} className="space-y-4 max-w-md">
@@ -130,7 +130,7 @@ const EditFleetPage = () => {
           </table>
         )}
       </div>
-    </Layout>
+    </OfficeLayout>
   );
 };
 

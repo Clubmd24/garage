@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Layout } from '../../../components/Layout';
+import OfficeLayout from '../../../components/OfficeLayout';
 
 export default function EditPartPage() {
   const router = useRouter();
@@ -58,10 +58,10 @@ export default function EditPartPage() {
     }
   };
 
-  if (loading) return <Layout><p>Loading…</p></Layout>;
+  if (loading) return <OfficeLayout><p>Loading…</p></OfficeLayout>;
 
   return (
-    <Layout>
+    <OfficeLayout>
       <h1 className="text-2xl font-semibold mb-4">Edit Part</h1>
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={submit} className="space-y-4 max-w-md">
@@ -88,6 +88,6 @@ export default function EditPartPage() {
         </div>
         <button type="submit" className="button">Save</button>
       </form>
-    </Layout>
+    </OfficeLayout>
   );
 }

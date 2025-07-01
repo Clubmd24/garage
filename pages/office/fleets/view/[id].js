@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { Layout } from '../../../../components/Layout';
+import OfficeLayout from '../../../../components/OfficeLayout';
 import { PortalDashboard } from '../../../../components/PortalDashboard';
 import { fetchVehicles } from '../../../../lib/vehicles';
 import { fetchJobs } from '../../../../lib/jobs';
@@ -50,18 +50,18 @@ export default function FleetViewPage() {
   };
 
   if (loading) return (
-    <Layout>
+    <OfficeLayout>
       <p>Loading…</p>
-    </Layout>
+    </OfficeLayout>
   );
   if (error) return (
-    <Layout>
+    <OfficeLayout>
       <p className="text-red-500">{error}</p>
-    </Layout>
+    </OfficeLayout>
   );
 
   return (
-    <Layout>
+    <OfficeLayout>
       <div className="mb-6 flex flex-wrap items-center gap-4">
         <Link href={`/office/fleets/${id}`} className="button">Edit Fleet</Link>
         <button onClick={deleteFleet} className="button bg-red-600 hover:bg-red-700">Delete Fleet</button>
@@ -76,6 +76,6 @@ export default function FleetViewPage() {
         setQuotes={setQuotes}
         invoices={invoices}
       />
-    </Layout>
+    </OfficeLayout>
   );
 }

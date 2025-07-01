@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { Layout } from '../../../components/Layout';
+import OfficeLayout from '../../../components/OfficeLayout';
 
 export default function NewPartPage() {
   const [form, setForm] = useState({
@@ -43,7 +43,7 @@ export default function NewPartPage() {
   };
 
   return (
-    <Layout>
+    <OfficeLayout>
       <h1 className="text-2xl font-semibold mb-4">New Part</h1>
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={submit} className="space-y-4 max-w-md">
@@ -70,6 +70,6 @@ export default function NewPartPage() {
         </div>
         <button type="submit" className="button">Save</button>
       </form>
-    </Layout>
+    </OfficeLayout>
   );
 }

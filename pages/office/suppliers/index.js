@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Layout } from '../../../components/Layout';
+import OfficeLayout from '../../../components/OfficeLayout';
 
 export default function SuppliersPage() {
   const [suppliers, setSuppliers] = useState([]);
@@ -24,14 +24,13 @@ export default function SuppliersPage() {
   );
 
   return (
-    <Layout>
+    <OfficeLayout>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-semibold">Suppliers</h1>
         <Link href="/office/suppliers/new" className="button">
           + New Supplier
         </Link>
       </div>
-      <Link href="/office" className="button inline-block mb-4">Return to Office</Link>
       {error && <p className="text-red-500">{error}</p>}
       {loading ? (
         <p>Loading…</p>
@@ -58,6 +57,6 @@ export default function SuppliersPage() {
           </div>
         </>
       )}
-    </Layout>
+    </OfficeLayout>
   );
 }

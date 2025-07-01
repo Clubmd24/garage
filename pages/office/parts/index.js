@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Layout } from '../../../components/Layout';
+import OfficeLayout from '../../../components/OfficeLayout';
 
 export default function PartsPage() {
   const [parts, setParts] = useState([]);
@@ -39,12 +39,11 @@ export default function PartsPage() {
   const supplierName = id => suppliers.find(s => s.id === id)?.name || '';
 
   return (
-    <Layout>
+    <OfficeLayout>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-semibold">Parts</h1>
         <Link href="/office/parts/new" className="button">+ New Part</Link>
       </div>
-      <Link href="/office" className="button inline-block mb-4">Return to Office</Link>
       {error && <p className="text-red-500">{error}</p>}
       {loading ? (
         <p>Loading…</p>
@@ -72,6 +71,6 @@ export default function PartsPage() {
           </div>
         </>
       )}
-    </Layout>
+    </OfficeLayout>
   );
 }

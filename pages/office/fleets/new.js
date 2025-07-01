@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import { Layout } from '../../../components/Layout';
+import OfficeLayout from '../../../components/OfficeLayout';
 
 const NewFleetPage = () => {
   const router = useRouter();
@@ -38,7 +38,7 @@ const NewFleetPage = () => {
   const change = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 
   return (
-    <Layout>
+    <OfficeLayout>
       <h1 className="text-2xl font-semibold mb-4">New Fleet</h1>
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={submit} className="space-y-4 max-w-md">
@@ -68,7 +68,7 @@ const NewFleetPage = () => {
         ))}
         <button type="submit" className="button">Save</button>
       </form>
-    </Layout>
+    </OfficeLayout>
   );
 };
 

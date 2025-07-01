@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { Layout } from '../../../../components/Layout';
+import OfficeLayout from '../../../../components/OfficeLayout';
 import { Card } from '../../../../components/Card';
 
 export default function EngineerViewPage() {
@@ -34,11 +34,11 @@ export default function EngineerViewPage() {
     router.push('/office/engineers');
   };
 
-  if (loading) return <Layout><p>Loading…</p></Layout>;
-  if (error) return <Layout><p className="text-red-500">{error}</p></Layout>;
+  if (loading) return <OfficeLayout><p>Loading…</p></OfficeLayout>;
+  if (error) return <OfficeLayout><p className="text-red-500">{error}</p></OfficeLayout>;
 
   return (
-    <Layout>
+    <OfficeLayout>
       <div className="mb-6 flex flex-wrap items-center gap-4">
         <Link href={`/office/engineers/${id}`} className="button">Edit Engineer</Link>
         <button onClick={deleteEngineer} className="button bg-red-600 hover:bg-red-700">Delete Engineer</button>
@@ -49,6 +49,6 @@ export default function EngineerViewPage() {
         <p><strong>Username:</strong> {engineer.username}</p>
         <p><strong>Email:</strong> {engineer.email || '—'}</p>
       </Card>
-    </Layout>
+    </OfficeLayout>
   );
 }

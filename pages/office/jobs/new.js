@@ -1,12 +1,12 @@
 import React from 'react';
 import { useRouter } from 'next/router';
-import { Layout } from '../../../components/Layout';
+import OfficeLayout from '../../../components/OfficeLayout';
 import PartAutocomplete from '../../../components/PartAutocomplete';
 
 export default function NewJobPage() {
   const { query } = useRouter();
   return (
-    <Layout>
+    <OfficeLayout>
       <h1 className="text-2xl font-semibold mb-4">New Job</h1>
       <p className="text-sm">Placeholder page for creating a job.</p>
       <div className="max-w-sm mt-4">
@@ -19,6 +19,6 @@ export default function NewJobPage() {
       {query.vehicle_id && (
         <p className="text-sm">Vehicle ID: {query.vehicle_id}</p>
       )}
-    </Layout>
+    </OfficeLayout>
   );
 }

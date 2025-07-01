@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout } from '../../../components/Layout';
+import OfficeLayout from '../../../components/OfficeLayout';
 import { fetchFinanceReport, fetchEngineerPerformance, fetchBusinessPerformance } from '../../../lib/reporting';
 
 function formatDate(d) {
@@ -65,7 +65,7 @@ const ReportingPage = () => {
   }, [range, customStart, customEnd]);
 
   return (
-    <Layout>
+    <OfficeLayout>
       <h1 className="text-xl font-semibold mb-4">Reporting</h1>
       <div className="mb-6 space-x-2">
         <select value={range} onChange={e => setRange(e.target.value)} className="input inline-block w-auto">
@@ -142,7 +142,7 @@ const ReportingPage = () => {
           )}
         </>
       )}
-    </Layout>
+    </OfficeLayout>
   );
 };
 
