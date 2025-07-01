@@ -18,12 +18,17 @@ export default function CompanySettingsPage() {
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [statuses, setStatuses] = useState([]);
+  const [statusInput, setStatusInput] = useState('');
 
   useEffect(() => {
-    fetch('/api/company-settings')
-      .then(r => (r.ok ? r.json() : null))
-      .then(data => {
-        if (data) setForm(data);
+    Promise.all([
+      fetch('/api/company-settings').then(r => (r.ok ? r.json() : null)),
+      fetch('/api/job-statuses').then(r => (r.ok ? r.json() : [])),
+    ])
+      .then(([settings, statuses]) => {
+        if (settings) setForm(settings);
+        setStatuses(statuses);
       })
       .catch(() => setError('Failed to load'))
       .finally(() => setLoading(false));
@@ -75,6 +80,28 @@ export default function CompanySettingsPage() {
     }
   };
 
+  async function addStatus(e) {
+    e.preventDefault();
+    const name = statusInput.trim();
+    if (!name) return;
+    const res = await fetch('/api/job-statuses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    });
+    if (res.ok) {
+      const s = await res.json();
+      setStatuses([...statuses, s]);
+      setStatusInput('');
+    }
+  }
+
+  async function removeStatus(id) {
+    if (!confirm('Delete this status?')) return;
+    await fetch(`/api/job-statuses/${id}`, { method: 'DELETE' });
+    setStatuses(statuses.filter(s => s.id !== id));
+  }
+
   if (loading) return (
     <Layout>
       <p>Loading…</p>
@@ -125,6 +152,26 @@ export default function CompanySettingsPage() {
           {saving ? 'Saving…' : 'Save Settings'}
         </button>
       </form>
+      <div className="mt-8">
+        <h2 className="text-xl font-semibold mb-2">Job Statuses</h2>
+        <form onSubmit={addStatus} className="flex gap-2 mb-4">
+          <input
+            value={statusInput}
+            onChange={e => setStatusInput(e.target.value)}
+            className="input flex-1"
+            placeholder="New status"
+          />
+          <button type="submit" className="button">Add</button>
+        </form>
+        <ul className="space-y-1">
+          {statuses.map(s => (
+            <li key={s.id} className="flex justify-between bg-gray-100 px-2 py-1 rounded">
+              <span>{s.name}</span>
+              <button onClick={() => removeStatus(s.id)} className="text-red-600 hover:underline">Delete</button>
+            </li>
+          ))}
+        </ul>
+      </div>
     </Layout>
   );
 }

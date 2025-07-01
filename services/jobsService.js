@@ -1,5 +1,5 @@
 import pool from '../lib/db.js';
-import { JOB_STATUSES } from '../lib/jobStatuses.js';
+import { jobStatusExists } from './jobStatusesService.js';
 
 export async function getAllJobs(status) {
   const base =
@@ -41,7 +41,7 @@ export async function getJobById(id) {
 }
 
 export async function createJob({ customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay }) {
-  if (status && !JOB_STATUSES.includes(status)) {
+  if (status && !(await jobStatusExists(status))) {
     throw new Error('Invalid job status');
   }
   const [{ insertId }] = await pool.query(
@@ -53,7 +53,7 @@ export async function createJob({ customer_id, vehicle_id, scheduled_start, sche
 }
 
 export async function updateJob(id, { customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay }) {
-  if (status && !JOB_STATUSES.includes(status)) {
+  if (status && !(await jobStatusExists(status))) {
     throw new Error('Invalid job status');
   }
   await pool.query(
