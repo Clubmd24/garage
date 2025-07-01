@@ -179,6 +179,12 @@ export default function OfficeDashboard() {
                   Vehicles
                 </Link>
               </li>
+              <li>
+                <Link href="/office/suppliers" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  Suppliers
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
