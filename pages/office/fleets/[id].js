@@ -5,9 +5,10 @@ import OfficeLayout from '../../../components/OfficeLayout';
 
 const EditFleetPage = () => {
   const router = useRouter();
-  const { id } = router.query;
+  const { id, pin } = router.query;
   const [form, setForm] = useState({
     company_name: '',
+    garage_name: '',
     account_rep: '',
     payment_terms: '',
     street_address: '',
@@ -65,10 +66,14 @@ const EditFleetPage = () => {
   return (
     <OfficeLayout>
       <h1 className="text-2xl font-semibold mb-4">Edit Fleet</h1>
+      {pin && (
+        <p className="mb-4 font-semibold">PIN: {pin}</p>
+      )}
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={submit} className="space-y-4 max-w-md">
         {[
           'company_name',
+          'garage_name',
           'account_rep',
           'payment_terms',
           'street_address',

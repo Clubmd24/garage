@@ -6,6 +6,7 @@ const NewFleetPage = () => {
   const router = useRouter();
   const [form, setForm] = useState({
     company_name: '',
+    garage_name: '',
     account_rep: '',
     payment_terms: '',
     street_address: '',
@@ -29,7 +30,8 @@ const NewFleetPage = () => {
         body: JSON.stringify(form),
       });
       if (!res.ok) throw new Error();
-      router.push('/office/fleets');
+      const created = await res.json();
+      router.push(`/office/fleets/${created.id}?pin=${created.pin}`);
     } catch {
       setError('Failed to create fleet');
     }
@@ -44,6 +46,7 @@ const NewFleetPage = () => {
       <form onSubmit={submit} className="space-y-4 max-w-md">
         {[
           'company_name',
+          'garage_name',
           'account_rep',
           'payment_terms',
           'street_address',

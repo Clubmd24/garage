@@ -3,7 +3,8 @@ import { useRouter } from 'next/router';
 
 export default function FleetLogin() {
   const router = useRouter();
-  const [company, setCompany] = useState('');
+  const [garageName, setGarageName] = useState('');
+  const [pin, setPin] = useState('');
   const [error, setError] = useState('');
 
   async function handleSubmit(e) {
@@ -11,7 +12,7 @@ export default function FleetLogin() {
     const res = await fetch('/api/portal/fleet/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ company_name: company }),
+      body: JSON.stringify({ garage_name: garageName, pin }),
     });
     if (res.ok) {
       router.push('/fleet/home');
@@ -27,10 +28,17 @@ export default function FleetLogin() {
         {error && <p className="text-red-300">{error}</p>}
         <input
           type="text"
-          placeholder="Company Name"
+          placeholder="Garage Name"
           className="input w-full"
-          value={company}
-          onChange={e => setCompany(e.target.value)}
+          value={garageName}
+          onChange={e => setGarageName(e.target.value)}
+        />
+        <input
+          type="password"
+          placeholder="PIN"
+          className="input w-full"
+          value={pin}
+          onChange={e => setPin(e.target.value)}
         />
         <button type="submit" className="button w-full">Login</button>
       </form>

@@ -1,0 +1,3 @@
+ALTER TABLE fleets
+  ADD COLUMN garage_name VARCHAR(255),
+  ADD COLUMN pin_hash VARCHAR(255);
