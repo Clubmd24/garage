@@ -49,3 +49,17 @@ python generate_invoice.py invoice_data.json
 
 The resulting files are written to the `output/` directory as
 `invoice_<invoice_number>.docx` and `invoice_<invoice_number>.pdf`.
+
+## Quotation Generation
+
+An editable quotation template lives in `templates/quotation_template.docx`.
+Use the helper script `generate_quote.py` to fill this template with JSON data
+and produce a PDF quote. Example usage:
+
+```bash
+pip install docxtpl docx2pdf
+python generate_quote.py quote_data.json
+```
+
+The resulting files are written to the `output/` directory as
+`quote_<quote_number>.docx` and `quote_<quote_number>.pdf`.
