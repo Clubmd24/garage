@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { useCurrentUser } from '../../components/useCurrentUser.js';
-import OfficeDashboard from '../../src/components/OfficeDashboard.jsx';
+import OfficeDashboard from '../../components/OfficeDashboard.jsx';
 
 export default function OfficePage() {
   const router = useRouter();

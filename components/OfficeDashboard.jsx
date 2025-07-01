@@ -1,11 +1,11 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { fetchQuotes } from '../../lib/quotes';
-import { fetchJobs } from '../../lib/jobs';
-import { fetchInvoices } from '../../lib/invoices';
-import { JOB_STATUSES } from '../../lib/jobStatuses';
-import logout from '../../lib/logout.js';
+import { fetchQuotes } from '../lib/quotes';
+import { fetchJobs } from '../lib/jobs';
+import { fetchInvoices } from '../lib/invoices';
+import { JOB_STATUSES } from '../lib/jobStatuses';
+import logout from '../lib/logout.js';
 
 export default function OfficeDashboard() {
   const router = useRouter();
