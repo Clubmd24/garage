@@ -277,9 +277,17 @@
 | `scheduled_start` | datetime DEFAULT NULL |
 | `scheduled_end` | datetime DEFAULT NULL |
 | `status` | varchar(50) DEFAULT NULL |
-| *Allowed* | awaiting collection, awaiting assessment, awaiting parts, in progress, awaiting return, completed |
 | `bay` | varchar(50) DEFAULT NULL |
 | `created_at` | datetime DEFAULT current_timestamp() |
+
+## Table: `job_statuses`
+
+| Column | Definition |
+|--------|------------|
+| `id` | int(11) NOT NULL AUTO_INCREMENT |
+| `name` | varchar(50) NOT NULL |
+
+This table enumerates the valid statuses that a job can be in. The `status` column in the `jobs` table references these values.
 
 ## Table: `maintenance`
 
