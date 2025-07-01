@@ -70,7 +70,7 @@ export default function EngineerWiki() {
       </Card>
       <h2 className="text-xl font-semibold mb-2">Monthly Calendar</h2>
       <p className="mb-4">
-        Days marked "Holiday" are your approved time off. Other days list any
+        Days marked &quot;Holiday&quot; are your approved time off. Other days list any
         jobs scheduled to start on that date.
       </p>
       <div className="grid grid-cols-7 gap-2 text-sm">
