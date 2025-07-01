@@ -7,6 +7,18 @@ import { fetchInvoices } from '../lib/invoices';
 import { fetchJobStatuses } from '../lib/jobStatuses';
 import logout from '../lib/logout.js';
 
+function ArrowIcon() {
+  return (
+    <svg
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      className="w-4 h-4 mr-2 flex-shrink-0"
+    >
+      <path d="M9 5l7 5-7 5V5z" />
+    </svg>
+  );
+}
+
 export default function OfficeDashboard() {
   const router = useRouter();
   const [quotes, setQuotes] = useState([]);
@@ -60,45 +72,130 @@ export default function OfficeDashboard() {
       <aside className="w-64 bg-blue-900 p-6 space-y-6">
         <nav className="space-y-4">
           <div>
-            <h3 className="uppercase text-sm font-semibold mb-2">Sales</h3>
+            <h3 className="uppercase text-sm font-semibold mb-2 text-cyan-400">Sales</h3>
             <ul className="space-y-1">
-              <li><Link href="/office/quotations/new" className="block hover:underline">New Quotation</Link></li>
-              <li><Link href="/office/invoices" className="block hover:underline">Invoices</Link></li>
-              <li><Link href="/office/invoices?status=unpaid" className="block hover:underline">Pay Invoice</Link></li>
+              <li>
+                <Link href="/office/quotations/new" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  New Quotation
+                </Link>
+              </li>
+              <li>
+                <Link href="/office/invoices" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  Invoices
+                </Link>
+              </li>
+              <li>
+                <Link href="/office/invoices?status=unpaid" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  Pay Invoice
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
-            <h3 className="uppercase text-sm font-semibold mb-2">Operations</h3>
+            <h3 className="uppercase text-sm font-semibold mb-2 text-cyan-400">Operations</h3>
             <ul className="space-y-1">
-              <li><Link href="/office/jobs/new" className="block hover:underline">New Job</Link></li>
-              <li><Link href="/office/job-requests" className="block hover:underline">Job Requests</Link></li>
-              <li><Link href="/office/job-management" className="block hover:underline">Job Management</Link></li>
-              <li><Link href="/office/job-cards" className="block hover:underline">Job Cards</Link></li>
-              <li><Link href="/office/scheduling" className="block hover:underline">Scheduling</Link></li>
+              <li>
+                <Link href="/office/jobs/new" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  New Job
+                </Link>
+              </li>
+              <li>
+                <Link href="/office/job-requests" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  Job Requests
+                </Link>
+              </li>
+              <li>
+                <Link href="/office/job-management" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  Job Management
+                </Link>
+              </li>
+              <li>
+                <Link href="/office/job-cards" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  Job Cards
+                </Link>
+              </li>
+              <li>
+                <Link href="/office/scheduling" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  Scheduling
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
-            <h3 className="uppercase text-sm font-semibold mb-2">CRM</h3>
+            <h3 className="uppercase text-sm font-semibold mb-2 text-cyan-400">CRM</h3>
             <ul className="space-y-1">
-              <li><Link href="/office/clients" className="block hover:underline">Clients</Link></li>
-              <li><Link href="/office/engineers" className="block hover:underline">Engineers</Link></li>
-              <li><Link href="/office/crm" className="block hover:underline">CRM</Link></li>
-              <li><Link href="/office/reporting" className="block hover:underline">Reporting</Link></li>
+              <li>
+                <Link href="/office/clients" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  Clients
+                </Link>
+              </li>
+              <li>
+                <Link href="/office/engineers" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  Engineers
+                </Link>
+              </li>
+              <li>
+                <Link href="/office/crm" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  CRM
+                </Link>
+              </li>
+              <li>
+                <Link href="/office/reporting" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  Reporting
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
-            <h3 className="uppercase text-sm font-semibold mb-2">Assets</h3>
+            <h3 className="uppercase text-sm font-semibold mb-2 text-cyan-400">Assets</h3>
             <ul className="space-y-1">
-              <li><Link href="/office/parts" className="block hover:underline">Parts</Link></li>
-              <li><Link href="/office/fleets" className="block hover:underline">Fleets</Link></li>
-              <li><Link href="/office/vehicles" className="block hover:underline">Vehicles</Link></li>
+              <li>
+                <Link href="/office/parts" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  Parts
+                </Link>
+              </li>
+              <li>
+                <Link href="/office/fleets" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  Fleets
+                </Link>
+              </li>
+              <li>
+                <Link href="/office/vehicles" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  Vehicles
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
-            <h3 className="uppercase text-sm font-semibold mb-2">Settings</h3>
+            <h3 className="uppercase text-sm font-semibold mb-2 text-cyan-400">Settings</h3>
             <ul className="space-y-1">
-              <li><Link href="/office/company-settings" className="block hover:underline">Company Settings</Link></li>
-              <li><button onClick={handleLogout} className="w-full text-left hover:underline">Logout</button></li>
+              <li>
+                <Link href="/office/company-settings" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  Company Settings
+                </Link>
+              </li>
+              <li>
+                <button onClick={handleLogout} className="flex items-center w-full text-left hover:underline">
+                  <ArrowIcon />
+                  Logout
+                </button>
+              </li>
             </ul>
           </div>
         </nav>
