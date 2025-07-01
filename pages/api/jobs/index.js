@@ -15,7 +15,11 @@ export default async function handler(req, res) {
       const jobs = await service.getAllJobs(status);
       return res.status(200).json(jobs);
     }
-    res.setHeader('Allow', ['GET']);
+    if (req.method === 'POST') {
+      const job = await service.createJob(req.body);
+      return res.status(201).json(job);
+    }
+    res.setHeader('Allow', ['GET','POST']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   } catch (err) {
     console.error(err);
