@@ -20,7 +20,7 @@ export default function Landing() {
           of your repair shop with precision, power, and profitability.
         </p>
         <img
-          src="https://source.unsplash.com/800x400/?garage,car"
+          src="/web-header-image.png"
           alt="Modern garage workspace"
           className="hero-image"
         />
