@@ -20,11 +20,16 @@ export async function searchParts(query) {
   return rows;
 }
 
-export async function createPart({ part_number, description, unit_cost }) {
+export async function createPart({
+  part_number,
+  description,
+  unit_cost,
+  supplier_id,
+}) {
   const [{ insertId }] = await pool.query(
-    `INSERT INTO parts (part_number, description, unit_cost)
-     VALUES (?,?,?)`,
-    [part_number, description || null, unit_cost || null]
+    `INSERT INTO parts (part_number, description, unit_cost, supplier_id)
+     VALUES (?,?,?,?)`,
+    [part_number, description || null, unit_cost || null, supplier_id || null]
   );
-  return { id: insertId, part_number, description, unit_cost };
+  return { id: insertId, part_number, description, unit_cost, supplier_id };
 }
