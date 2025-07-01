@@ -3,26 +3,37 @@ import { useRouter } from 'next/router';
 
 export default function LocalLogin() {
   const router = useRouter();
-  const [garageName, setGarageName] = useState('');
+  const [garage, setGarage] = useState('');
   const [vehicleReg, setVehicleReg] = useState('');
-  const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
   const [error, setError] = useState('');
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const res = await fetch('/api/portal/local/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        garage_name: garageName,
-        vehicle_reg: vehicleReg,
-        password,
-      }),
-    });
-    if (res.ok) {
+    setError('');
+    try {
+      const res = await fetch('/api/portal/local/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          garage_name: garage,
+          vehicle_reg: vehicleReg,
+          password: firstName,
+        }),
+      });
+      if (!res.ok) {
+        let msg = 'Login failed';
+        try {
+          const body = await res.json();
+          if (body.error) msg = body.error;
+        } catch {
+          /* noop */
+        }
+        throw new Error(msg);
+      }
       router.push('/local');
-    } else {
-      setError('Login failed');
+    } catch (err) {
+      setError(err.message);
     }
   }
 
@@ -33,14 +44,14 @@ export default function LocalLogin() {
         {error && <p className="text-red-300">{error}</p>}
         <input
           type="text"
-          placeholder="Garage Name"
+          placeholder="Select Garage"
           className="input w-full"
-          value={garageName}
-          onChange={e => setGarageName(e.target.value)}
+          value={garage}
+          onChange={e => setGarage(e.target.value)}
         />
         <input
           type="text"
-          placeholder="Vehicle Registration"
+          placeholder="Car Registration"
           className="input w-full"
           value={vehicleReg}
           onChange={e => setVehicleReg(e.target.value)}
@@ -49,8 +60,8 @@ export default function LocalLogin() {
           type="password"
           placeholder="First Name"
           className="input w-full"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
+          value={firstName}
+          onChange={e => setFirstName(e.target.value)}
         />
         <button type="submit" className="button w-full">Login</button>
       </form>

@@ -3,21 +3,33 @@ import { useRouter } from 'next/router';
 
 export default function FleetLogin() {
   const router = useRouter();
-  const [garageName, setGarageName] = useState('');
+  const [garage, setGarage] = useState('');
+  const [companyName, setCompanyName] = useState('');
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const res = await fetch('/api/portal/fleet/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ garage_name: garageName, pin }),
-    });
-    if (res.ok) {
+    setError('');
+    try {
+      const res = await fetch('/api/portal/fleet/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ garage_name: garage, company_name: companyName, pin }),
+      });
+      if (!res.ok) {
+        let msg = 'Login failed';
+        try {
+          const body = await res.json();
+          if (body.error) msg = body.error;
+        } catch {
+          /* noop */
+        }
+        throw new Error(msg);
+      }
       router.push('/fleet/home');
-    } else {
-      setError('Login failed');
+    } catch (err) {
+      setError(err.message);
     }
   }
 
@@ -28,10 +40,17 @@ export default function FleetLogin() {
         {error && <p className="text-red-300">{error}</p>}
         <input
           type="text"
-          placeholder="Garage Name"
+          placeholder="Select Garage"
           className="input w-full"
-          value={garageName}
-          onChange={e => setGarageName(e.target.value)}
+          value={garage}
+          onChange={e => setGarage(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Company Name"
+          className="input w-full"
+          value={companyName}
+          onChange={e => setCompanyName(e.target.value)}
         />
         <input
           type="password"
