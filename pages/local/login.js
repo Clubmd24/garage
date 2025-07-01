@@ -3,7 +3,9 @@ import { useRouter } from 'next/router';
 
 export default function LocalLogin() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
+  const [garageName, setGarageName] = useState('');
+  const [vehicleReg, setVehicleReg] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
   async function handleSubmit(e) {
@@ -11,7 +13,11 @@ export default function LocalLogin() {
     const res = await fetch('/api/portal/local/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({
+        garage_name: garageName,
+        vehicle_reg: vehicleReg,
+        password,
+      }),
     });
     if (res.ok) {
       router.push('/local');
@@ -26,11 +32,25 @@ export default function LocalLogin() {
         <h1 className="text-2xl font-bold mb-2 text-center">Client Login</h1>
         {error && <p className="text-red-300">{error}</p>}
         <input
-          type="email"
-          placeholder="Email"
+          type="text"
+          placeholder="Garage Name"
           className="input w-full"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
+          value={garageName}
+          onChange={e => setGarageName(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Vehicle Registration"
+          className="input w-full"
+          value={vehicleReg}
+          onChange={e => setVehicleReg(e.target.value)}
+        />
+        <input
+          type="password"
+          placeholder="First Name"
+          className="input w-full"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
         />
         <button type="submit" className="button w-full">Login</button>
       </form>
