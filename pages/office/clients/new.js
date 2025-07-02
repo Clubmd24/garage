@@ -15,6 +15,7 @@ const NewClientPage = () => {
     town: '',
     province: '',
     post_code: '',
+    password: '',
   });
   const [vehicle, setVehicle] = useState({
     licence_plate: '',
@@ -42,7 +43,7 @@ const NewClientPage = () => {
           body: JSON.stringify({ ...vehicle, customer_id: created.id }),
         });
       }
-      router.push('/office/clients');
+      router.push(`/office/clients/${created.id}?pw=${created.password}`);
     } catch {
       setError('Failed to create client');
     }
@@ -65,8 +66,9 @@ const NewClientPage = () => {
           'nie_number',
           'street_address',
           'town',
-          'province',
+        'province',
         'post_code',
+        'password',
       ].map(field => (
         <div key={field}>
           <label className="block mb-1">{field.replace('_',' ').replace(/\b\w/g, c => c.toUpperCase())}</label>

@@ -1,5 +1,6 @@
 import pool from '../lib/db.js';
 import { hashPassword } from '../lib/auth.js';
+import { randomBytes } from 'crypto';
 
 export async function getAllClients() {
   const [rows] = await pool.query(
@@ -35,8 +36,12 @@ export async function createClient({
   town,
   province,
   post_code,
+  password,
 }) {
-  const password_hash = await hashPassword(first_name);
+  if (!password) {
+    password = randomBytes(12).toString('base64url');
+  }
+  const password_hash = await hashPassword(password);
   const [{ insertId }] = await pool.query(
     `INSERT INTO clients
       (first_name, last_name, email, mobile, landline, nie_number,
@@ -73,6 +78,7 @@ export async function createClient({
     town,
     province,
     post_code,
+    password,
   };
 }
 
