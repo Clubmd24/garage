@@ -17,6 +17,12 @@ export default async function handler(req, res) {
     }
     if (req.method === 'POST') {
       const newQuote = await service.createQuote(req.body);
+      try {
+        const { sendQuoteEmail } = await import('../../../services/emailService.js');
+        await sendQuoteEmail(newQuote.id);
+      } catch (e) {
+        console.error('QUOTE_EMAIL_ERROR:', e);
+      }
       return res.status(201).json(newQuote);
     }
     res.setHeader('Allow', ['GET','POST']);
