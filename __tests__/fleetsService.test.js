@@ -29,3 +29,24 @@ test('getFleetById fetches single fleet', async () => {
   expect(queryMock).toHaveBeenCalledWith(expect.stringMatching(/WHERE id=\?/), [2]);
   expect(result).toEqual(row);
 });
+
+test('resetFleetPin updates hash and returns pin', async () => {
+  const queryMock = jest.fn().mockResolvedValue([]);
+  jest.unstable_mockModule('../lib/db.js', () => ({
+    default: { query: queryMock },
+  }));
+  const hashMock = jest.fn(async () => 'HASH');
+  jest.unstable_mockModule('../lib/auth.js', () => ({
+    hashPassword: hashMock,
+  }));
+  jest.spyOn(Math, 'random').mockReturnValue(0.5);
+  const { resetFleetPin } = await import('../services/fleetsService.js');
+  const pin = await resetFleetPin(3);
+  expect(pin).toBe('5500');
+  expect(hashMock).toHaveBeenCalledWith('5500');
+  expect(queryMock).toHaveBeenCalledWith(
+    'UPDATE fleets SET pin_hash=?, pin=? WHERE id=?',
+    ['HASH', '5500', 3]
+  );
+  Math.random.mockRestore();
+});

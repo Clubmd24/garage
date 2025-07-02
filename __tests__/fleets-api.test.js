@@ -101,3 +101,17 @@ test('fleet detail handles errors', async () => {
   expect(res.json).toHaveBeenCalledWith({ error: 'Internal Server Error' });
   console.error.mockRestore();
 });
+
+test('reset fleet pin returns new pin', async () => {
+  const resetMock = jest.fn().mockResolvedValue('1234');
+  jest.unstable_mockModule('../services/fleetsService.js', () => ({
+    resetFleetPin: resetMock,
+  }));
+  const { default: handler } = await import('../pages/api/fleets/[id]/pin.js');
+  const req = { method: 'POST', query: { id: '5' }, headers: {} };
+  const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn(), end: jest.fn() };
+  await handler(req, res);
+  expect(resetMock).toHaveBeenCalledWith('5');
+  expect(res.status).toHaveBeenCalledWith(200);
+  expect(res.json).toHaveBeenCalledWith({ pin: '1234' });
+});
