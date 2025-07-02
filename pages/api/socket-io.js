@@ -1,12 +1,13 @@
 import { Server } from "socket.io";
 import pool from "../../lib/db";
+import apiHandler from '../../lib/apiHandler.js';
 
 const extractMentions = (body) =>
   Array.from(
     new Set((body.match(/@([\w.-]+)/g) || []).map((m) => m.slice(1))),
   );
 
-export default function handler(req, res) {
+function handler(req, res) {
   if (!res.socket.server.io) {
     const io = new Server(res.socket.server, { path: "/api/socket-io" });
     io.on("connection", (socket) => {
@@ -45,3 +46,5 @@ export default function handler(req, res) {
   }
   res.end();
 }
+
+export default apiHandler(handler);

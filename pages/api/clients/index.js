@@ -1,8 +1,8 @@
+import apiHandler from '../../../lib/apiHandler.js';
 // pages/api/clients/index.js
 import { getAllClients, createClient } from '../../../services/clientsService';
 
-export default async function handler(req, res) {
-  try {
+async function handler(req, res) {
     if (req.method === 'GET') {
       const clients = await getAllClients();
       return res.status(200).json(clients);
@@ -13,8 +13,6 @@ export default async function handler(req, res) {
     }
     res.setHeader('Allow', ['GET','POST']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
 }
+
+export default apiHandler(handler);

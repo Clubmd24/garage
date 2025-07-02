@@ -1,6 +1,7 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import crypto from 'crypto';
+import apiHandler from '../../../lib/apiHandler.js';
 
 const client = new S3Client({
   region: process.env.AWS_REGION,
@@ -10,7 +11,7 @@ const client = new S3Client({
   },
 });
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
     return res.status(405).end();
@@ -35,3 +36,5 @@ export default async function handler(req, res) {
     res.status(500).json({ error: 'Failed to generate URL' });
   }
 }
+
+export default apiHandler(handler);

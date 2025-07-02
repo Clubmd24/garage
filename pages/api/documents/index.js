@@ -1,6 +1,7 @@
 import { getDocuments, createDocument } from '../../../services/documentsService.js';
+import apiHandler from '../../../lib/apiHandler.js';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const entity_type = req.query.entity_type || req.body.entity_type;
   const entity_id = req.query.entity_id || req.body.entity_id;
 
@@ -34,3 +35,5 @@ export default async function handler(req, res) {
   res.setHeader('Allow', ['GET', 'POST']);
   res.status(405).end(`Method ${req.method} Not Allowed`);
 }
+
+export default apiHandler(handler);

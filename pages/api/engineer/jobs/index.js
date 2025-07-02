@@ -1,8 +1,9 @@
 import pool from '../../../../lib/db';
 import { getTokenFromReq } from '../../../../lib/auth';
 import { listActiveJobsForEngineer } from '../../../../services/jobsService.js';
+import apiHandler from '../../../../lib/apiHandler.js';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const t = getTokenFromReq(req);
   if (!t) return res.status(401).json({ error: 'Unauthorized' });
   const [[roleRow]] = await pool.query(
@@ -27,3 +28,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
+
+export default apiHandler(handler);

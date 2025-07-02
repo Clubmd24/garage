@@ -1,7 +1,8 @@
 import pool from '../../../lib/db';
 import { verifyPassword, signToken } from '../../../lib/auth';
+import apiHandler from '../../../lib/apiHandler.js';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const { identifier, email, username, password } = req.body;
   const ident = identifier || email || username;
   const [rows] = await pool.query(
@@ -19,3 +20,5 @@ export default async function handler(req, res) {
   );
   res.status(200).json({ ok: true });
 }
+
+export default apiHandler(handler);

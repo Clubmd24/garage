@@ -1,9 +1,9 @@
 import { createJobRequest, getAllJobRequests } from '../../../services/jobRequestsService.js';
 import { verifyToken, getTokenFromReq } from '../../../lib/auth.js';
 import { parse } from 'cookie';
+import apiHandler from '../../../lib/apiHandler.js';
 
-export default async function handler(req, res) {
-  try {
+async function handler(req, res) {
     if (req.method === 'GET') {
       const t = getTokenFromReq(req);
       if (!t) return res.status(401).json({ error: 'Unauthorized' });
@@ -32,8 +32,6 @@ export default async function handler(req, res) {
     }
     res.setHeader('Allow', ['GET','POST']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
 }
+
+export default apiHandler(handler);

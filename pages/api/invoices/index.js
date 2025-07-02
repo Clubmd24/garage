@@ -1,7 +1,7 @@
 import * as service from '../../../services/invoicesService.js';
+import apiHandler from '../../../lib/apiHandler.js';
 
-export default async function handler(req, res) {
-  try {
+async function handler(req, res) {
     if (req.method === 'GET') {
       const { customer_id, fleet_id, status } = req.query || {};
       if (fleet_id) {
@@ -27,8 +27,6 @@ export default async function handler(req, res) {
     }
     res.setHeader('Allow', ['GET','POST']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
 }
+
+export default apiHandler(handler);
