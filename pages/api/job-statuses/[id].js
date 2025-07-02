@@ -1,6 +1,7 @@
 import { deleteJobStatus } from '../../../services/jobStatusesService.js';
+import apiHandler from '../../../lib/apiHandler.js';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const { id } = req.query;
   try {
     if (req.method === 'DELETE') {
@@ -14,3 +15,5 @@ export default async function handler(req, res) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }
+
+export default apiHandler(handler);

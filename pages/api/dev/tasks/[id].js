@@ -1,7 +1,8 @@
 import pool from '../../../../lib/db';
 import { getTokenFromReq } from '../../../../lib/auth';
+import apiHandler from '../../../../lib/apiHandler.js';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const t = getTokenFromReq(req);
   if (!t) return res.status(401).json({ error: 'Unauthorized' });
   const { id } = req.query;
@@ -36,3 +37,5 @@ export default async function handler(req, res) {
   res.setHeader('Allow',['GET','PUT','DELETE']);
   res.status(405).end();
 }
+
+export default apiHandler(handler);

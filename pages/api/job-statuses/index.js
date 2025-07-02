@@ -1,7 +1,7 @@
 import * as service from '../../../services/jobStatusesService.js';
+import apiHandler from '../../../lib/apiHandler.js';
 
-export default async function handler(req, res) {
-  try {
+async function handler(req, res) {
     if (req.method === 'GET') {
       const statuses = await service.getJobStatuses();
       return res.status(200).json(statuses);
@@ -12,8 +12,6 @@ export default async function handler(req, res) {
     }
     res.setHeader('Allow', ['GET','POST']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
 }
+
+export default apiHandler(handler);

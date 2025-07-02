@@ -1,11 +1,12 @@
 import pool from "../../../lib/db";
+import apiHandler from '../../../lib/apiHandler.js';
 
 const extractMentions = (body) =>
   Array.from(
     new Set((body.match(/@([\w.-]+)/g) || []).map((m) => m.slice(1))),
   );
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const limit = parseInt(req.query.limit || "50", 10);
   const room = parseInt(req.query.room_id || "1", 10);
   try {
@@ -29,3 +30,5 @@ export default async function handler(req, res) {
     res.status(500).json({ error: "Internal server error" });
   }
 }
+
+export default apiHandler(handler);

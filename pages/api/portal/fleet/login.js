@@ -1,7 +1,8 @@
 import pool from '../../../../lib/db';
 import { verifyPassword, signToken } from '../../../../lib/auth';
+import apiHandler from '../../../../lib/apiHandler.js';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const { garage_name, pin } = req.body || {};
   const [rows] = await pool.query('SELECT id, pin_hash FROM fleets WHERE garage_name=?', [garage_name]);
   if (!rows.length || !(await verifyPassword(pin, rows[0].pin_hash))) {
@@ -12,3 +13,5 @@ export default async function handler(req, res) {
   res.setHeader('Set-Cookie', `fleet_token=${token}; HttpOnly; Path=/; Max-Age=3600; SameSite=Strict${secure}`);
   res.status(200).json({ ok: true });
 }
+
+export default apiHandler(handler);

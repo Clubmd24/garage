@@ -1,7 +1,8 @@
 import pool from '../../../../lib/db';
 import { verifyPassword, signToken } from '../../../../lib/auth';
+import apiHandler from '../../../../lib/apiHandler.js';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const { garage_name, vehicle_reg, password } = req.body || {};
   const [rows] = await pool.query(
     'SELECT id, password_hash FROM clients WHERE garage_name=? AND vehicle_reg=?',
@@ -15,3 +16,5 @@ export default async function handler(req, res) {
   res.setHeader('Set-Cookie', `local_token=${token}; HttpOnly; Path=/; Max-Age=3600; SameSite=Strict${secure}`);
   res.status(200).json({ ok: true });
 }
+
+export default apiHandler(handler);

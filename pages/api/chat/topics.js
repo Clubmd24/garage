@@ -1,6 +1,7 @@
 import pool from "../../../lib/db";
+import apiHandler from '../../../lib/apiHandler.js';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method === "GET") {
     const [rows] = await pool.query(
       "SELECT id, name FROM chat_rooms ORDER BY name"
@@ -29,3 +30,5 @@ export default async function handler(req, res) {
   res.setHeader("Allow", ["GET", "POST"]);
   res.status(405).end();
 }
+
+export default apiHandler(handler);
