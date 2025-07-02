@@ -57,7 +57,10 @@ test('client login fails with wrong password', async () => {
 });
 
 test('fleet login succeeds with valid credentials', async () => {
-  const queryMock = jest.fn().mockResolvedValue([[{ id: 3, pin_hash: 'hash2' }]]);
+  const queryMock = jest
+    .fn()
+    .mockResolvedValueOnce([[{ company_name: 'ACME' }]])
+    .mockResolvedValueOnce([[{ id: 3, pin_hash: 'hash2' }]]);
   const verifyMock = jest.fn().mockResolvedValue(true);
   const signMock = jest.fn().mockReturnValue('ftok');
   jest.unstable_mockModule('../lib/db.js', () => ({
@@ -68,10 +71,15 @@ test('fleet login succeeds with valid credentials', async () => {
     signToken: signMock,
   }));
   const { default: handler } = await import('../pages/api/portal/fleet/login.js');
-  const req = { method: 'POST', body: { garage_name: 'G2', pin: '1234' }, headers: {} };
+  const req = { method: 'POST', body: { garage_name: 'G2', company_name: 'ACME', pin: '1234' }, headers: {} };
   const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn() };
   await handler(req, res);
-  expect(queryMock).toHaveBeenCalledWith(
+  expect(queryMock).toHaveBeenNthCalledWith(
+    1,
+    'SELECT company_name FROM company_settings ORDER BY id LIMIT 1'
+  );
+  expect(queryMock).toHaveBeenNthCalledWith(
+    2,
     'SELECT id, pin_hash FROM fleets WHERE garage_name=?',
     ['G2']
   );
@@ -83,7 +91,10 @@ test('fleet login succeeds with valid credentials', async () => {
 });
 
 test('fleet login fails with wrong pin', async () => {
-  const queryMock = jest.fn().mockResolvedValue([[{ id: 4, pin_hash: 'hash2' }]]);
+  const queryMock = jest
+    .fn()
+    .mockResolvedValueOnce([[{ company_name: 'ACME' }]])
+    .mockResolvedValueOnce([[{ id: 4, pin_hash: 'hash2' }]]);
   const verifyMock = jest.fn().mockResolvedValue(false);
   const signMock = jest.fn();
   jest.unstable_mockModule('../lib/db.js', () => ({
@@ -94,14 +105,47 @@ test('fleet login fails with wrong pin', async () => {
     signToken: signMock,
   }));
   const { default: handler } = await import('../pages/api/portal/fleet/login.js');
-  const req = { method: 'POST', body: { garage_name: 'G2', pin: '0000' }, headers: {} };
+  const req = { method: 'POST', body: { garage_name: 'G2', company_name: 'ACME', pin: '0000' }, headers: {} };
   const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn() };
   await handler(req, res);
-  expect(queryMock).toHaveBeenCalledWith(
+  expect(queryMock).toHaveBeenNthCalledWith(
+    1,
+    'SELECT company_name FROM company_settings ORDER BY id LIMIT 1'
+  );
+  expect(queryMock).toHaveBeenNthCalledWith(
+    2,
     'SELECT id, pin_hash FROM fleets WHERE garage_name=?',
     ['G2']
   );
   expect(verifyMock).toHaveBeenCalledWith('0000', 'hash2');
+  expect(signMock).not.toHaveBeenCalled();
+  expect(res.status).toHaveBeenCalledWith(401);
+  expect(res.json).toHaveBeenCalledWith({ error: 'Invalid credentials' });
+});
+
+test('fleet login fails with wrong company name', async () => {
+  const queryMock = jest
+    .fn()
+    .mockResolvedValueOnce([[{ company_name: 'ACME' }]])
+    .mockResolvedValueOnce([[{ id: 4, pin_hash: 'hash2' }]]);
+  const verifyMock = jest.fn();
+  const signMock = jest.fn();
+  jest.unstable_mockModule('../lib/db.js', () => ({
+    default: { query: queryMock },
+  }));
+  jest.unstable_mockModule('../lib/auth.js', () => ({
+    verifyPassword: verifyMock,
+    signToken: signMock,
+  }));
+  const { default: handler } = await import('../pages/api/portal/fleet/login.js');
+  const req = { method: 'POST', body: { garage_name: 'G2', company_name: 'WRONG', pin: '1234' }, headers: {} };
+  const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn() };
+  await handler(req, res);
+  expect(queryMock).toHaveBeenCalledTimes(1);
+  expect(queryMock).toHaveBeenCalledWith(
+    'SELECT company_name FROM company_settings ORDER BY id LIMIT 1'
+  );
+  expect(verifyMock).not.toHaveBeenCalled();
   expect(signMock).not.toHaveBeenCalled();
   expect(res.status).toHaveBeenCalledWith(401);
   expect(res.json).toHaveBeenCalledWith({ error: 'Invalid credentials' });
