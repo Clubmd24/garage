@@ -6,7 +6,8 @@ import OfficeLayout from '../../../components/OfficeLayout';
 import { fetchVehicles } from '../../../lib/vehicles';
 
 const EditClientPage = () => {
-  const { id } = useRouter().query;
+  const router = useRouter();
+  const { id, pw } = router.query;
   const [form, setForm] = useState({
     first_name: '',
     last_name: '',
@@ -22,7 +23,6 @@ const EditClientPage = () => {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const router = useRouter();
 
   useEffect(() => {
     if (!id) return;
@@ -65,6 +65,9 @@ const EditClientPage = () => {
   return (
     <OfficeLayout>
       <h1 className="text-2xl font-semibold mb-4">Edit Client</h1>
+      {pw && (
+        <p className="mb-4 font-semibold">Password: {pw}</p>
+      )}
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={submit} className="space-y-4 max-w-md">
         {[

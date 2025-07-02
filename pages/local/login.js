@@ -5,7 +5,7 @@ export default function LocalLogin() {
   const router = useRouter();
   const [garage, setGarage] = useState('');
   const [vehicleReg, setVehicleReg] = useState('');
-  const [firstName, setFirstName] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
   async function handleSubmit(e) {
@@ -18,7 +18,7 @@ export default function LocalLogin() {
         body: JSON.stringify({
           garage_name: garage,
           vehicle_reg: vehicleReg,
-          password: firstName,
+          password,
         }),
       });
       if (!res.ok) {
@@ -58,10 +58,10 @@ export default function LocalLogin() {
         />
         <input
           type="password"
-          placeholder="First Name"
+          placeholder="Password"
           className="input w-full"
-          value={firstName}
-          onChange={e => setFirstName(e.target.value)}
+          value={password}
+          onChange={e => setPassword(e.target.value)}
         />
         <button type="submit" className="button w-full">Login</button>
       </form>
