@@ -16,7 +16,7 @@ export async function getFleetById(id) {
     `SELECT id, company_name, garage_name, account_rep, payment_terms,
             street_address, contact_number_1, contact_number_2,
             email_1, email_2, credit_limit, tax_number,
-            contact_name_1, contact_name_2
+            contact_name_1, contact_name_2, pin
        FROM fleets WHERE id=?`,
     [id]
   );
@@ -46,8 +46,8 @@ export async function createFleet({
        street_address, contact_number_1, contact_number_2,
        email_1, email_2, credit_limit, tax_number,
        contact_name_1, contact_name_2,
-       pin_hash
-     ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+       pin_hash, pin
+     ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
     [
       company_name,
       garage_name || null,
@@ -63,6 +63,7 @@ export async function createFleet({
       contact_name_1 || null,
       contact_name_2 || null,
       pin_hash,
+      pin,
     ]
   );
   return {
@@ -141,5 +142,16 @@ export async function updateFleet(
 export async function deleteFleet(id) {
   await pool.query('DELETE FROM fleets WHERE id=?', [id]);
   return { ok: true };
+}
+
+export async function resetFleetPin(id) {
+  const pin = String(Math.floor(1000 + Math.random() * 9000));
+  const { hashPassword } = await import('../lib/auth.js');
+  const pin_hash = await hashPassword(pin);
+  await pool.query(
+    'UPDATE fleets SET pin_hash=?, pin=? WHERE id=?',
+    [pin_hash, pin, id]
+  );
+  return pin;
 }
 

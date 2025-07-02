@@ -5,7 +5,8 @@ import OfficeLayout from '../../../components/OfficeLayout';
 
 const EditFleetPage = () => {
   const router = useRouter();
-  const { id, pin } = router.query;
+  const { id } = router.query;
+  const [pin, setPin] = useState(router.query.pin || '');
   const [form, setForm] = useState({
     company_name: '',
     garage_name: '',
@@ -29,7 +30,10 @@ const EditFleetPage = () => {
     if (!id) return;
     fetch(`/api/fleets/${id}`)
       .then(r => r.json())
-      .then(setForm)
+      .then(data => {
+        setForm(data);
+        if (data.pin) setPin(data.pin);
+      })
       .catch(() => setError('Failed to load'))
       .finally(() => setLoading(false));
     fetch('/api/vehicles')
@@ -61,6 +65,17 @@ const EditFleetPage = () => {
     setVehicles(vs => vs.filter(v => v.id !== vid));
   };
 
+  const regenerate = async () => {
+    try {
+      const res = await fetch(`/api/fleets/${id}/pin`, { method: 'POST' });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setPin(data.pin);
+    } catch {
+      setError('Failed to regenerate PIN');
+    }
+  };
+
   if (loading) return <OfficeLayout><p>Loading…</p></OfficeLayout>;
 
   return (
@@ -69,6 +84,7 @@ const EditFleetPage = () => {
       {pin && (
         <p className="mb-4 font-semibold">PIN: {pin}</p>
       )}
+      <button onClick={regenerate} className="button mb-4">Regenerate PIN</button>
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={submit} className="space-y-4 max-w-md">
         {[
