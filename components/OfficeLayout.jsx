@@ -170,6 +170,12 @@ export default function OfficeLayout({ children }) {
                 </Link>
               </li>
               <li>
+                <Link href="/office/smtp-settings" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  SMTP Settings
+                </Link>
+              </li>
+              <li>
                 <button onClick={handleLogout} className="flex items-center w-full text-left hover:underline">
                   <ArrowIcon />
                   Logout
