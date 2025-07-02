@@ -66,3 +66,14 @@ When a quote or invoice is created the system generates a PDF attachment and sen
 ## Follow‑Up Scheduler
 
 A scheduled job runs daily to populate new `follow_up_reminders` for quotes older than seven days that have not yet received a reminder.
+
+## Email Template Management UI
+
+The office interface now includes a page at `/office/email-templates` for managing reusable email templates. Users can:
+
+- View the list of existing templates.
+- Create new templates specifying a name, type, subject and body.
+- Edit any template in place.
+- Delete templates that are no longer needed.
+
+All actions map to the `/api/company/email-templates` endpoints described above.

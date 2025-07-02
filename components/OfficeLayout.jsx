@@ -176,6 +176,12 @@ export default function OfficeLayout({ children }) {
                 </Link>
               </li>
               <li>
+                <Link href="/office/email-templates" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  Email Templates
+                </Link>
+              </li>
+              <li>
                 <button onClick={handleLogout} className="flex items-center w-full text-left hover:underline">
                   <ArrowIcon />
                   Logout
