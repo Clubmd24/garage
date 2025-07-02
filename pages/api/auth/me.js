@@ -1,7 +1,8 @@
 import pool from '../../../lib/db';
 import { getTokenFromReq } from '../../../lib/auth';
+import apiHandler from '../../../lib/apiHandler.js';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const t = getTokenFromReq(req);
   if (!t) return res.status(401).json({ error: 'Unauthorized' });
   const [rows] = await pool.query(
@@ -14,3 +15,5 @@ export default async function handler(req, res) {
   );
   res.status(200).json(rows[0]);
 }
+
+export default apiHandler(handler);

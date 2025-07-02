@@ -5,8 +5,9 @@ import { getVehicleById } from '../../../../services/vehiclesService.js';
 import { getQuoteItems } from '../../../../services/quoteItemsService.js';
 import pool from '../../../../lib/db.js';
 import { buildQuotePdf } from '../../../../lib/pdf.js';
+import apiHandler from '../../../../lib/apiHandler.js';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const { id } = req.query;
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET']);
@@ -31,3 +32,5 @@ export default async function handler(req, res) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }
+
+export default apiHandler(handler);

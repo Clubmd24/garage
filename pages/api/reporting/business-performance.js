@@ -1,7 +1,7 @@
 import { getBusinessPerformanceReport } from '../../../services/reportingService.js';
+import apiHandler from '../../../lib/apiHandler.js';
 
-export default async function handler(req, res) {
-  try {
+async function handler(req, res) {
     if (req.method !== 'GET') {
       res.setHeader('Allow', ['GET']);
       return res.status(405).end(`Method ${req.method} Not Allowed`);
@@ -9,8 +9,6 @@ export default async function handler(req, res) {
     const { start, end } = req.query;
     const report = await getBusinessPerformanceReport(start, end);
     return res.status(200).json(report);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
 }
+
+export default apiHandler(handler);

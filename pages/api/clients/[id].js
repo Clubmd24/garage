@@ -1,7 +1,8 @@
+import apiHandler from '../../../lib/apiHandler.js';
 // pages/api/clients/[id].js
 import { getClientById, updateClient, deleteClient } from '../../../services/clientsService';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const { id } = req.query;
   try {
     if (req.method === 'GET') {
@@ -23,3 +24,5 @@ export default async function handler(req, res) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }
+
+export default apiHandler(handler);

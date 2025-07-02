@@ -1,6 +1,7 @@
 import { getFleetById } from '../../../services/fleetsService.js';
+import apiHandler from '../../../lib/apiHandler.js';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const { id } = req.query;
   try {
     if (req.method === 'GET') {
@@ -25,4 +26,4 @@ export default async function handler(req, res) {
   }
 }
 
-
+export default apiHandler(handler);
