@@ -2,28 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;700&display=swap');
 
 /* Design tokens */
 :root {
-  --color-primary: #1e3a8a;
-  --color-primary-light: #3b82f6;
+  --color-primary: #0d1e45;
+  --color-primary-light: #3f5dc6;
+  --color-accent: #f95738;
   --color-bg: #f3f4f6;
   --color-surface: #ffffff;
-  --color-text-primary: #374151;
-  --color-text-secondary: #6b7280;
+  --color-text-primary: #1f2937;
+  --color-text-secondary: #4b5563;
   --color-input-bg: rgba(255, 255, 255, 0.8);
-  --color-mention: #f59e0b;
+  --color-mention: #f95738;
 }
 :root.dark {
-  --color-primary: #2563eb;
-  --color-primary-light: #60a5fa;
+  --color-primary: #0d1e45;
+  --color-primary-light: #3f5dc6;
+  --color-accent: #f95738;
   --color-bg: #0f172a;
   --color-surface: #1e293b;
   --color-text-primary: #e2e8f0;
   --color-text-secondary: #94a3b8;
   --color-input-bg: rgba(30, 41, 59, 0.5);
-  --color-mention: #fbbf24;
+  --color-mention: #f95738;
 }
 
 /* Component utils */
@@ -33,6 +35,9 @@
 .button {
   /* Use inline-flex so anchor and button elements align consistently */
   @apply inline-flex items-center bg-[var(--color-primary)] text-white rounded-full py-3 shadow-xl hover:bg-[var(--color-primary-light)] transition;
+}
+.button-accent {
+  @apply inline-flex items-center bg-[var(--color-accent)] text-white rounded-full py-3 shadow-xl hover:brightness-110 transition;
 }
 .button-secondary {
   @apply bg-gray-300 text-[var(--color-text-primary)] rounded-full py-3 shadow-xl hover:bg-gray-400 transition;
@@ -47,9 +52,9 @@
 }
 
 body {
-  /* Use a gradient background regardless of theme */
-  background-image: linear-gradient(to bottom right, #0f172a, #1e3a8a);
+  /* Use a vertical gradient for the landing visuals */
+  background-image: linear-gradient(to bottom, #0d1e45, #3f5dc6, #d2e1ff);
   /* Light text ensures readability on the dark gradient */
   color: #e2e8f0;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Poppins', 'Inter', system-ui, sans-serif;
 }
