@@ -36,6 +36,13 @@ results so it can be run repeatedly without errors.
 - `/api/purchase-orders` - create purchase orders with items.
 - `/api/quote-items` - create or fetch quote items.
 
+## Portal Login
+
+Fleet portal authentication now requires the company name in addition to the
+garage name and PIN. The login form at `/fleet/login` posts `company_name` to
+`/api/portal/fleet/login`. The backend verifies this value against the company
+settings before checking the PIN.
+
 ## Invoice Generation
 
 An invoice template lives in `templates/invoice_template.docx`. Use the helper

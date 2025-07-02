@@ -12,6 +12,7 @@ export default function FleetLogin() {
     e.preventDefault();
     setError('');
     try {
+      // Company name is now required for fleet authentication.
       const res = await fetch('/api/portal/fleet/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
