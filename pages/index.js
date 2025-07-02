@@ -1,229 +1,130 @@
 import Head from 'next/head';
-import { useEffect } from 'react';
 
 export default function Landing() {
-  useEffect(() => {
-    document.body.classList.add('landing-page');
-    return () => document.body.classList.remove('landing-page');
-  }, []);
-
   return (
     <>
       <Head>
         <title>Garage-Vision | Revolutionize Your Garage</title>
       </Head>
-      <section className="hero">
-        <img src="/logo.png" alt="Garage Vision Logo" className="hero-logo" />
-        <h1>Revolutionize Your Garage. Own Your Future.</h1>
-        <p>
-          From first tap to final drive-away, Garage-Vision orchestrates every phase
-          of your repair shop with precision, power, and profitability.
-        </p>
-        <img
-          src="/web-header-image.png"
-          alt="Modern garage workspace"
-          className="hero-image"
-        />
-        <div className="hero-buttons">
-          <a href="/login" className="garage-login">Garage Login</a>
-          <a href="/local/login" className="owner-login">Car Owner Login</a>
-        </div>
-      </section>
+      <header className="flex items-center justify-between px-6 py-3 text-gray-100">
+        <img src="/logo.png" alt="Garage Vision Logo" className="h-8 w-auto" />
+        <nav className="space-x-6 text-sm">
+          <a href="/login" className="hover:underline">Garage Login</a>
+          <a href="/local/login" className="hover:underline">Car Owner Login</a>
+        </nav>
+      </header>
 
-      <section className="section">
-        <h2>Why Every Shop Deserves Garage-Vision</h2>
-        <div className="features-grid">
-          <div className="feature">
-            <img
-              src="https://source.unsplash.com/400x300/?mechanic,tools"
-              alt="Mechanic tools organized"
-              className="feature-image"
-            />
-            <h3>Laser-Focused Efficiency</h3>
-            <p>
-              Slash admin overhead by 20%—jobs auto-assign, parts auto-order,
-              invoices auto-generate, and your team works at peak power.
+      <section className="bg-gradient-to-b from-[#0d1e45] via-[#3f5dc6] to-[#d2e1ff] text-white py-20">
+        <div className="container mx-auto px-6 flex flex-col md:flex-row items-center">
+          <div className="md:w-1/2 space-y-6">
+            <h1 className="text-4xl md:text-5xl font-bold">
+              Revolutionize Your Garage. Own Your Future.
+            </h1>
+            <p className="text-lg">
+              From first tap to final drive-away, Garage-Vision orchestrates every phase
+              of your repair shop with precision, power, and profitability.
             </p>
+            <div className="flex flex-wrap gap-4">
+              <a href="/login" className="button-accent px-6">Garage Login</a>
+              <a href="/local/login" className="button px-6">Car Owner Login</a>
+            </div>
           </div>
-          <div className="feature">
-            <img
-              src="https://source.unsplash.com/400x300/?car,diagnostic"
-              alt="Vehicle diagnostic screen"
-              className="feature-image"
-            />
-            <h3>Ultimate Transparency</h3>
-            <p>
-              Customers track their vehicle in real time—no more endless
-              &lsquo;where is my car?&rsquo; calls. Satisfaction scores skyrocket.
-            </p>
-          </div>
-          <div className="feature">
-            <img
-              src="https://source.unsplash.com/400x300/?analytics,graph"
-              alt="Analytics dashboard"
-              className="feature-image"
-            />
-            <h3>Data-Driven Growth</h3>
-            <p>
-              Dashboards reveal your most profitable services and busiest hours—pivot
-              instantly to maximize revenue per bay.
-            </p>
-          </div>
-          <div className="feature">
-            <img
-              src="https://source.unsplash.com/400x300/?garage,workflow"
-              alt="Team collaborating in garage"
-              className="feature-image"
-            />
-            <h3>Seamless Ecosystem</h3>
-            <p>Ditch whiteboards and silos. Your shop—powered by a unified workflow that just works.</p>
+          <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center">
+            <img src="/mechanic cards.png" alt="Mechanic illustration" className="max-w-md w-full rounded-2xl shadow-xl" />
           </div>
         </div>
       </section>
 
-      <section className="section">
-        <h2>See the Impact</h2>
-        <div className="impact-stats">
-          <div className="impact">
-            <h3>+80%</h3>
-            <p>Time Saved</p>
-          </div>
-          <div className="impact">
-            <h3>+35%</h3>
-            <p>More Jobs Completed</p>
-          </div>
-          <div className="impact">
-            <h3>⭐ 4.9/5</h3>
-            <p>Average Rating</p>
-          </div>
-          <div className="impact">
-            <h3>250+</h3>
-            <p>Garages Running</p>
+      <section className="py-16 bg-[var(--color-bg)] text-[var(--color-text-primary)]">
+        <div className="container mx-auto px-6">
+          <h2 className="text-3xl font-semibold text-center mb-12">Why Every Shop Deserves Garage-Vision</h2>
+          <div className="grid gap-8 md:grid-cols-2">
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <h3 className="text-xl font-bold mb-2">Mechanic Tools</h3>
+              <p>
+                Slash admin overhead by 20%—jobs auto-assign, parts auto-order,
+                invoices auto-generate, and your team works at peak power.
+              </p>
+            </div>
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <h3 className="text-xl font-bold mb-2">Vehicle Dispatch</h3>
+              <p>
+                Customers track their vehicle in real time—no more endless
+                &lsquo;where is my car?&rsquo; calls. Satisfaction scores skyrocket.
+              </p>
+            </div>
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <h3 className="text-xl font-bold mb-2">Analytics Dashboard</h3>
+              <p>
+                Dashboards reveal your most profitable services and busiest hours—pivot
+                instantly to maximize revenue per bay.
+              </p>
+            </div>
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <h3 className="text-xl font-bold mb-2">Team Collaboration</h3>
+              <p>Ditch whiteboards and silos. Your shop—powered by a unified workflow that just works.</p>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="section">
-        <h2>What Our Customers Say</h2>
-        <div className="testimonials">
-          <blockquote>
-            <p>
-              Garage-Vision transformed our shop overnight. Jobs flow seamlessly and
-              customers love the transparency. It’s literally the heart of our
-              operation.
-            </p>
-            <footer>— AutoTech Repairs</footer>
-          </blockquote>
-          <blockquote>
-            <p>
-              We’ve doubled our throughput without adding staff. The analytics module
-              pinpoints exactly where we win and where we lose. Unbeatable.
-            </p>
-            <footer>— Speedy Garage</footer>
-          </blockquote>
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-6 flex justify-center">
+          <img src="/web-header-image.png" alt="App preview" className="max-w-4xl w-full rounded-2xl shadow-2xl" />
         </div>
       </section>
 
-      <style jsx global>{`
-        body.landing-page {
-          margin: 0;
-          font-family: 'Segoe UI', sans-serif;
-          background: #f9f9f9;
-          color: #2c3e50;
-        }
-        .hero {
-          background: linear-gradient(135deg, #2c3e50 0%, #8e44ad 100%);
-          color: white;
-          text-align: center;
-          padding: 100px 20px;
-        }
-        .hero h1 {
-          font-size: 3rem;
-          margin-bottom: 20px;
-        }
-        .hero p {
-          font-size: 1.25rem;
-          max-width: 600px;
-          margin: 0 auto 40px;
-        }
-        .hero-logo {
-          width: 150px;
-          margin: 0 auto 20px;
-          display: block;
-        }
-        .hero-image {
-          width: 80%;
-          max-width: 800px;
-          display: block;
-          margin: 40px auto;
-          border-radius: 8px;
-        }
-        .hero-buttons a {
-          display: inline-block;
-          margin: 0 10px;
-          padding: 15px 30px;
-          border-radius: 8px;
-          font-weight: bold;
-          text-decoration: none;
-          color: white;
-        }
-        .garage-login {
-          background: #e74c3c;
-        }
-        .owner-login {
-          background: #3498db;
-        }
-        .section {
-          padding: 60px 20px;
-          max-width: 1100px;
-          margin: auto;
-          text-align: center;
-        }
-        .features-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-          gap: 30px;
-          margin-top: 40px;
-        }
-        .feature {
-          background: white;
-          padding: 20px;
-          border-radius: 12px;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-        .feature-image {
-          width: 100%;
-          height: auto;
-          margin-bottom: 15px;
-          border-radius: 8px;
-        }
-        .impact-stats {
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          gap: 40px;
-          margin-top: 40px;
-        }
-        .impact {
-          text-align: center;
-        }
-        .impact h3 {
-          color: #8e44ad;
-          font-size: 2rem;
-        }
-        .testimonials {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 30px;
-          margin-top: 40px;
-        }
-        blockquote {
-          background: #f1f1f1;
-          padding: 20px;
-          border-left: 5px solid #8e44ad;
-          border-radius: 8px;
-        }
-      `}</style>
+      <section className="py-16 bg-[var(--color-bg)] text-[var(--color-text-primary)]">
+        <div className="container mx-auto px-6">
+          <h2 className="text-3xl font-semibold text-center mb-10">See the Impact</h2>
+          <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-4 text-center">
+            <div>
+              <h3 className="text-2xl font-bold text-[var(--color-primary)]">+80%</h3>
+              <p>Time Saved</p>
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold text-[var(--color-primary)]">+35%</h3>
+              <p>More Jobs Completed</p>
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold text-[var(--color-primary)]">4.9/5</h3>
+              <p>Average Rating</p>
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold text-[var(--color-primary)]">250+</h3>
+              <p>Garages Running</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 bg-white text-[var(--color-text-primary)]">
+        <div className="container mx-auto px-6">
+          <h2 className="text-3xl font-semibold text-center mb-10">What Our Customers Say</h2>
+          <div className="grid gap-8 md:grid-cols-2">
+            <blockquote className="bg-[var(--color-bg)] rounded-2xl p-6 shadow">
+              <p>
+                Garage-Vision transformed our shop overnight. Jobs flow seamlessly and
+                customers love the transparency. It’s literally the heart of our
+                operation.
+              </p>
+              <footer className="mt-4 font-semibold">— AutoTech Repairs</footer>
+            </blockquote>
+            <blockquote className="bg-[var(--color-bg)] rounded-2xl p-6 shadow">
+              <p>
+                We’ve doubled our throughput without adding staff. The analytics module
+                pinpoints exactly where we win and where we lose. Unbeatable.
+              </p>
+              <footer className="mt-4 font-semibold">— Speedy Garage</footer>
+            </blockquote>
+          </div>
+        </div>
+      </section>
+
+      <footer className="py-6 text-center text-sm text-white bg-[#0d1e45]">
+        <img src="/logo.png" alt="Garage Vision Logo" className="h-6 w-auto mx-auto mb-2" />
+        Garage Vision © 2025
+      </footer>
     </>
   );
 }
