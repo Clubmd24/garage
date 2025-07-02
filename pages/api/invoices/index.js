@@ -17,6 +17,12 @@ export default async function handler(req, res) {
     }
     if (req.method === 'POST') {
       const newInvoice = await service.createInvoice(req.body);
+      try {
+        const { sendInvoiceEmail } = await import('../../../services/emailService.js');
+        await sendInvoiceEmail(newInvoice.id);
+      } catch (e) {
+        console.error('INVOICE_EMAIL_ERROR:', e);
+      }
       return res.status(201).json(newInvoice);
     }
     res.setHeader('Allow', ['GET','POST']);
