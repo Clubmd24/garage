@@ -46,6 +46,17 @@ const QuotationsPage = () => {
     load();
   };
 
+  const reject = async id => {
+    await updateQuote(id, { status: 'rejected' });
+    load();
+  };
+
+  const handleDelete = async id => {
+    if (!confirm('Delete this quote?')) return;
+    await fetch(`/api/quotes/${id}`, { method: 'DELETE' });
+    load();
+  };
+
   const visible = quotes.filter(
     q => !['job-card', 'completed', 'invoiced'].includes(q.status)
   );
@@ -126,6 +137,18 @@ const QuotationsPage = () => {
                 >
                   Download PDF
                 </a>
+                <button
+                  onClick={() => reject(q.id)}
+                  className="button-secondary px-4 text-sm"
+                >
+                  Reject
+                </button>
+                <button
+                  onClick={() => handleDelete(q.id)}
+                  className="button px-4 text-sm bg-red-600 hover:bg-red-700"
+                >
+                  Delete
+                </button>
               </div>
             </div>
           ))}
