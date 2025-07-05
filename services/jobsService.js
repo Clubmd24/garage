@@ -41,15 +41,16 @@ export async function getJobById(id) {
 }
 
 export async function createJob({ customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay }) {
-  if (status && !(await jobStatusExists(status))) {
+  const finalStatus = status || 'unassigned';
+  if (!(await jobStatusExists(finalStatus))) {
     throw new Error('Invalid job status');
   }
   const [{ insertId }] = await pool.query(
     `INSERT INTO jobs (customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay)
      VALUES (?,?,?,?,?,?)`,
-    [customer_id || null, vehicle_id || null, scheduled_start || null, scheduled_end || null, status || null, bay || null]
+    [customer_id || null, vehicle_id || null, scheduled_start || null, scheduled_end || null, finalStatus, bay || null]
   );
-  return { id: insertId, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay };
+  return { id: insertId, customer_id, vehicle_id, scheduled_start, scheduled_end, status: finalStatus, bay };
 }
 
 export async function updateJob(id, { customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay }) {
