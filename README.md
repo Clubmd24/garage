@@ -38,7 +38,7 @@ results so it can be run repeatedly without errors.
 
 ## Invoice Generation
 
-An invoice template lives in `templates/invoice_template.docx`. Use the helper
+An invoice template lives in `templates/invoice_template_final.docx`. Use the helper
 script `generate_invoice.py` to render this template with data in JSON format
 and produce a PDF invoice. Example usage:
 
@@ -52,7 +52,7 @@ The resulting files are written to the `output/` directory as
 
 ## Quotation Generation
 
-An editable quotation template lives in `templates/quotation_template.docx`.
+An editable quotation template lives in `templates/quotation_template_final.docx`.
 Use the helper script `generate_quote.py` to fill this template with JSON data
 and produce a PDF quote. Example usage:
 
