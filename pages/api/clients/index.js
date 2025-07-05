@@ -1,10 +1,15 @@
 import apiHandler from '../../../lib/apiHandler.js';
 // pages/api/clients/index.js
-import { getAllClients, createClient } from '../../../services/clientsService';
+import {
+  getAllClients,
+  createClient,
+  searchClients,
+} from '../../../services/clientsService';
 
 async function handler(req, res) {
     if (req.method === 'GET') {
-      const clients = await getAllClients();
+      const { q } = req.query || {};
+      const clients = q ? await searchClients(q) : await getAllClients();
       return res.status(200).json(clients);
     }
     if (req.method === 'POST') {
