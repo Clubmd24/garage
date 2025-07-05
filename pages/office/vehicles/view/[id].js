@@ -12,6 +12,7 @@ export default function VehicleViewPage() {
   const [client, setClient] = useState(null);
   const [documents, setDocuments] = useState([]);
   const [fleet, setFleet] = useState(null);
+  const [quotes, setQuotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -35,6 +36,8 @@ export default function VehicleViewPage() {
         }
         const docs = await fetchDocuments('vehicle', id);
         setDocuments(docs);
+        const qs = await fetch(`/api/quotes?vehicle_id=${id}`).then(r => r.json());
+        setQuotes(qs);
       } catch (err) {
         setError('Failed to load');
       } finally {
@@ -101,6 +104,18 @@ export default function VehicleViewPage() {
                     {doc.filename}
                   </a>
                 </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+        <Card>
+          <h2 className="text-xl font-semibold mb-4">Quotes</h2>
+          {quotes.length === 0 ? (
+            <p>No quotes</p>
+          ) : (
+            <ul className="list-disc pl-5 space-y-1">
+              {quotes.map(q => (
+                <li key={q.id}>Quote #{q.id} - {q.status}</li>
               ))}
             </ul>
           )}
