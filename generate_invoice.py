@@ -58,6 +58,8 @@ def convert_to_pdf(docx_path: str) -> str:
             subprocess.run(['unoconv', '-f', 'pdf', '-o', pdf_path, docx_path], check=True)
         except FileNotFoundError:
             raise RuntimeError('Neither docx2pdf nor unoconv is available for PDF conversion.')
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(f'PDF conversion failed: {e}')
     return pdf_path
 
 
