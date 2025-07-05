@@ -47,7 +47,7 @@ test('createQuote inserts quote', async () => {
   const result = await createQuote(data);
   expect(queryMock).toHaveBeenCalledWith(
     expect.stringMatching(/INSERT INTO quotes/),
-    [1, 2, 3, 4, 50, 'new']
+    [1, 2, 3, 4, 50, 'new', null]
   );
   expect(result).toEqual({ id: 3, ...data });
 });
@@ -69,7 +69,7 @@ test('updateQuote updates row', async () => {
   const result = await updateQuote(9, data);
   expect(queryMock).toHaveBeenCalledWith(
     expect.stringMatching(/UPDATE quotes/),
-    [4, 5, 6, 7, 8, 'sent', 9]
+    [4, 5, 6, 7, 8, 'sent', null, 9]
   );
   expect(result).toEqual({ ok: true });
 });
