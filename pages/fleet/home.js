@@ -1,8 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Head from 'next/head';
 import { DashboardCard } from '../../components/DashboardCard.js';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import logout from '../../lib/logout.js';
+import { fetchQuotes } from '../../lib/quotes';
+import { fetchJobs } from '../../lib/jobs';
+import { fetchInvoices } from '../../lib/invoices';
+import { fetchJobStatuses } from '../../lib/jobStatuses';
 
 function VehiclesIcon() {
   return (
@@ -74,10 +79,58 @@ function useCurrentFleet() {
 export default function FleetHome() {
   const router = useRouter();
   const { fleet, loading } = useCurrentFleet();
+  const [quotes, setQuotes] = useState([]);
+  const [jobs, setJobs] = useState([]);
+  const [invoices, setInvoices] = useState([]);
+  const [statuses, setStatuses] = useState([]);
+
+  const openQuotes = useMemo(
+    () =>
+      quotes.filter(
+        q => !['job-card', 'completed', 'invoiced'].includes(q.status)
+      ),
+    [quotes]
+  );
+
+  const unpaidInvoices = useMemo(
+    () =>
+      invoices.filter(
+        inv => (inv.status || '').toLowerCase() === 'unpaid'
+      ),
+    [invoices]
+  );
+
+  const jobStatusCounts = useMemo(() => {
+    const counts = {};
+    statuses.forEach(s => {
+      counts[s.name] = 0;
+    });
+    jobs.forEach(j => {
+      if (counts[j.status] !== undefined) counts[j.status] += 1;
+    });
+    return counts;
+  }, [jobs, statuses]);
 
   useEffect(() => {
     if (!loading && !fleet) router.replace('/fleet/login');
   }, [loading, fleet, router]);
+
+  useEffect(() => {
+    if (!fleet) return;
+    Promise.all([
+      fetch(`/api/quotes?fleet_id=${fleet.id}`).then(r => r.json()),
+      fetchJobs({ fleet_id: fleet.id }),
+      fetch(`/api/invoices?fleet_id=${fleet.id}`).then(r => r.json()),
+      fetchJobStatuses(),
+    ])
+      .then(([q, j, i, s]) => {
+        setQuotes(q);
+        setJobs(j);
+        setInvoices(i);
+        setStatuses(s);
+      })
+      .catch(() => null);
+  }, [fleet]);
 
   async function handleLogout() {
     try {
@@ -111,6 +164,31 @@ export default function FleetHome() {
           <DashboardCard href="/fleet/jobs" title="Jobs in progress" Icon={JobManagementIcon} />
           <DashboardCard href="/fleet/request-quotation" title="Request new quotation" Icon={RequestIcon} />
           <DashboardCard href="/fleet/request-job" title="Book a job" Icon={JobManagementIcon} />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-xl">
+          <div className="bg-white text-black rounded-2xl p-4 shadow text-center">
+            <h2 className="text-lg font-semibold mb-2">Open Quotes</h2>
+            <p className="text-4xl font-bold text-blue-600">
+              <Link href="/fleet/quotes">{openQuotes.length}</Link>
+            </p>
+          </div>
+          <div className="bg-white text-black rounded-2xl p-4 shadow text-center">
+            <h2 className="text-lg font-semibold mb-2">Jobs</h2>
+            <ul className="text-sm space-y-1">
+              {statuses.map(s => (
+                <li key={s.id} className="capitalize">
+                  {s.name}:{' '}
+                  <Link href={`/fleet/jobs?status=${encodeURIComponent(s.name)}`}>{jobStatusCounts[s.name] || 0}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="bg-white text-black rounded-2xl p-4 shadow text-center">
+            <h2 className="text-lg font-semibold mb-2">Unpaid Invoices</h2>
+            <p className="text-4xl font-bold text-blue-600">
+              <Link href="/fleet/invoices">{unpaidInvoices.length}</Link>
+            </p>
+          </div>
         </div>
         <button
           onClick={handleLogout}
