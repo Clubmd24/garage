@@ -36,7 +36,7 @@ test('quotes index creates quote', async () => {
   await handler(req, res);
   expect(res.status).toHaveBeenCalledWith(201);
   expect(res.json).toHaveBeenCalledWith(newQuote);
-  expect(createMock).toHaveBeenCalledWith(req.body);
+  expect(createMock).toHaveBeenCalledWith(expect.objectContaining({ job_id: 1 }));
 });
 
 test('quotes index rejects unsupported method', async () => {

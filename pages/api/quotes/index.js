@@ -16,7 +16,15 @@ async function handler(req, res) {
       return res.status(200).json(quotes);
     }
     if (req.method === 'POST') {
-      const newQuote = await service.createQuote(req.body);
+      const data = {
+        customer_id: req.body.customer_id,
+        fleet_id: req.body.fleet_id,
+        job_id: req.body.job_id,
+        vehicle_id: req.body.vehicle_id,
+        total_amount: req.body.total_amount,
+        status: req.body.status,
+      };
+      const newQuote = await service.createQuote(data);
       try {
         const { sendQuoteEmail } = await import('../../../services/emailService.js');
         await sendQuoteEmail(newQuote.id);
