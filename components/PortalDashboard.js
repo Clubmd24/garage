@@ -13,6 +13,7 @@ export function PortalDashboard({
   setQuotes,
   invoices = [],
   vehicleFilter = () => true,
+  vehicleLinkBase = '/vehicles',
 }) {
   const [query, setQuery] = useState('');
   const [brand, setBrand] = useState('All');
@@ -93,7 +94,7 @@ export function PortalDashboard({
             <div className="p-4">
               <h2 className="text-xl font-medium">{v.licence_plate}</h2>
               <p className="text-sm text-black">{v.make} {v.model}</p>
-              <Link href={`/vehicles/${v.id}`} className="button-secondary mt-3 inline-block text-center">View Details</Link>
+              <Link href={`${vehicleLinkBase}/${v.id}`} className="button-secondary mt-3 inline-block text-center">View Details</Link>
             </div>
           </Card>
         ))}
