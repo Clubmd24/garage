@@ -3,6 +3,7 @@ import OfficeLayout from '../../../components/OfficeLayout';
 import { fetchQuotes, updateQuote } from '../../../lib/quotes';
 import { createInvoice } from '../../../lib/invoices';
 import { fetchClients } from '../../../lib/clients';
+import { fetchVehicles } from '../../../lib/vehicles';
 import { useCurrentUser } from '../../../components/useCurrentUser.js';
 
 const JobCardsPage = () => {
@@ -10,6 +11,7 @@ const JobCardsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [clients, setClients] = useState([]);
+  const [vehicles, setVehicles] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const { user } = useCurrentUser();
 
@@ -29,6 +31,9 @@ const JobCardsPage = () => {
     fetchClients()
       .then(setClients)
       .catch(() => setClients([]));
+    fetchVehicles()
+      .then(setVehicles)
+      .catch(() => setVehicles([]));
   }, []);
 
   const completeJob = async id => {
@@ -56,13 +61,24 @@ const JobCardsPage = () => {
     return map;
   }, [clients]);
 
+  const vehicleMap = useMemo(() => {
+    const map = {};
+    vehicles.forEach(v => {
+      map[v.id] = v;
+    });
+    return map;
+  }, [vehicles]);
+
   const filteredJobs = jobs.filter(j => {
     const q = searchQuery.toLowerCase();
     const name = (clientMap[j.customer_id] || '').toLowerCase();
+    const licence = (vehicleMap[j.vehicle_id]?.licence_plate || '').toLowerCase();
+    const make = (vehicleMap[j.vehicle_id]?.make || '').toLowerCase();
     return (
       name.includes(q) ||
+      licence.includes(q) ||
+      make.includes(q) ||
       String(j.id).includes(q) ||
-      String(j.customer_id).includes(q) ||
       (j.status || '').toLowerCase().includes(q)
     );
   });
@@ -86,7 +102,9 @@ const JobCardsPage = () => {
           {filteredJobs.map(j => (
             <div key={j.id} className="item-card">
               <h2 className="font-semibold mb-1">Job #{j.id}</h2>
-              <p className="text-sm">Client ID: {j.customer_id}</p>
+              <p className="text-sm">{clientMap[j.customer_id] || ''}</p>
+              <p className="text-sm">{vehicleMap[j.vehicle_id]?.licence_plate || ''}</p>
+              <p className="text-sm">{vehicleMap[j.vehicle_id]?.make || ''}</p>
               {user?.role?.toLowerCase() !== 'engineer' && (
                 <p className="text-sm">Total: €{j.total_amount}</p>
               )}
