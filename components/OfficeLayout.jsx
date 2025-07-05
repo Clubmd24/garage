@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import logout from '../lib/logout.js';
@@ -13,7 +12,6 @@ function ArrowIcon() {
 
 export default function OfficeLayout({ children }) {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState('');
 
   async function handleLogout() {
     try {
@@ -197,13 +195,6 @@ export default function OfficeLayout({ children }) {
             <img src="/logo.png" alt="Garage Vision" className="w-10 h-10 rounded-full" />
             <h1 className="text-2xl font-bold">Garage Vision</h1>
           </div>
-          <input
-            type="text"
-            placeholder="Search…"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            className="input w-full"
-          />
         </header>
         <div className="p-6 space-y-6 flex-1 overflow-y-auto">
           {children}
