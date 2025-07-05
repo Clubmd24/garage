@@ -4,12 +4,14 @@ import { useRouter } from 'next/router';
 import OfficeLayout from '../../../components/OfficeLayout';
 import { fetchQuotes, updateQuote } from '../../../lib/quotes';
 import { fetchClients } from '../../../lib/clients';
+import { fetchVehicles } from '../../../lib/vehicles';
 
 const QuotationsPage = () => {
   const [quotes, setQuotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [clients, setClients] = useState([]);
+  const [vehicles, setVehicles] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
 
   const load = () => {
@@ -26,6 +28,9 @@ const QuotationsPage = () => {
     fetchClients()
       .then(setClients)
       .catch(() => setClients([]));
+    fetchVehicles()
+      .then(setVehicles)
+      .catch(() => setVehicles([]));
   }, []);
 
   const router = useRouter();
@@ -69,13 +74,24 @@ const QuotationsPage = () => {
     return m;
   }, [clients]);
 
+  const vehicleMap = useMemo(() => {
+    const m = {};
+    vehicles.forEach(v => {
+      m[v.id] = v;
+    });
+    return m;
+  }, [vehicles]);
+
   const filtered = visible.filter(q => {
     const qStr = searchQuery.toLowerCase();
     const name = (clientMap[q.customer_id] || '').toLowerCase();
+    const licence = (vehicleMap[q.vehicle_id]?.licence_plate || '').toLowerCase();
+    const make = (vehicleMap[q.vehicle_id]?.make || '').toLowerCase();
     return (
       name.includes(qStr) ||
+      licence.includes(qStr) ||
+      make.includes(qStr) ||
       String(q.id).includes(qStr) ||
-      String(q.customer_id).includes(qStr) ||
       String(q.total_amount).includes(qStr) ||
       (q.status || '').toLowerCase().includes(qStr)
     );
@@ -105,7 +121,9 @@ const QuotationsPage = () => {
           {filtered.map(q => (
             <div key={q.id} className="item-card">
               <h2 className="font-semibold mb-1">Quote #{q.id}</h2>
-              <p className="text-sm">Client ID: {q.customer_id}</p>
+              <p className="text-sm">{clientMap[q.customer_id] || ''}</p>
+              <p className="text-sm">{vehicleMap[q.vehicle_id]?.licence_plate || ''}</p>
+              <p className="text-sm">{vehicleMap[q.vehicle_id]?.make || ''}</p>
               <p className="text-sm">Total: €{q.total_amount}</p>
               <p className="text-sm capitalize">Status: {q.status}</p>
               <div className="mt-3 flex flex-wrap gap-2">

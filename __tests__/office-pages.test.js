@@ -1,0 +1,57 @@
+/**
+ * @jest-environment jsdom
+ */
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import { jest } from '@jest/globals';
+
+afterEach(() => {
+  jest.resetModules();
+  jest.clearAllMocks();
+});
+
+test('quotations listing shows client and vehicle info', async () => {
+  global.fetch = jest
+    .fn()
+    .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 1, customer_id: 1, vehicle_id: 2, total_amount: 10, status: 'new' }] })
+    .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 1, first_name: 'A', last_name: 'B' }] })
+    .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 2, licence_plate: 'XYZ', make: 'Ford' }] });
+  const { default: QuotationsPage } = await import('../pages/office/quotations/index.js');
+  render(<QuotationsPage />);
+  await screen.findByText('Quote #1');
+  expect(screen.getByText('A B')).toBeInTheDocument();
+  expect(screen.getByText('XYZ')).toBeInTheDocument();
+  expect(screen.getByText('Ford')).toBeInTheDocument();
+});
+
+test('job cards listing shows client and vehicle info', async () => {
+  jest.unstable_mockModule('../components/useCurrentUser.js', () => ({
+    useCurrentUser: () => ({ user: null })
+  }));
+  global.fetch = jest
+    .fn()
+    .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 1, customer_id: 1, vehicle_id: 2, total_amount: 20, status: 'job-card' }] })
+    .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 1, first_name: 'A', last_name: 'B' }] })
+    .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 2, licence_plate: 'XYZ', make: 'Ford' }] });
+  const { default: JobCardsPage } = await import('../pages/office/job-cards/index.js');
+  render(<JobCardsPage />);
+  await screen.findByText('Job #1');
+  expect(screen.getByText('A B')).toBeInTheDocument();
+  expect(screen.getByText('XYZ')).toBeInTheDocument();
+  expect(screen.getByText('Ford')).toBeInTheDocument();
+});
+
+test('invoices listing shows client and vehicle info', async () => {
+  global.fetch = jest
+    .fn()
+    .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 1, customer_id: 1, vehicle_id: 2, amount: 30, status: 'issued' }] })
+    .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 1, first_name: 'A', last_name: 'B' }] })
+    .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 2, licence_plate: 'XYZ', make: 'Ford' }] });
+  const { default: InvoicesPage } = await import('../pages/office/invoices/index.js');
+  render(<InvoicesPage />);
+  await screen.findByText('Invoice #1');
+  expect(screen.getByText('A B')).toBeInTheDocument();
+  expect(screen.getByText('XYZ')).toBeInTheDocument();
+  expect(screen.getByText('Ford')).toBeInTheDocument();
+});
+
