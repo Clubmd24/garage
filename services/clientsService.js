@@ -121,11 +121,10 @@ export async function updateClient(
     town,
     province,
     post_code,
+    password,
   }
 ) {
-  const password_hash = await hashPassword(first_name);
-  await pool.query(
-    `UPDATE clients SET
+  let sql = `UPDATE clients SET
        first_name=?,
        last_name=?,
        email=?,
@@ -137,26 +136,29 @@ export async function updateClient(
        street_address=?,
        town=?,
        province=?,
-       post_code=?,
-       password_hash=?
-     WHERE id=?`,
-    [
-      first_name,
-      last_name,
-      email,
-      garage_name,
-      vehicle_reg,
-      mobile,
-      landline,
-      nie_number,
-      street_address,
-      town,
-      province,
-      post_code,
-      password_hash,
-      id,
-    ]
-  );
+       post_code=?`;
+  const params = [
+    first_name,
+    last_name,
+    email,
+    garage_name,
+    vehicle_reg,
+    mobile,
+    landline,
+    nie_number,
+    street_address,
+    town,
+    province,
+    post_code,
+  ];
+  if (password) {
+    const password_hash = await hashPassword(password);
+    sql += ', password_hash=?';
+    params.push(password_hash);
+  }
+  sql += ' WHERE id=?';
+  params.push(id);
+  await pool.query(sql, params);
   return { ok: true };
 }
 
