@@ -23,10 +23,18 @@ export async function sendQuoteEmail(quoteId, to) {
   const transporter = createTransport(settings);
   const quote = await getQuoteById(quoteId);
   const company = await getSettings();
-  const client = quote.customer_id ? await getClientById(quote.customer_id) : {};
-  const items = await getQuoteItems(quoteId);
-  const pdf = await buildQuotePdf({ company, quote, client, items });
-  const recipient = to || client.email || client.email_1 || client.email_2;
+  const garage = company;
+  const clientInfo = quote.customer_id ? await getClientById(quote.customer_id) : {};
+  const itemList = await getQuoteItems(quoteId);
+  const pdf = await buildQuotePdf({
+    quoteNumber: quote.id,
+    garage,
+    client: clientInfo,
+    vehicle: {},
+    items: itemList,
+    terms: quote.terms || company.terms || ''
+  });
+  const recipient = to || clientInfo.email || clientInfo.email_1 || clientInfo.email_2;
   await transporter.sendMail({
     from: settings.from_email,
     to: recipient,
