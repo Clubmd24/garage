@@ -116,6 +116,9 @@ export default function CompanySettingsPage() {
       <Link href="/office/document-templates" className="text-blue-600 underline mb-4 inline-block">
         View Document Templates
       </Link>
+      <a href="/api/company/export-clients" className="text-blue-600 underline mb-4 ml-4 inline-block">
+        Export Clients
+      </a>
       {error && <p className="text-red-500">{error}</p>}
       <div className="grid gap-8 md:grid-cols-2">
       <form onSubmit={submit} className="space-y-4 max-w-md md:flex-1">
