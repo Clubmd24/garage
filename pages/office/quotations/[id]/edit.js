@@ -289,7 +289,7 @@ export default function EditQuotationPage() {
                 }}
               />
               <input
-                className="input"
+                className="input w-full"
                 placeholder="Description"
                 value={it.description}
                 onChange={e => changeItem(i, 'description', e.target.value)}
