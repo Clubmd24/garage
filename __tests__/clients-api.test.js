@@ -13,6 +13,7 @@ test('clients index returns list of clients', async () => {
   jest.unstable_mockModule('../services/clientsService.js', () => ({
     getAllClients: getAllMock,
     createClient: jest.fn(),
+    searchClients: jest.fn(),
   }));
   const { default: handler } = await import('../pages/api/clients/index.js');
   const req = { method: 'GET', headers: {} };
@@ -30,6 +31,7 @@ test('clients index creates client', async () => {
   jest.unstable_mockModule('../services/clientsService.js', () => ({
     getAllClients: jest.fn(),
     createClient: createMock,
+    searchClients: jest.fn(),
   }));
   const { default: handler } = await import('../pages/api/clients/index.js');
   const req = {
@@ -49,6 +51,7 @@ test('clients index rejects unsupported method', async () => {
   jest.unstable_mockModule('../services/clientsService.js', () => ({
     getAllClients: jest.fn(),
     createClient: jest.fn(),
+    searchClients: jest.fn(),
   }));
   const { default: handler } = await import('../pages/api/clients/index.js');
   const req = { method: 'PUT', headers: {} };
@@ -67,6 +70,7 @@ test('clients index handles errors', async () => {
   jest.unstable_mockModule('../services/clientsService.js', () => ({
     getAllClients: getAllMock,
     createClient: jest.fn(),
+    searchClients: jest.fn(),
   }));
   const { default: handler } = await import('../pages/api/clients/index.js');
   const req = { method: 'GET', headers: {} };

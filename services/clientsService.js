@@ -2,6 +2,30 @@ import pool from '../lib/db.js';
 import { hashPassword } from '../lib/auth.js';
 import { randomBytes } from 'crypto';
 
+export async function searchClients(query) {
+  const q = `%${query}%`;
+  const [rows] = query
+    ? await pool.query(
+        `SELECT id, first_name, last_name, email, mobile, landline, nie_number,
+                street_address, town, province, post_code,
+                garage_name, vehicle_reg
+           FROM clients
+          WHERE first_name LIKE ? OR last_name LIKE ? OR email LIKE ?
+          ORDER BY first_name, last_name
+          LIMIT 20`,
+        [q, q, q]
+      )
+    : await pool.query(
+        `SELECT id, first_name, last_name, email, mobile, landline, nie_number,
+                street_address, town, province, post_code,
+                garage_name, vehicle_reg
+           FROM clients
+          ORDER BY first_name, last_name
+          LIMIT 20`
+      );
+  return rows;
+}
+
 export async function getAllClients() {
   const [rows] = await pool.query(
     `SELECT id, first_name, last_name, email, mobile, landline, nie_number,

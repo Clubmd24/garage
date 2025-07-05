@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import OfficeLayout from '../../../components/OfficeLayout';
-import { fetchClients } from '../../../lib/clients';
 import { fetchFleets } from '../../../lib/fleets';
 import { fetchVehicles } from '../../../lib/vehicles';
 import { createQuote } from '../../../lib/quotes';
 
 const emptyItem = { part_number: '', part_id: '', description: '', qty: 1, price: 0 };
 import PartAutocomplete from '../../../components/PartAutocomplete';
+import ClientAutocomplete from '../../../components/ClientAutocomplete';
 
 export default function NewQuotationPage() {
   const router = useRouter();
-  const [clients, setClients] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [fleets, setFleets] = useState([]);
   const [mode, setMode] = useState('client');
+  const [clientName, setClientName] = useState('');
   const [form, setForm] = useState({
     customer_id: '',
     fleet_id: '',
@@ -27,14 +27,10 @@ export default function NewQuotationPage() {
 
   useEffect(() => {
     setForm(f => ({ ...f, customer_id: '', fleet_id: '', vehicle_id: '' }));
+    setClientName('');
     setVehicles([]);
   }, [mode]);
 
-  useEffect(() => {
-    fetchClients()
-      .then(setClients)
-      .catch(() => setError('Failed to load clients'));
-  }, []);
 
   useEffect(() => {
     fetchFleets()
@@ -131,20 +127,17 @@ export default function NewQuotationPage() {
         {mode === 'client' ? (
           <div>
             <label className="block mb-1">Client</label>
-            <select
-              className="input w-full"
-              value={form.customer_id}
-              onChange={e =>
-                setForm(f => ({ ...f, customer_id: e.target.value, fleet_id: '' }))
-              }
-            >
-              <option value="">Select client</option>
-              {clients.map(c => (
-                <option key={c.id} value={c.id}>
-                  {(c.first_name || '') + ' ' + (c.last_name || '')}
-                </option>
-              ))}
-            </select>
+            <ClientAutocomplete
+              value={clientName}
+              onChange={v => {
+                setClientName(v);
+                setForm(f => ({ ...f, customer_id: '' }));
+              }}
+              onSelect={c => {
+                setClientName(`${c.first_name || ''} ${c.last_name || ''}`.trim());
+                setForm(f => ({ ...f, customer_id: c.id, fleet_id: '' }));
+              }}
+            />
           </div>
         ) : (
           <div>
