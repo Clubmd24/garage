@@ -34,7 +34,7 @@ def validate_data(data: dict) -> None:
 
 
 def render_docx(data: dict) -> str:
-    template_path = os.path.join('templates', 'quotation_template.docx')
+    template_path = os.path.join('templates', 'quotation_template_final.docx')
     if not os.path.exists(template_path):
         raise FileNotFoundError(f"Template not found: {template_path}")
 
