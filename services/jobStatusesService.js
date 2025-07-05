@@ -16,6 +16,13 @@ export async function createJobStatus({ name }) {
 }
 
 export async function deleteJobStatus(id) {
+  const [[row]] = await pool.query(
+    'SELECT name FROM job_statuses WHERE id=?',
+    [id]
+  );
+  if (row && row.name === 'unassigned') {
+    throw new Error('Cannot delete default status');
+  }
   await pool.query('DELETE FROM job_statuses WHERE id=?', [id]);
   return { ok: true };
 }

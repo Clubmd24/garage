@@ -34,7 +34,7 @@ const QuotationsPage = () => {
     const res = await fetch('/api/jobs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ customer_id: quote.customer_id, vehicle_id: null, status: 'new' }),
+      body: JSON.stringify({ customer_id: quote.customer_id, vehicle_id: null }),
     });
     const job = res.ok ? await res.json() : null;
     await updateQuote(quote.id, { status: 'approved', job_id: job?.id });
