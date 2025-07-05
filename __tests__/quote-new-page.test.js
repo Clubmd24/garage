@@ -30,3 +30,21 @@ test('client and vehicle query params populate new quote form', async () => {
   expect(screen.getByDisplayValue('A B')).toBeInTheDocument();
   expect(screen.getByDisplayValue('XYZ')).toBeInTheDocument();
 });
+
+test('shows error message when vehicle fetch fails', async () => {
+  jest.unstable_mockModule('next/router', () => ({
+    useRouter: () => ({ query: { client_id: '1' }, push: jest.fn(), isReady: true }),
+  }));
+
+  global.fetch = jest
+    .fn()
+    .mockResolvedValueOnce({ ok: true, json: async () => [] }) // fleets
+    .mockResolvedValueOnce({ ok: true, json: async () => ({ id: 1, first_name: 'A', last_name: 'B' }) }) // client
+    .mockRejectedValueOnce(new Error('fail')); // vehicles
+
+  const { default: NewPage } = await import('../pages/office/quotations/new.js');
+  render(<NewPage />);
+
+  await screen.findByText('Failed to load vehicles');
+  expect(screen.getByTestId('vehicle-error')).toHaveTextContent('Failed to load vehicles');
+});
