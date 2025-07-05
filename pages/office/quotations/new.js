@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import OfficeLayout from '../../../components/OfficeLayout';
 import { fetchFleets } from '../../../lib/fleets';
-import { fetchVehicles } from '../../../lib/vehicles';
+import { fetchVehicles, fetchVehicle } from '../../../lib/vehicles';
+import { fetchClient } from '../../../lib/clients';
 import { createQuote } from '../../../lib/quotes';
 
 const emptyItem = { part_number: '', part_id: '', description: '', qty: 1, price: 0 };
@@ -33,6 +34,45 @@ export default function NewQuotationPage() {
 
 
   useEffect(() => {
+    if (!router.isReady) return;
+    const { client_id, vehicle_id } = router.query;
+    async function load() {
+      if (client_id) {
+        try {
+          const c = await fetchClient(client_id);
+          setClientName(`${c.first_name || ''} ${c.last_name || ''}`.trim());
+          setForm(f => ({ ...f, customer_id: c.id }));
+        } catch {
+          setError(e => e || 'Failed to load client');
+        }
+      }
+      if (vehicle_id) {
+        try {
+          const v = await fetchVehicle(vehicle_id);
+          setForm(f => ({ ...f, vehicle_id: v.id }));
+          if (v.customer_id) {
+            setMode('client');
+            setForm(f => ({ ...f, customer_id: v.customer_id }));
+            try {
+              const c = await fetchClient(v.customer_id);
+              setClientName(`${c.first_name || ''} ${c.last_name || ''}`.trim());
+            } catch {
+              setError(e => e || 'Failed to load client');
+            }
+          } else if (v.fleet_id) {
+            setMode('fleet');
+            setForm(f => ({ ...f, fleet_id: v.fleet_id }));
+          }
+        } catch {
+          setError(e => e || 'Failed to load vehicle');
+        }
+      }
+    }
+    load();
+  }, [router.isReady]);
+
+
+  useEffect(() => {
     fetchFleets()
       .then(setFleets)
       .catch(() => setError('Failed to load fleets'));
@@ -43,14 +83,20 @@ export default function NewQuotationPage() {
       if (!form.customer_id) return setVehicles([]);
       fetchVehicles(form.customer_id, null)
         .then(setVehicles)
-        .catch(() => setVehicles([]));
+        .catch(() => {
+          setVehicles([]);
+          setError(e => e || 'Failed to load vehicles');
+        });
     } else {
       if (!form.fleet_id) return setVehicles([]);
       fetchVehicles(null, form.fleet_id)
         .then(setVehicles)
-        .catch(() => setVehicles([]));
+        .catch(() => {
+          setVehicles([]);
+          setError(e => e || 'Failed to load vehicles');
+        });
     }
-  }, [mode, form.customer_id, form.fleet_id]);
+  }, [mode, form.customer_id, form.fleet_id, router.isReady]);
 
   const addItem = () => setItems(items => [...items, emptyItem]);
 
