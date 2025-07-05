@@ -87,6 +87,12 @@ export default function OfficeLayout({ children }) {
                 </Link>
               </li>
               <li>
+                <Link href="/office/quotations" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  Open Quotes
+                </Link>
+              </li>
+              <li>
                 <Link href="/office/job-cards" className="flex items-center hover:underline">
                   <ArrowIcon />
                   Job Cards
