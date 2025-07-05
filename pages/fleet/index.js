@@ -61,6 +61,7 @@ export default function FleetDashboard() {
         quotes={quotes}
         setQuotes={setQuotes}
         invoices={invoices}
+        vehicleLinkBase="/fleet/vehicles"
       />
     </>
   );

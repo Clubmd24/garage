@@ -56,6 +56,7 @@ export default function LocalDashboard() {
         quotes={quotes}
         setQuotes={setQuotes}
         invoices={invoices}
+        vehicleLinkBase="/local/vehicles"
       />
     </>
   );

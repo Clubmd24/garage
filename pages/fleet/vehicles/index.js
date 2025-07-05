@@ -43,6 +43,7 @@ export default function FleetVehicles() {
         {vehicles.map(v => (
           <li key={v.id}>
             {v.licence_plate} - {v.make} {v.model}
+            <Link href={`/fleet/vehicles/${v.id}`} className="underline ml-2">View Details</Link>
           </li>
         ))}
       </ul>

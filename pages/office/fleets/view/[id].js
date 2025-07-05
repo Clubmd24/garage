@@ -76,6 +76,7 @@ export default function FleetViewPage() {
         quotes={quotes}
         setQuotes={setQuotes}
         invoices={invoices}
+        vehicleLinkBase="/office/vehicles/view"
       />
     </OfficeLayout>
   );
