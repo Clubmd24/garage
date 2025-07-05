@@ -36,6 +36,9 @@ export default function FleetVehicles() {
         <h1 className="text-2xl font-bold">Vehicles</h1>
         <button onClick={handleLogout} className="button-secondary px-4">Logout</button>
       </div>
+      <Link href="/fleet/vehicles/new" className="button inline-block mb-4 mr-2">
+        Add Vehicle
+      </Link>
       <Link href="/fleet/home" className="button inline-block mb-4">
         Return to Home
       </Link>

@@ -4,7 +4,7 @@ export async function searchParts(query) {
   const q = `%${query}%`;
   const [rows] = query
     ? await pool.query(
-        `SELECT id, part_number, description, unit_cost
+        `SELECT id, part_number, description, unit_cost, supplier_id
            FROM parts
           WHERE part_number LIKE ? OR description LIKE ?
           ORDER BY part_number
@@ -12,7 +12,7 @@ export async function searchParts(query) {
         [q, q]
       )
     : await pool.query(
-        `SELECT id, part_number, description, unit_cost
+        `SELECT id, part_number, description, unit_cost, supplier_id
            FROM parts
           ORDER BY part_number
           LIMIT 20`
