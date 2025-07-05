@@ -63,3 +63,9 @@ python generate_quote.py quote_data.json
 
 The resulting files are written to the `output/` directory as
 `quote_<quote_number>.docx` and `quote_<quote_number>.pdf`.
+
+## Viewing Quotes
+
+From the office interface you can view any quotes linked to a client or vehicle.
+Open a client or vehicle record and all associated quotes will appear beneath
+their documents list.

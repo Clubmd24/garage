@@ -3,13 +3,17 @@ import apiHandler from '../../../lib/apiHandler.js';
 
 async function handler(req, res) {
     if (req.method === 'GET') {
-      const { fleet_id, customer_id } = req.query || {};
+      const { fleet_id, customer_id, vehicle_id } = req.query || {};
       if (fleet_id) {
         const rows = await service.getQuotesByFleet?.(fleet_id) ?? [];
         return res.status(200).json(rows);
       }
       if (customer_id) {
         const rows = await service.getQuotesByCustomer?.(customer_id) ?? [];
+        return res.status(200).json(rows);
+      }
+      if (vehicle_id) {
+        const rows = await service.getQuotesByVehicle?.(vehicle_id) ?? [];
         return res.status(200).json(rows);
       }
       const quotes = await service.getAllQuotes();
