@@ -9,7 +9,18 @@ async function handler(req, res) {
       return res.status(200).json(quote);
     }
     if (req.method === 'PUT') {
-      const updated = await updateQuote(id, req.body);
+      const data = {
+        customer_id: req.body.customer_id,
+        fleet_id: req.body.fleet_id,
+        job_id: req.body.job_id,
+        vehicle_id: req.body.vehicle_id,
+        customer_reference: req.body.customer_reference,
+        po_number: req.body.po_number,
+        total_amount: req.body.total_amount,
+        status: req.body.status,
+        terms: req.body.terms,
+      };
+      const updated = await updateQuote(id, data);
       return res.status(200).json(updated);
     }
     if (req.method === 'DELETE') {

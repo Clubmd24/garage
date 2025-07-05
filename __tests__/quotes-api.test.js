@@ -101,7 +101,7 @@ test('quote update returns updated data', async () => {
   await handler(req, res);
   expect(res.status).toHaveBeenCalledWith(200);
   expect(res.json).toHaveBeenCalledWith(updated);
-  expect(updateMock).toHaveBeenCalledWith('2', req.body);
+  expect(updateMock).toHaveBeenCalledWith('2', expect.objectContaining({ total_amount: 5 }));
 });
 
 test('quote delete succeeds', async () => {
