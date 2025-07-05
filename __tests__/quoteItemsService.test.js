@@ -16,3 +16,15 @@ test('getQuoteItems fetches items', async () => {
   expect(queryMock).toHaveBeenCalledWith(expect.stringMatching(/FROM quote_items/), [2]);
   expect(result).toEqual(rows);
 });
+
+test('updateQuoteItem updates row', async () => {
+  const queryMock = jest.fn().mockResolvedValue([]);
+  jest.unstable_mockModule('../lib/db.js', () => ({ default: { query: queryMock } }));
+  const { updateQuoteItem } = await import('../services/quoteItemsService.js');
+  const result = await updateQuoteItem(5, { description: 'x', qty: 2, unit_price: 3 });
+  expect(queryMock).toHaveBeenCalledWith(
+    expect.stringMatching(/UPDATE quote_items/),
+    ['x', 2, 3, 5]
+  );
+  expect(result).toEqual({ ok: true });
+});

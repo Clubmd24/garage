@@ -114,6 +114,12 @@ const QuotationsPage = () => {
                     Create Job Card
                   </button>
                 )}
+                <Link
+                  href={`/office/quotations/${q.id}/edit`}
+                  className="button px-4 text-sm"
+                >
+                  Edit
+                </Link>
                 <a
                   href={`/api/quotes/${q.id}/pdf`}
                   className="button-secondary px-4 text-sm"
