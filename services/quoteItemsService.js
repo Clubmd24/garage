@@ -21,3 +21,19 @@ export async function createQuoteItem({ quote_id, part_id, description, qty, uni
   );
   return { id: insertId, quote_id, part_id, description, qty, unit_price };
 }
+
+export async function getQuoteItemById(id) {
+  const [[row]] = await pool.query(
+    `SELECT id, quote_id, part_id, description, qty, unit_price FROM quote_items WHERE id=?`,
+    [id]
+  );
+  return row || null;
+}
+
+export async function updateQuoteItem(id, { description, qty, unit_price }) {
+  await pool.query(
+    `UPDATE quote_items SET description=?, qty=?, unit_price=? WHERE id=?`,
+    [description || null, qty || null, unit_price || null, id]
+  );
+  return { ok: true };
+}
