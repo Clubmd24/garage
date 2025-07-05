@@ -23,7 +23,13 @@ async function handler(req, res) {
     const company = await getSettings();
     const client = quote.customer_id ? await getClientById(quote.customer_id) : null;
     const items = await getQuoteItems(id);
-    const pdf = await buildQuotePdf({ company, quote, client, vehicle, items });
+    const pdf = await buildQuotePdf({
+      company,
+      quote,
+      client,
+      vehicle: vehicle || {},
+      items
+    });
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=quote-${id}.pdf`);
     res.send(pdf);
