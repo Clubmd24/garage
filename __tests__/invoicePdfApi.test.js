@@ -29,5 +29,6 @@ test('invoice pdf endpoint returns PDF', async () => {
   await handler(req, res);
   expect(buildMock).toHaveBeenCalled();
   expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'application/pdf');
+  expect(res.setHeader).toHaveBeenCalledWith('Content-Disposition', 'attachment; filename=invoice-1.pdf');
   expect(res.send).toHaveBeenCalledWith(Buffer.from('PDF'));
 });
