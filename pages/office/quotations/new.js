@@ -79,6 +79,7 @@ export default function NewQuotationPage() {
         customer_id: mode === 'client' ? form.customer_id : null,
         fleet_id: mode === 'fleet' ? form.fleet_id : null,
         job_id: null,
+        vehicle_id: form.vehicle_id || null,
         customer_reference: form.customer_ref || null,
         po_number: form.po_number || null,
         total_amount: total,

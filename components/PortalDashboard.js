@@ -44,6 +44,12 @@ export function PortalDashboard({
       );
     });
 
+  const visibleIds = new Set(filteredVehicles.map(v => v.id));
+
+  const quotesFiltered = quotes.filter(q =>
+    !q.vehicle_id || visibleIds.has(q.vehicle_id)
+  );
+
   const brandOptions = [
     'All',
     ...Array.from(new Set(vehicles.filter(vehicleFilter).map(v => v.make))),
@@ -114,16 +120,20 @@ export function PortalDashboard({
       <section>
         <h2 className="text-xl font-semibold mb-2">Quotes</h2>
         <ul className="list-disc ml-6">
-          {quotes.map(q => (
-            <li key={q.id} className="mb-1">
-              Quote #{q.id} - {q.status}
-              {q.status !== 'accepted' && (
-                <button onClick={() => acceptQuote(q.id)} className="ml-2 underline">
-                  Accept
-                </button>
-              )}
-            </li>
-          ))}
+          {quotesFiltered.map(q => {
+            const veh = vehicles.find(v => v.id === q.vehicle_id);
+            return (
+              <li key={q.id} className="mb-1">
+                Quote #{q.id}
+                {veh ? ` - ${veh.licence_plate}` : ''} - {q.status}
+                {q.status !== 'accepted' && (
+                  <button onClick={() => acceptQuote(q.id)} className="ml-2 underline">
+                    Accept
+                  </button>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </section>
       <section>
