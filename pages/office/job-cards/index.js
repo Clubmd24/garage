@@ -3,6 +3,7 @@ import OfficeLayout from '../../../components/OfficeLayout';
 import { fetchQuotes, updateQuote } from '../../../lib/quotes';
 import { createInvoice } from '../../../lib/invoices';
 import { fetchClients } from '../../../lib/clients';
+import { useCurrentUser } from '../../../components/useCurrentUser.js';
 
 const JobCardsPage = () => {
   const [jobs, setJobs] = useState([]);
@@ -10,6 +11,7 @@ const JobCardsPage = () => {
   const [error, setError] = useState(null);
   const [clients, setClients] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const { user } = useCurrentUser();
 
   const load = () => {
     setLoading(true);
@@ -85,7 +87,9 @@ const JobCardsPage = () => {
             <div key={j.id} className="item-card">
               <h2 className="font-semibold mb-1">Job #{j.id}</h2>
               <p className="text-sm">Client ID: {j.customer_id}</p>
-              <p className="text-sm">Total: €{j.total_amount}</p>
+              {user?.role?.toLowerCase() !== 'engineer' && (
+                <p className="text-sm">Total: €{j.total_amount}</p>
+              )}
               <p className="text-sm capitalize">Status: {j.status}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {j.status === 'job-card' && (
