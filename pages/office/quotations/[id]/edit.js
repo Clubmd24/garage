@@ -36,7 +36,7 @@ export default function EditQuotationPage() {
   useEffect(() => {
     fetchFleets()
       .then(setFleets)
-      .catch(() => setError('Failed to load fleets'));
+      .catch(() => setError(e => e || 'Failed to load fleets'));
   }, []);
 
   useEffect(() => {
@@ -44,12 +44,18 @@ export default function EditQuotationPage() {
       if (!form.customer_id) return setVehicles([]);
       fetchVehicles(form.customer_id, null)
         .then(setVehicles)
-        .catch(() => setVehicles([]));
+        .catch(() => {
+          setVehicles([]);
+          setError(e => e || 'Failed to load vehicles');
+        });
     } else {
       if (!form.fleet_id) return setVehicles([]);
       fetchVehicles(null, form.fleet_id)
         .then(setVehicles)
-        .catch(() => setVehicles([]));
+        .catch(() => {
+          setVehicles([]);
+          setError(e => e || 'Failed to load vehicles');
+        });
     }
   }, [mode, form.customer_id, form.fleet_id]);
 
@@ -57,56 +63,78 @@ export default function EditQuotationPage() {
     if (!id) return;
     async function load() {
       setLoading(true);
+      setError(null);
+
+      let quote = null;
+      let its = [];
+
       try {
-        const [quoteRes, itemsRes] = await Promise.all([
-          fetch(`/api/quotes/${id}`),
-          fetch(`/api/quote-items?quote_id=${id}`),
-        ]);
-        const quote = quoteRes.ok ? await quoteRes.json() : null;
-        const its = itemsRes.ok ? await itemsRes.json() : [];
-        if (quote) {
-          setMode(quote.fleet_id ? 'fleet' : 'client');
-          setForm({
-            customer_id: quote.customer_id || '',
-            fleet_id: quote.fleet_id || '',
-            vehicle_id: quote.vehicle_id || '',
-            customer_ref: quote.customer_reference || '',
-            po_number: quote.po_number || '',
-          });
-          if (quote.customer_id) {
+        const res = await fetch(`/api/quotes/${id}`);
+        if (res.ok) quote = await res.json();
+        else throw new Error('quote');
+      } catch {
+        setError(e => e || 'Failed to load quote');
+      }
+
+      try {
+        const res = await fetch(`/api/quote-items?quote_id=${id}`);
+        if (res.ok) its = await res.json();
+        else throw new Error('items');
+      } catch {
+        setError(e => e || 'Failed to load quote items');
+      }
+
+      if (quote) {
+        setMode(quote.fleet_id ? 'fleet' : 'client');
+        setForm({
+          customer_id: quote.customer_id || '',
+          fleet_id: quote.fleet_id || '',
+          vehicle_id: quote.vehicle_id || '',
+          customer_ref: quote.customer_reference || '',
+          po_number: quote.po_number || '',
+        });
+        if (quote.customer_id) {
+          try {
             const cRes = await fetch(`/api/clients/${quote.customer_id}`);
             if (cRes.ok) {
               const c = await cRes.json();
               setClientName(`${c.first_name || ''} ${c.last_name || ''}`.trim());
+            } else {
+              throw new Error('client');
             }
+          } catch {
+            setError(e => e || 'Failed to load client');
           }
         }
-        const detailed = await Promise.all(
-          its.map(async it => {
-            let part_number = '';
-            if (it.part_id) {
+      }
+
+      const detailed = await Promise.all(
+        its.map(async it => {
+          let part_number = '';
+          if (it.part_id) {
+            try {
               const pRes = await fetch(`/api/parts/${it.part_id}`);
               if (pRes.ok) {
                 const p = await pRes.json();
                 part_number = p.part_number || '';
               }
+            } catch {
+              /* ignore part load error */
             }
-            return {
-              id: it.id,
-              part_id: it.part_id || '',
-              part_number,
-              description: it.description || '',
-              qty: it.qty || 1,
-              price: it.unit_price || 0,
-            };
-          })
-        );
-        setItems(detailed.length ? detailed : [emptyItem]);
-      } catch {
-        setError('Failed to load quote');
-      } finally {
-        setLoading(false);
-      }
+          }
+          return {
+            id: it.id,
+            part_id: it.part_id || '',
+            part_number,
+            description: it.description || '',
+            qty: it.qty || 1,
+            price: it.unit_price || 0,
+          };
+        })
+      );
+      setItems(detailed.length ? detailed : [emptyItem]);
+
+      setLoading(false);
     }
     load();
   }, [id]);
