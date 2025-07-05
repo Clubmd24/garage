@@ -1,0 +1,5 @@
+ALTER TABLE quotes
+  ADD COLUMN terms TEXT NULL AFTER status;
+
+ALTER TABLE invoices
+  ADD COLUMN terms TEXT NULL AFTER status;

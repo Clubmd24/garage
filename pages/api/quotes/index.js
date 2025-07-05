@@ -23,6 +23,7 @@ async function handler(req, res) {
         vehicle_id: req.body.vehicle_id,
         total_amount: req.body.total_amount,
         status: req.body.status,
+        terms: req.body.terms,
       };
       const newQuote = await service.createQuote(data);
       try {
