@@ -25,6 +25,7 @@ export default function NewQuotationPage() {
   });
   const [items, setItems] = useState([emptyItem]);
   const [error, setError] = useState(null);
+  const [vehicleError, setVehicleError] = useState(null);
 
   useEffect(() => {
     setForm(f => ({ ...f, customer_id: '', fleet_id: '', vehicle_id: '' }));
@@ -80,19 +81,35 @@ export default function NewQuotationPage() {
 
   useEffect(() => {
     if (mode === 'client') {
-      if (!form.customer_id) return setVehicles([]);
+      if (!form.customer_id) {
+        setVehicles([]);
+        setVehicleError(null);
+        return;
+      }
       fetchVehicles(form.customer_id, null)
-        .then(setVehicles)
+        .then(vs => {
+          setVehicleError(null);
+          setVehicles(vs);
+        })
         .catch(() => {
           setVehicles([]);
+          setVehicleError('Failed to load vehicles');
           setError(e => e || 'Failed to load vehicles');
         });
     } else {
-      if (!form.fleet_id) return setVehicles([]);
+      if (!form.fleet_id) {
+        setVehicles([]);
+        setVehicleError(null);
+        return;
+      }
       fetchVehicles(null, form.fleet_id)
-        .then(setVehicles)
+        .then(vs => {
+          setVehicleError(null);
+          setVehicles(vs);
+        })
         .catch(() => {
           setVehicles([]);
+          setVehicleError('Failed to load vehicles');
           setError(e => e || 'Failed to load vehicles');
         });
     }
@@ -221,6 +238,11 @@ export default function NewQuotationPage() {
               </option>
             ))}
           </select>
+          {vehicleError && (
+            <p className="text-red-500 mt-1" data-testid="vehicle-error">
+              {vehicleError}
+            </p>
+          )}
         </div>
         <div>
           <label className="block mb-1">Customer Ref #</label>
