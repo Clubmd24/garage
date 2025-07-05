@@ -50,7 +50,6 @@ export default function ClientAutocomplete({ value, onChange, onSelect }) {
                   setTerm('');
                 } else {
                   setTerm(name);
-                  onChange && onChange(name);
                 }
                 setResults([]);
               }}
