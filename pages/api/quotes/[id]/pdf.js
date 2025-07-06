@@ -1,71 +1,75 @@
-import { getSettings } from '../../../../services/companySettingsService.js';
-import { getQuoteById } from '../../../../services/quotesService.js';
-import { getClientById } from '../../../../services/clientsService.js';
-import { getVehicleById } from '../../../../services/vehiclesService.js';
-import { getQuoteItems } from '../../../../services/quoteItemsService.js';
-import pool from '../../../../lib/db.js';
+import { NextApiRequest, NextApiResponse } from 'next';
 import { buildQuotePdf } from '../../../../lib/pdf/buildQuotePdf';
-import apiHandler from '../../../../lib/apiHandler.js';
+import { getQuoteById } from '../../../../services/quoteService';
+import { getGarageById } from '../../../../services/garageService';
+import { getClientById } from '../../../../services/clientService';
+import { getVehicleById } from '../../../../services/vehicleService';
+import { getQuoteItems } from '../../../../services/quoteItemsService';
 
-async function handler(req, res) {
-  const { id } = req.query;
-  if (req.method !== 'GET') {
-    res.setHeader('Allow', ['GET']);
-    return res.status(405).end(`Method ${req.method} Not Allowed`);
-  }
+export default async function handler(req, res) {
   try {
+    const { id } = req.query;
+
+    // Fetch base data
     const quote = await getQuoteById(id);
-    if (!quote) return res.status(404).json({ error: 'Not Found' });
-    const [jobRows] = quote.job_id
-      ? await pool.query('SELECT vehicle_id FROM jobs WHERE id=?', [quote.job_id])
-      : [[]];
-    const vehicle = jobRows[0]?.vehicle_id ? await getVehicleById(jobRows[0].vehicle_id) : null;
-    const company = await getSettings();
-    const client = quote.customer_id ? await getClientById(quote.customer_id) : null;
+    const garage = await getGarageById(quote.garage_id);
+    const client = await getClientById(quote.client_id);
+    const vehicle = await getVehicleById(quote.vehicle_id);
     const items = await getQuoteItems(id);
 
-    const quoteNumber = quote.id;
-    const garage = {
-      name: company?.company_name,
-      logo: company?.logo_url,
-      address: company?.address,
-      phone: company?.phone,
-      email: company?.email,
-    };
-    const clientInfo = client
-      ? {
-          name: `${client.first_name} ${client.last_name}`.trim(),
-          phone: client.mobile || client.landline,
-          email: client.email,
-          address: client.street_address,
-          city: client.town,
-          postcode: client.post_code,
-        }
-      : {};
-    const terms = quote.terms || company.terms || '';
-
-    try {
-      const pdf = await buildQuotePdf({
-        quoteNumber,
-        title: 'QUOTE',
-        garage,
-        client: clientInfo,
-        vehicle: vehicle || {},
-        items,
-        defect_description: quote.defect_description,
-        terms,
-      });
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename=quote-${id}.pdf`);
-      res.send(pdf);
-    } catch (err) {
-      console.error('QUOTE_PDF_ERROR:', err);
-      return res.status(500).json({ error: 'Failed to generate PDF' });
+    // Convert S3 path to public HTTPS URL if needed
+    let logoUrl = garage.logo;
+    if (logoUrl && logoUrl.startsWith('s3://')) {
+      // s3://bucket/key => https://bucket.s3.amazonaws.com/key
+      const [ , bucket, ...keyParts ] = logoUrl.split('/');
+      const Key = keyParts.join('/');
+      logoUrl = `https://${bucket}.s3.amazonaws.com/${Key}`;
     }
+
+    // Assemble payload for PDF builder
+    const payload = {
+      garage: {
+        name:    garage.name,
+        logo:    logoUrl || '',
+        address: garage.address,
+        phone:   garage.phone,
+        email:   garage.email
+      },
+      client: {
+        name:     client.name,
+        phone:    client.phone,
+        email:    client.email,
+        address:  client.address,
+        city:     client.city,
+        postcode: client.postcode
+      },
+      vehicle: {
+        licence_plate: vehicle.licence_plate,
+        make:          vehicle.make,
+        model:         vehicle.model,
+        color:         vehicle.color,
+        vin_number:    vehicle.vin_number,
+        id:            vehicle.id,
+        // include any additional vehicle fields here
+      },
+      items: items.map(it => ({
+        partNumber:   it.partNumber,
+        description:  it.description,
+        qty:          it.qty,
+        unit_price:   it.unit_price
+      })),
+      defect_description: quote.defect_description || quote.defectDescription || '',
+      quoteNumber: quote.id,
+      title: 'QUOTE'
+    };
+
+    // Build PDF and stream to client
+    const pdfBuffer = await buildQuotePdf(payload);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="quote-${id}.pdf"`);
+    return res.send(pdfBuffer);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error('QUOTE_PDF_ERROR:', err);
+    res.status(500).json({ error: 'Failed to generate quote PDF' });
   }
 }
-
-export default apiHandler(handler);
