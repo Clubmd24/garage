@@ -32,6 +32,7 @@ export default function EditQuotationPage() {
     vehicle_id: '',
     customer_ref: '',
     po_number: '',
+    defect_description: '',
   });
   const [items, setItems] = useState([emptyItem]);
   const [error, setError] = useState(null);
@@ -101,6 +102,7 @@ export default function EditQuotationPage() {
           vehicle_id: quote.vehicle_id || '',
           customer_ref: quote.customer_reference || '',
           po_number: quote.po_number || '',
+          defect_description: quote.defect_description || '',
         });
         if (quote.customer_id) {
           try {
@@ -190,6 +192,9 @@ export default function EditQuotationPage() {
         fleet_id: mode === 'fleet' ? form.fleet_id : null,
         job_id: null,
         vehicle_id: form.vehicle_id || null,
+        customer_reference: form.customer_ref || null,
+        po_number: form.po_number || null,
+        defect_description: form.defect_description || null,
         total_amount: total,
         status: 'new',
       });
@@ -319,6 +324,16 @@ export default function EditQuotationPage() {
             value={form.po_number}
             onChange={e =>
               setForm(f => ({ ...f, po_number: e.target.value }))
+            }
+          />
+        </div>
+        <div>
+          <label className="block mb-1">Defect Description</label>
+          <textarea
+            className="input w-full"
+            value={form.defect_description}
+            onChange={e =>
+              setForm(f => ({ ...f, defect_description: e.target.value }))
             }
           />
         </div>
