@@ -8,6 +8,7 @@ import { fetchVehicles } from '../../../lib/vehicles';
 const EditClientPage = () => {
   const router = useRouter();
   const { id, pw } = router.query;
+  const [pin, setPin] = useState(router.query.pin || '');
   const [form, setForm] = useState({
     first_name: '',
     last_name: '',
@@ -28,7 +29,10 @@ const EditClientPage = () => {
     if (!id) return;
     fetch(`/api/clients/${id}`)
       .then(r => r.json())
-      .then(data => setForm(data))
+      .then(data => {
+        setForm(data);
+        if (data.pin) setPin(data.pin);
+      })
       .catch(() => setError('Failed to load'))
       .finally(() => setLoading(false));
     fetchVehicles(id)
@@ -67,6 +71,9 @@ const EditClientPage = () => {
       <h1 className="text-2xl font-semibold mb-4">Edit Client</h1>
       {pw && (
         <p className="mb-4 font-semibold">Password: {pw}</p>
+      )}
+      {pin && (
+        <p className="mb-4 font-semibold">PIN: {pin}</p>
       )}
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={submit} className="space-y-4 max-w-md">

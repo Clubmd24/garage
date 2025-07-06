@@ -62,6 +62,9 @@ export default function ClientViewPage() {
         <button onClick={deleteClient} className="button bg-red-600 hover:bg-red-700">Delete Client</button>
         <Link href="/office/clients"><a className="button">Back to Clients</a></Link>
       </div>
+      {client.pin && (
+        <p className="mb-4 font-semibold">PIN: {client.pin}</p>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card>
           <h2 className="text-xl font-semibold mb-4">Client Info</h2>
@@ -70,6 +73,9 @@ export default function ClientViewPage() {
           <p><strong>Mobile:</strong> {client.mobile}</p>
           <p><strong>Landline:</strong> {client.landline}</p>
           <p><strong>NIE Number:</strong> {client.nie_number}</p>
+          {client.pin && (
+            <p><strong>PIN:</strong> {client.pin}</p>
+          )}
           <p><strong>Address:</strong> {client.street_address}, {client.town}, {client.province} {client.post_code}</p>
         </Card>
         <Card>

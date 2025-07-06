@@ -10,20 +10,22 @@ test('createClient uses provided password', async () => {
   jest.unstable_mockModule('../lib/db.js', () => ({
     default: { query: queryMock },
   }));
-  let hashedArg;
+  const hashedArgs = [];
   const hashMock = jest.fn(async p => {
-    hashedArg = p;
+    hashedArgs.push(p);
     return 'HASHED';
   });
   jest.unstable_mockModule('../lib/auth.js', () => ({
     hashPassword: hashMock,
   }));
+  jest.spyOn(Math, 'random').mockReturnValue(0.5);
   const { createClient } = await import('../services/clientsService.js');
   const res = await createClient({ first_name: 'A', password: 'secret' });
-  expect(hashMock).toHaveBeenCalledWith('secret');
-  expect(hashedArg).toBe('secret');
+  expect(hashedArgs).toEqual(['secret', '550000']);
   expect(queryMock).toHaveBeenCalled();
   expect(res.password).toBe('secret');
+  expect(res.pin).toBe('550000');
+  Math.random.mockRestore();
 });
 
 test('createClient generates password when missing', async () => {
@@ -34,20 +36,23 @@ test('createClient generates password when missing', async () => {
   jest.unstable_mockModule('crypto', () => ({
     randomBytes: () => Buffer.from('ranpwd'),
   }));
-  let hashedArg;
+  const hashedArgs = [];
   const hashMock = jest.fn(async p => {
-    hashedArg = p;
+    hashedArgs.push(p);
     return 'HASHED2';
   });
   jest.unstable_mockModule('../lib/auth.js', () => ({
     hashPassword: hashMock,
   }));
+  jest.spyOn(Math, 'random').mockReturnValue(0.4);
   const { createClient } = await import('../services/clientsService.js');
   const res = await createClient({ first_name: 'B' });
-  expect(hashMock).toHaveBeenCalledWith(res.password);
-  expect(hashedArg).toBe(res.password);
+  expect(hashedArgs[0]).toBe(res.password);
+  expect(hashedArgs[1]).toBe('460000');
   expect(res.password).toBe('cmFucHdk');
+  expect(res.pin).toBe('460000');
   expect(queryMock).toHaveBeenCalled();
+  Math.random.mockRestore();
 });
 
 test('updateClient leaves password unchanged when not provided', async () => {
