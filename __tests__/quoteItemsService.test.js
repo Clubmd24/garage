@@ -6,15 +6,22 @@ afterEach(() => {
 });
 
 test('getQuoteItems fetches items', async () => {
-  const rows = [{ id: 1 }];
+  const rows = [
+    { id: 1, description: 'x', unit_cost: '1.2', markup_percent: '10', unit_price: '1.3' },
+  ];
   const queryMock = jest.fn().mockResolvedValue([rows]);
   jest.unstable_mockModule('../lib/db.js', () => ({
     default: { query: queryMock },
   }));
   const { getQuoteItems } = await import('../services/quoteItemsService.js');
   const result = await getQuoteItems(2);
-  expect(queryMock).toHaveBeenCalledWith(expect.stringMatching(/FROM quote_items/), [2]);
-  expect(result).toEqual(rows);
+  expect(queryMock).toHaveBeenCalledWith(
+    expect.stringMatching(/FROM quote_items/),
+    [2]
+  );
+  expect(result).toEqual([
+    { id: 1, description: 'x', unit_cost: 1.2, markup_percent: 10, unit_price: 1.3 },
+  ]);
 });
 
 test('updateQuoteItem updates row', async () => {

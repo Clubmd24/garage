@@ -12,7 +12,12 @@ export async function getQuoteItems(quote_id) {
    ORDER BY qi.id`,
     [quote_id]
   );
-  return rows;
+  return rows.map(row => ({
+    ...row,
+    unit_cost: row.unit_cost == null ? null : Number(row.unit_cost),
+    markup_percent: row.markup_percent == null ? null : Number(row.markup_percent),
+    unit_price: row.unit_price == null ? null : Number(row.unit_price),
+  }));
 }
 
 export async function createQuoteItem({
