@@ -2,19 +2,29 @@ import pool from '../lib/db.js';
 
 export async function getQuoteItems(quote_id) {
   const [rows] = await pool.query(
-    `SELECT qi.id, qi.quote_id, qi.part_id, qi.description, qi.qty,
-            qi.unit_cost, qi.markup_percent,
-            qi.unit_price,
-            p.supplier_id, p.part_number AS partNumber
-       FROM quote_items qi
-  LEFT JOIN parts p ON qi.part_id=p.id
-      WHERE qi.quote_id=?
-   ORDER BY qi.id`,
+    `SELECT
+       qi.id,
+       qi.quote_id,
+       qi.part_id,
+       qi.description,
+       qi.qty,
+       -- ensure unit_cost is never NULL, default to 0 if missing
+       COALESCE(qi.unit_cost, 0) AS unit_cost,
+       qi.markup_percent,
+       qi.unit_price,
+       p.supplier_id,
+       p.part_number AS partNumber
+     FROM quote_items qi
+     LEFT JOIN parts p ON qi.part_id = p.id
+     WHERE qi.quote_id = ?
+     ORDER BY qi.id`,
     [quote_id]
   );
+
   return rows.map(row => ({
     ...row,
-    unit_cost: row.unit_cost == null ? null : Number(row.unit_cost),
+    // unit_cost is always present now, so convert to Number
+    unit_cost: Number(row.unit_cost),
     markup_percent: row.markup_percent == null ? null : Number(row.markup_percent),
     unit_price: row.unit_price == null ? null : Number(row.unit_price),
   }));
