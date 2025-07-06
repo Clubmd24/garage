@@ -4,7 +4,8 @@ import { getQuoteById } from './quotesService.js';
 import { getClientById } from './clientsService.js';
 import { getQuoteItems } from './quoteItemsService.js';
 import { getSettings } from './companySettingsService.js';
-import { buildQuotePdf, buildInvoicePdf } from '../lib/pdf.js';
+import { buildInvoicePdf } from '../lib/pdf.js';
+import { buildQuotePdf } from '../lib/pdf/buildQuotePdf.js';
 import { getInvoiceById } from './invoicesService.js';
 import { getInvoiceItems } from './invoiceItemsService.js';
 

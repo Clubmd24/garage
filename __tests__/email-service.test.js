@@ -31,8 +31,10 @@ test('sendQuoteEmail sends mail', async () => {
     getQuoteItems: () => []
   }));
   const buildMock = jest.fn().mockResolvedValue(Buffer.from('PDF'));
+  jest.unstable_mockModule('../lib/pdf/buildQuotePdf.js', () => ({
+    buildQuotePdf: buildMock
+  }));
   jest.unstable_mockModule('../lib/pdf.js', () => ({
-    buildQuotePdf: buildMock,
     buildInvoicePdf: jest.fn()
   }));
   const { sendQuoteEmail } = await import('../services/emailService.js');
