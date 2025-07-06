@@ -33,6 +33,18 @@ def validate_data(data: dict) -> None:
             raise KeyError(f"Missing top-level key: {key}")
 
 
+def calculate_totals(data: dict) -> None:
+    items = data.get("items", [])
+    total_cost = sum(it.get("qty", 0) * it.get("unit_cost", 0) for it in items)
+    total_price = sum(it.get("qty", 0) * it.get("unit_price", 0) for it in items)
+    profit = total_price - total_cost
+    markup = (profit / total_cost * 100) if total_cost else 0
+    totals = data.setdefault("totals", {})
+    totals["total_cost"] = round(total_cost, 2)
+    totals["markup_percent"] = round(markup, 2)
+    totals["profit"] = round(profit, 2)
+
+
 def render_docx(data: dict) -> str:
     template_path = os.path.join('templates', 'quotation_template_final.docx')
     if not os.path.exists(template_path):
@@ -71,6 +83,7 @@ def main() -> int:
     try:
         data = load_data(data_path)
         validate_data(data)
+        calculate_totals(data)
         docx_path = render_docx(data)
         pdf_path = convert_to_pdf(docx_path)
         print(f"Generated: {pdf_path}")
