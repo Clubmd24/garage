@@ -43,7 +43,7 @@ const NewClientPage = () => {
           body: JSON.stringify({ ...vehicle, customer_id: created.id }),
         });
       }
-      router.push(`/office/clients/${created.id}?pw=${created.password}`);
+      router.push(`/office/clients/${created.id}?pw=${created.password}&pin=${created.pin}`);
     } catch {
       setError('Failed to create client');
     }

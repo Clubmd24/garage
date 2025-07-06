@@ -1,0 +1,3 @@
+ALTER TABLE clients
+  ADD COLUMN pin_hash VARCHAR(255),
+  ADD COLUMN pin VARCHAR(10);
