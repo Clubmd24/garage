@@ -26,7 +26,7 @@ def load_data(path: str) -> Any:
 def validate_data(data: dict) -> None:
     required_top = [
         'quote_number', 'garage', 'client', 'vehicle',
-        'defect', 'items', 'totals', 'terms'
+        'defect_description', 'items', 'totals', 'terms'
     ]
     for key in required_top:
         if key not in data:

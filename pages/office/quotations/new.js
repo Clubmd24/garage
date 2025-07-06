@@ -30,6 +30,7 @@ export default function NewQuotationPage() {
     vehicle_id: '',
     customer_ref: '',
     po_number: '',
+    defect_description: '',
   });
   const [items, setItems] = useState([emptyItem]);
   const [error, setError] = useState(null);
@@ -165,6 +166,7 @@ export default function NewQuotationPage() {
         vehicle_id: form.vehicle_id || null,
         customer_reference: form.customer_ref || null,
         po_number: form.po_number || null,
+        defect_description: form.defect_description || null,
         total_amount: total,
         status: 'new',
       });
@@ -283,6 +285,16 @@ export default function NewQuotationPage() {
             value={form.po_number}
             onChange={e =>
               setForm(f => ({ ...f, po_number: e.target.value }))
+            }
+          />
+        </div>
+        <div>
+          <label className="block mb-1">Defect Description</label>
+          <textarea
+            className="input w-full"
+            value={form.defect_description}
+            onChange={e =>
+              setForm(f => ({ ...f, defect_description: e.target.value }))
             }
           />
         </div>
