@@ -3,7 +3,8 @@ import pool from '../lib/db.js';
 export async function getQuoteItems(quote_id) {
   const [rows] = await pool.query(
     `SELECT qi.id, qi.quote_id, qi.part_id, qi.description, qi.qty, qi.unit_price,
-            p.supplier_id
+            p.supplier_id, p.part_number AS partNumber,
+            COALESCE(qi.unit_price, p.unit_cost) AS unitCost
        FROM quote_items qi
   LEFT JOIN parts p ON qi.part_id=p.id
       WHERE qi.quote_id=?
