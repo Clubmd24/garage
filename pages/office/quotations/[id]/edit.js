@@ -5,7 +5,16 @@ import { fetchFleets } from '../../../../lib/fleets';
 import { fetchVehicles } from '../../../../lib/vehicles';
 import { updateQuote } from '../../../../lib/quotes';
 
-const emptyItem = { id: null, part_number: '', part_id: '', description: '', qty: 1, price: 0 };
+const emptyItem = {
+  id: null,
+  part_number: '',
+  part_id: '',
+  description: '',
+  qty: 1,
+  unit_cost: 0,
+  markup: 0,
+  price: 0,
+};
 import PartAutocomplete from '../../../../components/PartAutocomplete';
 import ClientAutocomplete from '../../../../components/ClientAutocomplete';
 
@@ -128,6 +137,8 @@ export default function EditQuotationPage() {
             part_number,
             description: it.description || '',
             qty: it.qty || 1,
+            unit_cost: it.unit_cost || 0,
+            markup: it.markup_percent || 0,
             price: it.unit_price || 0,
           };
         })
@@ -144,15 +155,27 @@ export default function EditQuotationPage() {
   const changeItem = (i, field, value) => {
     setItems(itms => {
       const copy = [...itms];
-      copy[i] = { ...copy[i], [field]: value };
+      const it = { ...copy[i], [field]: value };
+      if (field === 'unit_cost' || field === 'markup') {
+        const cost = Number(field === 'unit_cost' ? value : it.unit_cost);
+        const markup = Number(field === 'markup' ? value : it.markup);
+        it.price = cost * (1 + markup / 100);
+      }
+      copy[i] = it;
       return copy;
     });
   };
 
+  const totalCost = items.reduce(
+    (sum, it) => sum + Number(it.qty) * Number(it.unit_cost),
+    0
+  );
   const total = items.reduce(
     (sum, it) => sum + Number(it.qty) * Number(it.price),
     0
   );
+  const markupPercent = totalCost ? ((total - totalCost) / totalCost) * 100 : 0;
+  const profit = total - totalCost;
 
   const formatEuro = n =>
     new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR' }).format(
@@ -178,6 +201,8 @@ export default function EditQuotationPage() {
             body: JSON.stringify({
               description: it.description,
               qty: it.qty,
+              unit_cost: it.unit_cost,
+              markup_percent: it.markup,
               unit_price: it.price,
             }),
           });
@@ -190,6 +215,8 @@ export default function EditQuotationPage() {
               part_id: it.part_id || null,
               description: it.description,
               qty: it.qty,
+              unit_cost: it.unit_cost,
+              markup_percent: it.markup,
               unit_price: it.price,
             }),
           });
@@ -297,15 +324,17 @@ export default function EditQuotationPage() {
         </div>
         <div>
           <h2 className="font-semibold mb-2">Item Details</h2>
-          <div className="grid grid-cols-6 gap-2 mb-2 font-semibold text-sm">
+          <div className="grid grid-cols-7 gap-2 mb-2 font-semibold text-sm">
             <div>Part #</div>
             <div className="col-span-2">Description</div>
             <div>Qty</div>
             <div>Unit Cost</div>
-            <div>Line Cost</div>
+            <div>Markup %</div>
+            <div>Unit Price</div>
+            <div>Line Price</div>
           </div>
           {items.map((it, i) => (
-            <div key={i} className="grid grid-cols-6 gap-2 mb-2">
+            <div key={i} className="grid grid-cols-7 gap-2 mb-2">
               <PartAutocomplete
                 value={it.part_number}
                 onChange={v => changeItem(i, 'part_number', v)}
@@ -313,7 +342,7 @@ export default function EditQuotationPage() {
                   changeItem(i, 'part_number', p.part_number);
                   changeItem(i, 'part_id', p.id);
                   changeItem(i, 'description', p.description || '');
-                  changeItem(i, 'price', p.unit_cost || 0);
+                  changeItem(i, 'unit_cost', p.unit_cost || 0);
                 }}
               />
               <input
@@ -333,9 +362,19 @@ export default function EditQuotationPage() {
                 type="number"
                 className="input"
                 placeholder="Unit cost"
-                value={it.price}
-                onChange={e => changeItem(i, 'price', e.target.value)}
+                value={it.unit_cost}
+                onChange={e => changeItem(i, 'unit_cost', e.target.value)}
               />
+              <input
+                type="number"
+                className="input"
+                placeholder="Markup %"
+                value={it.markup}
+                onChange={e => changeItem(i, 'markup', e.target.value)}
+              />
+              <div className="flex items-center px-2 border rounded bg-gray-50 justify-end">
+                {formatEuro(it.price)}
+              </div>
               <div className="flex items-center px-2 border rounded bg-gray-50">
                 {formatEuro(Number(it.qty) * Number(it.price))}
               </div>
@@ -347,7 +386,12 @@ export default function EditQuotationPage() {
         </div>
         <div>
           <h2 className="font-semibold mb-2">Summary</h2>
-          <p className="font-semibold">Total: {formatEuro(total)}</p>
+          <p className="font-semibold">Total Cost: {formatEuro(totalCost)}</p>
+          <p className="font-semibold">Total Price: {formatEuro(total)}</p>
+          <p className="font-semibold">
+            Global Markup: {markupPercent.toFixed(2)}%
+          </p>
+          <p className="font-semibold">Expected Profit: {formatEuro(profit)}</p>
         </div>
         <button type="submit" className="button">
           Update Quote

@@ -21,10 +21,16 @@ test('updateQuoteItem updates row', async () => {
   const queryMock = jest.fn().mockResolvedValue([]);
   jest.unstable_mockModule('../lib/db.js', () => ({ default: { query: queryMock } }));
   const { updateQuoteItem } = await import('../services/quoteItemsService.js');
-  const result = await updateQuoteItem(5, { description: 'x', qty: 2, unit_price: 3 });
+  const result = await updateQuoteItem(5, {
+    description: 'x',
+    qty: 2,
+    unit_cost: 1,
+    markup_percent: 20,
+    unit_price: 3,
+  });
   expect(queryMock).toHaveBeenCalledWith(
     expect.stringMatching(/UPDATE quote_items/),
-    ['x', 2, 3, 5]
+    ['x', 2, 1, 20, 3, 5]
   );
   expect(result).toEqual({ ok: true });
 });

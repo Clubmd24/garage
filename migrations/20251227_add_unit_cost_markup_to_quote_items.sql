@@ -1,0 +1,3 @@
+ALTER TABLE quote_items
+  ADD COLUMN unit_cost DECIMAL(10,2) DEFAULT NULL,
+  ADD COLUMN markup_percent DECIMAL(5,2) DEFAULT NULL;
