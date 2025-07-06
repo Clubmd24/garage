@@ -4,7 +4,7 @@ import { getClientById } from '../../../../services/clientsService.js';
 import { getVehicleById } from '../../../../services/vehiclesService.js';
 import { getQuoteItems } from '../../../../services/quoteItemsService.js';
 import pool from '../../../../lib/db.js';
-import { buildQuotePdf } from '../../../../lib/pdf.js';
+import { buildQuotePdf } from '../../../../lib/pdf/buildQuotePdf';
 import apiHandler from '../../../../lib/apiHandler.js';
 
 async function handler(req, res) {
