@@ -1,9 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { buildQuotePdf } from '../../../../lib/pdf/buildQuotePdf';
-import { getQuoteById } from '../../../../services/quoteService';
-import { getGarageById } from '../../../../services/garageService';
-import { getClientById } from '../../../../services/clientService';
-import { getVehicleById } from '../../../../services/vehicleService';
+import { getQuoteById } from '../../../../services/quotesService';
+import { getSettings } from '../../../../services/companySettingsService';
+import { getClientById } from '../../../../services/clientsService';
+import { getVehicleById } from '../../../../services/vehiclesService';
 import { getQuoteItems } from '../../../../services/quoteItemsService';
 
 export default async function handler(req, res) {
@@ -12,16 +12,15 @@ export default async function handler(req, res) {
 
     // Fetch base data
     const quote = await getQuoteById(id);
-    const garage = await getGarageById(quote.garage_id);
-    const client = await getClientById(quote.client_id);
+    const settings = await getSettings();
+    const client = await getClientById(quote.customer_id);
     const vehicle = await getVehicleById(quote.vehicle_id);
     const items = await getQuoteItems(id);
 
-    // Convert S3 path to public HTTPS URL if needed
-    let logoUrl = garage.logo;
+    // Convert S3 path to public HTTPS URL
+    let logoUrl = settings.logo_url;
     if (logoUrl && logoUrl.startsWith('s3://')) {
-      // s3://bucket/key => https://bucket.s3.amazonaws.com/key
-      const [ , bucket, ...keyParts ] = logoUrl.split('/');
+      const [, bucket, ...keyParts] = logoUrl.split('/');
       const Key = keyParts.join('/');
       logoUrl = `https://${bucket}.s3.amazonaws.com/${Key}`;
     }
@@ -29,11 +28,11 @@ export default async function handler(req, res) {
     // Assemble payload for PDF builder
     const payload = {
       garage: {
-        name:    garage.name,
+        name:    settings.company_name,
         logo:    logoUrl || '',
-        address: garage.address,
-        phone:   garage.phone,
-        email:   garage.email
+        address: settings.address,
+        phone:   settings.phone,
+        website: settings.website
       },
       client: {
         name:     client.name,
@@ -49,16 +48,15 @@ export default async function handler(req, res) {
         model:         vehicle.model,
         color:         vehicle.color,
         vin_number:    vehicle.vin_number,
-        id:            vehicle.id,
-        // include any additional vehicle fields here
+        id:            vehicle.id
       },
       items: items.map(it => ({
-        partNumber:   it.partNumber,
-        description:  it.description,
-        qty:          it.qty,
-        unit_price:   it.unit_price
+        partNumber:  it.partNumber,
+        description: it.description,
+        qty:         it.qty,
+        unit_price:  it.unit_price
       })),
-      defect_description: quote.defect_description || quote.defectDescription || '',
+      defect_description: quote.defect_description || '',
       quoteNumber: quote.id,
       title: 'QUOTE'
     };
