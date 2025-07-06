@@ -25,16 +25,34 @@ async function handler(req, res) {
     const items = await getQuoteItems(id);
 
     const quoteNumber = quote.id;
-    const garage = company;
+    const garage = {
+      name: company?.company_name,
+      logo: company?.logo_url,
+      address: company?.address,
+      phone: company?.phone,
+      email: company?.email,
+    };
+    const clientInfo = client
+      ? {
+          name: `${client.first_name} ${client.last_name}`.trim(),
+          phone: client.mobile || client.landline,
+          email: client.email,
+          address: client.street_address,
+          city: client.town,
+          postcode: client.post_code,
+        }
+      : {};
     const terms = quote.terms || company.terms || '';
 
     try {
       const pdf = await buildQuotePdf({
         quoteNumber,
+        title: 'QUOTE',
         garage,
-        client,
+        client: clientInfo,
         vehicle: vehicle || {},
         items,
+        defect_description: quote.defect_description,
         terms,
       });
       res.setHeader('Content-Type', 'application/pdf');
