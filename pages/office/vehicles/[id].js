@@ -62,7 +62,16 @@ const EditVehiclePage = () => {
             />
           </div>
         ))}
+        <div className="flex gap-2">
           <button type="submit" className="button">Update</button>
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="button-secondary"
+          >
+            Cancel
+          </button>
+        </div>
       </form>
     </OfficeLayout>
   );

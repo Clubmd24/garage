@@ -99,7 +99,16 @@ const EditClientPage = () => {
             />
           </div>
         ))}
+        <div className="flex gap-2">
           <button type="submit" className="button">Update</button>
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="button-secondary"
+          >
+            Cancel
+          </button>
+        </div>
       </form>
       <div className="mt-8">
         <div className="flex justify-between items-center mb-2">
