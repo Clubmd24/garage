@@ -69,7 +69,16 @@ const NewFleetPage = () => {
             />
           </div>
         ))}
-        <button type="submit" className="button">Save</button>
+        <div className="flex gap-2">
+          <button type="submit" className="button">Save</button>
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="button-secondary"
+          >
+            Cancel
+          </button>
+        </div>
       </form>
     </OfficeLayout>
   );

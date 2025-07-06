@@ -65,7 +65,16 @@ const EditEngineerPage = () => {
             className="w-full border px-3 py-2 rounded text-black"
           />
         </div>
-        <button type="submit" className="button">Update</button>
+        <div className="flex gap-2">
+          <button type="submit" className="button">Update</button>
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="button-secondary"
+          >
+            Cancel
+          </button>
+        </div>
       </form>
     </OfficeLayout>
   );

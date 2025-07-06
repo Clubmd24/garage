@@ -318,9 +318,16 @@ export default function NewQuotationPage() {
           <h2 className="font-semibold mb-2">Summary</h2>
           <p className="font-semibold">Total: {formatEuro(total)}</p>
         </div>
-        <button type="submit" className="button">
-          Create Quote
-        </button>
+        <div className="flex gap-2">
+          <button type="submit" className="button">Create Quote</button>
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="button-secondary"
+          >
+            Cancel
+          </button>
+        </div>
       </form>
     </OfficeLayout>
   );
