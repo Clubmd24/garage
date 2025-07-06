@@ -38,6 +38,7 @@ const VehiclesPage = () => {
       v.licence_plate.toLowerCase().includes(q) ||
       (v.make || '').toLowerCase().includes(q) ||
       (v.model || '').toLowerCase().includes(q) ||
+      (v.vin_number || '').toLowerCase().includes(q) ||
       (v.customer_name || '').toLowerCase().includes(q)
     );
   });
@@ -83,6 +84,7 @@ const VehiclesPage = () => {
                   {v.make} {v.model}
                 </p>
                 <p className="text-sm text-black dark:text-white">{v.color}</p>
+                <p className="text-sm text-black dark:text-white">VIN: {v.vin_number}</p>
                 <p className="text-sm text-black dark:text-white">{v.customer_name}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Link href={`/office/vehicles/view/${v.id}`} className="button px-4 text-sm">
