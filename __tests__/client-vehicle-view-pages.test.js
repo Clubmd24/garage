@@ -26,7 +26,7 @@ test('client view page lists quotes', async () => {
   render(<Page />);
 
   const quoteLink = await screen.findByRole('link', { name: 'Quote #2 - new' });
-  expect(quoteLink).toHaveAttribute('href', '/office/quotations/2');
+  expect(quoteLink).toHaveAttribute('href', '/office/quotations/2/edit');
 });
 
 
@@ -46,5 +46,5 @@ test('vehicle view page lists quotes', async () => {
   render(<Page />);
 
   const vehicleQuoteLink = await screen.findByRole('link', { name: 'Quote #3 - sent' });
-  expect(vehicleQuoteLink).toHaveAttribute('href', '/office/quotations/3');
+  expect(vehicleQuoteLink).toHaveAttribute('href', '/office/quotations/3/edit');
 });

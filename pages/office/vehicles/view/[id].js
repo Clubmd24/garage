@@ -117,7 +117,7 @@ export default function VehicleViewPage() {
             <ul className="list-disc pl-5 space-y-1">
               {quotes.map(q => (
                 <li key={q.id}>
-                  <Link href={`/office/quotations/${q.id}`}>
+                  <Link href={`/office/quotations/${q.id}/edit`}>
                     <a className="underline">Quote #{q.id} - {q.status}</a>
                   </Link>
                 </li>
