@@ -120,7 +120,11 @@ export default function ClientViewPage() {
           ) : (
             <ul className="list-disc pl-5 space-y-1">
               {quotes.map(q => (
-                <li key={q.id}>Quote #{q.id} - {q.status}</li>
+                <li key={q.id}>
+                  <Link href={`/office/quotations/${q.id}`}>
+                    <a className="underline">Quote #{q.id} - {q.status}</a>
+                  </Link>
+                </li>
               ))}
             </ul>
           )}

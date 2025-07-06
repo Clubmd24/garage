@@ -25,7 +25,8 @@ test('client view page lists quotes', async () => {
   const { default: Page } = await import('../pages/office/clients/view/[id].js');
   render(<Page />);
 
-  await screen.findByText('Quote #2 - new');
+  const quoteLink = await screen.findByRole('link', { name: 'Quote #2 - new' });
+  expect(quoteLink).toHaveAttribute('href', '/office/quotations/2');
 });
 
 
@@ -44,5 +45,6 @@ test('vehicle view page lists quotes', async () => {
   const { default: Page } = await import('../pages/office/vehicles/view/[id].js');
   render(<Page />);
 
-  await screen.findByText('Quote #3 - sent');
+  const vehicleQuoteLink = await screen.findByRole('link', { name: 'Quote #3 - sent' });
+  expect(vehicleQuoteLink).toHaveAttribute('href', '/office/quotations/3');
 });
