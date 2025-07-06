@@ -239,7 +239,7 @@ export default function EditQuotationPage() {
     <OfficeLayout>
       <h1 className="text-2xl font-semibold mb-4">Edit Quote</h1>
       {error && <p className="text-red-500">{error}</p>}
-      <form onSubmit={submit} className="space-y-4 mb-8 max-w-lg">
+      <form onSubmit={submit} className="space-y-4 mb-8 max-w-4xl">
         <div className="mb-2 flex gap-2">
           <button
             type="button"
@@ -339,9 +339,9 @@ export default function EditQuotationPage() {
         </div>
         <div>
           <h2 className="font-semibold mb-2">Item Details</h2>
-          <div className="grid grid-cols-7 gap-2 mb-2 font-semibold text-sm">
+          <div className="grid grid-cols-10 gap-2 mb-2 font-semibold text-sm">
             <div>Part #</div>
-            <div className="col-span-2">Description</div>
+            <div className="col-span-4">Description</div>
             <div>Qty</div>
             <div>Unit Cost</div>
             <div>Markup %</div>
@@ -349,7 +349,7 @@ export default function EditQuotationPage() {
             <div>Line Price</div>
           </div>
           {items.map((it, i) => (
-            <div key={i} className="grid grid-cols-7 gap-2 mb-2">
+            <div key={i} className="grid grid-cols-10 gap-2 mb-2">
               <PartAutocomplete
                 value={it.part_number}
                 onChange={v => changeItem(i, 'part_number', v)}
@@ -361,7 +361,7 @@ export default function EditQuotationPage() {
                 }}
               />
               <input
-                className="input w-full col-span-2"
+                className="input w-full col-span-4"
                 placeholder="Description"
                 value={it.description}
                 onChange={e => changeItem(i, 'description', e.target.value)}
