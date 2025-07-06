@@ -23,7 +23,7 @@ test('quote pdf endpoint returns PDF', async () => {
   jest.unstable_mockModule('../services/quoteItemsService.js', () => ({
     getQuoteItems: jest.fn().mockResolvedValue([])
   }));
-  jest.unstable_mockModule('../lib/pdf.js', () => ({
+  jest.unstable_mockModule('../lib/pdf/buildQuotePdf.js', () => ({
     buildQuotePdf: buildMock
   }));
   jest.unstable_mockModule('../lib/db.js', () => ({
