@@ -24,16 +24,34 @@ export async function sendQuoteEmail(quoteId, to) {
   const transporter = createTransport(settings);
   const quote = await getQuoteById(quoteId);
   const company = await getSettings();
-  const garage = company;
-  const clientInfo = quote.customer_id ? await getClientById(quote.customer_id) : {};
+  const garage = {
+    name: company?.company_name,
+    logo: company?.logo_url,
+    address: company?.address,
+    phone: company?.phone,
+    email: company?.email,
+  };
+  const rawClient = quote.customer_id ? await getClientById(quote.customer_id) : {};
+  const clientInfo = rawClient.id
+    ? {
+        name: `${rawClient.first_name} ${rawClient.last_name}`.trim(),
+        phone: rawClient.mobile || rawClient.landline,
+        email: rawClient.email,
+        address: rawClient.street_address,
+        city: rawClient.town,
+        postcode: rawClient.post_code,
+      }
+    : {};
   const itemList = await getQuoteItems(quoteId);
   const pdf = await buildQuotePdf({
     quoteNumber: quote.id,
+    title: 'QUOTE',
     garage,
     client: clientInfo,
     vehicle: {},
     items: itemList,
-    terms: quote.terms || company.terms || ''
+    defect_description: quote.defect_description,
+    terms: quote.terms || company.terms || '',
   });
   const recipient = to || clientInfo.email || clientInfo.email_1 || clientInfo.email_2;
   await transporter.sendMail({
