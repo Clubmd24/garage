@@ -40,7 +40,7 @@
   @apply inline-flex items-center bg-[var(--color-accent)] text-white rounded-full py-3 shadow-xl hover:brightness-110 transition;
 }
 .button-secondary {
-  @apply bg-gray-300 text-[var(--color-text-primary)] rounded-full py-3 shadow-xl hover:bg-gray-400 transition;
+  @apply bg-gray-300 text-[var(--color-text-primary)] rounded-full py-3 shadow-xl hover:bg-gray-400 transition dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500;
 }
 
 .item-card {
