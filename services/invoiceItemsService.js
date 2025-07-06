@@ -5,5 +5,9 @@ export async function getInvoiceItems(invoice_id) {
     'SELECT id, invoice_id, description, qty, unit_price FROM invoice_items WHERE invoice_id=?',
     [invoice_id]
   );
-  return rows;
+  return rows.map(row => ({
+    ...row,
+    qty: row.qty == null ? null : Number(row.qty),
+    unit_price: row.unit_price == null ? null : Number(row.unit_price),
+  }));
 }
