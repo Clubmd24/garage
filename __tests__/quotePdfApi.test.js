@@ -6,7 +6,14 @@ afterEach(() => {
 });
 
 test('quote pdf endpoint returns PDF', async () => {
-  const quote = { id: 1, customer_id: 2, job_id: null, total_amount: 10 };
+  const quote = {
+    id: 1,
+    customer_id: 2,
+    vehicle_id: 3,
+    fleet_vehicle_id: 'FV1',
+    job_id: null,
+    total_amount: 10,
+  };
   const buildMock = jest.fn().mockResolvedValue(Buffer.from('PDF'));
   jest.unstable_mockModule('../services/quotesService.js', () => ({
     getQuoteById: jest.fn().mockResolvedValue(quote),
@@ -33,7 +40,11 @@ test('quote pdf endpoint returns PDF', async () => {
   const req = { method: 'GET', query: { id: '1' }, headers: {} };
   const res = { setHeader: jest.fn(), status: jest.fn().mockReturnThis(), send: jest.fn(), json: jest.fn(), end: jest.fn() };
   await handler(req, res);
-  expect(buildMock).toHaveBeenCalled();
+  expect(buildMock).toHaveBeenCalledWith(
+    expect.objectContaining({
+      vehicle: expect.objectContaining({ id: 'FV1' })
+    })
+  );
   expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'application/pdf');
   expect(res.send).toHaveBeenCalledWith(Buffer.from('PDF'));
 });

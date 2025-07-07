@@ -18,7 +18,9 @@ export default async function handler(req, res) {
     if (!quote) throw new Error(`Quote ${id} not found`);
     const client = await getClientById(quote.customer_id);
     if (!client) throw new Error(`Client ${quote.customer_id} not found`);
-    const vehicle = await getVehicleById(quote.vehicle_id);
+    let vehicle = await getVehicleById(quote.vehicle_id);
+    vehicle = vehicle || {};
+    vehicle.vehicle_id = quote.fleet_vehicle_id;
     const items = await getQuoteItems(id);
 
     // Build payload
@@ -45,7 +47,7 @@ export default async function handler(req, res) {
         model: vehicle.model,
         color: vehicle.color,
         vin_number: vehicle.vin_number,
-        id: vehicle.id
+        id: vehicle.vehicle_id
       },
       items: items.map(it => ({
         partNumber:  it.partNumber,
