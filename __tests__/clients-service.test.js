@@ -88,6 +88,7 @@ test('updateClient hashes password when provided', async () => {
   expect(hashMock).toHaveBeenCalledWith('newpw');
   expect(hashedArg).toBe('newpw');
   expect(queryMock.mock.calls[0][0]).toMatch(/password_hash/);
+  expect(queryMock.mock.calls[0][0]).toMatch(/must_change_password=0/);
   expect(queryMock.mock.calls[0][1]).toContain('HASHED');
 });
 
@@ -108,7 +109,7 @@ test('resetClientPassword updates hash and returns password', async () => {
   expect(password).toBe('bmV3cGFzcw');
   expect(hashMock).toHaveBeenCalledWith('bmV3cGFzcw');
   expect(queryMock).toHaveBeenCalledWith(
-    'UPDATE clients SET password_hash=? WHERE id=?',
+    'UPDATE clients SET password_hash=?, must_change_password=1 WHERE id=?',
     ['HASH', 3]
   );
 });

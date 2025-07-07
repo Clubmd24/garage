@@ -6,7 +6,7 @@ afterEach(() => {
 });
 
 test('client login succeeds with valid credentials', async () => {
-  const queryMock = jest.fn().mockResolvedValue([[{ id: 1, password_hash: 'hash' }]]);
+  const queryMock = jest.fn().mockResolvedValue([[{ id: 1, password_hash: 'hash', must_change_password: 1 }]]);
   const verifyMock = jest.fn().mockResolvedValue(true);
   const signMock = jest.fn().mockReturnValue('tok');
   jest.unstable_mockModule('../lib/db.js', () => ({
@@ -21,7 +21,7 @@ test('client login succeeds with valid credentials', async () => {
   const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn() };
   await handler(req, res);
   expect(queryMock).toHaveBeenCalledWith(
-    `SELECT c.id, c.password_hash
+    `SELECT c.id, c.password_hash, c.must_change_password
        FROM clients c
        JOIN vehicles v ON v.customer_id = c.id
       WHERE c.garage_name=? AND v.licence_plate=?
@@ -32,11 +32,11 @@ test('client login succeeds with valid credentials', async () => {
   expect(signMock).toHaveBeenCalledWith({ client_id: 1 });
   expect(res.setHeader).toHaveBeenCalledWith('Set-Cookie', expect.stringContaining('local_token=tok'));
   expect(res.status).toHaveBeenCalledWith(200);
-  expect(res.json).toHaveBeenCalledWith({ ok: true });
+  expect(res.json).toHaveBeenCalledWith({ ok: true, must_change_password: true });
 });
 
 test('client login fails with wrong password', async () => {
-  const queryMock = jest.fn().mockResolvedValue([[{ id: 2, password_hash: 'hash' }]]);
+  const queryMock = jest.fn().mockResolvedValue([[{ id: 2, password_hash: 'hash', must_change_password: 0 }]]);
   const verifyMock = jest.fn().mockResolvedValue(false);
   const signMock = jest.fn();
   jest.unstable_mockModule('../lib/db.js', () => ({
@@ -51,7 +51,7 @@ test('client login fails with wrong password', async () => {
   const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn() };
   await handler(req, res);
   expect(queryMock).toHaveBeenCalledWith(
-    `SELECT c.id, c.password_hash
+    `SELECT c.id, c.password_hash, c.must_change_password
        FROM clients c
        JOIN vehicles v ON v.customer_id = c.id
       WHERE c.garage_name=? AND v.licence_plate=?
