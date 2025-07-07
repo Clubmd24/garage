@@ -77,8 +77,9 @@ export async function createClient({
     `INSERT INTO clients
       (first_name, last_name, email, mobile, landline, nie_number,
        street_address, town, province, post_code,
-       garage_name, vehicle_reg, password_hash, pin_hash, pin)
-     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+       garage_name, vehicle_reg, password_hash, pin_hash, pin,
+       must_change_password)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
     [
       first_name,
       last_name,
@@ -95,6 +96,7 @@ export async function createClient({
       password_hash,
       pin_hash,
       pin,
+      0,
     ]
   );
   return {
@@ -167,7 +169,7 @@ export async function updateClient(
   ];
   if (password) {
     const password_hash = await hashPassword(password);
-    sql += ', password_hash=?';
+    sql += ', password_hash=?, must_change_password=0';
     params.push(password_hash);
   }
   sql += ' WHERE id=?';
@@ -184,7 +186,10 @@ export async function deleteClient(id) {
 export async function resetClientPassword(id) {
   const password = randomBytes(12).toString('base64url');
   const password_hash = await hashPassword(password);
-  await pool.query('UPDATE clients SET password_hash=? WHERE id=?', [password_hash, id]);
+  await pool.query(
+    'UPDATE clients SET password_hash=?, must_change_password=1 WHERE id=?',
+    [password_hash, id]
+  );
   return password;
 }
 
