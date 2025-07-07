@@ -113,3 +113,44 @@ test('resetClientPassword updates hash and returns password', async () => {
   );
 });
 
+
+test('createClient defaults garage_name from company settings', async () => {
+  const queryMock = jest.fn().mockResolvedValue([{ insertId: 3 }]);
+  jest.unstable_mockModule('../lib/db.js', () => ({
+    default: { query: queryMock },
+  }));
+  const hashMock = jest.fn(async () => 'HASH');
+  jest.unstable_mockModule('../lib/auth.js', () => ({
+    hashPassword: hashMock,
+  }));
+  const settingsMock = jest.fn().mockResolvedValue({ company_name: 'GarageCo' });
+  jest.unstable_mockModule('../services/companySettingsService.js', () => ({
+    getSettings: settingsMock,
+  }));
+  jest.spyOn(Math, 'random').mockReturnValue(0.5);
+  const { createClient } = await import('../services/clientsService.js');
+  const res = await createClient({ first_name: 'C', password: 'pw' });
+  expect(settingsMock).toHaveBeenCalled();
+  expect(res.garage_name).toBe('GarageCo');
+  expect(queryMock.mock.calls[0][1][10]).toBe('GarageCo');
+  Math.random.mockRestore();
+});
+
+test('updateClient defaults garage_name from company settings', async () => {
+  const queryMock = jest.fn().mockResolvedValue([]);
+  jest.unstable_mockModule('../lib/db.js', () => ({
+    default: { query: queryMock },
+  }));
+  const hashMock = jest.fn();
+  jest.unstable_mockModule('../lib/auth.js', () => ({
+    hashPassword: hashMock,
+  }));
+  const settingsMock = jest.fn().mockResolvedValue({ company_name: 'GarageCo' });
+  jest.unstable_mockModule('../services/companySettingsService.js', () => ({
+    getSettings: settingsMock,
+  }));
+  const { updateClient } = await import('../services/clientsService.js');
+  await updateClient(4, { first_name: 'D' });
+  expect(settingsMock).toHaveBeenCalled();
+  expect(queryMock.mock.calls[0][1][3]).toBe('GarageCo');
+});
