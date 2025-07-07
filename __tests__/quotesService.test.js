@@ -31,7 +31,10 @@ test('getQuoteById fetches single quote', async () => {
 });
 
 test('createQuote inserts quote', async () => {
-  const queryMock = jest.fn().mockResolvedValue([{ insertId: 3 }]);
+  const queryMock = jest
+    .fn()
+    .mockResolvedValueOnce([[{ company_vehicle_id: 'F1' }]])
+    .mockResolvedValueOnce([{ insertId: 3 }]);
   jest.unstable_mockModule('../lib/db.js', () => ({
     default: { query: queryMock },
   }));
@@ -48,15 +51,24 @@ test('createQuote inserts quote', async () => {
     status: 'new',
   };
   const result = await createQuote(data);
-  expect(queryMock).toHaveBeenCalledWith(
-    expect.stringMatching(/INSERT INTO quotes/),
-    [1, 2, 3, 4, 'ref', 'PO123', 'd', 50, 'new', null]
+  expect(queryMock).toHaveBeenNthCalledWith(
+    1,
+    expect.stringMatching(/SELECT company_vehicle_id/),
+    [4]
   );
-  expect(result).toEqual({ id: 3, ...data });
+  expect(queryMock).toHaveBeenNthCalledWith(
+    2,
+    expect.stringMatching(/INSERT INTO quotes/),
+    [1, 2, 3, 4, 'F1', 'ref', 'PO123', 'd', 50, 'new', null]
+  );
+  expect(result).toEqual({ id: 3, ...data, fleet_vehicle_id: 'F1' });
 });
 
 test('updateQuote updates row', async () => {
-  const queryMock = jest.fn().mockResolvedValue([]);
+  const queryMock = jest
+    .fn()
+    .mockResolvedValueOnce([[{ company_vehicle_id: 'F2' }]])
+    .mockResolvedValueOnce([]);
   jest.unstable_mockModule('../lib/db.js', () => ({
     default: { query: queryMock },
   }));
@@ -73,9 +85,15 @@ test('updateQuote updates row', async () => {
     status: 'sent',
   };
   const result = await updateQuote(9, data);
-  expect(queryMock).toHaveBeenCalledWith(
+  expect(queryMock).toHaveBeenNthCalledWith(
+    1,
+    expect.stringMatching(/SELECT company_vehicle_id/),
+    [7]
+  );
+  expect(queryMock).toHaveBeenNthCalledWith(
+    2,
     expect.stringMatching(/UPDATE quotes/),
-    [4, 5, 6, 7, 'r', 'PO', 'dd', 8, 'sent', null, 9]
+    [4, 5, 6, 7, 'F2', 'r', 'PO', 'dd', 8, 'sent', null, 9]
   );
   expect(result).toEqual({ ok: true });
 });
