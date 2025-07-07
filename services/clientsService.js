@@ -172,6 +172,13 @@ export async function deleteClient(id) {
   return { ok: true };
 }
 
+export async function resetClientPassword(id) {
+  const password = randomBytes(12).toString('base64url');
+  const password_hash = await hashPassword(password);
+  await pool.query('UPDATE clients SET password_hash=? WHERE id=?', [password_hash, id]);
+  return password;
+}
+
 export async function getClientsWithVehicles() {
   const [rows] = await pool.query(
     `SELECT c.id AS client_id, c.first_name, c.last_name, c.email, c.mobile,
