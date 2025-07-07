@@ -11,6 +11,7 @@ export default function Landing() {
         <nav className="space-x-6 text-sm">
           <a href="/login" className="hover:underline">Garage Login</a>
           <a href="/local/login" className="hover:underline">Car Owner Login</a>
+          <a href="/fleet/login" className="hover:underline">Company Login</a>
         </nav>
       </header>
 
@@ -27,6 +28,7 @@ export default function Landing() {
             <div className="flex flex-wrap gap-4">
               <a href="/login" className="button-accent px-6">Garage Login</a>
               <a href="/local/login" className="button px-6">Car Owner Login</a>
+              <a href="/fleet/login" className="button px-6">Company Login</a>
             </div>
           </div>
           <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center">
