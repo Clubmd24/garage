@@ -109,6 +109,17 @@ export default function LocalVehicleDetails() {
               {q.status !== 'rejected' && (
                 <button onClick={() => rejectQuote(q.id)} className="ml-2 underline">Reject</button>
               )}
+              <a
+                href={`/api/quotes/${q.id}/pdf`}
+                target="_blank"
+                rel="noopener"
+                className="ml-2 underline"
+              >
+                View PDF
+              </a>
+              <a href={`/api/quotes/${q.id}/pdf`} download className="ml-2 underline">
+                Download PDF
+              </a>
             </li>
           ))}
         </ul>
