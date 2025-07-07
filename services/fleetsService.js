@@ -1,4 +1,5 @@
 import pool from '../lib/db.js';
+import { getSettings } from './companySettingsService.js';
 
 export async function getAllFleets() {
   const [rows] = await pool.query(
@@ -37,6 +38,10 @@ export async function createFleet({
   contact_name_1,
   contact_name_2,
 }) {
+  if (!garage_name) {
+    const settings = await getSettings();
+    garage_name = settings?.company_name || garage_name;
+  }
   const pin = String(Math.floor(1000 + Math.random() * 9000));
   const { hashPassword } = await import('../lib/auth.js');
   const pin_hash = await hashPassword(pin);
@@ -103,6 +108,10 @@ export async function updateFleet(
     contact_name_2,
   }
 ) {
+  if (!garage_name) {
+    const settings = await getSettings();
+    garage_name = settings?.company_name || garage_name;
+  }
   await pool.query(
     `UPDATE fleets SET
        company_name=?,
