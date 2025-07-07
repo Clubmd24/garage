@@ -1,6 +1,7 @@
 import pool from '../lib/db.js';
 import { hashPassword } from '../lib/auth.js';
 import { randomBytes } from 'crypto';
+import { getSettings } from './companySettingsService.js';
 
 export async function searchClients(query) {
   const q = `%${query}%`;
@@ -62,6 +63,10 @@ export async function createClient({
   post_code,
   password,
 }) {
+  if (!garage_name) {
+    const settings = await getSettings();
+    garage_name = settings?.company_name || garage_name;
+  }
   if (!password) {
     password = randomBytes(12).toString('base64url');
   }
@@ -129,6 +134,10 @@ export async function updateClient(
     password,
   }
 ) {
+  if (!garage_name) {
+    const settings = await getSettings();
+    garage_name = settings?.company_name || garage_name;
+  }
   let sql = `UPDATE clients SET
        first_name=?,
        last_name=?,
