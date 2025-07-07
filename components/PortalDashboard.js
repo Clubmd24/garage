@@ -132,6 +132,21 @@ export function PortalDashboard({
                     Accept
                   </button>
                 )}
+                <a
+                  href={`/api/quotes/${q.id}/pdf`}
+                  target="_blank"
+                  rel="noopener"
+                  className="ml-2 underline"
+                >
+                  View PDF
+                </a>
+                <a
+                  href={`/api/quotes/${q.id}/pdf`}
+                  download
+                  className="ml-2 underline"
+                >
+                  Download PDF
+                </a>
               </li>
             );
           })}
