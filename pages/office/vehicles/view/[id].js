@@ -13,6 +13,7 @@ export default function VehicleViewPage() {
   const [documents, setDocuments] = useState([]);
   const [fleet, setFleet] = useState(null);
   const [quotes, setQuotes] = useState([]);
+  const [mileage, setMileage] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -38,6 +39,8 @@ export default function VehicleViewPage() {
         setDocuments(docs);
         const qs = await fetch(`/api/quotes?vehicle_id=${id}`).then(r => r.json());
         setQuotes(qs);
+        const ms = await fetch(`/api/vehicle-mileage?vehicle_id=${id}`).then(r => r.json());
+        setMileage(ms);
       } catch (err) {
         setError('Failed to load');
       } finally {
@@ -94,6 +97,29 @@ export default function VehicleViewPage() {
           <p><strong>Service Date:</strong> {vehicle.service_date || 'N/A'}</p>
           <p><strong>ITV Date:</strong> {vehicle.itv_date || 'N/A'}</p>
           <p><strong>Fleet:</strong> {fleet ? fleet.company_name : (vehicle.fleet_id || 'N/A')}</p>
+        </Card>
+        <Card>
+          <h2 className="text-xl font-semibold mb-4">Mileage History</h2>
+          {mileage.length === 0 ? (
+            <p>No entries</p>
+          ) : (
+            <table className="min-w-full bg-white border text-black">
+              <thead>
+                <tr>
+                  <th className="px-2 py-1 border">Date</th>
+                  <th className="px-2 py-1 border">Mileage</th>
+                </tr>
+              </thead>
+              <tbody>
+                {mileage.map(m => (
+                  <tr key={m.id}>
+                    <td className="px-2 py-1 border">{new Date(m.recorded_at).toLocaleDateString()}</td>
+                    <td className="px-2 py-1 border">{m.mileage}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </Card>
         <Card>
           <h2 className="text-xl font-semibold mb-4">Documents</h2>

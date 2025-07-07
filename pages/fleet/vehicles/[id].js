@@ -13,6 +13,7 @@ export default function FleetVehicleDetails() {
   const [quotes, setQuotes] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [invoices, setInvoices] = useState([]);
+  const [mileage, setMileage] = useState([]);
 
   useEffect(() => {
     if (!id) return;
@@ -21,16 +22,18 @@ export default function FleetVehicleDetails() {
       if (!res.ok) return router.replace('/fleet/login');
       const f = await res.json();
       setFleet(f);
-      const [v, qAll, jAll, iAll] = await Promise.all([
+      const [v, qAll, jAll, iAll, mAll] = await Promise.all([
         fetch(`/api/vehicles/${id}`).then(r => r.json()),
         fetch(`/api/quotes?fleet_id=${f.id}`).then(r => r.json()),
         fetchJobs({ fleet_id: f.id }),
         fetch(`/api/invoices?fleet_id=${f.id}`).then(r => r.json()),
+        fetch(`/api/vehicle-mileage?vehicle_id=${id}`).then(r => r.json()),
       ]);
       setVehicle(v);
       setQuotes(qAll.filter(q => q.vehicle_id == id));
       setJobs(jAll.filter(j => j.vehicle_id == id));
       setInvoices(iAll.filter(inv => inv.vehicle_id == id));
+      setMileage(mAll);
     })();
   }, [id, router]);
 
@@ -71,6 +74,29 @@ export default function FleetVehicleDetails() {
         <p><strong>Service Date:</strong> {vehicle.service_date || 'N/A'}</p>
         <p><strong>ITV Date:</strong> {vehicle.itv_date || 'N/A'}</p>
       </div>
+      <section className="mb-6">
+        <h2 className="text-xl font-semibold mb-2">Mileage History</h2>
+        {mileage.length === 0 ? (
+          <p>No entries</p>
+        ) : (
+          <table className="min-w-full bg-white border text-black">
+            <thead>
+              <tr>
+                <th className="px-2 py-1 border">Date</th>
+                <th className="px-2 py-1 border">Mileage</th>
+              </tr>
+            </thead>
+            <tbody>
+              {mileage.map(m => (
+                <tr key={m.id}>
+                  <td className="px-2 py-1 border">{new Date(m.recorded_at).toLocaleDateString()}</td>
+                  <td className="px-2 py-1 border">{m.mileage}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </section>
       <section className="mb-6">
         <h2 className="text-xl font-semibold mb-2">Quotes</h2>
         <ul className="list-disc ml-6 space-y-1">

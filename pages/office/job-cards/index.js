@@ -36,8 +36,16 @@ const JobCardsPage = () => {
       .catch(() => setVehicles([]));
   }, []);
 
-  const completeJob = async id => {
-    await updateQuote(id, { status: 'completed' });
+  const completeJob = async job => {
+    const mileageStr = prompt('Current mileage');
+    const mileage = Number.parseInt(mileageStr, 10);
+    if (!Number.isFinite(mileage)) return;
+    await fetch('/api/vehicle-mileage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ vehicle_id: job.vehicle_id, mileage }),
+    });
+    await updateQuote(job.id, { status: 'completed' });
     load();
   };
 
@@ -112,7 +120,7 @@ const JobCardsPage = () => {
               <div className="mt-3 flex flex-wrap gap-2">
                 {j.status === 'job-card' && (
                   <button
-                    onClick={() => completeJob(j.id)}
+                    onClick={() => completeJob(j)}
                     className="button px-4 text-sm"
                   >
                     Mark Completed

@@ -48,3 +48,23 @@ test('vehicle view page lists quotes', async () => {
   const vehicleQuoteLink = await screen.findByRole('link', { name: 'Quote #3 - sent' });
   expect(vehicleQuoteLink).toHaveAttribute('href', '/office/quotations/3/edit');
 });
+
+test('vehicle view page shows mileage history', async () => {
+  jest.unstable_mockModule('next/router', () => ({
+    useRouter: () => ({ query: { id: '6' } })
+  }));
+
+  global.fetch = jest
+    .fn()
+    .mockResolvedValueOnce({ ok: true, json: async () => ({ id: 6 }) }) // vehicle
+    .mockResolvedValueOnce({ ok: true, json: async () => null }) // client
+    .mockResolvedValueOnce({ ok: true, json: async () => [] }) // documents
+    .mockResolvedValueOnce({ ok: true, json: async () => [] }) // quotes
+    .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 1, mileage: 100, recorded_at: '2024-01-01' }] }); // mileage
+
+  const { default: Page } = await import('../pages/office/vehicles/view/[id].js');
+  render(<Page />);
+
+  await screen.findByText('Mileage History');
+  expect(screen.getByText('100')).toBeInTheDocument();
+});
