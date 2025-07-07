@@ -68,6 +68,8 @@ export default function FleetVehicleDetails() {
         <p><strong>Make:</strong> {vehicle.make}</p>
         <p><strong>Model:</strong> {vehicle.model}</p>
         <p><strong>Color:</strong> {vehicle.color}</p>
+        <p><strong>Service Date:</strong> {vehicle.service_date || 'N/A'}</p>
+        <p><strong>ITV Date:</strong> {vehicle.itv_date || 'N/A'}</p>
       </div>
       <section className="mb-6">
         <h2 className="text-xl font-semibold mb-2">Quotes</h2>
