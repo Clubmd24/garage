@@ -21,7 +21,11 @@ test('client login succeeds with valid credentials', async () => {
   const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn() };
   await handler(req, res);
   expect(queryMock).toHaveBeenCalledWith(
-    'SELECT id, password_hash FROM clients WHERE garage_name=? AND vehicle_reg=?',
+    `SELECT c.id, c.password_hash
+       FROM clients c
+       JOIN vehicles v ON v.customer_id = c.id
+      WHERE c.garage_name=? AND v.licence_plate=?
+      LIMIT 1`,
     ['G1', 'REG']
   );
   expect(verifyMock).toHaveBeenCalledWith('pw', 'hash');
@@ -47,7 +51,11 @@ test('client login fails with wrong password', async () => {
   const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn() };
   await handler(req, res);
   expect(queryMock).toHaveBeenCalledWith(
-    'SELECT id, password_hash FROM clients WHERE garage_name=? AND vehicle_reg=?',
+    `SELECT c.id, c.password_hash
+       FROM clients c
+       JOIN vehicles v ON v.customer_id = c.id
+      WHERE c.garage_name=? AND v.licence_plate=?
+      LIMIT 1`,
     ['G1', 'REG']
   );
   expect(verifyMock).toHaveBeenCalledWith('bad', 'hash');
