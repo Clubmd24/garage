@@ -40,7 +40,7 @@ export default function FleetLogin() {
         {error && <p className="text-red-300">{error}</p>}
         <input
           type="text"
-          placeholder="Select Garage"
+          placeholder="Name of your garage"
           className="input w-full"
           value={garage}
           onChange={e => setGarage(e.target.value)}
