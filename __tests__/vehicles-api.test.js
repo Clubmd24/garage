@@ -8,7 +8,7 @@ afterEach(() => {
 // GET /vehicles success
 
 test('vehicles index returns list of vehicles', async () => {
-  const vehicles = [{ id: 1, licence_plate: 'ABC' }];
+  const vehicles = [{ id: 1, licence_plate: 'ABC', service_date: '2024-01-01', itv_date: '2024-06-01' }];
   const getAllMock = jest.fn().mockResolvedValue(vehicles);
   jest.unstable_mockModule('../services/vehiclesService.js', () => ({
     getAllVehicles: getAllMock,
@@ -24,14 +24,14 @@ test('vehicles index returns list of vehicles', async () => {
 });
 
 test('vehicles index creates vehicle', async () => {
-  const newVehicle = { id: 2, licence_plate: 'XYZ' };
+  const newVehicle = { id: 2, licence_plate: 'XYZ', service_date: '2024-01-01', itv_date: '2024-06-01' };
   const createMock = jest.fn().mockResolvedValue(newVehicle);
   jest.unstable_mockModule('../services/vehiclesService.js', () => ({
     getAllVehicles: jest.fn(),
     createVehicle: createMock,
   }));
   const { default: handler } = await import('../pages/api/vehicles/index.js');
-  const req = { method: 'POST', body: { licence_plate: 'XYZ' }, headers: {} };
+  const req = { method: 'POST', body: { licence_plate: 'XYZ', service_date: '2024-01-01', itv_date: '2024-06-01' }, headers: {} };
   const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn(), end: jest.fn() };
   await handler(req, res);
   expect(res.status).toHaveBeenCalledWith(201);
@@ -71,7 +71,7 @@ test('vehicles index handles errors', async () => {
 });
 
 test('vehicle detail returns vehicle by id', async () => {
-  const vehicle = { id: 1, licence_plate: 'AAA' };
+  const vehicle = { id: 1, licence_plate: 'AAA', service_date: '2024-01-01', itv_date: '2024-06-01' };
   const getMock = jest.fn().mockResolvedValue(vehicle);
   jest.unstable_mockModule('../services/vehiclesService.js', () => ({
     getVehicleById: getMock,

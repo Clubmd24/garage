@@ -12,6 +12,8 @@ export default function FleetNewVehicle() {
     model: '',
     color: '',
     company_vehicle_id: '',
+    service_date: '',
+    itv_date: '',
   });
 
   useEffect(() => {
@@ -36,7 +38,7 @@ export default function FleetNewVehicle() {
     });
     if (res.ok) {
       setMessage('Vehicle added');
-      setForm({ licence_plate: '', make: '', model: '', color: '', company_vehicle_id: '' });
+      setForm({ licence_plate: '', make: '', model: '', color: '', company_vehicle_id: '', service_date: '', itv_date: '' });
     }
   }
 
@@ -58,12 +60,13 @@ export default function FleetNewVehicle() {
       </div>
       {message && <p className="text-green-600 mb-2">{message}</p>}
       <form onSubmit={submit} className="space-y-4 max-w-sm">
-        {['licence_plate','make','model','color','company_vehicle_id'].map(field => (
+        {['licence_plate','make','model','color','company_vehicle_id','service_date','itv_date'].map(field => (
           <input
             key={field}
             name={field}
             value={form[field]}
             onChange={change}
+            type={field.includes('date') ? 'date' : 'text'}
             placeholder={field.replace('_',' ')}
             className="input w-full"
           />

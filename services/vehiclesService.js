@@ -3,6 +3,7 @@ import pool from '../lib/db.js';
 export async function getAllVehicles(customer_id, fleet_id) {
   const base = `SELECT v.id, v.licence_plate, v.make, v.model, v.color,
                        v.vin_number, v.company_vehicle_id, v.customer_id, v.fleet_id,
+                       v.service_date, v.itv_date,
                        CONCAT(c.first_name, ' ', c.last_name) AS customer_name
                   FROM vehicles v
              LEFT JOIN clients c ON v.customer_id=c.id`;
@@ -16,7 +17,7 @@ export async function getAllVehicles(customer_id, fleet_id) {
 
 export async function getVehicleById(id) {
   const [[row]] = await pool.query(
-    `SELECT id, licence_plate, make, model, color, vin_number, company_vehicle_id, customer_id, fleet_id FROM vehicles WHERE id=?`,
+    `SELECT id, licence_plate, make, model, color, vin_number, company_vehicle_id, customer_id, fleet_id, service_date, itv_date FROM vehicles WHERE id=?`,
     [id],
   );
   return row || null;
@@ -31,12 +32,15 @@ export async function createVehicle({
   company_vehicle_id,
   customer_id,
   fleet_id,
+  service_date,
+  itv_date,
 }) {
   const [{ insertId }] = await pool.query(
     `INSERT INTO vehicles (
        licence_plate, make, model, color, vin_number,
-       company_vehicle_id, customer_id, fleet_id
-     ) VALUES (?,?,?,?,?,?,?,?)`,
+       company_vehicle_id, customer_id, fleet_id,
+       service_date, itv_date
+     ) VALUES (?,?,?,?,?,?,?,?,?,?)`,
     [
       licence_plate,
       make,
@@ -46,6 +50,8 @@ export async function createVehicle({
       company_vehicle_id || null,
       customer_id || null,
       fleet_id || null,
+      service_date || null,
+      itv_date || null,
     ],
   );
   return {
@@ -58,15 +64,17 @@ export async function createVehicle({
     company_vehicle_id,
     customer_id,
     fleet_id,
+    service_date,
+    itv_date,
   };
 }
 
 export async function updateVehicle(
   id,
-  { licence_plate, make, model, color, vin_number, company_vehicle_id, customer_id, fleet_id }
+  { licence_plate, make, model, color, vin_number, company_vehicle_id, customer_id, fleet_id, service_date, itv_date }
 ) {
   await pool.query(
-    `UPDATE vehicles SET licence_plate=?, make=?, model=?, color=?, vin_number=?, company_vehicle_id=?, customer_id=?, fleet_id=? WHERE id=?`,
+    `UPDATE vehicles SET licence_plate=?, make=?, model=?, color=?, vin_number=?, company_vehicle_id=?, customer_id=?, fleet_id=?, service_date=?, itv_date=? WHERE id=?`,
     [
       licence_plate,
       make,
@@ -76,6 +84,8 @@ export async function updateVehicle(
       company_vehicle_id || null,
       customer_id || null,
       fleet_id || null,
+      service_date || null,
+      itv_date || null,
       id,
     ],
   );

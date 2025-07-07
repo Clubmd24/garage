@@ -91,6 +91,8 @@ export default function VehicleViewPage() {
           <p><strong>Model:</strong> {vehicle.model}</p>
           <p><strong>Color:</strong> {vehicle.color}</p>
           <p><strong>VIN:</strong> {vehicle.vin_number}</p>
+          <p><strong>Service Date:</strong> {vehicle.service_date || 'N/A'}</p>
+          <p><strong>ITV Date:</strong> {vehicle.itv_date || 'N/A'}</p>
           <p><strong>Fleet:</strong> {fleet ? fleet.company_name : (vehicle.fleet_id || 'N/A')}</p>
         </Card>
         <Card>
