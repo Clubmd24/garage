@@ -5,7 +5,11 @@ import apiHandler from '../../../../lib/apiHandler.js';
 async function handler(req, res) {
   const { garage_name, vehicle_reg, password } = req.body || {};
   const [rows] = await pool.query(
-    'SELECT id, password_hash FROM clients WHERE garage_name=? AND vehicle_reg=?',
+    `SELECT c.id, c.password_hash
+       FROM clients c
+       JOIN vehicles v ON v.customer_id = c.id
+      WHERE c.garage_name=? AND v.licence_plate=?
+      LIMIT 1`,
     [garage_name, vehicle_reg]
   );
   if (!rows.length || !(await verifyPassword(password, rows[0].password_hash))) {
