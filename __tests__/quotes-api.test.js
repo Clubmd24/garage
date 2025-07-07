@@ -31,12 +31,12 @@ test('quotes index creates quote', async () => {
     createQuote: createMock,
   }));
   const { default: handler } = await import('../pages/api/quotes/index.js');
-  const req = { method: 'POST', body: { job_id: 1 }, headers: {} };
+  const req = { method: 'POST', body: { job_id: 1, fleet_vehicle_id: 'FV1' }, headers: {} };
   const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn(), end: jest.fn() };
   await handler(req, res);
   expect(res.status).toHaveBeenCalledWith(201);
   expect(res.json).toHaveBeenCalledWith(newQuote);
-  expect(createMock).toHaveBeenCalledWith(expect.objectContaining({ job_id: 1 }));
+  expect(createMock).toHaveBeenCalledWith(expect.objectContaining({ job_id: 1, fleet_vehicle_id: 'FV1' }));
 });
 
 test('quotes index rejects unsupported method', async () => {
@@ -96,12 +96,12 @@ test('quote update returns updated data', async () => {
     deleteQuote: jest.fn(),
   }));
   const { default: handler } = await import('../pages/api/quotes/[id].js');
-  const req = { method: 'PUT', query: { id: '2' }, body: { total_amount: 5 }, headers: {} };
+  const req = { method: 'PUT', query: { id: '2' }, body: { total_amount: 5, fleet_vehicle_id: 'FV2' }, headers: {} };
   const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn(), end: jest.fn() };
   await handler(req, res);
   expect(res.status).toHaveBeenCalledWith(200);
   expect(res.json).toHaveBeenCalledWith(updated);
-  expect(updateMock).toHaveBeenCalledWith('2', expect.objectContaining({ total_amount: 5 }));
+  expect(updateMock).toHaveBeenCalledWith('2', expect.objectContaining({ total_amount: 5, fleet_vehicle_id: 'FV2' }));
 });
 
 test('quote delete succeeds', async () => {

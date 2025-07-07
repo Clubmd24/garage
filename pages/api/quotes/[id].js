@@ -14,6 +14,7 @@ async function handler(req, res) {
         fleet_id: req.body.fleet_id,
         job_id: req.body.job_id,
         vehicle_id: req.body.vehicle_id,
+        fleet_vehicle_id: req.body.fleet_vehicle_id,
         customer_reference: req.body.customer_reference,
         po_number: req.body.po_number,
         defect_description: req.body.defect_description,
