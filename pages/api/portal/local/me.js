@@ -1,7 +1,7 @@
-import pool from '../../../../lib/db';
-import { verifyToken } from '../../../../lib/auth';
 import { parse } from 'cookie';
 import apiHandler from '../../../../lib/apiHandler.js';
+import { verifyToken } from '../../../../lib/auth';
+import { getClientById, updateClient } from '../../../../services/clientsService.js';
 
 async function handler(req, res) {
   const cookies = parse(req.headers.cookie || '');
@@ -12,12 +12,19 @@ async function handler(req, res) {
   } catch {
     return res.status(401).json({ error: 'Unauthorized' });
   }
-  const [[row]] = await pool.query(
-    'SELECT id, first_name, last_name, email FROM clients WHERE id=?',
-    [payload.client_id]
-  );
-  if (!row) return res.status(404).json({ error: 'Not found' });
-  res.status(200).json(row);
+  if (req.method === 'GET') {
+    const client = await getClientById(payload.client_id);
+    if (!client) return res.status(404).json({ error: 'Not found' });
+    return res.status(200).json(client);
+  }
+
+  if (req.method === 'PUT') {
+    const result = await updateClient(payload.client_id, req.body || {});
+    return res.status(200).json(result);
+  }
+
+  res.setHeader('Allow', ['GET', 'PUT']);
+  res.status(405).end(`Method ${req.method} Not Allowed`);
 }
 
 export default apiHandler(handler);
