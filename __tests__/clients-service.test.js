@@ -91,3 +91,25 @@ test('updateClient hashes password when provided', async () => {
   expect(queryMock.mock.calls[0][1]).toContain('HASHED');
 });
 
+test('resetClientPassword updates hash and returns password', async () => {
+  const queryMock = jest.fn().mockResolvedValue([]);
+  jest.unstable_mockModule('../lib/db.js', () => ({
+    default: { query: queryMock },
+  }));
+  const hashMock = jest.fn(async () => 'HASH');
+  jest.unstable_mockModule('../lib/auth.js', () => ({
+    hashPassword: hashMock,
+  }));
+  jest.unstable_mockModule('crypto', () => ({
+    randomBytes: () => Buffer.from('newpass'),
+  }));
+  const { resetClientPassword } = await import('../services/clientsService.js');
+  const password = await resetClientPassword(3);
+  expect(password).toBe('bmV3cGFzcw');
+  expect(hashMock).toHaveBeenCalledWith('bmV3cGFzcw');
+  expect(queryMock).toHaveBeenCalledWith(
+    'UPDATE clients SET password_hash=? WHERE id=?',
+    ['HASH', 3]
+  );
+});
+

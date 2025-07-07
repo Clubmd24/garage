@@ -174,3 +174,30 @@ test('client detail handles errors', async () => {
   console.error.mockRestore();
 });
 
+test('reset client password returns new password', async () => {
+  const resetMock = jest.fn().mockResolvedValue('pwd');
+  jest.unstable_mockModule('../services/clientsService.js', () => ({
+    resetClientPassword: resetMock,
+  }));
+  const { default: handler } = await import('../pages/api/clients/[id]/password.js');
+  const req = { method: 'POST', query: { id: '7' }, headers: {} };
+  const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn(), end: jest.fn() };
+  await handler(req, res);
+  expect(resetMock).toHaveBeenCalledWith('7');
+  expect(res.status).toHaveBeenCalledWith(200);
+  expect(res.json).toHaveBeenCalledWith({ password: 'pwd' });
+});
+
+test('reset client password rejects unsupported method', async () => {
+  jest.unstable_mockModule('../services/clientsService.js', () => ({
+    resetClientPassword: jest.fn(),
+  }));
+  const { default: handler } = await import('../pages/api/clients/[id]/password.js');
+  const req = { method: 'GET', query: { id: '8' }, headers: {} };
+  const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn(), end: jest.fn() };
+  await handler(req, res);
+  expect(res.setHeader).toHaveBeenCalledWith('Allow', ['POST']);
+  expect(res.status).toHaveBeenCalledWith(405);
+  expect(res.end).toHaveBeenCalledWith('Method GET Not Allowed');
+});
+

@@ -13,6 +13,7 @@ export default function ClientViewPage() {
   const [vehicles, setVehicles] = useState([]);
   const [documents, setDocuments] = useState([]);
   const [quotes, setQuotes] = useState([]);
+  const [password, setPassword] = useState(router.query.pw || '');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -52,6 +53,17 @@ export default function ClientViewPage() {
     setVehicles(vs);
   };
 
+  const resetPassword = async () => {
+    try {
+      const res = await fetch(`/api/clients/${id}/password`, { method: 'POST' });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setPassword(data.password);
+    } catch {
+      setError('Failed to reset password');
+    }
+  };
+
   if (loading) return <OfficeLayout><p>Loading…</p></OfficeLayout>;
   if (error) return <OfficeLayout><p className="text-red-500">{error}</p></OfficeLayout>;
 
@@ -63,8 +75,12 @@ export default function ClientViewPage() {
         <Link href="/office/clients"><a className="button">Back to Clients</a></Link>
       </div>
       {client.pin && (
-        <p className="mb-4 font-semibold">PIN: {client.pin}</p>
+        <p className="mb-2 font-semibold">PIN: {client.pin}</p>
       )}
+      {password && (
+        <p className="mb-2 font-semibold">Password: {password}</p>
+      )}
+      <button onClick={resetPassword} className="button mb-4">Reset Password</button>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card>
           <h2 className="text-xl font-semibold mb-4">Client Info</h2>
