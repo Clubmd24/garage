@@ -3,6 +3,7 @@ import OfficeLayout from '../../../components/OfficeLayout';
 import { fetchInvoices } from '../../../lib/invoices';
 import { fetchClients } from '../../../lib/clients';
 import { fetchVehicles } from '../../../lib/vehicles';
+import { fetchInvoiceStatuses } from '../../../lib/invoiceStatuses.js';
 
 const InvoicesPage = () => {
   const [invoices, setInvoices] = useState([]);
@@ -11,12 +12,17 @@ const InvoicesPage = () => {
   const [clients, setClients] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [statuses, setStatuses] = useState([]);
+  const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
     fetchInvoices()
       .then(setInvoices)
       .catch(() => setError('Failed to load invoices'))
       .finally(() => setLoading(false));
+    fetchInvoiceStatuses()
+      .then(setStatuses)
+      .catch(() => setStatuses([]));
   }, []);
 
   const clientMap = useMemo(() => {
@@ -40,7 +46,7 @@ const InvoicesPage = () => {
     const name = (clientMap[inv.customer_id] || '').toLowerCase();
     const licence = (vehicleMap[inv.vehicle_id]?.licence_plate || '').toLowerCase();
     const make = (vehicleMap[inv.vehicle_id]?.make || '').toLowerCase();
-    return (
+    const matchesQuery = (
       name.includes(q) ||
       licence.includes(q) ||
       make.includes(q) ||
@@ -48,6 +54,9 @@ const InvoicesPage = () => {
       String(inv.amount).includes(q) ||
       (inv.status || '').toLowerCase().includes(q)
     );
+    const matchesStatus =
+      statusFilter === 'all' || (inv.status || '').toLowerCase() === statusFilter.toLowerCase();
+    return matchesQuery && matchesStatus;
   });
 
   useEffect(() => {
@@ -74,6 +83,18 @@ const InvoicesPage = () => {
             onChange={e => setSearchQuery(e.target.value)}
             className="input mb-4 w-full"
           />
+          <select
+            value={statusFilter}
+            onChange={e => setStatusFilter(e.target.value)}
+            className="input mb-4"
+          >
+            <option value="all">All</option>
+            {statuses.map(s => (
+              <option key={s.name} value={s.name}>
+                {s.name}
+              </option>
+            ))}
+          </select>
           <div className="grid gap-4 sm:grid-cols-2">
           {filteredInvoices.map(inv => (
             <div key={inv.id} className="item-card">
