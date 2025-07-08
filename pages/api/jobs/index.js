@@ -3,7 +3,11 @@ import apiHandler from '../../../lib/apiHandler.js';
 
 async function handler(req, res) {
     if (req.method === 'GET') {
-      const { fleet_id, customer_id, status } = req.query || {};
+      const { fleet_id, customer_id, status, date } = req.query || {};
+      if (date) {
+        const jobs = await service.getJobsForDate?.(date) ?? [];
+        return res.status(200).json(jobs);
+      }
       if (fleet_id) {
         const jobs = await service.getJobsByFleet?.(fleet_id, status) ?? [];
         return res.status(200).json(jobs);

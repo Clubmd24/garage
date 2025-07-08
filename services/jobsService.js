@@ -102,3 +102,20 @@ export async function listActiveJobsForEngineer(user_id) {
   );
   return rows;
 }
+
+export async function getJobsForDate(date) {
+  const [rows] = await pool.query(
+    `SELECT j.id, v.licence_plate,
+            GROUP_CONCAT(u.username ORDER BY u.username SEPARATOR ', ') AS engineers,
+            j.status
+       FROM jobs j
+       JOIN vehicles v ON j.vehicle_id = v.id
+  LEFT JOIN job_assignments ja ON j.id = ja.job_id
+  LEFT JOIN users u ON ja.user_id = u.id
+      WHERE DATE(j.scheduled_start)=?
+   GROUP BY j.id
+   ORDER BY j.id`,
+    [date]
+  );
+  return rows;
+}
