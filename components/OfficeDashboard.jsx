@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { fetchQuotes } from '../lib/quotes';
-import { fetchJobs } from '../lib/jobs';
+import { fetchJobs, fetchJobsForDate } from '../lib/jobs';
 import { fetchInvoices } from '../lib/invoices';
 import { fetchJobStatuses } from '../lib/jobStatuses';
 import { fetchVehicles } from '../lib/vehicles';
@@ -12,6 +12,7 @@ export default function OfficeDashboard() {
   const [invoices, setInvoices] = useState([]);
   const [statuses, setStatuses] = useState([]);
   const [vehicles, setVehicles] = useState([]);
+  const [todayJobs, setTodayJobs] = useState([]);
 
   useEffect(() => {
     Promise.all([fetchQuotes(), fetchJobs(), fetchInvoices(), fetchJobStatuses(), fetchVehicles()])
@@ -23,6 +24,18 @@ export default function OfficeDashboard() {
         setVehicles(v);
       })
       .catch(() => null);
+  }, []);
+
+  useEffect(() => {
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const load = () => {
+      fetchJobsForDate(dateStr)
+        .then(setTodayJobs)
+        .catch(() => setTodayJobs([]));
+    };
+    load();
+    const id = setInterval(load, 30000);
+    return () => clearInterval(id);
   }, []);
 
   const openQuotes = useMemo(
@@ -108,6 +121,22 @@ export default function OfficeDashboard() {
               <li key={v.id}>
                 <Link href={`/office/vehicles/view/${v.id}`} className="underline">
                   {v.licence_plate} - {v.customer_name || 'N/A'}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <div className="bg-white text-black rounded-2xl p-4 shadow mt-6">
+        <h2 className="text-lg font-semibold mb-2">Today's Jobs</h2>
+        {todayJobs.length === 0 ? (
+          <p>No jobs today.</p>
+        ) : (
+          <ul className="text-sm space-y-1">
+            {todayJobs.map(j => (
+              <li key={j.id}>
+                <Link href={`/office/job-cards/${j.id}`} className="underline">
+                  {j.licence_plate} - {j.engineers || 'Unassigned'} - {j.status}
                 </Link>
               </li>
             ))}
