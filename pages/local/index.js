@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { fetchVehicles } from '../../lib/vehicles';
 import { fetchInvoices } from '../../lib/invoices';
 import { fetchJobs } from '../../lib/jobs.js';
@@ -45,7 +46,10 @@ export default function LocalDashboard() {
 
   return (
     <>
-      <div className="p-4 text-right">
+      <div className="p-4 flex justify-end space-x-2">
+        <Link href="/local/profile" className="button-secondary px-4">
+          My Profile
+        </Link>
         <button onClick={handleLogout} className="button-secondary px-4">Logout</button>
       </div>
       <PortalDashboard
