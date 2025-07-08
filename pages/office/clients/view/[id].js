@@ -111,6 +111,9 @@ export default function ClientViewPage() {
                     <p className="text-sm">{v.color}</p>
                   </div>
                   <div className="space-x-2">
+                    <Link href={`/office/vehicles/view/${v.id}`}>
+                      <a className="underline text-sm">View</a>
+                    </Link>
                     <Link href={`/office/vehicles/${v.id}`}> <a className="underline text-sm">Edit</a> </Link>
                     <button onClick={() => deleteVehicle(v.id)} className="underline text-red-600 text-sm">Delete</button>
                   </div>
