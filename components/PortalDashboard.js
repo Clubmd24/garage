@@ -94,6 +94,8 @@ export function PortalDashboard({
             <div className="p-4">
               <h2 className="text-xl font-medium">{v.licence_plate}</h2>
               <p className="text-sm text-black">{v.make} {v.model}</p>
+              <p className="text-sm text-black">Service Date: {v.service_date || 'N/A'}</p>
+              <p className="text-sm text-black">ITV Date: {v.itv_date || 'N/A'}</p>
               <Link href={`${vehicleLinkBase}/${v.id}`} className="button-secondary mt-3 inline-block text-center">View Details</Link>
             </div>
           </Card>
