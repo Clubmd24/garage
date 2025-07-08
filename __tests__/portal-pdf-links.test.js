@@ -106,3 +106,39 @@ test('PortalDashboard shows vehicle service and ITV dates', async () => {
   await screen.findByText('Service Date: 2024-05-01');
   expect(screen.getByText('ITV Date: 2024-06-01')).toBeInTheDocument();
 });
+
+test('vehicle with upcoming due date appears in dashboard', async () => {
+  jest.unstable_mockModule('../lib/jobStatuses.js', () => ({
+    fetchJobStatuses: jest.fn().mockResolvedValue([])
+  }));
+  const { PortalDashboard } = await import('../components/PortalDashboard.js');
+  const base = new Date();
+  const serviceDate = new Date(base);
+  serviceDate.setDate(serviceDate.getDate() - (365 - 10));
+  const due = new Date(serviceDate);
+  due.setFullYear(due.getFullYear() + 1);
+  const vehicles = [
+    {
+      id: 2,
+      licence_plate: 'UP1',
+      make: 'Ford',
+      model: 'Focus',
+      service_date: serviceDate.toISOString().slice(0, 10),
+      itv_date: null
+    }
+  ];
+  render(
+    <PortalDashboard
+      title=""
+      requestJobPath="/"
+      vehicles={vehicles}
+      jobs={[]}
+      quotes={[]}
+      setQuotes={() => {}}
+      invoices={[]}
+    />
+  );
+  await screen.findByText(
+    `UP1 - Service due ${due.toISOString().slice(0, 10)}`
+  );
+});

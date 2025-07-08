@@ -4,6 +4,14 @@ import { Card } from './Card';
 import { updateQuote } from '../lib/quotes';
 import { fetchJobStatuses } from '../lib/jobStatuses.js';
 
+export function computeDueDate(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return null;
+  d.setFullYear(d.getFullYear() + 1);
+  return d;
+}
+
 export function PortalDashboard({
   title,
   requestJobPath,
@@ -56,6 +64,19 @@ export function PortalDashboard({
     ...Array.from(new Set(vehicles.filter(vehicleFilter).map(v => v.make))),
   ];
 
+  const baseVehicles = vehicles.filter(vehicleFilter);
+  const now = new Date();
+  const soon = new Date();
+  soon.setDate(now.getDate() + 30);
+
+  const upcomingService = baseVehicles
+    .map(v => ({ vehicle: v, due: computeDueDate(v.service_date) }))
+    .filter(({ due }) => due && due >= now && due <= soon);
+
+  const upcomingItv = baseVehicles
+    .map(v => ({ vehicle: v, due: computeDueDate(v.itv_date) }))
+    .filter(({ due }) => due && due >= now && due <= soon);
+
   const jobsFiltered = jobs.filter(j =>
     jobFilter === 'all' ? true : j.status === jobFilter
   );
@@ -101,6 +122,26 @@ export function PortalDashboard({
           </Card>
         ))}
       </div>
+
+      <section>
+        <h2 className="text-xl font-semibold mb-2">Upcoming Service &amp; ITV</h2>
+        {upcomingService.length === 0 && upcomingItv.length === 0 ? (
+          <p>No vehicles due in next 30 days.</p>
+        ) : (
+          <ul className="list-disc ml-6">
+            {upcomingService.map(({ vehicle, due }) => (
+              <li key={`service-${vehicle.id}`}>
+                {vehicle.licence_plate} - Service due {due.toISOString().slice(0, 10)}
+              </li>
+            ))}
+            {upcomingItv.map(({ vehicle, due }) => (
+              <li key={`itv-${vehicle.id}`}>
+                {vehicle.licence_plate} - ITV due {due.toISOString().slice(0, 10)}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <section>
         <h2 className="text-xl font-semibold mb-2">Open Jobs</h2>
