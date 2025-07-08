@@ -45,8 +45,8 @@ export default function LocalDashboard() {
   if (!client) return <p className="p-8">Loading…</p>;
 
   return (
-    <>
-      <div className="p-4 flex justify-end space-x-2">
+    <div className="min-h-screen p-8 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white">
+      <div className="flex justify-end space-x-2 mb-4">
         <Link href="/local/profile" className="button-secondary px-4">
           My Profile
         </Link>
@@ -62,6 +62,6 @@ export default function LocalDashboard() {
         invoices={invoices}
         vehicleLinkBase="/local/vehicles"
       />
-    </>
+    </div>
   );
 }

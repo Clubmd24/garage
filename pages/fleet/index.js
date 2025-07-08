@@ -46,8 +46,8 @@ export default function FleetDashboard() {
   if (!fleet) return <p className="p-8">Loading…</p>;
 
   return (
-    <>
-      <div className="p-4 text-right">
+    <div className="min-h-screen p-8 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white">
+      <div className="text-right mb-4">
         <button onClick={handleLogout} className="button-secondary px-4">Logout</button>
       </div>
       <Link href="/fleet/home" className="button inline-block mb-4">
@@ -63,6 +63,6 @@ export default function FleetDashboard() {
         invoices={invoices}
         vehicleLinkBase="/fleet/vehicles"
       />
-    </>
+    </div>
   );
 }
