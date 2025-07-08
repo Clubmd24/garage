@@ -3,8 +3,11 @@ import { verifyPassword, signToken } from '../../../../lib/auth';
 import apiHandler from '../../../../lib/apiHandler.js';
 
 async function handler(req, res) {
-  const { garage_name, pin } = req.body || {};
-  const [rows] = await pool.query('SELECT id, pin_hash FROM fleets WHERE garage_name=?', [garage_name]);
+  const { garage_name, company_name, pin } = req.body || {};
+  const [rows] = await pool.query(
+    'SELECT id, pin_hash FROM fleets WHERE garage_name=? AND company_name=?',
+    [garage_name, company_name]
+  );
   if (!rows.length || !(await verifyPassword(pin, rows[0].pin_hash))) {
     return res.status(401).json({ error: 'Invalid credentials' });
   }

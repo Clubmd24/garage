@@ -76,12 +76,12 @@ test('fleet login succeeds with valid credentials', async () => {
     signToken: signMock,
   }));
   const { default: handler } = await import('../pages/api/portal/fleet/login.js');
-  const req = { method: 'POST', body: { garage_name: 'G2', pin: '1234' }, headers: {} };
+  const req = { method: 'POST', body: { garage_name: 'G2', company_name: 'FleetCo', pin: '1234' }, headers: {} };
   const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn() };
   await handler(req, res);
   expect(queryMock).toHaveBeenCalledWith(
-    'SELECT id, pin_hash FROM fleets WHERE garage_name=?',
-    ['G2']
+    'SELECT id, pin_hash FROM fleets WHERE garage_name=? AND company_name=?',
+    ['G2', 'FleetCo']
   );
   expect(verifyMock).toHaveBeenCalledWith('1234', 'hash2');
   expect(signMock).toHaveBeenCalledWith({ fleet_id: 3 });
@@ -102,12 +102,12 @@ test('fleet login fails with wrong pin', async () => {
     signToken: signMock,
   }));
   const { default: handler } = await import('../pages/api/portal/fleet/login.js');
-  const req = { method: 'POST', body: { garage_name: 'G2', pin: '0000' }, headers: {} };
+  const req = { method: 'POST', body: { garage_name: 'G2', company_name: 'FleetCo', pin: '0000' }, headers: {} };
   const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn() };
   await handler(req, res);
   expect(queryMock).toHaveBeenCalledWith(
-    'SELECT id, pin_hash FROM fleets WHERE garage_name=?',
-    ['G2']
+    'SELECT id, pin_hash FROM fleets WHERE garage_name=? AND company_name=?',
+    ['G2', 'FleetCo']
   );
   expect(verifyMock).toHaveBeenCalledWith('0000', 'hash2');
   expect(signMock).not.toHaveBeenCalled();
