@@ -42,8 +42,28 @@ export function PortalDashboard({
 
   async function acceptQuote(id) {
     await updateQuote(id, { status: 'accepted' });
+    let jobId = null;
+    const qObj = quotes.find(q => q.id === id);
+    if (qObj) {
+      const res = await fetch('/api/jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer_id: qObj.customer_id,
+          fleet_id: qObj.fleet_id,
+          vehicle_id: qObj.vehicle_id,
+        }),
+      });
+      if (res.ok) {
+        const job = await res.json();
+        jobId = job.id;
+        await updateQuote(id, { job_id: jobId });
+      }
+    }
     setQuotes(
-      quotes.map(q => (q.id === id ? { ...q, status: 'accepted' } : q))
+      quotes.map(q =>
+        q.id === id ? { ...q, status: 'accepted', job_id: jobId ?? q.job_id } : q
+      )
     );
   }
 
