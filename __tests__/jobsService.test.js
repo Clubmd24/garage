@@ -50,3 +50,30 @@ test('updateJob validates status exists', async () => {
   const { updateJob } = await import('../services/jobsService.js');
   await expect(updateJob(1, { status: 'bad status' })).rejects.toThrow('Invalid job status');
 });
+
+test('engineer completes job then office notifies client for collection', async () => {
+  const queryMock = jest.fn().mockResolvedValue([]);
+  const createInvoiceMock = jest.fn().mockResolvedValue({ id: 11 });
+  const existsMock = jest.fn().mockResolvedValue(true);
+
+  jest.unstable_mockModule('../lib/db.js', () => ({ default: { query: queryMock } }));
+  jest.unstable_mockModule('../services/invoicesService.js', () => ({ createInvoice: createInvoiceMock }));
+  jest.unstable_mockModule('../services/jobStatusesService.js', () => ({ jobStatusExists: existsMock }));
+
+  const { updateJob } = await import('../services/jobsService.js');
+
+  await updateJob(5, { status: 'engineer completed' });
+  await updateJob(5, { customer_id: 8, status: 'notified client for collection' });
+
+  expect(queryMock).toHaveBeenNthCalledWith(
+    1,
+    expect.stringMatching(/UPDATE jobs/),
+    [null, null, null, null, 'engineer completed', null, 5]
+  );
+  expect(queryMock).toHaveBeenNthCalledWith(
+    2,
+    expect.stringMatching(/UPDATE jobs/),
+    [8, null, null, null, 'notified client for collection', null, 5]
+  );
+  expect(createInvoiceMock).toHaveBeenCalledWith({ job_id: 5, customer_id: 8, status: 'awaiting collection' });
+});

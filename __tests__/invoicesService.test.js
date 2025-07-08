@@ -40,6 +40,7 @@ test('createInvoice inserts invoice', async () => {
   const { createInvoice } = await import('../services/invoicesService.js');
   const data = { job_id: 1, customer_id: 2, amount: 99, due_date: '2024-06-01', status: 'open' };
   const result = await createInvoice(data);
+  expect(existsMock).toHaveBeenCalledWith('open');
   expect(queryMock).toHaveBeenCalledWith(
     expect.stringMatching(/INSERT INTO invoices/),
     [1, 2, 99, '2024-06-01', 'open', null]
@@ -57,6 +58,7 @@ test('updateInvoice updates row', async () => {
   const { updateInvoice } = await import('../services/invoicesService.js');
   const data = { job_id: 4, customer_id: 5, amount: 8, due_date: '2024-07-01', status: 'paid' };
   const result = await updateInvoice(6, data);
+  expect(existsMock).toHaveBeenCalledWith('paid');
   expect(queryMock).toHaveBeenCalledWith(
     expect.stringMatching(/UPDATE invoices/),
     [4, 5, 8, '2024-07-01', 'paid', null, 6]
