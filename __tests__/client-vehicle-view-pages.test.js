@@ -68,3 +68,23 @@ test('vehicle view page shows mileage history', async () => {
   await screen.findByText('Mileage History');
   expect(screen.getByText('100')).toBeInTheDocument();
 });
+
+test('vehicle view page shows no mileage entries when empty', async () => {
+  jest.unstable_mockModule('next/router', () => ({
+    useRouter: () => ({ query: { id: '7' } })
+  }));
+
+  global.fetch = jest
+    .fn()
+    .mockResolvedValueOnce({ ok: true, json: async () => ({ id: 7 }) }) // vehicle
+    .mockResolvedValueOnce({ ok: true, json: async () => null }) // client
+    .mockResolvedValueOnce({ ok: true, json: async () => [] }) // documents
+    .mockResolvedValueOnce({ ok: true, json: async () => [] }) // quotes
+    .mockResolvedValueOnce({ ok: true, json: async () => [] }); // mileage
+
+  const { default: Page } = await import('../pages/office/vehicles/view/[id].js');
+  render(<Page />);
+
+  await screen.findByText('Mileage History');
+  expect(screen.getByText('No entries')).toBeInTheDocument();
+});
