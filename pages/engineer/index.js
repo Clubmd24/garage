@@ -10,19 +10,20 @@ export default function EngineerHome() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    async function load() {
-      try {
-        const r = await fetch('/api/engineer/jobs', { credentials: 'include' });
-        if (!r.ok) throw new Error('Failed to load jobs');
-        const data = await r.json();
-        setJobs(Array.isArray(data) ? data : []);
-        if (data.length) setSelectedJob(data[0].id);
-      } catch (err) {
-        setError(err.message);
-      }
-    }
-    load();
+    loadJobs();
   }, []);
+
+  async function loadJobs() {
+    try {
+      const r = await fetch('/api/engineer/jobs', { credentials: 'include' });
+      if (!r.ok) throw new Error('Failed to load jobs');
+      const data = await r.json();
+      setJobs(Array.isArray(data) ? data : []);
+      if (data.length) setSelectedJob(data[0].id);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
 
   async function clockIn() {
     if (!selectedJob) return;
@@ -79,6 +80,24 @@ export default function EngineerHome() {
     }
   }
 
+  async function completeJob(jobId) {
+    setError('');
+    setMessage('');
+    try {
+      const r = await fetch(`/api/jobs/${jobId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status: 'engineer completed' }),
+      });
+      if (!r.ok) throw new Error('Failed to update job');
+      setMessage('Job completed');
+      await loadJobs();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   return (
     <Layout>
       <h1 className="text-2xl font-semibold mb-4">Engineer Portal</h1>
@@ -100,9 +119,20 @@ export default function EngineerHome() {
                 </option>
               ))}
             </select>
-            <ul className="list-disc pl-5 space-y-1">
+            <ul className="space-y-2">
               {jobs.map((j) => (
-                <li key={j.id}>Job #{j.id}</li>
+                <li
+                  key={j.id}
+                  className="flex items-center justify-between text-black dark:text-white"
+                >
+                  <span>Job #{j.id}</span>
+                  <button
+                    onClick={() => completeJob(j.id)}
+                    className="button-secondary px-3 py-1"
+                  >
+                    Complete Job
+                  </button>
+                </li>
               ))}
             </ul>
           </div>
