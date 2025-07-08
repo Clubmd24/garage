@@ -47,7 +47,7 @@ export default function LocalRequestJob() {
   if (!client) return <p className="p-8">Loading…</p>;
 
   return (
-    <div className="p-8">
+    <div className="min-h-screen p-8 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white">
       <div className="flex justify-between mb-4">
         <h1 className="text-2xl font-bold">New Job Request</h1>
         <button onClick={handleLogout} className="button-secondary px-4">Logout</button>
