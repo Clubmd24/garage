@@ -4,20 +4,23 @@ import { fetchQuotes } from '../lib/quotes';
 import { fetchJobs } from '../lib/jobs';
 import { fetchInvoices } from '../lib/invoices';
 import { fetchJobStatuses } from '../lib/jobStatuses';
+import { fetchVehicles } from '../lib/vehicles';
 
 export default function OfficeDashboard() {
   const [quotes, setQuotes] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [statuses, setStatuses] = useState([]);
+  const [vehicles, setVehicles] = useState([]);
 
   useEffect(() => {
-    Promise.all([fetchQuotes(), fetchJobs(), fetchInvoices(), fetchJobStatuses()])
-      .then(([q, j, i, s]) => {
+    Promise.all([fetchQuotes(), fetchJobs(), fetchInvoices(), fetchJobStatuses(), fetchVehicles()])
+      .then(([q, j, i, s, v]) => {
         setQuotes(q);
         setJobs(j);
         setInvoices(i);
         setStatuses(s);
+        setVehicles(v);
       })
       .catch(() => null);
   }, []);
@@ -42,6 +45,26 @@ export default function OfficeDashboard() {
     });
     return counts;
   }, [jobs, statuses]);
+
+  const upcomingVehicles = useMemo(() => {
+    const now = new Date();
+    const soon = new Date();
+    soon.setDate(now.getDate() + 30);
+    return vehicles.filter(v => {
+      const dueDates = [];
+      if (v.service_date) {
+        const d = new Date(v.service_date);
+        d.setFullYear(d.getFullYear() + 1);
+        dueDates.push(d);
+      }
+      if (v.itv_date) {
+        const d = new Date(v.itv_date);
+        d.setFullYear(d.getFullYear() + 1);
+        dueDates.push(d);
+      }
+      return dueDates.some(d => d >= now && d <= soon);
+    });
+  }, [vehicles]);
 
   return (
     <>
@@ -74,6 +97,22 @@ export default function OfficeDashboard() {
             <Link href="/office/invoices?status=unpaid">{unpaidInvoices.length}</Link>
           </p>
         </div>
+      </div>
+      <div className="bg-white text-black rounded-2xl p-4 shadow mt-6">
+        <h2 className="text-lg font-semibold mb-2">Upcoming ITV &amp; Services</h2>
+        {upcomingVehicles.length === 0 ? (
+          <p>No vehicles due in next 30 days.</p>
+        ) : (
+          <ul className="text-sm space-y-1">
+            {upcomingVehicles.map(v => (
+              <li key={v.id}>
+                <Link href={`/office/vehicles/view/${v.id}`} className="underline">
+                  {v.licence_plate} - {v.customer_name || 'N/A'}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </>
   );
