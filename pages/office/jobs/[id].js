@@ -72,6 +72,21 @@ export default function JobViewPage() {
               ? job.assignments.map(a => a.username || a.user_id).join(', ')
               : 'Unassigned'}
           </p>
+          <p>
+            <strong>Scheduled:</strong>{' '}
+            {job.scheduled_start
+              ? new Date(job.scheduled_start).toLocaleString()
+              : 'N/A'}{' '}
+            -{' '}
+            {job.scheduled_end
+              ? new Date(job.scheduled_end).toLocaleString()
+              : 'N/A'}
+          </p>
+          <div className="mt-4">
+            <Link href={`/office/jobs/assign?id=${id}`} className="button">
+              Assign Engineer
+            </Link>
+          </div>
           <p><strong>Notes:</strong> {job.notes || 'None'}</p>
         </div>
       )}

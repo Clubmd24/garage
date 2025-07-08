@@ -81,6 +81,15 @@ const LiveScreenPage = () => {
                   <Link href={`/office/jobs/${j.id}`} className="underline">
                     Job #{j.id} – {j.status}
                   </Link>
+                  <div className="text-xs">
+                    {j.scheduled_start
+                      ? new Date(j.scheduled_start).toLocaleString()
+                      : 'N/A'}{' '}
+                    -{' '}
+                    {j.scheduled_end
+                      ? new Date(j.scheduled_end).toLocaleString()
+                      : 'N/A'}
+                  </div>
                 </li>
               ))}
             </ul>

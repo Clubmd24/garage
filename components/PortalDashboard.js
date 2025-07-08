@@ -182,7 +182,16 @@ export function PortalDashboard({
         </select>
         <ul className="list-disc ml-6">
           {jobsFiltered.map(j => (
-            <li key={j.id}>Job #{j.id} - {j.status}</li>
+            <li key={j.id}>
+              Job #{j.id} - {j.status} -{' '}
+              {j.scheduled_start
+                ? new Date(j.scheduled_start).toLocaleString()
+                : 'N/A'}{' '}
+              to{' '}
+              {j.scheduled_end
+                ? new Date(j.scheduled_end).toLocaleString()
+                : 'N/A'}
+            </li>
           ))}
         </ul>
       </section>
