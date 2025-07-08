@@ -1,4 +1,5 @@
 import pool from '../lib/db.js';
+import { invoiceStatusExists } from './invoiceStatusesService.js';
 
 export async function getAllInvoices() {
   const [rows] = await pool.query(
@@ -38,6 +39,9 @@ export async function getInvoiceById(id) {
 }
 
 export async function createInvoice({ job_id, customer_id, amount, due_date, status, terms }) {
+  if (status && !(await invoiceStatusExists(status))) {
+    throw new Error('Invalid invoice status');
+  }
   const [{ insertId }] = await pool.query(
     `INSERT INTO invoices
       (job_id, customer_id, amount, due_date, status, terms)
@@ -51,6 +55,9 @@ export async function updateInvoice(
   id,
   { job_id, customer_id, amount, due_date, status, terms }
 ) {
+  if (status && !(await invoiceStatusExists(status))) {
+    throw new Error('Invalid invoice status');
+  }
   await pool.query(
     `UPDATE invoices SET
        job_id=?,

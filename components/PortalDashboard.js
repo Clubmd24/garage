@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Card } from './Card';
 import { updateQuote } from '../lib/quotes';
 import { fetchJobStatuses } from '../lib/jobStatuses.js';
+import { fetchInvoiceStatuses } from '../lib/invoiceStatuses.js';
 
 export function computeDueDate(dateStr) {
   if (!dateStr) return null;
@@ -28,11 +29,15 @@ export function PortalDashboard({
   const [filter, setFilter] = useState('all');
   const [jobFilter, setJobFilter] = useState('all');
   const [statuses, setStatuses] = useState([]);
+  const [invoiceStatuses, setInvoiceStatuses] = useState([]);
 
   useEffect(() => {
     fetchJobStatuses()
       .then(setStatuses)
       .catch(() => setStatuses([]));
+    fetchInvoiceStatuses()
+      .then(setInvoiceStatuses)
+      .catch(() => setInvoiceStatuses([]));
   }, []);
 
   async function acceptQuote(id) {
@@ -82,7 +87,7 @@ export function PortalDashboard({
   );
 
   const invFiltered = invoices.filter(i =>
-    filter === 'all' ? true : i.status === filter
+    filter === 'all' ? true : (i.status || '').toLowerCase() === filter.toLowerCase()
   );
 
   return (
@@ -203,8 +208,11 @@ export function PortalDashboard({
           className="input mb-2"
         >
           <option value="all">All</option>
-          <option value="paid">Paid</option>
-          <option value="unpaid">Unpaid</option>
+          {invoiceStatuses.map(s => (
+            <option key={s.name} value={s.name}>
+              {s.name}
+            </option>
+          ))}
         </select>
         <ul className="list-disc ml-6">
           {invFiltered.map(inv => (

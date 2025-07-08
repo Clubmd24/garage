@@ -32,9 +32,11 @@ test('getInvoiceById fetches single invoice', async () => {
 
 test('createInvoice inserts invoice', async () => {
   const queryMock = jest.fn().mockResolvedValue([{ insertId: 3 }]);
+  const existsMock = jest.fn().mockResolvedValue(true);
   jest.unstable_mockModule('../lib/db.js', () => ({
     default: { query: queryMock },
   }));
+  jest.unstable_mockModule('../services/invoiceStatusesService.js', () => ({ invoiceStatusExists: existsMock }));
   const { createInvoice } = await import('../services/invoicesService.js');
   const data = { job_id: 1, customer_id: 2, amount: 99, due_date: '2024-06-01', status: 'open' };
   const result = await createInvoice(data);
@@ -47,9 +49,11 @@ test('createInvoice inserts invoice', async () => {
 
 test('updateInvoice updates row', async () => {
   const queryMock = jest.fn().mockResolvedValue([]);
+  const existsMock = jest.fn().mockResolvedValue(true);
   jest.unstable_mockModule('../lib/db.js', () => ({
     default: { query: queryMock },
   }));
+  jest.unstable_mockModule('../services/invoiceStatusesService.js', () => ({ invoiceStatusExists: existsMock }));
   const { updateInvoice } = await import('../services/invoicesService.js');
   const data = { job_id: 4, customer_id: 5, amount: 8, due_date: '2024-07-01', status: 'paid' };
   const result = await updateInvoice(6, data);
@@ -69,4 +73,22 @@ test('deleteInvoice removes row', async () => {
   const result = await deleteInvoice(7);
   expect(queryMock).toHaveBeenCalledWith('DELETE FROM invoices WHERE id=?', [7]);
   expect(result).toEqual({ ok: true });
+});
+
+test('createInvoice validates status exists', async () => {
+  const queryMock = jest.fn();
+  const existsMock = jest.fn().mockResolvedValue(false);
+  jest.unstable_mockModule('../lib/db.js', () => ({ default: { query: queryMock } }));
+  jest.unstable_mockModule('../services/invoiceStatusesService.js', () => ({ invoiceStatusExists: existsMock }));
+  const { createInvoice } = await import('../services/invoicesService.js');
+  await expect(createInvoice({ status: 'bad' })).rejects.toThrow('Invalid invoice status');
+});
+
+test('updateInvoice validates status exists', async () => {
+  const queryMock = jest.fn();
+  const existsMock = jest.fn().mockResolvedValue(false);
+  jest.unstable_mockModule('../lib/db.js', () => ({ default: { query: queryMock } }));
+  jest.unstable_mockModule('../services/invoiceStatusesService.js', () => ({ invoiceStatusExists: existsMock }));
+  const { updateInvoice } = await import('../services/invoicesService.js');
+  await expect(updateInvoice(1, { status: 'bad' })).rejects.toThrow('Invalid invoice status');
 });
