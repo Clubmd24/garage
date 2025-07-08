@@ -109,7 +109,11 @@ const JobCardsPage = () => {
           <div className="grid gap-4 sm:grid-cols-2">
           {filteredJobs.map(j => (
             <div key={j.id} className="item-card">
-              <h2 className="font-semibold mb-1">Job #{j.id}</h2>
+              <h2 className="font-semibold mb-1">
+                <Link href={`/office/jobs/${j.id}`} className="underline">
+                  Job #{j.id}
+                </Link>
+              </h2>
               <p className="text-sm">{clientMap[j.customer_id] || ''}</p>
               <p className="text-sm">{vehicleMap[j.vehicle_id]?.licence_plate || ''}</p>
               <p className="text-sm">{vehicleMap[j.vehicle_id]?.make || ''}</p>

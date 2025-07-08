@@ -34,7 +34,7 @@ test('OfficeDashboard lists todays jobs', async () => {
   render(<OfficeDashboard />);
 
   const link = await screen.findByRole('link', { name: /XYZ/ });
-  expect(link).toHaveAttribute('href', '/office/job-cards/1');
+  expect(link).toHaveAttribute('href', '/office/jobs/1');
   expect(link.textContent).toContain('Alice');
   expect(link.textContent).toContain('in progress');
 });
