@@ -136,6 +136,17 @@ export default function OfficeLayout({ children }) {
             </ul>
           </div>
           <div>
+            <h3 className="uppercase text-sm font-semibold mb-2 text-cyan-400">HR</h3>
+            <ul className="space-y-1">
+              <li>
+                <Link href="/office/hr" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  HR Home
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
             <h3 className="uppercase text-sm font-semibold mb-2 text-cyan-400">Assets</h3>
             <ul className="space-y-1">
               <li>

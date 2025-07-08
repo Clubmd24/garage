@@ -80,6 +80,9 @@ export function Sidebar() {
             <a href="/office" {...linkProps}>
               Office
             </a>
+            <a href="/office/hr" {...linkProps}>
+              HR
+            </a>
             <a href="/chat" {...linkProps}>
               Chat
             </a>
