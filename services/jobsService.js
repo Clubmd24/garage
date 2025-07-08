@@ -1,5 +1,6 @@
 import pool from '../lib/db.js';
 import { jobStatusExists } from './jobStatusesService.js';
+import { createInvoice } from './invoicesService.js';
 
 export async function getAllJobs(status) {
   const base =
@@ -61,6 +62,9 @@ export async function updateJob(id, { customer_id, vehicle_id, scheduled_start, 
     `UPDATE jobs SET customer_id=?, vehicle_id=?, scheduled_start=?, scheduled_end=?, status=?, bay=? WHERE id=?`,
     [customer_id || null, vehicle_id || null, scheduled_start || null, scheduled_end || null, status || null, bay || null, id]
   );
+  if (status === 'notified client for collection') {
+    await createInvoice({ job_id: id, customer_id: customer_id || null, status: 'awaiting collection' });
+  }
   return { ok: true };
 }
 
