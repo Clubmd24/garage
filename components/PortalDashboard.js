@@ -4,6 +4,7 @@ import { Card } from './Card';
 import { updateQuote } from '../lib/quotes';
 import { fetchJobStatuses } from '../lib/jobStatuses.js';
 import { fetchInvoiceStatuses } from '../lib/invoiceStatuses.js';
+import { formatDateTime } from '../lib/datetime.js';
 
 export function computeDueDate(dateStr) {
   if (!dateStr) return null;
@@ -183,14 +184,14 @@ export function PortalDashboard({
         <ul className="list-disc ml-6">
           {jobsFiltered.map(j => (
             <li key={j.id}>
-              Job #{j.id} - {j.status} -{' '}
-              {j.scheduled_start
-                ? new Date(j.scheduled_start).toLocaleString()
-                : 'N/A'}{' '}
-              to{' '}
-              {j.scheduled_end
-                ? new Date(j.scheduled_end).toLocaleString()
-                : 'N/A'}
+              Job #{j.id} - {j.status}
+              {j.scheduled_start && (
+                <> -{' '}
+                  {j.scheduled_end
+                    ? `Scheduled from ${formatDateTime(j.scheduled_start)} to ${formatDateTime(j.scheduled_end)}`
+                    : `Scheduled for ${formatDateTime(j.scheduled_start)}`}
+                </>
+              )}
             </li>
           ))}
         </ul>
