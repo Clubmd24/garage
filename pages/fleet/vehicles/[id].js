@@ -47,7 +47,29 @@ export default function FleetVehicleDetails() {
 
   async function acceptQuote(qid) {
     await updateQuote(qid, { status: 'accepted' });
-    setQuotes(quotes.map(q => (q.id === qid ? { ...q, status: 'accepted' } : q)));
+    let jobId = null;
+    const qObj = quotes.find(q => q.id === qid);
+    if (qObj) {
+      const res = await fetch('/api/jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer_id: qObj.customer_id,
+          fleet_id: qObj.fleet_id,
+          vehicle_id: qObj.vehicle_id,
+        }),
+      });
+      if (res.ok) {
+        const job = await res.json();
+        jobId = job.id;
+        await updateQuote(qid, { job_id: jobId });
+      }
+    }
+    setQuotes(
+      quotes.map(q =>
+        q.id === qid ? { ...q, status: 'accepted', job_id: jobId ?? q.job_id } : q
+      )
+    );
   }
 
   async function rejectQuote(qid) {
