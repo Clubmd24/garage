@@ -119,3 +119,18 @@ export async function getJobsForDate(date) {
   );
   return rows;
 }
+
+export async function getJobDetails(id) {
+  const job = await getJobById(id);
+  if (!job) return null;
+  const [assignments] = await pool.query(
+    `SELECT ja.id, ja.user_id, u.username, ja.assigned_at
+       FROM job_assignments ja
+  LEFT JOIN users u ON ja.user_id = u.id
+      WHERE ja.job_id=?
+      ORDER BY ja.id`,
+    [id]
+  );
+  job.assignments = assignments;
+  return job;
+}

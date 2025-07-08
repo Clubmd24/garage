@@ -77,7 +77,11 @@ const LiveScreenPage = () => {
             </ul>
             <ul className="space-y-1 max-h-60 overflow-y-auto mt-2">
               {jobs.map(j => (
-                <li key={j.id}>Job #{j.id} – {j.status}</li>
+                <li key={j.id}>
+                  <Link href={`/office/jobs/${j.id}`} className="underline">
+                    Job #{j.id} – {j.status}
+                  </Link>
+                </li>
               ))}
             </ul>
           </div>

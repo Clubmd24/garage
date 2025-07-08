@@ -135,7 +135,7 @@ export default function OfficeDashboard() {
           <ul className="text-sm space-y-1">
             {todayJobs.map(j => (
               <li key={j.id}>
-                <Link href={`/office/job-cards/${j.id}`} className="underline">
+                <Link href={`/office/jobs/${j.id}`} className="underline">
                   {j.licence_plate} - {j.engineers || 'Unassigned'} - {j.status}
                 </Link>
               </li>
