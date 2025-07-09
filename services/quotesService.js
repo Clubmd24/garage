@@ -35,6 +35,15 @@ export async function getQuotesByVehicle(vehicle_id) {
   return rows;
 }
 
+export async function getQuotesByJob(job_id) {
+  const [rows] = await pool.query(
+    `SELECT id, customer_id, fleet_id, job_id, vehicle_id, fleet_vehicle_id, customer_reference, po_number, defect_description, total_amount, status, terms, created_ts
+       FROM quotes WHERE job_id=? ORDER BY id`,
+    [job_id]
+  );
+  return rows;
+}
+
 export async function getQuoteById(id) {
   const [[row]] = await pool.query(
     `SELECT id, customer_id, fleet_id, job_id, vehicle_id, fleet_vehicle_id, customer_reference, po_number, defect_description, total_amount, status, terms, created_ts

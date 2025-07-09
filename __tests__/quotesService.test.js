@@ -30,6 +30,21 @@ test('getQuoteById fetches single quote', async () => {
   expect(result).toEqual(row);
 });
 
+test('getQuotesByJob fetches quotes for job', async () => {
+  const rows = [{ id: 4 }];
+  const queryMock = jest.fn().mockResolvedValue([rows]);
+  jest.unstable_mockModule('../lib/db.js', () => ({
+    default: { query: queryMock },
+  }));
+  const { getQuotesByJob } = await import('../services/quotesService.js');
+  const result = await getQuotesByJob(5);
+  expect(queryMock).toHaveBeenCalledWith(
+    expect.stringMatching(/WHERE job_id=\?/),
+    [5]
+  );
+  expect(result).toEqual(rows);
+});
+
 test('createQuote inserts quote', async () => {
   const queryMock = jest
     .fn()
