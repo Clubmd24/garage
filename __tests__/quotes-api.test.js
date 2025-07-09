@@ -23,6 +23,23 @@ test('quotes index returns list of quotes', async () => {
   expect(getAllMock).toHaveBeenCalledTimes(1);
 });
 
+test('quotes index returns quotes for job when job_id query provided', async () => {
+  const rows = [{ id: 10 }];
+  const jobMock = jest.fn().mockResolvedValue(rows);
+  jest.unstable_mockModule('../services/quotesService.js', () => ({
+    getQuotesByJob: jobMock,
+    getAllQuotes: jest.fn(),
+    createQuote: jest.fn(),
+  }));
+  const { default: handler } = await import('../pages/api/quotes/index.js');
+  const req = { method: 'GET', query: { job_id: '7' }, headers: {} };
+  const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn(), end: jest.fn() };
+  await handler(req, res);
+  expect(jobMock).toHaveBeenCalledWith('7');
+  expect(res.status).toHaveBeenCalledWith(200);
+  expect(res.json).toHaveBeenCalledWith(rows);
+});
+
 test('quotes index creates quote', async () => {
   const newQuote = { id: 2 };
   const createMock = jest.fn().mockResolvedValue(newQuote);
