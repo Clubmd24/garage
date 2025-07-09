@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import Link from 'next/link';
 import OfficeLayout from '../../../components/OfficeLayout';
 import { fetchQuotes } from '../../../lib/quotes';
 import { fetchJobs } from '../../../lib/jobs';
