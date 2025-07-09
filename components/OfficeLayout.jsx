@@ -1,6 +1,8 @@
 import { useRouter } from 'next/router';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import logout from '../lib/logout.js';
+import { fetchSearch } from '../lib/search.js';
 
 function ArrowIcon() {
   return (
@@ -12,6 +14,23 @@ function ArrowIcon() {
 
 export default function OfficeLayout({ children }) {
   const router = useRouter();
+  const [term, setTerm] = useState('');
+  const [results, setResults] = useState(null);
+
+  useEffect(() => {
+    if (!term) return setResults(null);
+    let cancel = false;
+    fetchSearch(term)
+      .then(r => {
+        if (!cancel) setResults(r);
+      })
+      .catch(() => {
+        if (!cancel) setResults(null);
+      });
+    return () => {
+      cancel = true;
+    };
+  }, [term]);
 
   async function handleLogout() {
     try {
@@ -207,10 +226,82 @@ export default function OfficeLayout({ children }) {
         </nav>
       </aside>
       <div className="flex-1 flex flex-col">
-        <header className="bg-blue-700 p-6 space-y-4">
+        <header className="bg-blue-700 p-6 space-y-4 relative">
           <div className="flex items-center space-x-3">
             <img src="/logo.png" alt="Garage Vision" className="w-10 h-10 rounded-full" />
             <h1 className="text-2xl font-bold">Garage Vision</h1>
+          </div>
+          <div className="mt-4 relative">
+            <input
+              className="input w-full md:w-96 text-black"
+              placeholder="Search"
+              value={term}
+              onChange={e => setTerm(e.target.value)}
+            />
+            {term && results && (
+              <div className="absolute bg-white text-black shadow rounded w-full mt-1 z-10 p-2 space-y-1 max-h-64 overflow-y-auto">
+                {results.clients?.length > 0 && (
+                  <div>
+                    <div className="font-semibold">Clients</div>
+                    {results.clients.map(c => (
+                      <Link key={`c${c.id}`} href={`/office/clients/view/${c.id}`} className="block hover:underline">
+                        {(c.first_name || '') + ' ' + (c.last_name || '')}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+                {results.vehicles?.length > 0 && (
+                  <div>
+                    <div className="font-semibold mt-2">Vehicles</div>
+                    {results.vehicles.map(v => (
+                      <Link key={`v${v.id}`} href={`/office/vehicles/view/${v.id}`} className="block hover:underline">
+                        {v.licence_plate}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+                {results.parts?.length > 0 && (
+                  <div>
+                    <div className="font-semibold mt-2">Parts</div>
+                    {results.parts.map(p => (
+                      <Link key={`p${p.id}`} href={`/office/parts`} className="block hover:underline">
+                        {p.part_number} - {p.description}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+                {results.quotes?.length > 0 && (
+                  <div>
+                    <div className="font-semibold mt-2">Quotes</div>
+                    {results.quotes.map(q => (
+                      <Link key={`q${q.id}`} href={`/office/quotations/${q.id}/edit`} className="block hover:underline">
+                        Quote #{q.id}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+                {results.jobs?.length > 0 && (
+                  <div>
+                    <div className="font-semibold mt-2">Jobs</div>
+                    {results.jobs.map(j => (
+                      <Link key={`j${j.id}`} href={`/office/jobs/${j.id}`} className="block hover:underline">
+                        Job #{j.id}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+                {results.invoices?.length > 0 && (
+                  <div>
+                    <div className="font-semibold mt-2">Invoices</div>
+                    {results.invoices.map(i => (
+                      <Link key={`i${i.id}`} href="/office/invoices" className="block hover:underline">
+                        Invoice #{i.id}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </header>
         <div className="p-6 space-y-6 flex-1 overflow-y-auto">
