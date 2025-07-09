@@ -1,6 +1,8 @@
 import pool from '../lib/db.js';
 import { jobStatusExists } from './jobStatusesService.js';
 import { createInvoice } from './invoicesService.js';
+import { getVehicleById } from './vehiclesService.js';
+import { getQuoteItems } from './quoteItemsService.js';
 
 export async function getAllJobs(status) {
   const base =
@@ -168,5 +170,22 @@ export async function getJobDetails(id) {
     [id]
   );
   job.assignments = assignments;
+  return job;
+}
+
+export async function getJobFull(id) {
+  const job = await getJobDetails(id);
+  if (!job) return null;
+  if (job.vehicle_id) {
+    job.vehicle = await getVehicleById(job.vehicle_id);
+  }
+  const [[quoteRow]] = await pool.query(
+    `SELECT id, defect_description FROM quotes WHERE job_id=?`,
+    [id]
+  );
+  if (quoteRow) {
+    const items = await getQuoteItems(quoteRow.id);
+    job.quote = { ...quoteRow, items };
+  }
   return job;
 }

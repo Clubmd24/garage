@@ -24,3 +24,20 @@ test('jobs index returns jobs for date when date query provided', async () => {
   expect(res.json).toHaveBeenCalledWith(rows);
 });
 
+test('job detail uses getJobFull when available', async () => {
+  const job = { id: 5 };
+  const fullMock = jest.fn().mockResolvedValue(job);
+  jest.unstable_mockModule('../services/jobsService.js', () => ({
+    getJobFull: fullMock,
+    updateJob: jest.fn(),
+    deleteJob: jest.fn(),
+  }));
+  const { default: handler } = await import('../pages/api/jobs/[id].js');
+  const req = { method: 'GET', query: { id: '5' } };
+  const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn(), end: jest.fn() };
+  await handler(req, res);
+  expect(fullMock).toHaveBeenCalledWith('5');
+  expect(res.status).toHaveBeenCalledWith(200);
+  expect(res.json).toHaveBeenCalledWith(job);
+});
+
