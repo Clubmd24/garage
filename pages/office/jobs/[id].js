@@ -12,6 +12,11 @@ export default function JobViewPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const formatEuro = n =>
+    new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR' }).format(
+      n || 0
+    );
+
   useEffect(() => {
     if (!id) return;
     async function load() {
@@ -24,7 +29,9 @@ export default function JobViewPage() {
           const c = await fetch(`/api/clients/${j.customer_id}`);
           if (c.ok) setClient(await c.json());
         }
-        if (j.vehicle_id) {
+        if (j.vehicle) {
+          setVehicle(j.vehicle);
+        } else if (j.vehicle_id) {
           const v = await fetch(`/api/vehicles/${j.vehicle_id}`);
           if (v.ok) setVehicle(await v.json());
         }
@@ -66,6 +73,13 @@ export default function JobViewPage() {
               'N/A'
             )}
           </p>
+          {vehicle && (
+            <div className="ml-4 text-sm space-y-1">
+              <p>Make: {vehicle.make || 'N/A'}</p>
+              <p>Model: {vehicle.model || 'N/A'}</p>
+              <p>VIN: {vehicle.vin_number || 'N/A'}</p>
+            </div>
+          )}
           <p>
             <strong>Engineers:</strong>{' '}
             {Array.isArray(job.assignments) && job.assignments.length > 0
@@ -90,6 +104,36 @@ export default function JobViewPage() {
             </Link>
           </div>
           <p><strong>Notes:</strong> {job.notes || 'None'}</p>
+          {job.quote && job.quote.defect_description && (
+            <p className="mt-2">
+              <strong>Reported Defect:</strong> {job.quote.defect_description}
+            </p>
+          )}
+          {job.quote && Array.isArray(job.quote.items) && job.quote.items.length > 0 && (
+            <div className="mt-4">
+              <h2 className="font-semibold mb-1">Quote Items</h2>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr>
+                    <th className="text-left">Part</th>
+                    <th className="text-left">Qty</th>
+                    <th className="text-right">Unit Price</th>
+                    <th className="text-right">Line Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {job.quote.items.map(it => (
+                    <tr key={it.id}>
+                      <td>{it.partNumber || ''} {it.description}</td>
+                      <td>{it.qty}</td>
+                      <td className="text-right">{formatEuro(it.unit_price)}</td>
+                      <td className="text-right">{formatEuro(it.qty * it.unit_price)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
     </OfficeLayout>
