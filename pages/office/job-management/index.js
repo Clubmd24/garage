@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import OfficeLayout from '../../../components/OfficeLayout';
 import { fetchJobs } from '../../../lib/jobs';
 import { fetchEngineers } from '../../../lib/engineers';
@@ -121,6 +122,12 @@ export default function JobManagementPage() {
                   >
                     Awaiting Parts
                   </button>
+                  <Link
+                    href={`/office/jobs/${job.id}/purchase-orders`}
+                    className="button-secondary px-4"
+                  >
+                    Purchase Orders
+                  </Link>
                 </div>
               </form>
             );
