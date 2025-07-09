@@ -12,16 +12,17 @@
    - `NEXT_PUBLIC_AWS_REGION`
    
    The S3 bucket must already exist and permit uploads.
-3. Select the Node.js version defined in `.nvmrc`: `nvm use`
-4. Install dependencies: `npm install`
-5. Make the bootstrap script executable and run it to scaffold the portal:
+3. Run `./setup.sh` to install Node.js and all JavaScript and Python
+   dependencies. This script installs `nvm` if necessary, uses Node.js `22` and
+   runs `npm ci` and `pip install -r requirements.txt`.
+4. Make the bootstrap script executable and run it to scaffold the portal:
    `chmod +x bootstrap_dev_portal.sh && ./bootstrap_dev_portal.sh`
-6. Run migrations: `npm run migrate`
+5. Run migrations: `npm run migrate`
    - This command executes every `.sql` file in the `migrations/` directory in
      order and records which have been run.
    - Running the script again safely skips already-applied migrations.
-7. Run tests and lint checks: `npm test` and `npm run lint`
-8. Start dev server: `npm run dev`
+6. Run tests and lint checks: `npm test` and `npm run lint`
+7. Start dev server: `npm run dev`
 
 ## Database
 
@@ -44,7 +45,7 @@ script `generate_invoice.py` to render this template with data in JSON format
 and produce a PDF invoice. Example usage:
 
 ```bash
-pip install docxtpl python-docx2pdf
+pip install -r requirements.txt  # or run ./setup.sh beforehand
 python generate_invoice.py invoice_data.json
 ```
 
@@ -58,7 +59,7 @@ Use the helper script `generate_quote.py` to fill this template with JSON data
 and produce a PDF quote. Example usage:
 
 ```bash
-pip install docxtpl docx2pdf
+pip install -r requirements.txt  # or run ./setup.sh beforehand
 python generate_quote.py quote_data.json
 ```
 
