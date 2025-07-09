@@ -10,7 +10,7 @@ async function handler(req, res) {
   const data = await getClientsWithVehicles();
   const wb = utils.book_new();
   const ws = utils.json_to_sheet(data);
-  utils.book_append_sheet(wb, ws, 'Clients');
+  utils.book_append_sheet(wb, ws);
   const buffer = write(wb, { type: 'buffer', bookType: 'xlsx' });
   res.setHeader(
     'Content-Type',
