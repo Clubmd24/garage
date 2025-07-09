@@ -1,10 +1,11 @@
 import React from 'react';
 import OfficeLayout from '../../../components/OfficeLayout';
+import SchedulingCalendar from '../../../components/SchedulingCalendar.jsx';
 
 const SchedulingPage = () => (
   <OfficeLayout>
     <h1 className="text-xl font-semibold">Scheduling</h1>
-    {/* TODO: Calendar component */}
+    <SchedulingCalendar />
   </OfficeLayout>
 );
 
