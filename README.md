@@ -14,8 +14,7 @@
    The S3 bucket must already exist and permit uploads.
 3. Install the Python dependencies:
    `pip install -r requirements.txt`
-4. Run `./setup.sh` to install Node.js and all JavaScript dependencies. This
-   script installs `nvm` if necessary, uses Node.js `22` and runs `npm ci`.
+4. Run `./setup.sh` to install Node.js and all JavaScript dependencies. This script installs `nvm` if necessary, runs `nvm install 22` then `nvm use 22`, and executes `npm ci`.
 5. Make the bootstrap script executable and run it to scaffold the portal:
    `chmod +x bootstrap_dev_portal.sh && ./bootstrap_dev_portal.sh`
 6. Run migrations: `npm run migrate`
