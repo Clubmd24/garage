@@ -128,7 +128,7 @@ export default function OfficeDashboard() {
         )}
       </div>
       <div className="bg-white text-black rounded-2xl p-4 shadow mt-6">
-        <h2 className="text-lg font-semibold mb-2">Today's Jobs</h2>
+        <h2 className="text-lg font-semibold mb-2">Today&apos;s Jobs</h2>
         {todayJobs.length === 0 ? (
           <p>No jobs today.</p>
         ) : (
