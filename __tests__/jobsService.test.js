@@ -77,3 +77,33 @@ test('engineer completes job then office notifies client for collection', async 
   );
   expect(createInvoiceMock).toHaveBeenCalledWith({ job_id: 5, customer_id: 8, status: 'awaiting collection' });
 });
+
+test('getJobsInRange returns unscheduled jobs', async () => {
+  const rows = [{
+    id: 3,
+    customer_id: 1,
+    vehicle_id: 2,
+    scheduled_start: null,
+    scheduled_end: null,
+    status: 'unassigned',
+    bay: null,
+    engineer_ids: null,
+  }];
+  const queryMock = jest.fn().mockResolvedValue([rows]);
+  jest.unstable_mockModule('../lib/db.js', () => ({ default: { query: queryMock } }));
+  const { getJobsInRange } = await import('../services/jobsService.js');
+  const result = await getJobsInRange('2024-01-01', '2024-01-31');
+  expect(queryMock).toHaveBeenCalledWith(expect.any(String), ['2024-01-01', '2024-01-31']);
+  expect(result).toEqual([
+    {
+      id: 3,
+      customer_id: 1,
+      vehicle_id: 2,
+      scheduled_start: null,
+      scheduled_end: null,
+      status: 'unassigned',
+      bay: null,
+      assignments: [],
+    },
+  ]);
+});

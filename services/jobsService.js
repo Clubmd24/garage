@@ -135,7 +135,9 @@ export async function getJobsInRange(start, end, engineer_id) {
             GROUP_CONCAT(ja.user_id) AS engineer_ids
        FROM jobs j
        ${join}
-      WHERE j.scheduled_start>=? AND j.scheduled_end<=?
+      WHERE (j.scheduled_start>=? AND j.scheduled_end<=?)
+         OR j.scheduled_start IS NULL
+         OR j.scheduled_end IS NULL
    GROUP BY j.id
    ORDER BY j.scheduled_start`,
     params

@@ -41,6 +41,21 @@ test('job cards listing shows client and vehicle info', async () => {
   expect(screen.getByText('Ford')).toBeInTheDocument();
 });
 
+test('job cards link to associated job', async () => {
+  jest.unstable_mockModule('../components/useCurrentUser.js', () => ({
+    useCurrentUser: () => ({ user: null })
+  }));
+  global.fetch = jest
+    .fn()
+    .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 2, job_id: 7, customer_id: 1, vehicle_id: 3, total_amount: 50, status: 'job-card' }] })
+    .mockResolvedValueOnce({ ok: true, json: async () => [] })
+    .mockResolvedValueOnce({ ok: true, json: async () => [] });
+  const { default: JobCardsPage } = await import('../pages/office/job-cards/index.js');
+  render(<JobCardsPage />);
+  const link = await screen.findByRole('link', { name: 'Job #7' });
+  expect(link).toHaveAttribute('href', '/office/jobs/7');
+});
+
 test('invoices listing shows client and vehicle info', async () => {
   global.fetch = jest
     .fn()
