@@ -123,6 +123,12 @@ export default function JobManagementPage() {
                     Awaiting Parts
                   </button>
                   <Link
+                    href={`/office/jobs/${job.id}`}
+                    className="button-secondary px-4"
+                  >
+                    View Job
+                  </Link>
+                  <Link
                     href={`/office/jobs/${job.id}/purchase-orders`}
                     className="button-secondary px-4"
                   >
