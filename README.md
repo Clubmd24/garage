@@ -35,6 +35,7 @@ results so it can be run repeatedly without errors.
 - `/api/suppliers/[id]` - view, update and delete a supplier.
 - `/api/purchase-orders` - create purchase orders with items.
 - `/api/quote-items` - create or fetch quote items.
+- `/api/search` - search across clients, vehicles, jobs, quotes, invoices and parts.
 
 ## Invoice Generation
 
@@ -69,3 +70,10 @@ The resulting files are written to the `output/` directory as
 From the office interface you can view any quotes linked to a client or vehicle.
 Open a client or vehicle record and all associated quotes will appear beneath
 their documents list.
+
+## Master Search
+
+The header on the office layout includes a search bar that queries multiple
+entities at once. Results are grouped by type and link to the relevant
+view or edit pages. Behind the scenes the `/api/search` endpoint performs
+`LIKE` searches across clients, vehicles, jobs, quotes, invoices and parts.
