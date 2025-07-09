@@ -2,6 +2,7 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import crypto from 'crypto';
 import apiHandler from '../../../lib/apiHandler.js';
+import { getTokenFromReq } from '../../../lib/auth.js';
 
 const client = new S3Client({
   region: process.env.AWS_REGION,
@@ -16,6 +17,10 @@ async function handler(req, res) {
     res.setHeader('Allow', ['POST']);
     return res.status(405).end();
   }
+
+  const t = getTokenFromReq(req);
+  if (!t) return res.status(401).json({ error: 'Unauthorized' });
+  const userId = t.sub; // optionally record user ID for audit
 
   const bucket = process.env.S3_BUCKET;
   if (!bucket) return res.status(500).json({ error: 'S3_BUCKET not set' });
