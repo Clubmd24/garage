@@ -47,9 +47,9 @@ export default function JobPurchaseOrdersPage() {
     return acc;
   }, {});
 
-  const createOrders = async updateStatus => {
+  const createOrders = async requestQuote => {
     for (const [sid, items] of Object.entries(groups)) {
-      await fetch('/api/purchase-orders', {
+      const res = await fetch('/api/purchase-orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -57,8 +57,14 @@ export default function JobPurchaseOrdersPage() {
           items: items.map(it => ({ part_id: it.id })),
         }),
       });
+      if (requestQuote && res.ok) {
+        const po = await res.json();
+        await fetch(`/api/purchase-orders/${po.id}/request-quote`, {
+          method: 'POST',
+        });
+      }
     }
-    if (updateStatus) {
+    if (requestQuote) {
       await fetch(`/api/jobs/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },

@@ -38,24 +38,31 @@ test('job purchase orders page posts grouped orders', async () => {
   expect(global.fetch.mock.calls[3][0]).toBe('/api/purchase-orders');
 });
 
-test('request supplier quote updates job status', async () => {
+test('request supplier quote creates order and updates statuses', async () => {
   jest.unstable_mockModule('next/router', () => ({
     useRouter: () => ({ query: { id: '4' }, push: jest.fn() })
   }));
 
   global.fetch = jest
     .fn()
-    .mockResolvedValueOnce({ ok: true, json: async () => [] })
-    .mockResolvedValueOnce({ ok: true, json: async () => [] })
+    .mockResolvedValueOnce({ ok: true, json: async () => [
+      { id: 1, part_number: 'A', description: 'a', supplier_id: 5 }
+    ] })
+    .mockResolvedValueOnce({ ok: true, json: async () => [ { id: 5, name: 'S1' } ] })
+    .mockResolvedValueOnce({ ok: true, json: async () => ({ id: 9 }) })
+    .mockResolvedValueOnce({ ok: true, json: async () => ({}) })
     .mockResolvedValue({ ok: true, json: async () => ({}) });
 
   const { default: Page } = await import('../pages/office/jobs/[id]/purchase-orders.js');
   render(<Page />);
 
   await screen.findByText('Job #4 Parts');
+  fireEvent.click(screen.getByLabelText('A - a'));
   fireEvent.click(screen.getByText('Request Supplier Quote'));
 
-  await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(3));
-  expect(global.fetch.mock.calls[2][0]).toBe('/api/jobs/4');
-  expect(global.fetch.mock.calls[2][1].method).toBe('PUT');
+  await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(5));
+  expect(global.fetch.mock.calls[2][0]).toBe('/api/purchase-orders');
+  expect(global.fetch.mock.calls[3][0]).toBe('/api/purchase-orders/9/request-quote');
+  expect(global.fetch.mock.calls[4][0]).toBe('/api/jobs/4');
+  expect(global.fetch.mock.calls[4][1].method).toBe('PUT');
 });
