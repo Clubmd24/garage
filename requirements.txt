@@ -1,0 +1,11 @@
+# Python dependencies for the invoice and quote generators
+
+docxtpl>=0.16
+# docx2pdf is optional but used for PDF conversion
+# It requires Microsoft Word on Windows or uses macOS printing; on Linux it relies on LibreOffice
+# We include it here for convenience
+# unoconv can be used as a fallback and may need system packages
+# The scripts handle its absence gracefully
+# Pin a recent version
+
+docx2pdf>=0.1
