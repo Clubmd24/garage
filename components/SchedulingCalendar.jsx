@@ -11,6 +11,8 @@ const locales = { 'en-US': enUS };
 const localizer = dateFnsLocalizer({ format, parse, startOfWeek, getDay, locales });
 const DnDCalendar = withDragAndDrop(Calendar);
 const COLORS = ['#2563eb', '#d97706', '#047857', '#b91c1c', '#6d28d9', '#be185d'];
+const MIN_TIME = new Date(1970, 0, 1, 7, 0, 0);
+const MAX_TIME = new Date(1970, 0, 1, 21, 0, 0);
 
 export default function SchedulingCalendar() {
   const [events, setEvents] = useState([]);
@@ -94,9 +96,12 @@ export default function SchedulingCalendar() {
           <DnDCalendar
             localizer={localizer}
             events={events}
-            defaultView={Views.WEEK}
-            views={[Views.DAY, Views.WEEK, Views.MONTH]}
+            defaultView={Views.WORK_WEEK}
+            views={[Views.WORK_WEEK, Views.DAY]}
             style={{ height: 600 }}
+            min={MIN_TIME}
+            max={MAX_TIME}
+            scrollToTime={MIN_TIME}
             eventPropGetter={eventPropGetter}
             onDropFromOutside={onDropFromOutside}
             dragFromOutsideItem={() => dragFromOutsideItem}
