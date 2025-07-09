@@ -24,6 +24,7 @@ export async function deleteJobStatus(id) {
     'unassigned',
     'engineer completed',
     'notified client for collection',
+    'awaiting supplier information',
   ];
   if (row && mandatory.includes(row.name)) {
     throw new Error('Cannot delete default status');

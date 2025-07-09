@@ -174,7 +174,7 @@ export default function CompanySettingsPage() {
                 className="flex justify-between bg-gray-100 px-2 py-1 rounded text-black"
               >
                 <span>{s.name}</span>
-                {s.name !== 'unassigned' && (
+                {s.name !== 'unassigned' && s.name !== 'awaiting supplier information' && (
                   <button
                     onClick={() => removeStatus(s.id)}
                     className="text-red-600 hover:underline"
