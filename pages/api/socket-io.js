@@ -1,6 +1,8 @@
 import { Server } from "socket.io";
+import { parse } from "cookie";
 import pool from "../../lib/db";
 import apiHandler from '../../lib/apiHandler.js';
+import { verifyToken } from "../../lib/auth.js";
 
 const extractMentions = (body) =>
   Array.from(
@@ -10,7 +12,23 @@ const extractMentions = (body) =>
 function handler(req, res) {
   if (!res.socket.server.io) {
     const io = new Server(res.socket.server, { path: "/api/socket-io" });
+
+    io.use((socket, next) => {
+      const cookies = parse(socket.handshake.headers.cookie || "");
+      const token = cookies.auth_token || cookies.fleet_token || cookies.local_token;
+      if (!token) return next(new Error("Unauthorized"));
+      try {
+        socket.user = verifyToken(token);
+        return next();
+      } catch {
+        return next(new Error("Unauthorized"));
+      }
+    });
     io.on("connection", (socket) => {
+      if (!socket.user) {
+        socket.disconnect();
+        return;
+      }
       socket.on("chat:join", (room) => {
         if (socket.currentRoom) socket.leave(String(socket.currentRoom));
         socket.join(String(room));
