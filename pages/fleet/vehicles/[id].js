@@ -4,6 +4,7 @@ import Link from 'next/link';
 import logout from '../../../lib/logout.js';
 import { fetchJobs } from '../../../lib/jobs.js';
 import { updateQuote } from '../../../lib/quotes.js';
+import { formatDateTime } from '../../../lib/datetime.js';
 
 export default function FleetVehicleDetails() {
   const router = useRouter();
@@ -150,7 +151,17 @@ export default function FleetVehicleDetails() {
         <h2 className="text-xl font-semibold mb-2">Jobs</h2>
         <ul className="list-disc ml-6 space-y-1">
           {jobs.map(j => (
-            <li key={j.id}>Job #{j.id} - {j.status}</li>
+            <li key={j.id}>
+              Job #{j.id} - {j.status}
+              {j.scheduled_start && (
+                <>
+                  {' '}-
+                  {j.scheduled_end
+                    ? `Scheduled from ${formatDateTime(j.scheduled_start)} to ${formatDateTime(j.scheduled_end)}`
+                    : `Scheduled for ${formatDateTime(j.scheduled_start)}`}
+                </>
+              )}
+            </li>
           ))}
         </ul>
       </section>

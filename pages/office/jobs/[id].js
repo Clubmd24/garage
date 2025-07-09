@@ -84,7 +84,9 @@ export default function JobViewPage() {
           </p>
           <div className="mt-4">
             <Link href={`/office/jobs/assign?id=${id}`} className="button">
-              Assign Engineer
+              {job.assignments && job.assignments.length > 0
+                ? 'Edit Assignment'
+                : 'Assign Engineer'}
             </Link>
           </div>
           <p><strong>Notes:</strong> {job.notes || 'None'}</p>

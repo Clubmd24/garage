@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import OfficeLayout from '../../../components/OfficeLayout';
 import { fetchEngineers } from '../../../lib/engineers';
+import { fetchJob } from '../../../lib/jobs';
 
 export default function AssignJobPage() {
   const router = useRouter();
@@ -10,12 +11,36 @@ export default function AssignJobPage() {
   const [engineers, setEngineers] = useState([]);
   const [form, setForm] = useState({ engineer_id: '', scheduled_start: '', scheduled_end: '' });
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchEngineers()
       .then(setEngineers)
       .catch(() => setEngineers([]));
   }, []);
+
+  useEffect(() => {
+    if (!id) return;
+    (async () => {
+      try {
+        const job = await fetchJob(id);
+        setForm({
+          engineer_id:
+            Array.isArray(job.assignments) && job.assignments.length > 0
+              ? job.assignments[0].user_id
+              : '',
+          scheduled_start: job.scheduled_start
+            ? job.scheduled_start.slice(0, 16)
+            : '',
+          scheduled_end: job.scheduled_end ? job.scheduled_end.slice(0, 16) : '',
+        });
+      } catch {
+        // ignore
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [id]);
 
   const change = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 
@@ -34,11 +59,13 @@ export default function AssignJobPage() {
     }
   };
 
-  if (!id) return <OfficeLayout><p>Loading…</p></OfficeLayout>;
+  if (!id || loading) return <OfficeLayout><p>Loading…</p></OfficeLayout>;
 
   return (
     <OfficeLayout>
-      <h1 className="text-2xl font-semibold mb-4">Assign Engineer</h1>
+      <h1 className="text-2xl font-semibold mb-4">
+        {form.engineer_id ? 'Edit Assignment' : 'Assign Engineer'}
+      </h1>
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={submit} className="space-y-4 max-w-sm">
         <div>
