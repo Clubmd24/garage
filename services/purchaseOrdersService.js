@@ -43,3 +43,19 @@ export async function addPurchaseOrderItem({ purchase_order_id, part_id, qty, un
   );
   return { id: insertId, purchase_order_id, part_id, qty, unit_price };
 }
+
+export async function getPurchaseOrderById(id) {
+  const [[row]] = await pool.query(
+    `SELECT id, job_id, supplier_id, status, created_at FROM purchase_orders WHERE id=?`,
+    [id]
+  );
+  return row || null;
+}
+
+export async function updatePurchaseOrder(id, { job_id, supplier_id, status }) {
+  await pool.query(
+    `UPDATE purchase_orders SET job_id=?, supplier_id=?, status=? WHERE id=?`,
+    [job_id || null, supplier_id || null, status || null, id]
+  );
+  return { ok: true };
+}

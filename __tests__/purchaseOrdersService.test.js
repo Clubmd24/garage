@@ -60,3 +60,24 @@ test('addPurchaseOrderItem inserts item', async () => {
   expect(queryMock).toHaveBeenCalledWith(expect.stringMatching(/INSERT INTO purchase_order_items/), [5, 6, 2, 3]);
   expect(result).toEqual({ id: 7, ...data });
 });
+
+test('getPurchaseOrderById returns row', async () => {
+  const queryMock = jest.fn().mockResolvedValue([[{ id: 5 }]]);
+  jest.unstable_mockModule('../lib/db.js', () => ({ default: { query: queryMock } }));
+  const { getPurchaseOrderById } = await import('../services/purchaseOrdersService.js');
+  const result = await getPurchaseOrderById(5);
+  expect(queryMock).toHaveBeenCalledWith(expect.stringMatching(/FROM purchase_orders/), [5]);
+  expect(result).toEqual({ id: 5 });
+});
+
+test('updatePurchaseOrder updates row', async () => {
+  const queryMock = jest.fn().mockResolvedValue([]);
+  jest.unstable_mockModule('../lib/db.js', () => ({ default: { query: queryMock } }));
+  const { updatePurchaseOrder } = await import('../services/purchaseOrdersService.js');
+  const result = await updatePurchaseOrder(4, { status: 'awaiting supplier quote' });
+  expect(queryMock).toHaveBeenCalledWith(
+    expect.stringMatching(/UPDATE purchase_orders/),
+    [null, null, 'awaiting supplier quote', 4]
+  );
+  expect(result).toEqual({ ok: true });
+});
