@@ -4,7 +4,7 @@ import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop/index.js'
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { parse, format, startOfWeek, getDay } from 'date-fns';
-import enUS from 'date-fns/locale/en-US/index.js';
+import enUS from 'date-fns/locale/en-US';
 import { fetchJobsInRange, assignJob } from '../lib/jobs.js';
 
 const locales = { 'en-US': enUS };
