@@ -124,6 +124,36 @@ export async function getJobsForDate(date) {
   return rows;
 }
 
+export async function getJobsInRange(start, end, engineer_id) {
+  const params = engineer_id ? [engineer_id, start, end] : [start, end];
+  const join = engineer_id
+    ? 'JOIN job_assignments ja ON j.id=ja.job_id AND ja.user_id=?'
+    : 'LEFT JOIN job_assignments ja ON j.id=ja.job_id';
+  const [rows] = await pool.query(
+    `SELECT j.id, j.customer_id, j.vehicle_id, j.scheduled_start, j.scheduled_end,
+            j.status, j.bay,
+            GROUP_CONCAT(ja.user_id) AS engineer_ids
+       FROM jobs j
+       ${join}
+      WHERE j.scheduled_start>=? AND j.scheduled_end<=?
+   GROUP BY j.id
+   ORDER BY j.scheduled_start`,
+    params
+  );
+  return rows.map(r => ({
+    id: r.id,
+    customer_id: r.customer_id,
+    vehicle_id: r.vehicle_id,
+    scheduled_start: r.scheduled_start,
+    scheduled_end: r.scheduled_end,
+    status: r.status,
+    bay: r.bay,
+    assignments: r.engineer_ids
+      ? r.engineer_ids.split(',').map(id => ({ user_id: Number(id) }))
+      : [],
+  }));
+}
+
 export async function getJobDetails(id) {
   const job = await getJobById(id);
   if (!job) return null;
