@@ -52,7 +52,7 @@ const JobCardsPage = () => {
 
   const invoice = async job => {
     await createInvoice({
-      job_id: job.id,
+      job_id: job.job_id,
       customer_id: job.customer_id,
       amount: job.total_amount,
       due_date: new Date().toISOString().substring(0, 10),
@@ -111,8 +111,8 @@ const JobCardsPage = () => {
           {filteredJobs.map(j => (
             <div key={j.id} className="item-card">
               <h2 className="font-semibold mb-1">
-                <Link href={`/office/jobs/${j.id}`} className="underline">
-                  Job #{j.id}
+                <Link href={`/office/jobs/${j.job_id}`} className="underline">
+                  Job #{j.job_id}
                 </Link>
               </h2>
               <p className="text-sm">{clientMap[j.customer_id] || ''}</p>
