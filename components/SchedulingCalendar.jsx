@@ -1,3 +1,4 @@
+```jsx
 // components/SchedulingCalendar.jsx
 
 import React, { useEffect, useState } from 'react'
@@ -5,7 +6,6 @@ import { Calendar as BigCalendar, Views, dateFnsLocalizer } from 'react-big-cale
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
-import '../styles/globals.css' // or wherever your Tailwind/css reset lives
 
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -134,3 +134,4 @@ export default function SchedulingCalendar() {
     </div>
   )
 }
+```
