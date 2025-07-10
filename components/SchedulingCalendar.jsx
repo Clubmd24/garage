@@ -1,37 +1,36 @@
-```jsx
 // components/SchedulingCalendar.jsx
 
-import React, { useEffect, useState } from 'react'
-import { Calendar as BigCalendar, Views, dateFnsLocalizer } from 'react-big-calendar'
-import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
+import React, { useEffect, useState } from 'react';
+import { Calendar as BigCalendar, Views, dateFnsLocalizer } from 'react-big-calendar';
+import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 
-import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
-import { parse, format, startOfWeek, getDay } from 'date-fns'
-import enUS from 'date-fns/locale/en-US'
-import { fetchJobsInRange, assignJob } from '../lib/jobs'
+import { parse, format, startOfWeek, getDay } from 'date-fns';
+import enUS from 'date-fns/locale/en-US';
+import { fetchJobsInRange, assignJob } from '../lib/jobs';
 
 // Note: Global CSS imports for react-big-calendar belong in pages/_app.js
-const locales = { 'en-US': enUS }
-const localizer = dateFnsLocalizer({ format, parse, startOfWeek, getDay, locales })
-const DnDCalendar = withDragAndDrop(BigCalendar)
+const locales = { 'en-US': enUS };
+const localizer = dateFnsLocalizer({ format, parse, startOfWeek, getDay, locales });
+const DnDCalendar = withDragAndDrop(BigCalendar);
 
-const COLORS = ['#2563eb', '#d97706', '#047857', '#b91c1c', '#6d28d9', '#be185d']
-const MIN_TIME = new Date(1970, 0, 1, 7, 0, 0)
-const MAX_TIME = new Date(1970, 0, 1, 20, 0, 0)
+const COLORS = ['#2563eb', '#d97706', '#047857', '#b91c1c', '#6d28d9', '#be185d'];
+const MIN_TIME = new Date(1970, 0, 1, 7, 0, 0);
+const MAX_TIME = new Date(1970, 0, 1, 20, 0, 0);
 
 export default function SchedulingCalendar() {
-  const [events, setEvents] = useState([])
-  const [unassigned, setUnassigned] = useState([])
-  const [dragJob, setDragJob] = useState(null)
+  const [events, setEvents] = useState([]);
+  const [unassigned, setUnassigned] = useState([]);
+  const [dragJob, setDragJob] = useState(null);
 
   // Load jobs from API
   const load = () => {
-    const start = new Date()
-    start.setDate(start.getDate() - 7)
-    const end = new Date()
-    end.setDate(end.getDate() + 30)
+    const start = new Date();
+    start.setDate(start.getDate() - 7);
+    const end = new Date();
+    end.setDate(end.getDate() + 30);
 
     fetchJobsInRange(
       start.toISOString().slice(0, 10),
@@ -55,19 +54,20 @@ export default function SchedulingCalendar() {
             engineer_id: j.assignments?.[0]?.user_id,
           }))
       )
-    }).catch(() => {
-      setUnassigned([])
-      setEvents([])
     })
+      .catch(() => {
+        setUnassigned([]);
+        setEvents([]);
+      });
   }
 
-  useEffect(load, [])
+  useEffect(load, []);
 
   // Style events by engineer
   const eventPropGetter = event => {
-    const idx = event.engineer_id ? event.engineer_id % COLORS.length : 0
-    return { style: { backgroundColor: COLORS[idx] } }
-  }
+    const idx = event.engineer_id ? event.engineer_id % COLORS.length : 0;
+    return { style: { backgroundColor: COLORS[idx] } };
+  };
 
   // Handle drop from side panel
   const onDropFromOutside = ({ start, end }) => {
@@ -76,11 +76,11 @@ export default function SchedulingCalendar() {
       engineer_id: dragJob.engineer_id || 1,
       scheduled_start: start.toISOString(),
       scheduled_end: end.toISOString(),
-    }).finally(load)
-    setDragJob(null)
+    }).finally(load);
+    setDragJob(null);
   }
 
-  const dragFromOutsideItem = dragJob ? { title: `Job #${dragJob.id}` } : null
+  const dragFromOutsideItem = dragJob ? { title: `Job #${dragJob.id}` } : null;
 
   return (
     <div className="min-h-screen p-6 bg-gradient-to-br from-blue-600 to-blue-800">
@@ -131,4 +131,3 @@ export default function SchedulingCalendar() {
     </div>
   )
 }
-```
