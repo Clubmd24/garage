@@ -96,7 +96,7 @@ export default function SchedulingCalendar() {
       <div className="flex space-x-4">
         {/* Side Panel */}
         <div
-          className="w-64 bg-white rounded-2xl shadow-lg p-4 space-y-2"
+          className="w-64 bg-white rounded-2xl shadow-lg p-4 space-y-2 text-black"
           data-testid="side-panel"
         >
           <h3 className="font-semibold">Unscheduled Jobs</h3>
@@ -117,7 +117,7 @@ export default function SchedulingCalendar() {
         </div>
 
         {/* Calendar */}
-        <div className="flex-1 bg-white rounded-2xl shadow-lg p-4" data-testid="calendar">
+        <div className="flex-1 bg-white rounded-2xl shadow-lg p-4 text-black" data-testid="calendar">
           <DndProvider backend={HTML5Backend}>
             <DnDCalendar
               localizer={localizer}
