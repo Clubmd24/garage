@@ -4,8 +4,6 @@
 import React, { useEffect, useState } from 'react'
 import { Calendar as BigCalendar, Views, dateFnsLocalizer } from 'react-big-calendar'
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
-import 'react-big-calendar/lib/css/react-big-calendar.css'
-import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
 
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -14,6 +12,7 @@ import { parse, format, startOfWeek, getDay } from 'date-fns'
 import enUS from 'date-fns/locale/en-US'
 import { fetchJobsInRange, assignJob } from '../lib/jobs'
 
+// Note: Global CSS imports for react-big-calendar belong in pages/_app.js
 const locales = { 'en-US': enUS }
 const localizer = dateFnsLocalizer({ format, parse, startOfWeek, getDay, locales })
 const DnDCalendar = withDragAndDrop(BigCalendar)
@@ -37,31 +36,29 @@ export default function SchedulingCalendar() {
     fetchJobsInRange(
       start.toISOString().slice(0, 10),
       end.toISOString().slice(0, 10)
-    )
-      .then(jobs => {
-        setUnassigned(
-          jobs.filter(j =>
-            ['unassigned', 'awaiting parts', 'awaiting supplier information'].includes(
-              j.status
-            )
+    ).then(jobs => {
+      setUnassigned(
+        jobs.filter(j =>
+          ['unassigned', 'awaiting parts', 'awaiting supplier information'].includes(
+            j.status
           )
         )
-        setEvents(
-          jobs
-            .filter(j => j.scheduled_start && j.scheduled_end)
-            .map(j => ({
-              id: j.id,
-              title: `Job #${j.id}`,
-              start: new Date(j.scheduled_start),
-              end: new Date(j.scheduled_end),
-              engineer_id: j.assignments?.[0]?.user_id,
-            }))
-        )
-      })
-      .catch(() => {
-        setUnassigned([])
-        setEvents([])
-      })
+      )
+      setEvents(
+        jobs
+          .filter(j => j.scheduled_start && j.scheduled_end)
+          .map(j => ({
+            id: j.id,
+            title: `Job #${j.id}`,
+            start: new Date(j.scheduled_start),
+            end: new Date(j.scheduled_end),
+            engineer_id: j.assignments?.[0]?.user_id,
+          }))
+      )
+    }).catch(() => {
+      setUnassigned([])
+      setEvents([])
+    })
   }
 
   useEffect(load, [])
