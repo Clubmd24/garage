@@ -14,14 +14,20 @@
    The S3 bucket must already exist and permit uploads.
 3. Install the Python dependencies:
    `pip install -r requirements.txt`
-4. Run `./setup.sh` to install Node.js and all JavaScript dependencies. This script installs `nvm` if necessary, runs `nvm install 22` then `nvm use 22`, and executes `npm ci`.
+4. Run `./setup.sh` to install Node.js and all JavaScript dependencies. This
+   script installs `nvm` if necessary, runs `nvm install 22` then `nvm use 22`,
+   and executes `npm ci`. If your environment lacks internet access, make sure
+   Node 22 and the packages listed in `package-lock.json` are already downloaded
+   and available locally or use a prebuilt Docker image that contains them.
 5. Make the bootstrap script executable and run it to scaffold the portal:
    `chmod +x bootstrap_dev_portal.sh && ./bootstrap_dev_portal.sh`
 6. Run migrations: `npm run migrate`
    - This command executes every `.sql` file in the `migrations/` directory in
      order and records which have been run.
    - Running the script again safely skips already-applied migrations.
-7. Run tests and lint checks: `npm test` and `npm run lint`
+7. Run tests and lint checks: `npm test` and `npm run lint`. The test suite
+   requires Node and all npm packages to be installed, so ensure the previous
+   step succeeded or use a Docker image with these dependencies preinstalled.
 8. Start dev server: `npm run dev`
 
 ## Database
