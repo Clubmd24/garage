@@ -44,6 +44,14 @@ For a local installation, ensure the MySQL service is running and a database nam
    step succeeded or use a Docker image with these dependencies preinstalled.
 8. Start dev server: `npm run dev`
 
+## Code Style
+
+ESLint is configured using the Next.js base rules. Custom settings warn on
+unused variables, enforce single quotes and require semicolons. Run
+`npm run lint` or enable an editor integration before committing. See
+`.eslintrc.json` or the [Next.js ESLint guide](https://nextjs.org/docs/pages/building-your-application/configuring/eslint)
+for the full rule set.
+
 ## Database
 
 All database schema changes are stored as `.sql` files in the `migrations/`
