@@ -21,6 +21,20 @@
    and available locally or use a prebuilt Docker image that contains them.
 5. Make the bootstrap script executable and run it to scaffold the portal:
    `chmod +x bootstrap_dev_portal.sh && ./bootstrap_dev_portal.sh`
+
+### Start the database
+
+Start a local MySQL server before running migrations. If Docker is available you can start a container with:
+
+```bash
+docker run --name garage-db \
+  -e MYSQL_ROOT_PASSWORD=root \
+  -e MYSQL_DATABASE=garage \
+  -p 3306:3306 -d mysql:8
+```
+
+For a local installation, ensure the MySQL service is running and a database named `garage` exists. Update `DATABASE_URL` in `.env.local` if necessary.
+
 6. Run migrations: `npm run migrate`
    - This command executes every `.sql` file in the `migrations/` directory in
      order and records which have been run.
