@@ -14,6 +14,14 @@ import { fetchJobsInRange, assignJob } from '../lib/jobs';
 // Note: Global CSS imports for react-big-calendar belong in pages/_app.js
 const locales = { 'en-US': enUS };
 const localizer = dateFnsLocalizer({ format, parse, startOfWeek, getDay, locales });
+
+// Custom display formats for the calendar
+const formats = {
+  dayHeaderFormat: 'EEEE MMM d',
+  dayFormat: 'EEEE MMM d',
+  weekdayFormat: 'EEEE',
+  timeGutterFormat: 'HH:mm',
+};
 const DnDCalendar = withDragAndDrop(BigCalendar);
 
 const COLORS = ['#2563eb', '#d97706', '#047857', '#b91c1c', '#6d28d9', '#be185d'];
@@ -116,6 +124,7 @@ export default function SchedulingCalendar() {
               events={events}
               defaultView={Views.WORK_WEEK}
               views={[Views.WORK_WEEK, Views.DAY]}
+              formats={formats}
               style={{ height: 650 }}
               min={MIN_TIME}
               max={MAX_TIME}
