@@ -77,6 +77,11 @@ pip install -r requirements.txt  # or run ./setup.sh beforehand
 python generate_invoice.py invoice_data.json
 ```
 
+The PDF conversion relies on either the `docx2pdf` Python package or `unoconv`
+being available. `docx2pdf` is installed via the requirements file, while
+`unoconv` can be installed separately (e.g. `sudo apt-get install unoconv` on
+Ubuntu or `brew install unoconv` on macOS).
+
 The resulting files are written to the `output/` directory as
 `invoice_<invoice_number>.docx` and `invoice_<invoice_number>.pdf`.
 
@@ -90,6 +95,9 @@ and produce a PDF quote. Example usage:
 pip install -r requirements.txt  # or run ./setup.sh beforehand
 python generate_quote.py quote_data.json
 ```
+
+See the note above regarding installing `docx2pdf` or `unoconv` for PDF
+generation.
 
 The resulting files are written to the `output/` directory as
 `quote_<quote_number>.docx` and `quote_<quote_number>.pdf`.
