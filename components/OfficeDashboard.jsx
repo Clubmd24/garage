@@ -99,7 +99,7 @@ export default function OfficeDashboard() {
             {statuses.map(s => (
               <li key={s.id} className="capitalize">
                 {s.name}:{' '}
-                <Link href={`/office/job-cards?status=${encodeURIComponent(s.name)}`}>{jobStatusCounts[s.name] || 0}</Link>
+                <Link href={`/office/job-management?status=${encodeURIComponent(s.name)}`}>{jobStatusCounts[s.name] || 0}</Link>
               </li>
             ))}
           </ul>
