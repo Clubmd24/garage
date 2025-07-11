@@ -204,7 +204,7 @@ export async function getJobFull(id) {
     job.vehicle = await getVehicleById(job.vehicle_id);
   }
   const [[quoteRow]] = await pool.query(
-    `SELECT id, defect_description FROM quotes WHERE job_id=?`,
+    `SELECT id, defect_description, revision FROM quotes WHERE job_id=? ORDER BY revision DESC LIMIT 1`,
     [id]
   );
   if (quoteRow) {

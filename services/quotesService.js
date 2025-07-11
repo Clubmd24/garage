@@ -2,7 +2,7 @@ import pool from "../lib/db.js";
 
 export async function getAllQuotes() {
   const [rows] = await pool.query(
-    `SELECT id, customer_id, fleet_id, job_id, vehicle_id, fleet_vehicle_id, customer_reference, po_number, defect_description, total_amount, status, terms, created_ts
+    `SELECT id, customer_id, fleet_id, job_id, revision, vehicle_id, fleet_vehicle_id, customer_reference, po_number, defect_description, total_amount, status, terms, created_ts
        FROM quotes ORDER BY id`,
   );
   return rows;
@@ -10,7 +10,7 @@ export async function getAllQuotes() {
 
 export async function getQuotesByFleet(fleet_id) {
   const [rows] = await pool.query(
-    `SELECT id, customer_id, fleet_id, job_id, vehicle_id, fleet_vehicle_id, customer_reference, po_number, defect_description, total_amount, status, terms, created_ts
+    `SELECT id, customer_id, fleet_id, job_id, revision, vehicle_id, fleet_vehicle_id, customer_reference, po_number, defect_description, total_amount, status, terms, created_ts
        FROM quotes WHERE fleet_id=? ORDER BY id`,
     [fleet_id],
   );
@@ -19,7 +19,7 @@ export async function getQuotesByFleet(fleet_id) {
 
 export async function getQuotesByCustomer(customer_id) {
   const [rows] = await pool.query(
-    `SELECT id, customer_id, fleet_id, job_id, vehicle_id, fleet_vehicle_id, customer_reference, po_number, defect_description, total_amount, status, terms, created_ts
+    `SELECT id, customer_id, fleet_id, job_id, revision, vehicle_id, fleet_vehicle_id, customer_reference, po_number, defect_description, total_amount, status, terms, created_ts
        FROM quotes WHERE customer_id=? ORDER BY id`,
     [customer_id],
   );
@@ -28,7 +28,7 @@ export async function getQuotesByCustomer(customer_id) {
 
 export async function getQuotesByVehicle(vehicle_id) {
   const [rows] = await pool.query(
-    `SELECT id, customer_id, fleet_id, job_id, vehicle_id, fleet_vehicle_id, customer_reference, po_number, defect_description, total_amount, status, terms, created_ts
+    `SELECT id, customer_id, fleet_id, job_id, revision, vehicle_id, fleet_vehicle_id, customer_reference, po_number, defect_description, total_amount, status, terms, created_ts
        FROM quotes WHERE vehicle_id=? ORDER BY id`,
     [vehicle_id],
   );
@@ -37,7 +37,7 @@ export async function getQuotesByVehicle(vehicle_id) {
 
 export async function getQuotesByJob(job_id) {
   const [rows] = await pool.query(
-    `SELECT id, customer_id, fleet_id, job_id, vehicle_id, fleet_vehicle_id, customer_reference, po_number, defect_description, total_amount, status, terms, created_ts
+    `SELECT id, customer_id, fleet_id, job_id, revision, vehicle_id, fleet_vehicle_id, customer_reference, po_number, defect_description, total_amount, status, terms, created_ts
        FROM quotes WHERE job_id=? ORDER BY id`,
     [job_id],
   );
@@ -46,7 +46,7 @@ export async function getQuotesByJob(job_id) {
 
 export async function getQuoteById(id) {
   const [[row]] = await pool.query(
-    `SELECT id, customer_id, fleet_id, job_id, vehicle_id, fleet_vehicle_id, customer_reference, po_number, defect_description, total_amount, status, terms, created_ts
+    `SELECT id, customer_id, fleet_id, job_id, revision, vehicle_id, fleet_vehicle_id, customer_reference, po_number, defect_description, total_amount, status, terms, created_ts
        FROM quotes WHERE id=?`,
     [id],
   );
@@ -65,6 +65,7 @@ export async function createQuote({
   total_amount,
   status,
   terms,
+  revision,
 }) {
   if (fleet_vehicle_id === undefined) {
     if (vehicle_id) {
@@ -78,14 +79,27 @@ export async function createQuote({
     }
   }
 
+  if (revision === undefined) {
+    if (job_id) {
+      const [[r]] = await pool.query(
+        "SELECT MAX(revision) AS rev FROM quotes WHERE job_id=?",
+        [job_id],
+      );
+      revision = (r?.rev || 0) + 1;
+    } else {
+      revision = 1;
+    }
+  }
+
   const [{ insertId }] = await pool.query(
     `INSERT INTO quotes
-      (customer_id, fleet_id, job_id, vehicle_id, fleet_vehicle_id, customer_reference, po_number, defect_description, total_amount, status, terms)
-     VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
+      (customer_id, fleet_id, job_id, revision, vehicle_id, fleet_vehicle_id, customer_reference, po_number, defect_description, total_amount, status, terms)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
     [
       customer_id || null,
       fleet_id || null,
       job_id || null,
+      revision,
       vehicle_id || null,
       fleet_vehicle_id || null,
       customer_reference || null,
@@ -101,6 +115,7 @@ export async function createQuote({
     customer_id,
     fleet_id,
     job_id,
+    revision,
     vehicle_id,
     fleet_vehicle_id,
     customer_reference,
@@ -126,6 +141,7 @@ export async function updateQuote(
     total_amount,
     status,
     terms,
+    revision,
   },
 ) {
   const existing = await getQuoteById(id);
@@ -153,6 +169,7 @@ export async function updateQuote(
       total_amount !== undefined ? total_amount : existing.total_amount,
     status: status !== undefined ? status : existing.status,
     terms: terms !== undefined ? terms : existing.terms,
+    revision: revision !== undefined ? revision : existing.revision,
   };
 
   if (data.fleet_vehicle_id === undefined) {
@@ -172,6 +189,7 @@ export async function updateQuote(
        customer_id=?,
        fleet_id=?,
        job_id=?,
+       revision=?,
        vehicle_id=?,
        fleet_vehicle_id=?,
        customer_reference=?,
@@ -185,6 +203,7 @@ export async function updateQuote(
       data.customer_id || null,
       data.fleet_id || null,
       data.job_id || null,
+      data.revision,
       data.vehicle_id || null,
       data.fleet_vehicle_id || null,
       data.customer_reference || null,

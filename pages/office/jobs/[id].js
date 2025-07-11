@@ -11,6 +11,7 @@ export default function JobViewPage() {
   const [job, setJob] = useState(null);
   const [client, setClient] = useState(null);
   const [vehicle, setVehicle] = useState(null);
+  const [quotes, setQuotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [engineers, setEngineers] = useState([]);
@@ -67,6 +68,8 @@ export default function JobViewPage() {
           const v = await fetch(`/api/vehicles/${j.vehicle_id}`);
           if (v.ok) setVehicle(await v.json());
         }
+        const qRes = await fetch(`/api/quotes?job_id=${id}`);
+        if (qRes.ok) setQuotes(await qRes.json());
       } catch (err) {
         setError('Failed to load');
       } finally {
@@ -308,6 +311,23 @@ export default function JobViewPage() {
               </table>
             </div>
           )}
+          {Array.isArray(quotes) && quotes.length > 0 && (
+            <div className="mt-4">
+              <h2 className="font-semibold mb-1">Quotes</h2>
+              <ul className="list-disc pl-5 space-y-1">
+                {quotes.map(q => (
+                  <li key={q.id}>
+                    <Link href={`/office/quotations/${q.id}/edit`}>
+                      <a className="underline">Quote #{q.id} rev {q.revision} - {q.status}</a>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <Link href={`/office/quotations/new?job_id=${id}`} className="button mt-2 inline-block">
+            New Quote for Job
+          </Link>
         </div>
       )}
     </OfficeLayout>

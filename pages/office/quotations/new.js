@@ -28,6 +28,7 @@ export default function NewQuotationPage() {
     customer_id: '',
     fleet_id: '',
     vehicle_id: '',
+    job_id: '',
     customer_ref: '',
     po_number: '',
     defect_description: '',
@@ -63,7 +64,7 @@ export default function NewQuotationPage() {
 
   useEffect(() => {
     if (!router.isReady) return;
-    const { client_id, vehicle_id } = router.query;
+    const { client_id, vehicle_id, job_id } = router.query;
     async function load() {
       if (client_id) {
         try {
@@ -73,6 +74,9 @@ export default function NewQuotationPage() {
         } catch {
           setError(e => e || 'Failed to load client');
         }
+      }
+      if (job_id) {
+        setForm(f => ({ ...f, job_id }));
       }
       if (vehicle_id) {
         try {
@@ -191,7 +195,7 @@ export default function NewQuotationPage() {
       const quote = await createQuote({
         customer_id: mode === 'client' ? form.customer_id : null,
         fleet_id: mode === 'fleet' ? form.fleet_id : null,
-        job_id: null,
+        job_id: form.job_id || null,
         vehicle_id: form.vehicle_id || null,
         customer_reference: form.customer_ref || null,
         po_number: form.po_number || null,

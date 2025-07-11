@@ -134,3 +134,27 @@ test('job view page updates and deletes notes', async () => {
   await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(7));
   expect(JSON.parse(global.fetch.mock.calls[5][1].body)).toEqual({ notes: '' });
 });
+
+test('job view page lists quotes and new revision link', async () => {
+  jest.unstable_mockModule('next/router', () => ({
+    useRouter: () => ({ query: { id: '12' } })
+  }));
+
+  global.fetch = jest
+    .fn()
+    .mockResolvedValueOnce({ ok: true, json: async () => [] })
+    .mockResolvedValueOnce({ ok: true, json: async () => [] })
+    .mockResolvedValueOnce({ ok: true, json: async () => ({ id: 12, assignments: [] }) })
+    .mockResolvedValueOnce({ ok: true, json: async () => null })
+    .mockResolvedValueOnce({ ok: true, json: async () => null })
+    .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 4, revision: 2, status: 'new' }] });
+
+  const { default: Page } = await import('../pages/office/jobs/[id].js');
+  render(<Page />);
+
+  await screen.findByText('Job #12');
+  const link = await screen.findByRole('link', { name: 'Quote #4 rev 2 - new' });
+  expect(link).toHaveAttribute('href', '/office/quotations/4/edit');
+  const newLink = screen.getByRole('link', { name: 'New Quote for Job' });
+  expect(newLink).toHaveAttribute('href', '/office/quotations/new?job_id=12');
+});

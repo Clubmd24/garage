@@ -36,6 +36,7 @@ async function handler(req, res) {
         total_amount: req.body.total_amount,
         status: req.body.status,
         terms: req.body.terms,
+        revision: req.body.revision,
       };
       const newQuote = await service.createQuote(data);
       try {
