@@ -150,11 +150,20 @@ export async function getJobsForDate(date) {
   return rows;
 }
 
-export async function getJobsInRange(start, end, engineer_id) {
-  const params = engineer_id ? [engineer_id, start, end] : [start, end];
-  const join = engineer_id
-    ? 'JOIN job_assignments ja ON j.id=ja.job_id AND ja.user_id=?'
-    : 'LEFT JOIN job_assignments ja ON j.id=ja.job_id';
+export async function getJobsInRange(start, end, engineer_id, status) {
+  const params = [];
+  let join = 'LEFT JOIN job_assignments ja ON j.id=ja.job_id';
+  if (engineer_id) {
+    join = 'JOIN job_assignments ja ON j.id=ja.job_id AND ja.user_id=?';
+    params.push(engineer_id);
+  }
+  params.push(start, end);
+  let where =
+    '(j.scheduled_start>=? AND j.scheduled_end<=?) OR j.scheduled_start IS NULL OR j.scheduled_end IS NULL';
+  if (status) {
+    where += ' AND j.status=?';
+    params.push(status);
+  }
   const [rows] = await pool.query(
     `SELECT j.id, j.customer_id, j.vehicle_id, v.licence_plate,
             j.scheduled_start, j.scheduled_end,
@@ -163,9 +172,7 @@ export async function getJobsInRange(start, end, engineer_id) {
        FROM jobs j
   LEFT JOIN vehicles v ON j.vehicle_id = v.id
        ${join}
-      WHERE (j.scheduled_start>=? AND j.scheduled_end<=?)
-         OR j.scheduled_start IS NULL
-         OR j.scheduled_end IS NULL
+      WHERE ${where}
    GROUP BY j.id
    ORDER BY j.scheduled_start`,
     params

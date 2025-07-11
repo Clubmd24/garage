@@ -5,7 +5,7 @@ async function handler(req, res) {
     if (req.method === 'GET') {
       const { fleet_id, customer_id, status, date, start, end, engineer_id } = req.query || {};
       if (start && end) {
-        const jobs = await service.getJobsInRange?.(start, end, engineer_id) ?? [];
+        const jobs = await service.getJobsInRange?.(start, end, engineer_id, status) ?? [];
         return res.status(200).json(jobs);
       }
       if (date) {

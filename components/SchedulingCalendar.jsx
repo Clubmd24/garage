@@ -39,6 +39,7 @@ export default function SchedulingCalendar() {
   const [statuses, setStatuses] = useState([]);
   const [pending, setPending] = useState(null);
   const [form, setForm] = useState({ engineer_id: '', status: '' });
+  const [filters, setFilters] = useState({ engineer_id: '', status: '' });
 
   // Load jobs from API
   const load = () => {
@@ -49,7 +50,9 @@ export default function SchedulingCalendar() {
 
     fetchJobsInRange(
       start.toISOString().slice(0, 10),
-      end.toISOString().slice(0, 10)
+      end.toISOString().slice(0, 10),
+      filters.engineer_id,
+      filters.status
     ).then(jobs => {
       setUnassigned(
         jobs.filter(j =>
@@ -76,7 +79,7 @@ export default function SchedulingCalendar() {
       });
   }
 
-  useEffect(load, []);
+  useEffect(load, [filters]);
   useEffect(() => {
     fetchEngineers()
       .then(setEngineers)
@@ -104,6 +107,8 @@ export default function SchedulingCalendar() {
   });
 
   const change = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+  const filterChange = e =>
+    setFilters(f => ({ ...f, [e.target.name]: e.target.value }));
 
   const confirm = () => {
     if (!pending) return;
@@ -167,6 +172,38 @@ export default function SchedulingCalendar() {
         </div>
       )}
       <h1 className="text-2xl font-semibold text-white mb-4">Scheduling</h1>
+      <div className="flex space-x-2 mb-4 text-black">
+        <div>
+          <label className="block text-white text-sm">Engineer</label>
+          <select
+            name="engineer_id"
+            value={filters.engineer_id}
+            onChange={filterChange}
+            className="input"
+            aria-label="Engineer Filter"
+          >
+            <option value="">All</option>
+            {engineers.map(e => (
+              <option key={e.id} value={e.id}>{e.username}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-white text-sm">Status</label>
+          <select
+            name="status"
+            value={filters.status}
+            onChange={filterChange}
+            className="input"
+            aria-label="Status Filter"
+          >
+            <option value="">All</option>
+            {statuses.map(s => (
+              <option key={s.id ?? s.name} value={s.name}>{s.name}</option>
+            ))}
+          </select>
+        </div>
+      </div>
       <div className="flex space-x-4">
         {/* Side Panel */}
         <div
