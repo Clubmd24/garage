@@ -1,9 +1,9 @@
-import pool from '../lib/db.js';
+import pool from "../lib/db.js";
 
 export async function getAllQuotes() {
   const [rows] = await pool.query(
     `SELECT id, customer_id, fleet_id, job_id, vehicle_id, fleet_vehicle_id, customer_reference, po_number, defect_description, total_amount, status, terms, created_ts
-       FROM quotes ORDER BY id`
+       FROM quotes ORDER BY id`,
   );
   return rows;
 }
@@ -12,7 +12,7 @@ export async function getQuotesByFleet(fleet_id) {
   const [rows] = await pool.query(
     `SELECT id, customer_id, fleet_id, job_id, vehicle_id, fleet_vehicle_id, customer_reference, po_number, defect_description, total_amount, status, terms, created_ts
        FROM quotes WHERE fleet_id=? ORDER BY id`,
-    [fleet_id]
+    [fleet_id],
   );
   return rows;
 }
@@ -21,7 +21,7 @@ export async function getQuotesByCustomer(customer_id) {
   const [rows] = await pool.query(
     `SELECT id, customer_id, fleet_id, job_id, vehicle_id, fleet_vehicle_id, customer_reference, po_number, defect_description, total_amount, status, terms, created_ts
        FROM quotes WHERE customer_id=? ORDER BY id`,
-    [customer_id]
+    [customer_id],
   );
   return rows;
 }
@@ -30,7 +30,7 @@ export async function getQuotesByVehicle(vehicle_id) {
   const [rows] = await pool.query(
     `SELECT id, customer_id, fleet_id, job_id, vehicle_id, fleet_vehicle_id, customer_reference, po_number, defect_description, total_amount, status, terms, created_ts
        FROM quotes WHERE vehicle_id=? ORDER BY id`,
-    [vehicle_id]
+    [vehicle_id],
   );
   return rows;
 }
@@ -39,7 +39,7 @@ export async function getQuotesByJob(job_id) {
   const [rows] = await pool.query(
     `SELECT id, customer_id, fleet_id, job_id, vehicle_id, fleet_vehicle_id, customer_reference, po_number, defect_description, total_amount, status, terms, created_ts
        FROM quotes WHERE job_id=? ORDER BY id`,
-    [job_id]
+    [job_id],
   );
   return rows;
 }
@@ -48,7 +48,7 @@ export async function getQuoteById(id) {
   const [[row]] = await pool.query(
     `SELECT id, customer_id, fleet_id, job_id, vehicle_id, fleet_vehicle_id, customer_reference, po_number, defect_description, total_amount, status, terms, created_ts
        FROM quotes WHERE id=?`,
-    [id]
+    [id],
   );
   return row || null;
 }
@@ -69,8 +69,8 @@ export async function createQuote({
   if (fleet_vehicle_id === undefined) {
     if (vehicle_id) {
       const [[row]] = await pool.query(
-        'SELECT company_vehicle_id FROM vehicles WHERE id=?',
-        [vehicle_id]
+        "SELECT company_vehicle_id FROM vehicles WHERE id=?",
+        [vehicle_id],
       );
       fleet_vehicle_id = row?.company_vehicle_id ?? null;
     } else {
@@ -94,7 +94,7 @@ export async function createQuote({
       total_amount || null,
       status || null,
       terms || null,
-    ]
+    ],
   );
   return {
     id: insertId,
@@ -126,17 +126,44 @@ export async function updateQuote(
     total_amount,
     status,
     terms,
-  }
+  },
 ) {
-  if (fleet_vehicle_id === undefined) {
-    if (vehicle_id) {
+  const existing = await getQuoteById(id);
+  if (!existing) throw new Error("Quote not found");
+
+  const data = {
+    customer_id: customer_id !== undefined ? customer_id : existing.customer_id,
+    fleet_id: fleet_id !== undefined ? fleet_id : existing.fleet_id,
+    job_id: job_id !== undefined ? job_id : existing.job_id,
+    vehicle_id: vehicle_id !== undefined ? vehicle_id : existing.vehicle_id,
+    fleet_vehicle_id:
+      fleet_vehicle_id !== undefined
+        ? fleet_vehicle_id
+        : existing.fleet_vehicle_id,
+    customer_reference:
+      customer_reference !== undefined
+        ? customer_reference
+        : existing.customer_reference,
+    po_number: po_number !== undefined ? po_number : existing.po_number,
+    defect_description:
+      defect_description !== undefined
+        ? defect_description
+        : existing.defect_description,
+    total_amount:
+      total_amount !== undefined ? total_amount : existing.total_amount,
+    status: status !== undefined ? status : existing.status,
+    terms: terms !== undefined ? terms : existing.terms,
+  };
+
+  if (data.fleet_vehicle_id === undefined) {
+    if (data.vehicle_id) {
       const [[row]] = await pool.query(
-        'SELECT company_vehicle_id FROM vehicles WHERE id=?',
-        [vehicle_id]
+        "SELECT company_vehicle_id FROM vehicles WHERE id=?",
+        [data.vehicle_id],
       );
-      fleet_vehicle_id = row?.company_vehicle_id ?? null;
+      data.fleet_vehicle_id = row?.company_vehicle_id ?? null;
     } else {
-      fleet_vehicle_id = null;
+      data.fleet_vehicle_id = null;
     }
   }
 
@@ -155,24 +182,24 @@ export async function updateQuote(
        terms=?
      WHERE id=?`,
     [
-      customer_id || null,
-      fleet_id || null,
-      job_id || null,
-      vehicle_id || null,
-      fleet_vehicle_id || null,
-      customer_reference || null,
-      po_number || null,
-      defect_description || null,
-      total_amount || null,
-      status || null,
-      terms || null,
+      data.customer_id || null,
+      data.fleet_id || null,
+      data.job_id || null,
+      data.vehicle_id || null,
+      data.fleet_vehicle_id || null,
+      data.customer_reference || null,
+      data.po_number || null,
+      data.defect_description || null,
+      data.total_amount || null,
+      data.status || null,
+      data.terms || null,
       id,
-    ]
+    ],
   );
   return { ok: true };
 }
 
 export async function deleteQuote(id) {
-  await pool.query('DELETE FROM quotes WHERE id=?', [id]);
+  await pool.query("DELETE FROM quotes WHERE id=?", [id]);
   return { ok: true };
 }
