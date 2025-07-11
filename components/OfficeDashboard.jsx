@@ -84,6 +84,7 @@ export default function OfficeDashboard() {
       <div className="flex flex-wrap justify-center gap-4">
         <Link href="/office/quotations/new" className="button px-8 text-lg">Create Quote</Link>
         <Link href="/office/jobs/new" className="button px-8 text-lg">New Job</Link>
+        <Link href="/office/invoices/new" className="button px-8 text-lg">Create Invoice</Link>
         <Link href="/office/invoices?status=unpaid" className="button px-8 text-lg">Pay Invoice</Link>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

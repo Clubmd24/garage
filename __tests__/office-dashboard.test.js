@@ -37,5 +37,8 @@ test('OfficeDashboard lists todays jobs', async () => {
   expect(link).toHaveAttribute('href', '/office/jobs/1');
   expect(link.textContent).toContain('Alice');
   expect(link.textContent).toContain('in progress');
+
+  const invoiceLink = screen.getByRole('link', { name: 'Create Invoice' });
+  expect(invoiceLink).toHaveAttribute('href', '/office/invoices/new');
 });
 
