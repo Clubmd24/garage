@@ -68,13 +68,25 @@ export async function createJob({ id, customer_id, vehicle_id, scheduled_start, 
   return { id: insertId, customer_id, vehicle_id, scheduled_start, scheduled_end, status: finalStatus, bay };
 }
 
-export async function updateJob(id, { customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay }) {
+export async function updateJob(
+  id,
+  { customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay, notes }
+) {
   if (status && !(await jobStatusExists(status))) {
     throw new Error('Invalid job status');
   }
   await pool.query(
-    `UPDATE jobs SET customer_id=?, vehicle_id=?, scheduled_start=?, scheduled_end=?, status=?, bay=? WHERE id=?`,
-    [customer_id || null, vehicle_id || null, scheduled_start || null, scheduled_end || null, status || null, bay || null, id]
+    `UPDATE jobs SET customer_id=?, vehicle_id=?, scheduled_start=?, scheduled_end=?, status=?, bay=?, notes=? WHERE id=?`,
+    [
+      customer_id || null,
+      vehicle_id || null,
+      scheduled_start || null,
+      scheduled_end || null,
+      status || null,
+      bay || null,
+      notes || null,
+      id,
+    ]
   );
   if (status === 'notified client for collection') {
     await createInvoice({ job_id: id, customer_id: customer_id || null, status: 'awaiting collection' });

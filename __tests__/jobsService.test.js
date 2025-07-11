@@ -78,6 +78,22 @@ test('engineer completes job then office notifies client for collection', async 
   expect(createInvoiceMock).toHaveBeenCalledWith({ job_id: 5, customer_id: 8, status: 'awaiting collection' });
 });
 
+test('updateJob updates notes', async () => {
+  const queryMock = jest.fn().mockResolvedValue([]);
+  const existsMock = jest.fn().mockResolvedValue(true);
+  jest.unstable_mockModule('../lib/db.js', () => ({ default: { query: queryMock } }));
+  jest.unstable_mockModule('../services/invoicesService.js', () => ({ createInvoice: jest.fn() }));
+  jest.unstable_mockModule('../services/jobStatusesService.js', () => ({ jobStatusExists: existsMock }));
+
+  const { updateJob } = await import('../services/jobsService.js');
+  await updateJob(7, { notes: 'hello' });
+
+  expect(queryMock).toHaveBeenCalledWith(
+    expect.stringMatching(/UPDATE jobs/),
+    [null, null, null, null, null, null, 'hello', 7]
+  );
+});
+
 test('getJobsInRange returns unscheduled jobs', async () => {
   const rows = [{
     id: 3,
