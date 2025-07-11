@@ -71,6 +71,12 @@ export default function OfficeLayout({ children }) {
                 </Link>
               </li>
               <li>
+                <Link href="/office/invoices/new" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  New Invoice
+                </Link>
+              </li>
+              <li>
                 <Link href="/office/invoices" className="flex items-center hover:underline">
                   <ArrowIcon />
                   Invoices
