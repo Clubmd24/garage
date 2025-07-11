@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import OfficeLayout from '../../../components/OfficeLayout';
+import { Card } from '../../../components/Card';
 import { fetchEngineers } from '../../../lib/engineers';
 import { fetchJobStatuses } from '../../../lib/jobStatuses.js';
 
@@ -146,14 +147,23 @@ export default function JobViewPage() {
     }
   };
 
+  const deleteJob = async () => {
+    if (!confirm('Delete this job?')) return;
+    await fetch(`/api/jobs/${id}`, { method: 'DELETE' });
+    router.push('/office/job-management');
+  };
+
   if (loading) return <OfficeLayout><p>Loading…</p></OfficeLayout>;
   if (error) return <OfficeLayout><p className="text-red-500">{error}</p></OfficeLayout>;
 
   return (
     <OfficeLayout>
       <h1 className="text-2xl font-semibold mb-4">Job #{id}</h1>
+      <div className="mb-6 flex flex-wrap items-center gap-4">
+        <button onClick={deleteJob} className="button bg-red-600 hover:bg-red-700">Delete Job</button>
+      </div>
       {job && (
-        <div className="space-y-2 text-black">
+        <div className="space-y-2">
           <p><strong>Status:</strong> {job.status}</p>
           <p>
             <strong>Client:</strong>{' '}
@@ -287,7 +297,7 @@ export default function JobViewPage() {
             </p>
           )}
           {job.quote && Array.isArray(job.quote.items) && job.quote.items.length > 0 && (
-            <div className="mt-4">
+            <Card className="mt-4">
               <h2 className="font-semibold mb-1">Quote Items</h2>
               <table className="w-full text-sm">
                 <thead>
@@ -309,7 +319,7 @@ export default function JobViewPage() {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </Card>
           )}
           {Array.isArray(quotes) && quotes.length > 0 && (
             <div className="mt-4">

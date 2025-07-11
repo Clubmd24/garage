@@ -74,6 +74,12 @@ export default function JobManagementPage() {
     }
   };
 
+  const deleteJob = async id => {
+    if (!confirm('Delete this job?')) return;
+    await fetch(`/api/jobs/${id}`, { method: 'DELETE' });
+    setJobs(j => j.filter(job => job.id !== id));
+  };
+
   return (
     <OfficeLayout>
       <h1 className="text-xl font-semibold mb-4">Unassigned Jobs</h1>
@@ -183,6 +189,13 @@ export default function JobManagementPage() {
                   >
                     Purchase Orders
                   </Link>
+                  <button
+                    type="button"
+                    onClick={() => deleteJob(job.id)}
+                    className="button bg-red-600 hover:bg-red-700 px-4"
+                  >
+                    Delete
+                  </button>
                 </div>
               </form>
             );
