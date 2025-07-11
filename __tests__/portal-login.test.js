@@ -24,7 +24,7 @@ test('client login succeeds with valid credentials', async () => {
     `SELECT c.id, c.password_hash, c.must_change_password
        FROM clients c
        JOIN vehicles v ON v.customer_id = c.id
-      WHERE c.garage_name=? AND v.licence_plate=?
+      WHERE LOWER(c.garage_name)=LOWER(?) AND LOWER(v.licence_plate)=LOWER(?)
       LIMIT 1`,
     ['G1', 'REG']
   );
@@ -54,7 +54,7 @@ test('client login fails with wrong password', async () => {
     `SELECT c.id, c.password_hash, c.must_change_password
        FROM clients c
        JOIN vehicles v ON v.customer_id = c.id
-      WHERE c.garage_name=? AND v.licence_plate=?
+      WHERE LOWER(c.garage_name)=LOWER(?) AND LOWER(v.licence_plate)=LOWER(?)
       LIMIT 1`,
     ['G1', 'REG']
   );
@@ -80,7 +80,7 @@ test('fleet login succeeds with valid credentials', async () => {
   const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn() };
   await handler(req, res);
   expect(queryMock).toHaveBeenCalledWith(
-    'SELECT id, pin_hash FROM fleets WHERE garage_name=? AND company_name=?',
+    'SELECT id, pin_hash FROM fleets WHERE LOWER(garage_name)=LOWER(?) AND LOWER(company_name)=LOWER(?)',
     ['G2', 'FleetCo']
   );
   expect(verifyMock).toHaveBeenCalledWith('1234', 'hash2');
@@ -106,7 +106,7 @@ test('fleet login fails with wrong pin', async () => {
   const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn() };
   await handler(req, res);
   expect(queryMock).toHaveBeenCalledWith(
-    'SELECT id, pin_hash FROM fleets WHERE garage_name=? AND company_name=?',
+    'SELECT id, pin_hash FROM fleets WHERE LOWER(garage_name)=LOWER(?) AND LOWER(company_name)=LOWER(?)',
     ['G2', 'FleetCo']
   );
   expect(verifyMock).toHaveBeenCalledWith('0000', 'hash2');

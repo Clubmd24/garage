@@ -5,7 +5,7 @@ import apiHandler from '../../../../lib/apiHandler.js';
 async function handler(req, res) {
   const { garage_name, company_name, pin } = req.body || {};
   const [rows] = await pool.query(
-    'SELECT id, pin_hash FROM fleets WHERE garage_name=? AND company_name=?',
+    'SELECT id, pin_hash FROM fleets WHERE LOWER(garage_name)=LOWER(?) AND LOWER(company_name)=LOWER(?)',
     [garage_name, company_name]
   );
   if (!rows.length || !(await verifyPassword(pin, rows[0].pin_hash))) {

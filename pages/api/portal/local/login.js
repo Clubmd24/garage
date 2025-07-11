@@ -8,7 +8,7 @@ async function handler(req, res) {
     `SELECT c.id, c.password_hash, c.must_change_password
        FROM clients c
        JOIN vehicles v ON v.customer_id = c.id
-      WHERE c.garage_name=? AND v.licence_plate=?
+      WHERE LOWER(c.garage_name)=LOWER(?) AND LOWER(v.licence_plate)=LOWER(?)
       LIMIT 1`,
     [garage_name, vehicle_reg]
   );
