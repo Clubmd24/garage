@@ -58,7 +58,7 @@ export default async function handler(req, res) {
       defect_description: quote.defect_description || '',
       quoteNumber: quote.id,
       title: 'QUOTE',
-      terms: settings.terms                   // also for addTerms
+      terms: quote.terms || settings.quote_terms || settings.terms
     };
 
     // Generate PDF
