@@ -87,7 +87,7 @@ export default function JobViewPage() {
           body: JSON.stringify({
             engineer_id: form.engineer_id,
             scheduled_start: form.scheduled_start,
-            scheduled_end: form.scheduled_end,
+            ...(form.scheduled_end ? { scheduled_end: form.scheduled_end } : {}),
           }),
         });
         if (!res.ok) throw new Error();
@@ -174,7 +174,6 @@ export default function JobViewPage() {
                 value={form.status}
                 onChange={change}
                 className="input w-full"
-                required
               >
                 <option value="">Select…</option>
                 {statuses.map(s => (
@@ -191,7 +190,6 @@ export default function JobViewPage() {
                 value={form.engineer_id}
                 onChange={change}
                 className="input w-full"
-                required
               >
                 <option value="">Select…</option>
                 {engineers.map(e => (
@@ -207,7 +205,6 @@ export default function JobViewPage() {
                 value={form.scheduled_start}
                 onChange={change}
                 className="input w-full"
-                required
               />
             </div>
             <div>
@@ -218,7 +215,6 @@ export default function JobViewPage() {
                 value={form.scheduled_end}
                 onChange={change}
                 className="input w-full"
-                required
               />
             </div>
             <button type="submit" className="button">Save</button>
