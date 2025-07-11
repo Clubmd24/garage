@@ -1,6 +1,7 @@
 // components/SchedulingCalendar.jsx
 
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { Calendar as BigCalendar, Views, dateFnsLocalizer } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 
@@ -101,18 +102,19 @@ export default function SchedulingCalendar() {
         >
           <h3 className="font-semibold">Unscheduled Jobs</h3>
           {unassigned.map(j => (
-            <div
-              key={j.id}
-              draggable
-              onDragStart={() => {
-                setDragJob(j)
-                window.__dragJob = j
-              }}
-              className="p-2 bg-gray-200 rounded cursor-move"
-              data-testid="unassigned-job"
-            >
-              Job #{j.id}
-            </div>
+            <Link key={j.id} href={`/office/jobs/${j.id}`}> 
+              <div
+                draggable
+                onDragStart={() => {
+                  setDragJob(j)
+                  window.__dragJob = j
+                }}
+                className="p-2 bg-gray-200 rounded cursor-move"
+                data-testid="unassigned-job"
+              >
+                {`Job #${j.id} – ${j.licence_plate}`}
+              </div>
+            </Link>
           ))}
         </div>
 

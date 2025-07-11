@@ -156,10 +156,12 @@ export async function getJobsInRange(start, end, engineer_id) {
     ? 'JOIN job_assignments ja ON j.id=ja.job_id AND ja.user_id=?'
     : 'LEFT JOIN job_assignments ja ON j.id=ja.job_id';
   const [rows] = await pool.query(
-    `SELECT j.id, j.customer_id, j.vehicle_id, j.scheduled_start, j.scheduled_end,
+    `SELECT j.id, j.customer_id, j.vehicle_id, v.licence_plate,
+            j.scheduled_start, j.scheduled_end,
             j.status, j.bay,
             GROUP_CONCAT(ja.user_id) AS engineer_ids
        FROM jobs j
+  LEFT JOIN vehicles v ON j.vehicle_id = v.id
        ${join}
       WHERE (j.scheduled_start>=? AND j.scheduled_end<=?)
          OR j.scheduled_start IS NULL
@@ -172,6 +174,7 @@ export async function getJobsInRange(start, end, engineer_id) {
     id: r.id,
     customer_id: r.customer_id,
     vehicle_id: r.vehicle_id,
+    licence_plate: r.licence_plate,
     scheduled_start: r.scheduled_start,
     scheduled_end: r.scheduled_end,
     status: r.status,

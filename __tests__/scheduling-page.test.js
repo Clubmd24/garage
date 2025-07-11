@@ -18,8 +18,9 @@ test('jobs fetch and display in calendar and side panel', async () => {
       scheduled_end: '2024-05-01T11:00:00Z',
       status: 'awaiting assessment',
       assignments: [{ user_id: 2 }],
+      licence_plate: 'AAA111',
     },
-    { id: 2, status: 'unassigned', assignments: [] },
+    { id: 2, status: 'unassigned', assignments: [], licence_plate: 'BBB222' },
   ];
   jest.unstable_mockModule('../lib/jobs', () => ({
     fetchJobsInRange: jest.fn().mockResolvedValue(jobs),
@@ -28,11 +29,11 @@ test('jobs fetch and display in calendar and side panel', async () => {
   const { default: Page } = await import('../pages/office/scheduling/index.js');
   render(<Page />);
   await screen.findByText('Job #1');
-  expect(screen.getByTestId('side-panel')).toHaveTextContent('Job #2');
+  expect(screen.getByTestId('side-panel')).toHaveTextContent('Job #2 – BBB222');
 });
 
 test('dragging unassigned job calls assign endpoint', async () => {
-  const jobs = [{ id: 3, status: 'unassigned', assignments: [] }];
+  const jobs = [{ id: 3, status: 'unassigned', assignments: [], licence_plate: 'CCC333' }];
   const assignMock = jest.fn().mockResolvedValue({});
   jest.unstable_mockModule('../lib/jobs', () => ({
     fetchJobsInRange: jest.fn().mockResolvedValue(jobs),
