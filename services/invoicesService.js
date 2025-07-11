@@ -1,5 +1,6 @@
 import pool from '../lib/db.js';
 import { invoiceStatusExists } from './invoiceStatusesService.js';
+import { getSettings } from './companySettingsService.js';
 
 export async function getAllInvoices() {
   const [rows] = await pool.query(
@@ -41,6 +42,10 @@ export async function getInvoiceById(id) {
 export async function createInvoice({ id, job_id, customer_id, amount, due_date, status, terms }) {
   if (status && !(await invoiceStatusExists(status))) {
     throw new Error('Invalid invoice status');
+  }
+  if (terms === undefined) {
+    const settings = await getSettings();
+    terms = settings?.invoice_terms ?? null;
   }
   if (id !== undefined) {
     const [[exists]] = await pool.query('SELECT 1 FROM invoices WHERE id=?', [id]);

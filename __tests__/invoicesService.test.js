@@ -37,15 +37,19 @@ test('createInvoice inserts invoice', async () => {
     default: { query: queryMock },
   }));
   jest.unstable_mockModule('../services/invoiceStatusesService.js', () => ({ invoiceStatusExists: existsMock }));
+  const settingsMock = jest.fn().mockResolvedValue({ invoice_terms: 'IT' });
+  jest.unstable_mockModule('../services/companySettingsService.js', () => ({
+    getSettings: settingsMock,
+  }));
   const { createInvoice } = await import('../services/invoicesService.js');
   const data = { job_id: 1, customer_id: 2, amount: 99, due_date: '2024-06-01', status: 'open' };
   const result = await createInvoice(data);
   expect(existsMock).toHaveBeenCalledWith('open');
   expect(queryMock).toHaveBeenCalledWith(
     expect.stringMatching(/INSERT INTO invoices/),
-    [1, 2, 99, '2024-06-01', 'open', null]
+    [1, 2, 99, '2024-06-01', 'open', 'IT']
   );
-  expect(result).toEqual({ id: 3, ...data });
+  expect(result).toEqual({ id: 3, ...data, terms: 'IT' });
 });
 
 test('createInvoice inserts with provided id', async () => {
@@ -55,14 +59,18 @@ test('createInvoice inserts with provided id', async () => {
     default: { query: queryMock },
   }));
   jest.unstable_mockModule('../services/invoiceStatusesService.js', () => ({ invoiceStatusExists: existsMock }));
+  const settingsMock = jest.fn().mockResolvedValue({ invoice_terms: 'IT' });
+  jest.unstable_mockModule('../services/companySettingsService.js', () => ({
+    getSettings: settingsMock,
+  }));
   const { createInvoice } = await import('../services/invoicesService.js');
   const data = { id: 5, job_id: 3, customer_id: 4, status: 'issued' };
   const result = await createInvoice(data);
   expect(queryMock).toHaveBeenCalledWith(
     expect.stringMatching(/INSERT INTO invoices/),
-    [5, 3, 4, null, null, 'issued', null]
+    [5, 3, 4, null, null, 'issued', 'IT']
   );
-  expect(result).toEqual(data);
+  expect(result).toEqual({ ...data, terms: 'IT' });
 });
 
 test('updateInvoice updates row', async () => {

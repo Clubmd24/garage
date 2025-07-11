@@ -1,4 +1,5 @@
 import pool from "../lib/db.js";
+import { getSettings } from "./companySettingsService.js";
 
 export async function getAllQuotes() {
   const [rows] = await pool.query(
@@ -89,6 +90,11 @@ export async function createQuote({
     } else {
       revision = 1;
     }
+  }
+
+  if (terms === undefined) {
+    const settings = await getSettings();
+    terms = settings?.quote_terms ?? null;
   }
 
   const [{ insertId }] = await pool.query(
