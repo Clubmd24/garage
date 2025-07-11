@@ -37,11 +37,12 @@ export default function EditQuotationPage() {
   const [items, setItems] = useState([emptyItem]);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    setForm(f => ({ ...f, customer_id: '', fleet_id: '', vehicle_id: '' }));
-    setClientName('');
-    setVehicles([]);
-  }, [mode]);
+useEffect(() => {
+  if (loading) return;
+  setForm(f => ({ ...f, customer_id: '', fleet_id: '', vehicle_id: '' }));
+  setClientName('');
+  setVehicles([]);
+}, [mode]);
 
   useEffect(() => {
     fetchFleets()
