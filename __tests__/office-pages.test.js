@@ -70,3 +70,19 @@ test('invoices listing shows client and vehicle info', async () => {
   expect(screen.getByText('Ford')).toBeInTheDocument();
 });
 
+test('job management shows vehicle plate and defect', async () => {
+  global.fetch = jest
+    .fn()
+    .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 1, vehicle_id: 2 }] })
+    .mockResolvedValueOnce({ ok: true, json: async () => [] })
+    .mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ id: 1, vehicle: { licence_plate: 'XYZ' }, quote: { defect_description: 'broken' } })
+    });
+  const { default: JobManagementPage } = await import('../pages/office/job-management/index.js');
+  render(<JobManagementPage />);
+  await screen.findByText('Job #1');
+  expect(screen.getByText('XYZ')).toBeInTheDocument();
+  expect(screen.getByText('broken')).toBeInTheDocument();
+});
+
