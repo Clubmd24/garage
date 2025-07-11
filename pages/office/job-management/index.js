@@ -95,7 +95,12 @@ export default function JobManagementPage() {
               >
                 <p className="font-semibold">Job #{job.id}</p>
                 {job.vehicle && (
-                  <p className="text-sm">{job.vehicle.licence_plate}</p>
+                  <>
+                    <p className="text-sm">{job.vehicle.licence_plate}</p>
+                    <p className="text-sm">
+                      {job.vehicle.make} {job.vehicle.model}
+                    </p>
+                  </>
                 )}
                 {job.quote?.defect_description && (
                   <p className="text-sm">{job.quote.defect_description}</p>
@@ -153,7 +158,6 @@ export default function JobManagementPage() {
                     value={f.scheduled_end || ''}
                     onChange={e => change(job.id, 'scheduled_end', e.target.value)}
                     className="input w-full"
-                    required
                   />
                 </div>
                 <div className="flex gap-2">
