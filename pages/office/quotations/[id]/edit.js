@@ -352,6 +352,8 @@ export default function EditQuotationPage() {
             <div key={i} className="grid grid-cols-10 gap-2 mb-2">
               <PartAutocomplete
                 value={it.part_number}
+                description={it.description}
+                unit_cost={it.unit_cost}
                 onChange={v => changeItem(i, 'part_number', v)}
                 onSelect={p => {
                   changeItem(i, 'part_number', p.part_number);
