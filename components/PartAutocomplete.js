@@ -1,9 +1,17 @@
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 
-export default function PartAutocomplete({ value, onChange, onSelect }) {
+export default function PartAutocomplete({
+  value,
+  onChange,
+  onSelect,
+  description,
+  unit_cost,
+}) {
   const [term, setTerm] = useState(value || '');
   const [results, setResults] = useState([]);
   const [showAdd, setShowAdd] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (value !== undefined) setTerm(value);
@@ -29,19 +37,14 @@ export default function PartAutocomplete({ value, onChange, onSelect }) {
     };
   }, [term]);
 
-  const addPart = async () => {
-    try {
-      const res = await fetch('/api/parts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ part_number: term, description: term }),
-      });
-      const created = await res.json();
-      setResults([created]);
-      setShowAdd(false);
-    } catch {
-      // ignore
-    }
+  const addPart = () => {
+    const params = new URLSearchParams();
+    params.append('part_number', term);
+    if (description) params.append('description', description);
+    if (unit_cost !== undefined && unit_cost !== '')
+      params.append('unit_cost', unit_cost);
+    params.append('redirect', '/office/quotations/new');
+    router.push(`/office/parts/new?${params.toString()}`);
   };
 
   return (

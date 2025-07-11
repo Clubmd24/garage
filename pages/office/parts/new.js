@@ -12,6 +12,7 @@ export default function NewPartPage() {
   const [suppliers, setSuppliers] = useState([]);
   const [error, setError] = useState(null);
   const router = useRouter();
+  const { query } = router;
 
   useEffect(() => {
     fetch('/api/suppliers')
@@ -19,6 +20,16 @@ export default function NewPartPage() {
       .then(setSuppliers)
       .catch(() => setError('Failed to load suppliers'));
   }, []);
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    setForm(f => ({
+      ...f,
+      part_number: query.part_number || f.part_number,
+      description: query.description || f.description,
+      unit_cost: query.unit_cost || f.unit_cost,
+    }));
+  }, [router.isReady]);
 
   const change = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 
@@ -36,7 +47,8 @@ export default function NewPartPage() {
         }),
       });
       if (!res.ok) throw new Error();
-      router.push('/office/parts');
+      const dest = query.redirect || '/office/parts';
+      router.push(dest);
     } catch {
       setError('Failed to create part');
     }

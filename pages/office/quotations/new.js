@@ -35,6 +35,24 @@ export default function NewQuotationPage() {
   const [items, setItems] = useState([emptyItem]);
   const [error, setError] = useState(null);
   const [vehicleError, setVehicleError] = useState(null);
+  const SAVE_KEY = 'quote_draft';
+
+  // load draft from localStorage
+  useEffect(() => {
+    if (!router.isReady) return;
+    const saved = localStorage.getItem(SAVE_KEY);
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        if (data.mode) setMode(data.mode);
+        if (data.clientName) setClientName(data.clientName);
+        if (data.form) setForm(f => ({ ...f, ...data.form }));
+        if (data.items && data.items.length) setItems(data.items);
+      } catch {
+        /* ignore parse errors */
+      }
+    }
+  }, [router.isReady]);
 
   useEffect(() => {
     setForm(f => ({ ...f, customer_id: '', fleet_id: '', vehicle_id: '' }));
@@ -156,6 +174,17 @@ export default function NewQuotationPage() {
       n || 0
     );
 
+  // persist draft to localStorage
+  useEffect(() => {
+    const data = {
+      mode,
+      clientName,
+      form,
+      items,
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+  }, [mode, clientName, form, items]);
+
   const submit = async e => {
     e.preventDefault();
     try {
@@ -185,6 +214,7 @@ export default function NewQuotationPage() {
           }),
         });
       }
+      localStorage.removeItem(SAVE_KEY);
       router.push('/office/quotations');
     } catch {
       setError('Failed to create quote');
@@ -313,6 +343,8 @@ export default function NewQuotationPage() {
             <div key={i} className="grid grid-cols-10 gap-2 mb-2">
               <PartAutocomplete
                 value={it.part_number}
+                description={it.description}
+                unit_cost={it.unit_cost}
                 onChange={v => changeItem(i, 'part_number', v)}
                 onSelect={p => {
                   changeItem(i, 'part_number', p.part_number);
