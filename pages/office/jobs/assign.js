@@ -47,10 +47,15 @@ export default function AssignJobPage() {
   const submit = async e => {
     e.preventDefault();
     try {
+      const data = {
+        engineer_id: form.engineer_id,
+        scheduled_start: form.scheduled_start,
+      };
+      if (form.scheduled_end) data.scheduled_end = form.scheduled_end;
       const res = await fetch(`/api/jobs/${id}/assign`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error();
       router.push(`/office/jobs/${id}`);
@@ -75,7 +80,6 @@ export default function AssignJobPage() {
             value={form.engineer_id}
             onChange={change}
             className="input w-full"
-            required
           >
             <option value="">Select…</option>
             {engineers.map(e => (
@@ -91,7 +95,6 @@ export default function AssignJobPage() {
             value={form.scheduled_start}
             onChange={change}
             className="input w-full"
-            required
           />
         </div>
         <div>
@@ -102,7 +105,6 @@ export default function AssignJobPage() {
             value={form.scheduled_end}
             onChange={change}
             className="input w-full"
-            required
           />
         </div>
         <div className="flex gap-2">
