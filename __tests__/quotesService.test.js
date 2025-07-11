@@ -56,6 +56,10 @@ test("createQuote inserts quote", async () => {
   jest.unstable_mockModule("../lib/db.js", () => ({
     default: { query: queryMock },
   }));
+  const settingsMock = jest.fn().mockResolvedValue({ quote_terms: "QT" });
+  jest.unstable_mockModule("../services/companySettingsService.js", () => ({
+    getSettings: settingsMock,
+  }));
   const { createQuote } = await import("../services/quotesService.js");
   const data = {
     customer_id: 1,
@@ -82,9 +86,15 @@ test("createQuote inserts quote", async () => {
   expect(queryMock).toHaveBeenNthCalledWith(
     3,
     expect.stringMatching(/INSERT INTO quotes/),
-    [1, 2, 3, 3, 4, "F1", "ref", "PO123", "d", 50, "new", null],
+    [1, 2, 3, 3, 4, "F1", "ref", "PO123", "d", 50, "new", "QT"],
   );
-  expect(result).toEqual({ id: 3, ...data, fleet_vehicle_id: "F1", revision: 3 });
+  expect(result).toEqual({
+    id: 3,
+    ...data,
+    fleet_vehicle_id: "F1",
+    revision: 3,
+    terms: "QT",
+  });
 });
 
 test("updateQuote updates row", async () => {
