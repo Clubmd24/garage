@@ -1,0 +1,2 @@
+ALTER TABLE quotes
+  ADD COLUMN revision INT NOT NULL DEFAULT 1 AFTER job_id;

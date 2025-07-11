@@ -51,6 +51,7 @@ test("createQuote inserts quote", async () => {
   const queryMock = jest
     .fn()
     .mockResolvedValueOnce([[{ company_vehicle_id: "F1" }]])
+    .mockResolvedValueOnce([[{ rev: 2 }]])
     .mockResolvedValueOnce([{ insertId: 3 }]);
   jest.unstable_mockModule("../lib/db.js", () => ({
     default: { query: queryMock },
@@ -75,10 +76,15 @@ test("createQuote inserts quote", async () => {
   );
   expect(queryMock).toHaveBeenNthCalledWith(
     2,
-    expect.stringMatching(/INSERT INTO quotes/),
-    [1, 2, 3, 4, "F1", "ref", "PO123", "d", 50, "new", null],
+    expect.stringMatching(/MAX\(revision\)/),
+    [3],
   );
-  expect(result).toEqual({ id: 3, ...data, fleet_vehicle_id: "F1" });
+  expect(queryMock).toHaveBeenNthCalledWith(
+    3,
+    expect.stringMatching(/INSERT INTO quotes/),
+    [1, 2, 3, 3, 4, "F1", "ref", "PO123", "d", 50, "new", null],
+  );
+  expect(result).toEqual({ id: 3, ...data, fleet_vehicle_id: "F1", revision: 3 });
 });
 
 test("updateQuote updates row", async () => {
@@ -95,6 +101,7 @@ test("updateQuote updates row", async () => {
     fleet_id: 5,
     job_id: 6,
     vehicle_id: 7,
+    revision: 2,
     customer_reference: "r",
     po_number: "PO",
     defect_description: "dd",
@@ -110,7 +117,7 @@ test("updateQuote updates row", async () => {
   expect(queryMock).toHaveBeenNthCalledWith(
     2,
     expect.stringMatching(/UPDATE quotes/),
-    [4, 5, 6, 7, "F2", "r", "PO", "dd", 8, "sent", null, 9],
+    [4, 5, 6, 2, 7, "F2", "r", "PO", "dd", 8, "sent", null, 9],
   );
   expect(result).toEqual({ ok: true });
 });
@@ -140,6 +147,7 @@ test("updateQuote preserves existing fields when omitted", async () => {
     total_amount: 8,
     status: "sent",
     terms: null,
+    revision: 1,
   };
   const queryMock = jest
     .fn()
@@ -158,7 +166,7 @@ test("updateQuote preserves existing fields when omitted", async () => {
   expect(queryMock).toHaveBeenNthCalledWith(
     2,
     expect.stringMatching(/UPDATE quotes/),
-    [4, 5, 6, 7, "F2", "r", "PO", "dd", 8, "approved", null, 9],
+    [4, 5, 6, 1, 7, "F2", "r", "PO", "dd", 8, "approved", null, 9],
   );
   expect(result).toEqual({ ok: true });
 });

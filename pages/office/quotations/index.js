@@ -36,14 +36,24 @@ const QuotationsPage = () => {
   const router = useRouter();
 
   const approve = async quote => {
-    const res = await fetch('/api/jobs', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ customer_id: quote.customer_id, vehicle_id: null }),
-    });
-    const job = res.ok ? await res.json() : null;
-    await updateQuote(quote.id, { status: 'approved', job_id: job?.id });
-    router.push(`/office/quotations/${quote.id}/purchase-orders?job_id=${job?.id}`);
+    let jobId = quote.job_id;
+    if (jobId) {
+      await fetch(`/api/jobs/${jobId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'unassigned' }),
+      });
+    } else {
+      const res = await fetch('/api/jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customer_id: quote.customer_id, vehicle_id: null }),
+      });
+      const job = res.ok ? await res.json() : null;
+      jobId = job?.id;
+    }
+    await updateQuote(quote.id, { status: 'approved', job_id: jobId });
+    router.push(`/office/quotations/${quote.id}/purchase-orders?job_id=${jobId}`);
   };
 
   const convert = async id => {
