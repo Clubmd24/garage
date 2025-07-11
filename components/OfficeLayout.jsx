@@ -123,6 +123,12 @@ export default function OfficeLayout({ children }) {
                   Scheduling
                 </Link>
               </li>
+              <li>
+                <Link href="/office/live-screen" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  Workshop Live
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
