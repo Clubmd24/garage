@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS invoices (
-  id INT PRIMARY KEY AUTO_INCREMENT,
+  id INT PRIMARY KEY,
   job_id INT,
   customer_id INT,
   amount DECIMAL(10,2),

@@ -43,10 +43,22 @@ export async function getJobById(id) {
   return row || null;
 }
 
-export async function createJob({ customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay }) {
+export async function createJob({ id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay }) {
   const finalStatus = status || 'unassigned';
   if (!(await jobStatusExists(finalStatus))) {
     throw new Error('Invalid job status');
+  }
+  if (id !== undefined) {
+    const [[exists]] = await pool.query('SELECT 1 FROM jobs WHERE id=?', [id]);
+    if (exists) {
+      throw new Error('Job ID already exists');
+    }
+    await pool.query(
+      `INSERT INTO jobs (id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay)
+       VALUES (?,?,?,?,?,?,?)`,
+      [id, customer_id || null, vehicle_id || null, scheduled_start || null, scheduled_end || null, finalStatus, bay || null]
+    );
+    return { id, customer_id, vehicle_id, scheduled_start, scheduled_end, status: finalStatus, bay };
   }
   const [{ insertId }] = await pool.query(
     `INSERT INTO jobs (customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay)

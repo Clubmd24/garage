@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS jobs (
-  id INT PRIMARY KEY AUTO_INCREMENT,
+  id INT PRIMARY KEY,
   customer_id INT,
   vehicle_id INT,
   scheduled_start DATETIME,
