@@ -51,7 +51,7 @@ export async function sendQuoteEmail(quoteId, to) {
     vehicle: {},
     items: itemList,
     defect_description: quote.defect_description,
-    terms: quote.terms || company.terms || '',
+    terms: quote.terms || company.quote_terms || company.terms || '',
   });
   const recipient = to || clientInfo.email || clientInfo.email_1 || clientInfo.email_2;
   await transporter.sendMail({
