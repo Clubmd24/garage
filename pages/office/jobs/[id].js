@@ -20,6 +20,7 @@ export default function JobViewPage() {
     engineer_id: '',
     scheduled_start: '',
     scheduled_end: '',
+    notes: '',
   });
 
   useEffect(() => {
@@ -54,6 +55,7 @@ export default function JobViewPage() {
             ? j.scheduled_start.slice(0, 16)
             : '',
           scheduled_end: j.scheduled_end ? j.scheduled_end.slice(0, 16) : '',
+          notes: j.notes || '',
         });
         if (j.customer_id) {
           const c = await fetch(`/api/clients/${j.customer_id}`);
@@ -102,6 +104,40 @@ export default function JobViewPage() {
       }
       const r = await fetch(`/api/jobs/${id}`);
       if (r.ok) setJob(await r.json());
+    } catch {
+      setError('Failed to update');
+    }
+  };
+
+  const saveNotes = async e => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`/api/jobs/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes: form.notes }),
+      });
+      if (!res.ok) throw new Error();
+      const r = await fetch(`/api/jobs/${id}`);
+      if (r.ok) setJob(await r.json());
+    } catch {
+      setError('Failed to update');
+    }
+  };
+
+  const deleteNotes = async () => {
+    try {
+      const res = await fetch(`/api/jobs/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes: '' }),
+      });
+      if (!res.ok) throw new Error();
+      const r = await fetch(`/api/jobs/${id}`);
+      if (r.ok) {
+        setJob(await r.json());
+        setForm(f => ({ ...f, notes: '' }));
+      }
     } catch {
       setError('Failed to update');
     }
@@ -219,7 +255,29 @@ export default function JobViewPage() {
             </div>
             <button type="submit" className="button">Save</button>
           </form>
-          <p><strong>Notes:</strong> {job.notes || 'None'}</p>
+          <form onSubmit={saveNotes} className="space-y-2 max-w-sm mt-4">
+            <div>
+              <label className="block mb-1">Notes</label>
+              <textarea
+                name="notes"
+                value={form.notes}
+                onChange={change}
+                className="input w-full"
+              />
+            </div>
+            <div className="space-x-2">
+              <button type="submit" className="button">Save Notes</button>
+              {job.notes && (
+                <button
+                  type="button"
+                  onClick={deleteNotes}
+                  className="button bg-red-600 hover:bg-red-700"
+                >
+                  Delete Notes
+                </button>
+              )}
+            </div>
+          </form>
           {job.quote && job.quote.defect_description && (
             <p className="mt-2">
               <strong>Reported Defect:</strong> {job.quote.defect_description}

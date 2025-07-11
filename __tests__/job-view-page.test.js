@@ -102,3 +102,35 @@ test('job view page updates job status and assignment', async () => {
   expect(global.fetch.mock.calls[4][0]).toBe('/api/jobs/5');
   expect(global.fetch.mock.calls[4][1].method).toBe('PUT');
 });
+
+test('job view page updates and deletes notes', async () => {
+  jest.unstable_mockModule('next/router', () => ({
+    useRouter: () => ({ query: { id: '7' } })
+  }));
+
+  global.fetch = jest
+    .fn()
+    .mockResolvedValueOnce({ ok: true, json: async () => [] })
+    .mockResolvedValueOnce({ ok: true, json: async () => [] })
+    .mockResolvedValueOnce({ ok: true, json: async () => ({ id: 7, notes: 'old', assignments: [] }) })
+    .mockResolvedValueOnce({ ok: true, json: async () => ({}) })
+    .mockResolvedValueOnce({ ok: true, json: async () => ({ id: 7, notes: 'new', assignments: [] }) })
+    .mockResolvedValueOnce({ ok: true, json: async () => ({}) })
+    .mockResolvedValueOnce({ ok: true, json: async () => ({ id: 7, notes: '', assignments: [] }) });
+
+  const { default: Page } = await import('../pages/office/jobs/[id].js');
+  render(<Page />);
+
+  await screen.findByText('Job #7');
+  fireEvent.change(screen.getByLabelText('Notes'), { target: { value: 'new' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Save Notes' }));
+
+  await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(5));
+  expect(global.fetch.mock.calls[3][0]).toBe('/api/jobs/7');
+  expect(JSON.parse(global.fetch.mock.calls[3][1].body)).toEqual({ notes: 'new' });
+
+  fireEvent.click(screen.getByRole('button', { name: 'Delete Notes' }));
+
+  await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(7));
+  expect(JSON.parse(global.fetch.mock.calls[5][1].body)).toEqual({ notes: '' });
+});

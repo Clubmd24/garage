@@ -41,3 +41,19 @@ test('job detail uses getJobFull when available', async () => {
   expect(res.json).toHaveBeenCalledWith(job);
 });
 
+test('job update passes notes', async () => {
+  const updateMock = jest.fn().mockResolvedValue({ ok: true });
+  jest.unstable_mockModule('../services/jobsService.js', () => ({
+    getJobFull: jest.fn(),
+    updateJob: updateMock,
+    deleteJob: jest.fn(),
+  }));
+  const { default: handler } = await import('../pages/api/jobs/[id].js');
+  const req = { method: 'PUT', query: { id: '3' }, body: { notes: 'n' } };
+  const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn(), end: jest.fn() };
+  await handler(req, res);
+  expect(updateMock).toHaveBeenCalledWith('3', { notes: 'n' });
+  expect(res.status).toHaveBeenCalledWith(200);
+  expect(res.json).toHaveBeenCalledWith({ ok: true });
+});
+
