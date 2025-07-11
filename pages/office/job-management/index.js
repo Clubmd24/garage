@@ -100,6 +100,26 @@ export default function JobManagementPage() {
                 {job.quote?.defect_description && (
                   <p className="text-sm">{job.quote.defect_description}</p>
                 )}
+                {job.quote && Array.isArray(job.quote.items) && job.quote.items.length > 0 && (
+                  <table className="text-sm w-full mb-2">
+                    <thead>
+                      <tr>
+                        <th className="text-left">Part #</th>
+                        <th className="text-left">Description</th>
+                        <th className="text-right">Qty</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {job.quote.items.map(it => (
+                        <tr key={it.id}>
+                          <td>{it.partNumber || ''}</td>
+                          <td>{it.description}</td>
+                          <td className="text-right">{it.qty}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
                 <div>
                   <label className="block mb-1">Engineer</label>
                   <select
