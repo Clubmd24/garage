@@ -79,6 +79,34 @@ export default function OfficeDashboard() {
     });
   }, [vehicles]);
 
+  const jobsByStatus = useMemo(() => {
+    const byId = {};
+    vehicles.forEach(v => {
+      byId[v.id] = v.licence_plate;
+    });
+    const map = {};
+    statuses.forEach(s => {
+      map[s.name] = [];
+    });
+    jobs.forEach(j => {
+      if (map[j.status]) {
+        map[j.status].push({
+          ...j,
+          licence_plate: byId[j.vehicle_id] || ''
+        });
+      }
+    });
+    for (const key in map) {
+      map[key].sort((a, b) => {
+        if (a.created_at && b.created_at) {
+          return new Date(a.created_at) - new Date(b.created_at);
+        }
+        return a.id - b.id;
+      });
+    }
+    return map;
+  }, [jobs, vehicles, statuses]);
+
   return (
     <>
       <div className="flex flex-wrap justify-center gap-4">
@@ -86,7 +114,48 @@ export default function OfficeDashboard() {
         <Link href="/office/jobs/new" className="button px-8 text-lg">New Job</Link>
         <Link href="/office/invoices?status=unpaid" className="button px-8 text-lg">Pay Invoice</Link>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="bg-white text-black rounded-2xl p-4 shadow mt-6">
+        <h2 className="text-lg font-semibold mb-2">Jobs - showing oldest jobs</h2>
+        {statuses.map(s => {
+          const list = jobsByStatus[s.name] || [];
+          return (
+            <div key={s.id} className="mb-4">
+              <div className="font-semibold capitalize mb-1">
+                {s.name}:{' '}
+                <Link href={`/office/job-management?status=${encodeURIComponent(s.name)}`}>{jobStatusCounts[s.name] || 0}</Link>
+              </div>
+              {list.length > 0 && (
+                <table className="text-sm w-full">
+                  <thead>
+                    <tr>
+                      <th className="text-left">Job #</th>
+                      <th className="text-left">Vehicle</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {list.slice(0, 10).map(j => (
+                      <tr key={j.id}>
+                        <td className="pr-2">
+                          <Link href={`/office/jobs/${j.id}`} className="underline">
+                            {j.id}
+                          </Link>
+                        </td>
+                        <td>
+                          <Link href={`/office/jobs/${j.id}`} className="underline">
+                            {j.licence_plate || 'N/A'}
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         <div className="bg-white text-black rounded-2xl p-4 shadow">
           <h2 className="text-lg font-semibold mb-2">Open Quotes</h2>
           <p className="text-4xl font-bold text-blue-600">
@@ -94,63 +163,52 @@ export default function OfficeDashboard() {
           </p>
         </div>
         <div className="bg-white text-black rounded-2xl p-4 shadow">
-          <h2 className="text-lg font-semibold mb-2">Jobs</h2>
-          <ul className="text-sm space-y-1">
-            {statuses.map(s => (
-              <li key={s.id} className="capitalize">
-                {s.name}:{' '}
-                <Link href={`/office/job-management?status=${encodeURIComponent(s.name)}`}>{jobStatusCounts[s.name] || 0}</Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="bg-white text-black rounded-2xl p-4 shadow">
           <h2 className="text-lg font-semibold mb-2">Unpaid Invoices</h2>
           <p className="text-4xl font-bold text-blue-600">
             <Link href="/office/invoices?status=unpaid">{unpaidInvoices.length}</Link>
           </p>
         </div>
-      </div>
-      <div className="bg-white text-black rounded-2xl p-4 shadow mt-6">
-        <h2 className="text-lg font-semibold mb-2">Upcoming ITV &amp; Services</h2>
-        {upcomingVehicles.length === 0 ? (
-          <p>No vehicles due in next 30 days.</p>
-        ) : (
-          <ul className="text-sm space-y-1">
-            {upcomingVehicles.map(v => (
-              <li key={v.id}>
-                <Link href={`/office/vehicles/view/${v.id}`} className="underline">
-                  {v.licence_plate} - {v.customer_name || 'N/A'}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-      <div className="bg-white text-black rounded-2xl p-4 shadow mt-6">
-        <h2 className="text-lg font-semibold mb-2">Today&apos;s Jobs</h2>
-        {todayJobs.length === 0 ? (
-          <p>No jobs today.</p>
-        ) : (
-          <ul className="text-sm space-y-1">
-            {todayJobs.map(j => (
-              <li key={j.id}>
-                <Link href={`/office/jobs/${j.id}`} className="underline">
-                  {j.licence_plate} - {j.engineers || 'Unassigned'} - {j.status}
-                </Link>
-                <div className="text-xs">
-                  {j.scheduled_start
-                    ? new Date(j.scheduled_start).toLocaleString()
-                    : 'N/A'}{' '}
-                  -{' '}
-                  {j.scheduled_end
-                    ? new Date(j.scheduled_end).toLocaleString()
-                    : 'N/A'}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+        <div className="bg-white text-black rounded-2xl p-4 shadow">
+          <h2 className="text-lg font-semibold mb-2">Upcoming ITV &amp; Services</h2>
+          {upcomingVehicles.length === 0 ? (
+            <p>No vehicles due in next 30 days.</p>
+          ) : (
+            <ul className="text-sm space-y-1">
+              {upcomingVehicles.map(v => (
+                <li key={v.id}>
+                  <Link href={`/office/vehicles/view/${v.id}`} className="underline">
+                    {v.licence_plate} - {v.customer_name || 'N/A'}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        <div className="bg-white text-black rounded-2xl p-4 shadow">
+          <h2 className="text-lg font-semibold mb-2">Today&apos;s Jobs</h2>
+          {todayJobs.length === 0 ? (
+            <p>No jobs today.</p>
+          ) : (
+            <ul className="text-sm space-y-1">
+              {todayJobs.map(j => (
+                <li key={j.id}>
+                  <Link href={`/office/jobs/${j.id}`} className="underline">
+                    {j.licence_plate} - {j.engineers || 'Unassigned'} - {j.status}
+                  </Link>
+                  <div className="text-xs">
+                    {j.scheduled_start
+                      ? new Date(j.scheduled_start).toLocaleString()
+                      : 'N/A'}{' '}
+                    -{' '}
+                    {j.scheduled_end
+                      ? new Date(j.scheduled_end).toLocaleString()
+                      : 'N/A'}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </>
   );
