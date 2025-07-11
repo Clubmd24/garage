@@ -38,9 +38,22 @@ export async function getInvoiceById(id) {
   return row || null;
 }
 
-export async function createInvoice({ job_id, customer_id, amount, due_date, status, terms }) {
+export async function createInvoice({ id, job_id, customer_id, amount, due_date, status, terms }) {
   if (status && !(await invoiceStatusExists(status))) {
     throw new Error('Invalid invoice status');
+  }
+  if (id !== undefined) {
+    const [[exists]] = await pool.query('SELECT 1 FROM invoices WHERE id=?', [id]);
+    if (exists) {
+      throw new Error('Invoice ID already exists');
+    }
+    await pool.query(
+      `INSERT INTO invoices
+        (id, job_id, customer_id, amount, due_date, status, terms)
+       VALUES (?,?,?,?,?,?,?)`,
+      [id, job_id || null, customer_id || null, amount || null, due_date || null, status || null, terms || null]
+    );
+    return { id, job_id, customer_id, amount, due_date, status, terms };
   }
   const [{ insertId }] = await pool.query(
     `INSERT INTO invoices
