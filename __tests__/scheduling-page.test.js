@@ -39,6 +39,12 @@ test('dragging unassigned job calls assign endpoint', async () => {
     fetchJobsInRange: jest.fn().mockResolvedValue(jobs),
     assignJob: assignMock,
   }));
+  jest.unstable_mockModule('../lib/engineers', () => ({
+    fetchEngineers: jest.fn().mockResolvedValue([{ id: 1, username: 'E' }]),
+  }));
+  jest.unstable_mockModule('../lib/jobStatuses', () => ({
+    fetchJobStatuses: jest.fn().mockResolvedValue([{ id: 2, name: 'in progress' }]),
+  }));
   const { default: Page } = await import('../pages/office/scheduling/index.js');
   render(<Page />);
   const item = await screen.findByTestId('unassigned-job');
@@ -47,6 +53,38 @@ test('dragging unassigned job calls assign endpoint', async () => {
     window.__scheduleDrop({ start: new Date('2024-05-02T09:00:00Z'), end: new Date('2024-05-02T10:00:00Z') });
     return Promise.resolve();
   });
-  expect(assignMock).toHaveBeenCalled();
-  expect(assignMock.mock.calls[0][0]).toBe(3);
+  const modal = await screen.findByTestId('assign-modal');
+  expect(modal).toBeInTheDocument();
+  expect(assignMock).not.toHaveBeenCalled();
+  fireEvent.change(screen.getByLabelText('Engineer'), { target: { value: '1' } });
+  fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'in progress' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Assign' }));
+  await act(() => Promise.resolve());
+  expect(assignMock).toHaveBeenCalledWith(3, expect.objectContaining({ engineer_id: 1, status: 'in progress' }));
+});
+
+test('dragging cancelled does not assign job', async () => {
+  const jobs = [{ id: 4, status: 'unassigned', assignments: [], licence_plate: 'DDD444' }];
+  const assignMock = jest.fn().mockResolvedValue({});
+  jest.unstable_mockModule('../lib/jobs', () => ({
+    fetchJobsInRange: jest.fn().mockResolvedValue(jobs),
+    assignJob: assignMock,
+  }));
+  jest.unstable_mockModule('../lib/engineers', () => ({
+    fetchEngineers: jest.fn().mockResolvedValue([]),
+  }));
+  jest.unstable_mockModule('../lib/jobStatuses', () => ({
+    fetchJobStatuses: jest.fn().mockResolvedValue([]),
+  }));
+  const { default: Page } = await import('../pages/office/scheduling/index.js');
+  render(<Page />);
+  const item = await screen.findByTestId('unassigned-job');
+  fireEvent.dragStart(item);
+  await act(() => {
+    window.__scheduleDrop({ start: new Date('2024-05-03T09:00:00Z'), end: new Date('2024-05-03T10:00:00Z') });
+    return Promise.resolve();
+  });
+  fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await act(() => Promise.resolve());
+  expect(assignMock).not.toHaveBeenCalled();
 });

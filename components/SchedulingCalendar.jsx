@@ -11,6 +11,8 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { parse, format, startOfWeek, getDay } from 'date-fns';
 import enUS from 'date-fns/locale/en-US';
 import { fetchJobsInRange, assignJob } from '../lib/jobs';
+import { fetchEngineers } from '../lib/engineers';
+import { fetchJobStatuses } from '../lib/jobStatuses';
 
 // Note: Global CSS imports for react-big-calendar belong in pages/_app.js
 const locales = { 'en-US': enUS };
@@ -33,6 +35,10 @@ export default function SchedulingCalendar() {
   const [events, setEvents] = useState([]);
   const [unassigned, setUnassigned] = useState([]);
   const [dragJob, setDragJob] = useState(null);
+  const [engineers, setEngineers] = useState([]);
+  const [statuses, setStatuses] = useState([]);
+  const [pending, setPending] = useState(null);
+  const [form, setForm] = useState({ engineer_id: '', status: '' });
 
   // Load jobs from API
   const load = () => {
@@ -71,6 +77,14 @@ export default function SchedulingCalendar() {
   }
 
   useEffect(load, []);
+  useEffect(() => {
+    fetchEngineers()
+      .then(setEngineers)
+      .catch(() => setEngineers([]));
+    fetchJobStatuses()
+      .then(setStatuses)
+      .catch(() => setStatuses([]));
+  }, []);
 
   // Style events by engineer
   const eventPropGetter = event => {
@@ -80,19 +94,78 @@ export default function SchedulingCalendar() {
 
   // Handle drop from side panel
   const onDropFromOutside = ({ start, end }) => {
-    if (!dragJob) return
-    assignJob(dragJob.id, {
-      engineer_id: dragJob.engineer_id || 1,
-      scheduled_start: start.toISOString(),
-      scheduled_end: end.toISOString(),
-    }).finally(load);
+    if (!dragJob) return;
+    setPending({ start, end, job: dragJob });
     setDragJob(null);
-  }
+  };
+
+  useEffect(() => {
+    window.__scheduleDrop = onDropFromOutside;
+  });
+
+  const change = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+
+  const confirm = () => {
+    if (!pending) return;
+    assignJob(pending.job.id, {
+      engineer_id: Number(form.engineer_id),
+      status: form.status,
+      scheduled_start: pending.start.toISOString(),
+      scheduled_end: pending.end.toISOString(),
+    })
+      .finally(load)
+      .finally(() => setPending(null));
+  };
+
+  const cancel = () => setPending(null);
 
   const dragFromOutsideItem = dragJob ? { title: `Job #${dragJob.id}` } : null;
 
   return (
     <div className="min-h-screen p-6 bg-gradient-to-br from-blue-600 to-blue-800">
+      {pending && (
+        <div
+          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+          data-testid="assign-modal"
+        >
+          <div className="bg-white p-4 rounded space-y-2">
+            <div>
+              <label className="block mb-1">Engineer</label>
+              <select
+                name="engineer_id"
+                value={form.engineer_id}
+                onChange={change}
+                className="input w-full"
+                aria-label="Engineer"
+              >
+                <option value="">Select…</option>
+                {engineers.map(e => (
+                  <option key={e.id} value={e.id}>{e.username}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block mb-1">Status</label>
+              <select
+                name="status"
+                value={form.status}
+                onChange={change}
+                className="input w-full"
+                aria-label="Status"
+              >
+                <option value="">Select…</option>
+                {statuses.map(s => (
+                  <option key={s.id ?? s.name} value={s.name}>{s.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex space-x-2 pt-2">
+              <button onClick={confirm} className="button">Assign</button>
+              <button onClick={cancel} className="button">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
       <h1 className="text-2xl font-semibold text-white mb-4">Scheduling</h1>
       <div className="flex space-x-4">
         {/* Side Panel */}
