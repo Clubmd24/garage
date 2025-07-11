@@ -88,3 +88,25 @@ test('dragging cancelled does not assign job', async () => {
   await act(() => Promise.resolve());
   expect(assignMock).not.toHaveBeenCalled();
 });
+
+test('changing filters reloads jobs', async () => {
+  const jobs = [];
+  const fetchMock = jest.fn().mockResolvedValue(jobs);
+  jest.unstable_mockModule('../lib/jobs', () => ({
+    fetchJobsInRange: fetchMock,
+    assignJob: jest.fn(),
+  }));
+  jest.unstable_mockModule('../lib/engineers', () => ({
+    fetchEngineers: jest.fn().mockResolvedValue([{ id: 1, username: 'E' }]),
+  }));
+  jest.unstable_mockModule('../lib/jobStatuses', () => ({
+    fetchJobStatuses: jest.fn().mockResolvedValue([{ id: 2, name: 'done' }]),
+  }));
+  const { default: Page } = await import('../pages/office/scheduling/index.js');
+  render(<Page />);
+  await act(() => Promise.resolve());
+  fireEvent.change(screen.getByLabelText('Engineer Filter'), { target: { value: '1' } });
+  fireEvent.change(screen.getByLabelText('Status Filter'), { target: { value: 'done' } });
+  await act(() => Promise.resolve());
+  expect(fetchMock).toHaveBeenLastCalledWith(expect.any(String), expect.any(String), '1', 'done');
+});
