@@ -77,12 +77,20 @@ test('job management shows vehicle plate and defect', async () => {
     .mockResolvedValueOnce({ ok: true, json: async () => [] })
     .mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ id: 1, vehicle: { licence_plate: 'XYZ' }, quote: { defect_description: 'broken' } })
+      json: async () => ({
+        id: 1,
+        vehicle: { licence_plate: 'XYZ' },
+        quote: {
+          defect_description: 'broken',
+          items: [{ id: 5, partNumber: 'P1', description: 'part', qty: 2 }]
+        }
+      })
     });
   const { default: JobManagementPage } = await import('../pages/office/job-management/index.js');
   render(<JobManagementPage />);
   await screen.findByText('Job #1');
   expect(screen.getByText('XYZ')).toBeInTheDocument();
   expect(screen.getByText('broken')).toBeInTheDocument();
+  expect(screen.getByText('part')).toBeInTheDocument();
 });
 
