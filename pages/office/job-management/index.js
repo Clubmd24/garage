@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import OfficeLayout from '../../../components/OfficeLayout';
-import { fetchJobs } from '../../../lib/jobs';
+import { fetchJobs, fetchJob } from '../../../lib/jobs';
 import { fetchEngineers } from '../../../lib/engineers';
 
 export default function JobManagementPage() {
@@ -11,12 +11,31 @@ export default function JobManagementPage() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchJobs({ status: 'unassigned' })
-      .then(setJobs)
-      .catch(() => setJobs([]));
-    fetchEngineers()
-      .then(setEngineers)
-      .catch(() => setEngineers([]));
+    async function load() {
+      try {
+        const list = await fetchJobs({ status: 'unassigned' });
+        const withDetails = await Promise.all(
+          list.map(async j => {
+            try {
+              const full = await fetchJob(j.id);
+              return { ...j, vehicle: full.vehicle, quote: full.quote };
+            } catch {
+              return j;
+            }
+          })
+        );
+        setJobs(withDetails);
+      } catch {
+        setJobs([]);
+      }
+      try {
+        const engs = await fetchEngineers();
+        setEngineers(engs);
+      } catch {
+        setEngineers([]);
+      }
+    }
+    load();
   }, []);
 
   const change = (id, field, value) =>
@@ -75,6 +94,12 @@ export default function JobManagementPage() {
                 className="space-y-2 bg-white text-black p-4 rounded"
               >
                 <p className="font-semibold">Job #{job.id}</p>
+                {job.vehicle && (
+                  <p className="text-sm">{job.vehicle.licence_plate}</p>
+                )}
+                {job.quote?.defect_description && (
+                  <p className="text-sm">{job.quote.defect_description}</p>
+                )}
                 <div>
                   <label className="block mb-1">Engineer</label>
                   <select
