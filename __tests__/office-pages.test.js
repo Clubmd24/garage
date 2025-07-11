@@ -79,7 +79,7 @@ test('job management shows vehicle plate and defect', async () => {
       ok: true,
       json: async () => ({
         id: 1,
-        vehicle: { licence_plate: 'XYZ' },
+        vehicle: { licence_plate: 'XYZ', make: 'Ford', model: 'Focus' },
         quote: {
           defect_description: 'broken',
           items: [{ id: 5, partNumber: 'P1', description: 'part', qty: 2 }]
@@ -90,6 +90,8 @@ test('job management shows vehicle plate and defect', async () => {
   render(<JobManagementPage />);
   await screen.findByText('Job #1');
   expect(screen.getByText('XYZ')).toBeInTheDocument();
+  expect(screen.getByText('Ford')).toBeInTheDocument();
+  expect(screen.getByText('Focus')).toBeInTheDocument();
   expect(screen.getByText('broken')).toBeInTheDocument();
   expect(screen.getByText('part')).toBeInTheDocument();
 });
