@@ -12,6 +12,9 @@ export default function CompanySettingsPage() {
     phone: '',
     website: '',
     social_links: '',
+    bank_details: '',
+    invoice_terms: '',
+    quote_terms: '',
     terms: '',
   });
   const [loading, setLoading] = useState(true);
@@ -108,7 +111,17 @@ export default function CompanySettingsPage() {
     </OfficeLayout>
   );
 
-  const fields = ['company_name', 'address', 'phone', 'website', 'social_links', 'terms'];
+  const fields = [
+    'company_name',
+    'address',
+    'phone',
+    'website',
+    'social_links',
+    'bank_details',
+    'invoice_terms',
+    'quote_terms',
+    'terms',
+  ];
 
   return (
     <OfficeLayout>
