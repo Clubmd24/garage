@@ -111,9 +111,13 @@ const JobCardsPage = () => {
           {filteredJobs.map(j => (
             <div key={j.id} className="item-card">
               <h2 className="font-semibold mb-1">
-                <Link href={`/office/jobs/${j.job_id}`} className="underline">
-                  Job #{j.job_id}
-                </Link>
+                {j.job_id ? (
+                  <Link href={`/office/jobs/${j.job_id}`} className="underline">
+                    Job #{j.job_id}
+                  </Link>
+                ) : (
+                  <span>Job not created</span>
+                )}
               </h2>
               <p className="text-sm">{clientMap[j.customer_id] || ''}</p>
               <p className="text-sm">{vehicleMap[j.vehicle_id]?.licence_plate || ''}</p>
