@@ -104,12 +104,11 @@ test('GET /api/standards/status rejects invalid secret', async () => {
   expect(statusMock).not.toHaveBeenCalled();
 });
 
-test('GET /api/standards/[id] returns grouped sections', async () => {
+test('GET /api/standards/[id] returns questions', async () => {
   process.env.API_SECRET = 'shhh';
   const rows = [
-    { section: 'A', subsection: 'A1' },
-    { section: 'A', subsection: 'A2' },
-    { section: 'B', subsection: 'B1' },
+    { no: 1, text: 'Q1' },
+    { no: 2, text: 'Q2' },
   ];
   const queryMock = jest.fn().mockResolvedValue([rows]);
   jest.unstable_mockModule('../lib/db.js', () => ({ default: { query: queryMock } }));
@@ -119,12 +118,7 @@ test('GET /api/standards/[id] returns grouped sections', async () => {
   await handler(req, res);
   expect(queryMock).toHaveBeenCalledWith(expect.any(String), ['1']);
   expect(res.status).toHaveBeenCalledWith(200);
-  expect(res.json).toHaveBeenCalledWith({
-    sections: [
-      { section: 'A', subsections: ['A1', 'A2'] },
-      { section: 'B', subsections: ['B1'] },
-    ],
-  });
+  expect(res.json).toHaveBeenCalledWith({ questions: rows });
 });
 
 test('GET /api/standards/[id] rejects invalid secret', async () => {
