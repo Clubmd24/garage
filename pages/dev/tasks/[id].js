@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Sidebar } from '../../../components/Sidebar';
 import { Header } from '../../../components/Header';
 import { Card } from '../../../components/Card';
+import Image from 'next/image';
 
 const S3_BASE_URL = `https://${process.env.NEXT_PUBLIC_S3_BUCKET}.s3.${process.env.NEXT_PUBLIC_AWS_REGION}.amazonaws.com`;
 
@@ -115,7 +116,15 @@ export default function TaskDetail() {
               {files.map(f => (
                 <li key={f.id}>
                   {f.content_type && f.content_type.startsWith('image/') ? (
-                    <img src={`${S3_BASE_URL}/${f.s3_key}`} alt="attachment" className="max-w-xs" />
+                    <Image
+                      src={`${S3_BASE_URL}/${f.s3_key}`}
+                      alt="attachment"
+                      width={0}
+                      height={0}
+                      sizes="100vw"
+                      style={{ width: '100%', height: 'auto' }}
+                      className="max-w-xs"
+                    />
                   ) : (
                     <a href={`${S3_BASE_URL}/${f.s3_key}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline" download>
                       {f.file_name || f.s3_key.split('/').pop()}

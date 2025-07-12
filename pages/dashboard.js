@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import logout from '../lib/logout.js';
 import Head from 'next/head';
+import Image from 'next/image';
 import { DashboardCard } from '../components/DashboardCard.js';
 import { useCurrentUser } from '../components/useCurrentUser.js';
 
@@ -88,7 +89,13 @@ export default function Home() {
       </Head>
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white space-y-8 p-6">
         {/* Logo: place your logo file at public/logo.png */}
-        <img src="/logo.png" alt="Garage Vision Logo" width={120} height={120} className="mb-4 rounded-full shadow-lg" />
+        <Image
+          src="/logo.png"
+          alt="Garage Vision Logo"
+          width={120}
+          height={120}
+          className="mb-4 rounded-full shadow-lg"
+        />
         <h1 className="text-6xl font-bold tracking-tight">Garage Vision</h1>
         <p className="text-xl opacity-90">Welcome, {user.username}!</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-xl">

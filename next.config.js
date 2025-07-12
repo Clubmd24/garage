@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: [],  // add any image hostnames here
+    domains: ['amazonaws.com'], // allow S3 bucket images
   }
 };
 

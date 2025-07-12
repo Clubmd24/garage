@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import logout from '../lib/logout.js';
 import { fetchSearch } from '../lib/search.js';
 
@@ -242,7 +243,7 @@ export default function OfficeLayout({ children }) {
       <div className="flex-1 flex flex-col">
         <header className="bg-blue-700 p-6 space-y-4 relative">
           <div className="flex items-center space-x-3">
-            <img src="/logo.png" alt="Garage Vision" className="w-10 h-10 rounded-full" />
+            <Image src="/logo.png" alt="Garage Vision" width={40} height={40} className="w-10 h-10 rounded-full" />
             <h1 className="text-2xl font-bold">Garage Vision</h1>
           </div>
           <div className="mt-4 relative">

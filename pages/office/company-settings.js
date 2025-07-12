@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import OfficeLayout from '../../components/OfficeLayout';
 
 const S3_BASE_URL = `https://${process.env.NEXT_PUBLIC_S3_BUCKET}.s3.${process.env.NEXT_PUBLIC_AWS_REGION}.amazonaws.com`;
@@ -138,7 +139,15 @@ export default function CompanySettingsPage() {
         <div>
           <label className="block mb-1">Logo</label>
           {form.logo_url && (
-            <img src={form.logo_url} alt="Logo" className="max-h-32 mb-2" />
+            <Image
+              src={form.logo_url}
+              alt="Logo"
+              width={0}
+              height={0}
+              sizes="100vw"
+              style={{ width: '100%', height: 'auto' }}
+              className="max-h-32 mb-2"
+            />
           )}
           <input type="file" onChange={handleLogoUpload} disabled={uploading} />
         </div>

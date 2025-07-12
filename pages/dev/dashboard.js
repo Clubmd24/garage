@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { Sidebar } from '../../components/Sidebar';
 import { Header } from '../../components/Header';
+import Image from 'next/image';
 import { Card } from '../../components/Card';
 import { highlightMentions } from '../../lib/highlightMentions.js';
 
@@ -83,7 +84,15 @@ export default function DevDashboard() {
                       <span>{highlightMentions(a.body)}</span>
                       {a.s3_key && (
                         a.content_type && a.content_type.startsWith('image/') ? (
-                          <img src={`${S3_BASE_URL}/${a.s3_key}`} alt="attachment" className="mt-2 max-w-xs" />
+                          <Image
+                            src={`${S3_BASE_URL}/${a.s3_key}`}
+                            alt="attachment"
+                            width={0}
+                            height={0}
+                            sizes="100vw"
+                            style={{ width: '100%', height: 'auto' }}
+                            className="mt-2 max-w-xs"
+                          />
                         ) : (
                           <a href={`${S3_BASE_URL}/${a.s3_key}`} target="_blank" rel="noopener noreferrer" className="block mt-2 text-blue-500 underline" download>
                             {a.file_name || a.s3_key.split('/').pop()}

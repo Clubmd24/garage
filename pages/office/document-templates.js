@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import OfficeLayout from '../../components/OfficeLayout';
+import Image from 'next/image';
 
 function TemplateBox({ title, company }) {
   return (
@@ -7,7 +8,15 @@ function TemplateBox({ title, company }) {
       <h2 className="text-xl font-semibold mb-2">{title} Template</h2>
       <div className="border rounded p-4 bg-white text-black space-y-2">
         {company.logo_url && (
-          <img src={company.logo_url} alt="Logo" className="h-16" />
+          <Image
+            src={company.logo_url}
+            alt="Logo"
+            width={0}
+            height={0}
+            sizes="100vw"
+            style={{ width: '100%', height: 'auto' }}
+            className="h-16"
+          />
         )}
         {company.company_name && (
           <p className="font-bold">{company.company_name}</p>

@@ -1,6 +1,7 @@
 // File: pages/login.js
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 
 export default function Login() {
@@ -71,7 +72,13 @@ export default function Login() {
         <title>Login - Garage Vision</title>
       </Head>
       <div className="min-h-screen flex flex-col items-center justify-center">
-        <img src="/logo.png" alt="Garage Vision Logo" width={120} height={120} className="mb-6 rounded-full shadow-lg" />
+        <Image
+          src="/logo.png"
+          alt="Garage Vision Logo"
+          width={120}
+          height={120}
+          className="mb-6 rounded-full shadow-lg"
+        />
         <div className="absolute top-4 right-4">
           <button
             onClick={toggleTheme}
