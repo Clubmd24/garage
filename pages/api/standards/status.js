@@ -3,26 +3,25 @@ import pool from '../../../lib/db.js';
 import { getIngestStatus } from '../../../services/standardIngestService.js';
 
 async function handler(req, res) {
-  // Auth check
+  // auth
   const secret = req.query.secret || req.headers['x-api-secret'];
   if (secret !== process.env.API_SECRET) {
     return res.status(403).json({ error: 'Forbidden' });
   }
-  // Only GET allowed
+  // method check
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET']);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 
-  // Safe query: only select columns that actually exist
   let rows;
   try {
     [rows] = await pool.query(
-      `SELECT 
+      `SELECT
          id,
          code,
-         title AS source_name,
-         pdf_url AS source_url
+         title    AS source_name,
+         pdf_url  AS source_url
        FROM standards
        ORDER BY code`
     );
