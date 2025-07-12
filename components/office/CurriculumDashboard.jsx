@@ -3,7 +3,7 @@ import Table from '../ui/Table.jsx';
 import Modal from '../ui/Modal.jsx';
 import Button from '../ui/Button.jsx';
 import { Card } from '../Card.js';
-import fetchJSON from '../../lib/fetchJSON.js';
+import { fetchJSON } from '@/lib/api';
 
 export default function CurriculumDashboard() {
   const [standards, setStandards] = useState([]);
