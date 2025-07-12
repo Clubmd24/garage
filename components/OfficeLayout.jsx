@@ -279,7 +279,7 @@ export default function OfficeLayout({ children }) {
                   <div>
                     <div className="font-semibold mt-2">Parts</div>
                     {results.parts.map(p => (
-                      <Link key={`p${p.id}`} href={`/office/parts`} className="block hover:underline">
+                      <Link key={`p${p.id}`} href={`/office/parts`} className='block hover:underline'>
                         {p.part_number} - {p.description}
                       </Link>
                     ))}

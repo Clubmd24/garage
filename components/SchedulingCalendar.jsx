@@ -60,7 +60,7 @@ export default function SchedulingCalendar() {
             j.status
           )
         )
-      )
+      );
       setEvents(
         jobs
           .filter(j => j.scheduled_start && j.scheduled_end)
@@ -71,7 +71,7 @@ export default function SchedulingCalendar() {
             end: new Date(j.scheduled_end),
             engineer_id: j.assignments?.[0]?.user_id,
           }))
-      )
+      );
     })
       .catch(() => {
         setUnassigned([]);
@@ -250,5 +250,5 @@ export default function SchedulingCalendar() {
         </div>
       </div>
     </div>
-  )
+  );
 }

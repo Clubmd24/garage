@@ -3,7 +3,6 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import logout from '../../lib/logout.js';
 import { fetchVehicles } from '../../lib/vehicles';
-import { fetchInvoices } from '../../lib/invoices';
 import { fetchJobs } from '../../lib/jobs.js';
 import { PortalDashboard } from '../../components/PortalDashboard';
 

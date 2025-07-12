@@ -53,7 +53,7 @@ export default function NewQuotationPage() {
         /* ignore parse errors */
       }
     }
-  }, [router.isReady]);
+  }, [router.isReady, router.query]);
 
   useEffect(() => {
     setForm(f => ({ ...f, customer_id: '', fleet_id: '', vehicle_id: '' }));

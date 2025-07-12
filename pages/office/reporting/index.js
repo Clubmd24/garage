@@ -62,7 +62,7 @@ const ReportingPage = () => {
         setError('Failed to load reports');
       })
       .finally(() => setLoading(false));
-  }, [range, customStart, customEnd]);
+  }, [range, customStart, customEnd, computeDates]);
 
   return (
     <OfficeLayout>

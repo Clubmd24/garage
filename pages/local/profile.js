@@ -4,7 +4,6 @@ import logout from '../../lib/logout.js';
 
 export default function LocalProfile() {
   const router = useRouter();
-  const [client, setClient] = useState(null);
   const [form, setForm] = useState(null);
   const [message, setMessage] = useState('');
 
@@ -13,7 +12,6 @@ export default function LocalProfile() {
       const res = await fetch('/api/portal/local/me');
       if (!res.ok) return router.replace('/local/login');
       const c = await res.json();
-      setClient(c);
       setForm(c);
     })();
   }, [router]);
