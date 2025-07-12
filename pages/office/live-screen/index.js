@@ -27,7 +27,7 @@ const LiveScreenPage = () => {
       .finally(() => setLoading(false));
   };
 
-  useEffect(load, []);
+  useEffect(load, [load]);
 
   const openQuotes = useMemo(
     () => quotes.filter(q => !['job-card', 'completed', 'invoiced'].includes(q.status)),

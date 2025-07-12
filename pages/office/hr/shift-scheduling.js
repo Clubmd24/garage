@@ -14,7 +14,7 @@ export default function ShiftSchedulingPage() {
       .catch(() => setError('Failed to load shifts'));
   };
 
-  useEffect(load, []);
+  useEffect(load, [load]);
 
   const addShift = async data => {
     try {

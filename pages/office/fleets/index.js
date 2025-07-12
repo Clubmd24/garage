@@ -17,7 +17,7 @@ const FleetsPage = () => {
       .finally(() => setLoading(false));
   };
 
-  useEffect(load, []);
+  useEffect(load, [load]);
 
 
   const filtered = fleets.filter(f => {

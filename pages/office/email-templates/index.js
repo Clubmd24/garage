@@ -18,7 +18,7 @@ export default function EmailTemplatesPage() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(load, []);
+  useEffect(load, [load]);
 
   const change = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 
