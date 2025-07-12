@@ -1,26 +1,38 @@
 import { jest } from '@jest/globals';
-import apiHandler from '../lib/apiHandler.js';
+
+afterEach(() => {
+  jest.resetModules();
+  jest.clearAllMocks();
+});
 
 test('passes through successful handler', async () => {
+  jest.unstable_mockModule('../lib/logger.js', () => ({
+    default: { info: jest.fn(), error: jest.fn() },
+  }));
+  const { default: withApiHandler } = await import('../lib/apiHandler.js');
   const fn = jest.fn(async (req, res) => {
     res.status(200).json({ ok: true });
   });
-  const wrapped = apiHandler(fn);
-  const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), headersSent: false };
-  await wrapped({}, res);
+  const wrapped = withApiHandler(fn);
+  const req = { method: 'GET', url: '/', headers: {}, user: { id: 1 } };
+  const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), headersSent: false, setHeader: jest.fn() };
+  await wrapped(req, res);
   expect(fn).toHaveBeenCalled();
   expect(res.status).toHaveBeenCalledWith(200);
   expect(res.json).toHaveBeenCalledWith({ ok: true });
 });
 
 test('catches errors and responds with 500', async () => {
+  jest.unstable_mockModule('../lib/logger.js', () => ({
+    default: { info: jest.fn(), error: jest.fn() },
+  }));
+  const { default: withApiHandler } = await import('../lib/apiHandler.js');
   const err = new Error('fail');
   const fn = jest.fn(() => { throw err; });
-  const wrapped = apiHandler(fn);
-  const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), headersSent: false };
-  jest.spyOn(console, 'error').mockImplementation(() => {});
-  await wrapped({}, res);
+  const wrapped = withApiHandler(fn);
+  const req = { method: 'GET', url: '/foo', headers: {} };
+  const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), headersSent: false, setHeader: jest.fn() };
+  await wrapped(req, res);
   expect(res.status).toHaveBeenCalledWith(500);
-  expect(res.json).toHaveBeenCalledWith({ error: 'Internal Server Error' });
-  console.error.mockRestore();
+  expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ error: 'internal_error' }));
 });
