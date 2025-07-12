@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import Script from 'next/script';
 import Head from 'next/head';
 import Image from 'next/image';
-import { Sidebar } from '../components/Sidebar';
-import { Header } from '../components/Header';
+import Sidebar from '../components/Sidebar';
+import Header from '../components/Header';
 
 import { highlightMentions } from '../lib/highlightMentions.js';
 
