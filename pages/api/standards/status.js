@@ -12,16 +12,16 @@ async function handler(req, res) {
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 
-  // Fetch all standards with the correct column names
+  // Select the columns you actually have in your standards table:
   const [rows] = await pool.query(
-    `SELECT 
-       id, 
-       code, 
-       source_name, 
-       version, 
-       last_fetched_at 
+    `SELECT
+       id,
+       code,
+       title AS source_name,
+       pdf_url AS source_url,
+       last_fetched_at
      FROM standards
-     ORDER BY source_name`
+     ORDER BY code`
   );
 
   res.status(200).json({
@@ -31,4 +31,3 @@ async function handler(req, res) {
 }
 
 export default apiHandler(handler);
-
