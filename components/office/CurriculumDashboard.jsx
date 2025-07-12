@@ -53,7 +53,7 @@ export default function CurriculumDashboard() {
             {standards.map(s => (
               <tr key={s.id || s.code}>
                 <td className="px-2 py-1">{s.code}</td>
-                <td className="px-2 py-1">{s.title}</td>
+                <td className="px-2 py-1">{s.source_name}</td>
                 <td className="px-2 py-1">
                   <Button className="button-secondary" onClick={() => handleView(s)}>
                     View Questions
@@ -67,7 +67,7 @@ export default function CurriculumDashboard() {
       {selected && (
         <Modal onClose={() => setSelected(null)}>
           <Card>
-            <h2 className="text-lg font-semibold mb-2">{selected.title}</h2>
+            <h2 className="text-lg font-semibold mb-2">{selected.source_name}</h2>
             <Table>
               <thead>
                 <tr>
