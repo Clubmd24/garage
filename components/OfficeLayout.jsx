@@ -155,6 +155,12 @@ export default function OfficeLayout({ children }) {
                 </Link>
               </li>
               <li>
+                <Link href="/office/apprentices" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  Apprentices
+                </Link>
+              </li>
+              <li>
                 <Link href="/office/crm" className="flex items-center hover:underline">
                   <ArrowIcon />
                   CRM

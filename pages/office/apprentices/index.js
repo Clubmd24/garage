@@ -1,0 +1,45 @@
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import OfficeLayout from '../../../components/OfficeLayout';
+import { fetchApprentices } from '../../../lib/apprentices';
+
+export default function ApprenticesPage() {
+  const [apprentices, setApprentices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const load = () => {
+    setLoading(true);
+    fetchApprentices()
+      .then(setApprentices)
+      .catch(() => setError('Failed to load apprentices'))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(load, []);
+
+  return (
+    <OfficeLayout>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-semibold">Apprentices</h1>
+      </div>
+      {loading && <p>Loading…</p>}
+      {error && <p className="text-red-500">{error}</p>}
+      {!loading && !error && (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {apprentices.map(a => (
+            <div key={a.id} className="item-card">
+              <h2 className="font-semibold text-black dark:text-white text-lg mb-1">
+                {a.first_name} {a.last_name}
+              </h2>
+              <p className="text-sm text-black dark:text-white">{a.email || '—'}</p>
+              <p className="text-sm text-black dark:text-white">
+                Standard: {a.standard_id || '—'}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+    </OfficeLayout>
+  );
+}
