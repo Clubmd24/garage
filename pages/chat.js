@@ -136,7 +136,7 @@ export default function Chat() {
         <Header />
         <Script
           src="/api/socket-io/socket.io.js"
-          strategy="afterInteractive"
+          strategy="beforeInteractive"
         />
         <main className="p-8 space-y-4">
           <Head>
