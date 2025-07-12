@@ -1,8 +1,8 @@
-import { Server } from "socket.io";
-import { parse } from "cookie";
-import pool from "../../lib/db";
+import { Server } from 'socket.io';
+import { parse } from 'cookie';
+import pool from '../../lib/db';
 import apiHandler from '../../lib/apiHandler.js';
-import { verifyToken } from "../../lib/auth.js";
+import { verifyToken } from '../../lib/auth.js';
 
 const extractMentions = (body) =>
   Array.from(
@@ -11,35 +11,35 @@ const extractMentions = (body) =>
 
 function handler(req, res) {
   if (!res.socket.server.io) {
-    const io = new Server(res.socket.server, { path: "/api/socket-io" });
+    const io = new Server(res.socket.server, { path: '/api/socket-io' });
 
     io.use((socket, next) => {
-      const cookies = parse(socket.handshake.headers.cookie || "");
+      const cookies = parse(socket.handshake.headers.cookie || '');
       const token = cookies.auth_token || cookies.fleet_token || cookies.local_token;
-      if (!token) return next(new Error("Unauthorized"));
+      if (!token) return next(new Error('Unauthorized'));
       try {
         socket.user = verifyToken(token);
         return next();
       } catch {
-        return next(new Error("Unauthorized"));
+        return next(new Error('Unauthorized'));
       }
     });
-    io.on("connection", (socket) => {
+    io.on('connection', (socket) => {
       if (!socket.user) {
         socket.disconnect();
         return;
       }
-      socket.on("chat:join", (room) => {
+      socket.on('chat:join', (room) => {
         if (socket.currentRoom) socket.leave(String(socket.currentRoom));
         socket.join(String(room));
         socket.currentRoom = room;
       });
 
-      socket.on("chat:send", async (msg) => {
+      socket.on('chat:send', async (msg) => {
         const roomId = msg.room_id || 1;
-        const isImportant = msg.body && msg.body.includes("@dashboard");
+        const isImportant = msg.body && msg.body.includes('@dashboard');
         const [result] = await pool.execute(
-          "INSERT INTO messages (room_id, user, body, s3_key, file_name, content_type, is_important) VALUES (?,?,?,?,?,?,?)",
+          'INSERT INTO messages (room_id, user, body, s3_key, file_name, content_type, is_important) VALUES (?,?,?,?,?,?,?)',
           [roomId, msg.user, msg.body, msg.s3_key || null, msg.file_name || null, msg.content_type || null, isImportant],
         );
         const full = {
@@ -50,14 +50,14 @@ function handler(req, res) {
           mentions: extractMentions(msg.body),
           is_important: isImportant,
         };
-        io.to(String(roomId)).emit("chat:recv", full);
+        io.to(String(roomId)).emit('chat:recv', full);
       });
 
-      socket.on("chat:delete", async (id) => {
-        await pool.execute("UPDATE messages SET deleted_at=NOW() WHERE id=?", [id]);
-        const [[row]] = await pool.query("SELECT room_id FROM messages WHERE id=?", [id]);
+      socket.on('chat:delete', async (id) => {
+        await pool.execute('UPDATE messages SET deleted_at=NOW() WHERE id=?', [id]);
+        const [[row]] = await pool.query('SELECT room_id FROM messages WHERE id=?', [id]);
         const roomId = row ? row.room_id : 1;
-        io.to(String(roomId)).emit("chat:delete", id);
+        io.to(String(roomId)).emit('chat:delete', id);
       });
     });
     res.socket.server.io = io;

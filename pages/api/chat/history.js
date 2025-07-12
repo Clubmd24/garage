@@ -1,4 +1,4 @@
-import pool from "../../../lib/db";
+import pool from '../../../lib/db';
 import apiHandler from '../../../lib/apiHandler.js';
 
 const extractMentions = (body) =>
@@ -7,8 +7,8 @@ const extractMentions = (body) =>
   );
 
 async function handler(req, res) {
-  const limit = parseInt(req.query.limit || "50", 10);
-  const room = parseInt(req.query.room_id || "1", 10);
+  const limit = parseInt(req.query.limit || '50', 10);
+  const room = parseInt(req.query.room_id || '1', 10);
   try {
     const [rows] = await pool.query(
       `SELECT id, user, body, s3_key, file_name, content_type, created_at
@@ -26,8 +26,8 @@ async function handler(req, res) {
     }));
     res.status(200).json(withMentions);
   } catch (err) {
-    console.error("HISTORY ERROR:", err);
-    res.status(500).json({ error: "Internal server error" });
+    console.error('HISTORY ERROR:', err);
+    res.status(500).json({ error: 'Internal server error' });
   }
 }
 
