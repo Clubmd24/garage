@@ -2,6 +2,12 @@
 
 ## Setup
 
+### Prerequisites
+
+- A MySQL server that the application can connect to. The examples below use a
+  local Docker container but any reachable instance will work.
+- AWS credentials for an existing S3 bucket so uploaded files can be stored.
+
 1. Copy `.env.example` to `.env.local` and fill in secrets. The required variables are `DATABASE_URL` and `JWT_SECRET`.
 2. Configure AWS S3 to enable uploading logos and other files. Add the following environment variables from `.env.example`:
    - `S3_BUCKET`
@@ -36,14 +42,31 @@ docker run --name garage-db \
 
 For a local installation, ensure the MySQL service is running and a database named `garage` exists. Update `DATABASE_URL` in `.env.local` if necessary.
 
-6. Run migrations: `npm run migrate`
-   - This command executes every `.sql` file in the `migrations/` directory in
-     order and records which have been run.
-   - Running the script again safely skips already-applied migrations.
-7. Run tests and lint checks: `npm test` and `npm run lint`. The test suite
-   requires Node and all npm packages to be installed, so ensure the previous
-   step succeeded or use a Docker image with these dependencies preinstalled.
-8. Start dev server: `npm run dev`
+6. **Run migrations** from the project root:
+
+   ```bash
+   npm run migrate
+   ```
+
+   This command executes each `.sql` file in the `migrations/` directory in
+   order and records which ones have been applied. Re-run it whenever new
+   migration files are added.
+
+7. **Run tests and lint checks**:
+
+   ```bash
+   npm test
+   npm run lint
+   ```
+
+   These commands require Node and all npm packages installed in the earlier
+   steps.
+
+8. **Start the development server**:
+
+   ```bash
+   npm run dev
+   ```
 
 ## Code Style
 
