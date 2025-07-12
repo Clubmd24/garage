@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
 import OfficeLayout from '../../../components/OfficeLayout';
 import Spinner from '../../../components/Spinner.jsx';
 import Toast from '../../../components/Toast.jsx';
 import { fetchApprentices } from '../../../lib/apprentices';
+import Tabs from '../../../components/ui/Tabs.jsx';
+import Button from '../../../components/ui/Button.jsx';
+import CurriculumDashboard from '../../../components/office/CurriculumDashboard.jsx';
 
 export default function ApprenticesPage() {
   const [apprentices, setApprentices] = useState([]);
@@ -52,30 +54,45 @@ export default function ApprenticesPage() {
 
   return (
     <OfficeLayout>
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-semibold">Apprentices</h1>
-        <button onClick={handleRefresh} className="button flex items-center">
-          {refreshing ? <Spinner /> : 'Refresh Curriculum'}
-        </button>
-      </div>
-      {ingestRunning && <p>Refreshing curriculum…</p>}
-      {loading && <p>Loading…</p>}
-      {error && <p className="text-red-500">{error}</p>}
-      {!loading && !error && (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {apprentices.map(a => (
-            <div key={a.id} className="item-card">
-              <h2 className="font-semibold text-black dark:text-white text-lg mb-1">
-                {a.first_name} {a.last_name}
-              </h2>
-              <p className="text-sm text-black dark:text-white">{a.email || '—'}</p>
-              <p className="text-sm text-black dark:text-white">
-                Standard: {a.standard_id || '—'}
-              </p>
-            </div>
-          ))}
-        </div>
-      )}
+      <Tabs
+        tabs={[
+          {
+            label: 'Apprentices',
+            content: (
+              <>
+                <div className="flex justify-between items-center mb-4">
+                  <h1 className="text-2xl font-semibold">Apprentices</h1>
+                  <Button onClick={handleRefresh} className="flex items-center">
+                    {refreshing ? <Spinner /> : 'Refresh Curriculum'}
+                  </Button>
+                </div>
+                {ingestRunning && <p>Refreshing curriculum…</p>}
+                {loading && <p>Loading…</p>}
+                {error && <p className="text-red-500">{error}</p>}
+                {!loading && !error && (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {apprentices.map(a => (
+                      <div key={a.id} className="item-card">
+                        <h2 className="font-semibold text-black dark:text-white text-lg mb-1">
+                          {a.first_name} {a.last_name}
+                        </h2>
+                        <p className="text-sm text-black dark:text-white">{a.email || '—'}</p>
+                        <p className="text-sm text-black dark:text-white">
+                          Standard: {a.standard_id || '—'}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            ),
+          },
+          {
+            label: 'Curriculum',
+            content: <CurriculumDashboard />,
+          },
+        ]}
+      />
       {toast && (
         <Toast
           message={toast.message}
