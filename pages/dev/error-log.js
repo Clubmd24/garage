@@ -31,7 +31,7 @@ export default function ErrorLog() {
           <Head><title>Error Log</title></Head>
           <h1 className="text-3xl mb-4">Error Log</h1>
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-[var(--color-surface)] rounded-xl shadow text-sm">
+            <table className="min-w-full bg-[var(--color-surface)] rounded-xl shadow text-sm text-black dark:text-white">
               <thead className="text-left">
                 <tr>
                   <th className="px-3 py-2">Timestamp</th>
