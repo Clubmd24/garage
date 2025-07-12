@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import Image from 'next/image';
 
 export default function Landing() {
   return (
@@ -7,7 +8,7 @@ export default function Landing() {
         <title>Garage-Vision | Revolutionize Your Garage</title>
       </Head>
       <header className="flex items-center justify-between px-6 py-3 text-gray-100">
-        <img src="/logo.png" alt="Garage Vision Logo" className="h-8 w-auto" />
+        <Image src="/logo.png" alt="Garage Vision Logo" width={32} height={32} className="h-8 w-auto" />
         <nav className="space-x-6 text-sm">
           <a href="/login" className="hover:underline">Garage Login</a>
           <a href="/local/login" className="hover:underline">Car Owner Login</a>
@@ -32,7 +33,15 @@ export default function Landing() {
             </div>
           </div>
           <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center">
-            <img src="/mechanic-cards.png" alt="Mechanic illustration" className="max-w-md w-full rounded-2xl shadow-xl" />
+            <Image
+              src="/mechanic-cards.png"
+              alt="Mechanic illustration"
+              width={0}
+              height={0}
+              sizes="100vw"
+              style={{ width: '100%', height: 'auto' }}
+              className="max-w-md w-full rounded-2xl shadow-xl"
+            />
           </div>
         </div>
       </section>
@@ -72,7 +81,15 @@ export default function Landing() {
 
       <section className="py-16 bg-white">
         <div className="container mx-auto px-6 flex justify-center">
-          <img src="/web-header-image.png" alt="App preview" className="max-w-4xl w-full rounded-2xl shadow-2xl" />
+          <Image
+            src="/web-header-image.png"
+            alt="App preview"
+            width={0}
+            height={0}
+            sizes="100vw"
+            style={{ width: '100%', height: 'auto' }}
+            className="max-w-4xl w-full rounded-2xl shadow-2xl"
+          />
         </div>
       </section>
 
@@ -124,7 +141,7 @@ export default function Landing() {
       </section>
 
       <footer className="py-6 text-center text-sm text-white bg-[#0d1e45]">
-        <img src="/logo.png" alt="Garage Vision Logo" className="h-6 w-auto mx-auto mb-2" />
+        <Image src="/logo.png" alt="Garage Vision Logo" width={24} height={24} className="h-6 w-auto mx-auto mb-2" />
         Garage Vision © 2025
       </footer>
     </>

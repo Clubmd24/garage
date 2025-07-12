@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import Head from 'next/head';
+import Image from 'next/image';
 import { DashboardCard } from '../../components/DashboardCard.js';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -154,7 +155,13 @@ export default function FleetHome() {
         <title>Fleet Portal</title>
       </Head>
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white space-y-8 p-6">
-        <img src="/logo.png" alt="Garage Vision Logo" width={120} height={120} className="mb-4 rounded-full shadow-lg" />
+        <Image
+          src="/logo.png"
+          alt="Garage Vision Logo"
+          width={120}
+          height={120}
+          className="mb-4 rounded-full shadow-lg"
+        />
         <h1 className="text-6xl font-bold tracking-tight">Fleet Portal</h1>
         <p className="text-xl opacity-90">Welcome, {fleet.company_name}!</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-xl">

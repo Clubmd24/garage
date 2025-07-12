@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Script from 'next/script';
 import Head from 'next/head';
+import Image from 'next/image';
 import { Sidebar } from '../components/Sidebar';
 import { Header } from '../components/Header';
 
@@ -197,9 +198,13 @@ export default function Chat() {
                   <span>{highlightMentions(m.body)}</span>
                   {m.s3_key && (
                     m.content_type && m.content_type.startsWith('image/') ? (
-                      <img
+                      <Image
                         src={`${S3_BASE_URL}/${m.s3_key}`}
                         alt="uploaded"
+                        width={0}
+                        height={0}
+                        sizes="100vw"
+                        style={{ width: '100%', height: 'auto' }}
                         className="mt-2 max-w-xs"
                       />
                     ) : (
