@@ -104,7 +104,7 @@ EOF
 # 3) Components
 mkdir -p components
 cat > components/Sidebar.js <<'EOF'
-export function Sidebar() {
+export default function Sidebar() {
   return (
     <nav className="w-64 bg-[var(--color-surface)] h-screen p-4 space-y-2">
       <a href="/" className="block font-bold mb-4">Garage Vision</a>
@@ -117,7 +117,7 @@ EOF
 
 cat > components/Header.js <<'EOF'
 import { useEffect, useState } from 'react';
-export function Header() {
+export default function Header() {
   const [user, setUser] = useState(null);
   useEffect(() => {
     fetch('/api/auth/me', { credentials:'include' })
@@ -133,7 +133,7 @@ export function Header() {
 EOF
 
 cat > components/Card.js <<'EOF'
-export function Card({ children, className = '' }) {
+export default function Card({ children, className = '' }) {
   return (
     <div className={\`p-4 bg-[var(--color-surface)] rounded-2xl shadow \${className}\`}>
       {children}
@@ -379,9 +379,9 @@ mkdir -p pages/api/dev/projects pages/dev/projects/[id]/tasks pages/dev/tasks
 cat > pages/dev/projects/index.js <<'EOF'
 import Link from 'next/link';
 import { useState,useEffect } from 'react';
-import { Sidebar } from '../../components/Sidebar';
-import { Header } from '../../components/Header';
-import { Card } from '../../components/Card';
+import Sidebar from '../../components/Sidebar';
+import Header from '../../components/Header';
+import Card from '../../components/Card';
 
 export default function Projects() {
   const [projects,setProjects]=useState([]);
@@ -420,9 +420,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
-import { Sidebar } from '../../../components/Sidebar';
-import { Header } from '../../../components/Header';
-import { Card } from '../../../components/Card';
+import Sidebar from '../../../components/Sidebar';
+import Header from '../../../components/Header';
+import Card from '../../../components/Card';
 
 export default function NewProject() {
   const router = useRouter();
