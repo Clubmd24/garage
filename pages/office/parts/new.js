@@ -29,7 +29,7 @@ export default function NewPartPage() {
       description: query.description || f.description,
       unit_cost: query.unit_cost || f.unit_cost,
     }));
-  }, [router.isReady]);
+  }, [router.isReady, query.part_number, query.description, query.unit_cost]);
 
   const change = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 

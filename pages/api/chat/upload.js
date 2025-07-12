@@ -20,7 +20,6 @@ async function handler(req, res) {
 
   const t = getTokenFromReq(req);
   if (!t) return res.status(401).json({ error: 'Unauthorized' });
-  const userId = t.sub; // optionally record user ID for audit
 
   const bucket = process.env.S3_BUCKET;
   if (!bucket) return res.status(500).json({ error: 'S3_BUCKET not set' });

@@ -1,5 +1,4 @@
 // File: pages/api/quotes/[id]/pdf.js
-import { NextApiRequest, NextApiResponse } from 'next';
 import { buildQuotePdf } from '../../../../lib/pdf/buildQuotePdf';
 import { getSettings } from '../../../../services/companySettingsService';
 import { getQuoteById } from '../../../../services/quotesService';

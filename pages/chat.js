@@ -64,7 +64,7 @@ export default function Chat() {
     };
     init();
     return () => socketRef.current && socketRef.current.disconnect();
-  }, []);
+  }, [topicId]);
 
   useEffect(() => {
     if (!socketReady || !socketRef.current || !topicId) return;
@@ -78,7 +78,7 @@ export default function Chat() {
       }
     };
     load();
-  }, [topicId, socketReady]);
+  }, [topicId, socketReady, socketRef]);
 
   const sendMessage = async () => {
     if (!input && !file) return;
@@ -136,7 +136,7 @@ export default function Chat() {
         <Header />
         <Script
           src="/api/socket-io/socket.io.js"
-          strategy="beforeInteractive"
+          strategy="afterInteractive"
         />
         <main className="p-8 space-y-4">
           <Head>
@@ -146,7 +146,7 @@ export default function Chat() {
           <div className="flex items-center space-x-2">
             <select
               className="input"
-              value={topicId || ""}
+              value={topicId || ''}
               onChange={(e) => setTopicId(parseInt(e.target.value, 10))}
             >
               {topics.map((t) => (

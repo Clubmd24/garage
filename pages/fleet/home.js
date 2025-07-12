@@ -5,9 +5,7 @@ import { DashboardCard } from '../../components/DashboardCard.js';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import logout from '../../lib/logout.js';
-import { fetchQuotes } from '../../lib/quotes';
 import { fetchJobs } from '../../lib/jobs';
-import { fetchInvoices } from '../../lib/invoices';
 import { fetchJobStatuses } from '../../lib/jobStatuses';
 
 function VehiclesIcon() {

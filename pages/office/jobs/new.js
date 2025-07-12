@@ -12,8 +12,8 @@ export default function NewJobPage() {
       <div className="max-w-sm mt-4">
         <label className="block mb-1">Add Part</label>
         <PartAutocomplete
-          onSelect={p => {
-            // console.log('selected', p);
+          onSelect={(p) => {
+            console.log('selected', p);
           }}
         />
       </div>
