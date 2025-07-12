@@ -63,3 +63,39 @@ test('GET /api/standards/status rejects invalid secret', async () => {
   expect(res.json).toHaveBeenCalledWith({ error: 'Forbidden' });
   expect(statusMock).not.toHaveBeenCalled();
 });
+
+test('GET /api/standards/[id] returns grouped sections', async () => {
+  process.env.API_SECRET = 'shhh';
+  const rows = [
+    { section: 'A', subsection: 'A1' },
+    { section: 'A', subsection: 'A2' },
+    { section: 'B', subsection: 'B1' },
+  ];
+  const queryMock = jest.fn().mockResolvedValue([rows]);
+  jest.unstable_mockModule('../lib/db.js', () => ({ default: { query: queryMock } }));
+  const { default: handler } = await import('../pages/api/standards/[id].js');
+  const req = { method: 'GET', headers: {}, query: { id: '1', secret: 'shhh' } };
+  const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn(), end: jest.fn() };
+  await handler(req, res);
+  expect(queryMock).toHaveBeenCalledWith(expect.any(String), ['1']);
+  expect(res.status).toHaveBeenCalledWith(200);
+  expect(res.json).toHaveBeenCalledWith({
+    sections: [
+      { section: 'A', subsections: ['A1', 'A2'] },
+      { section: 'B', subsections: ['B1'] },
+    ],
+  });
+});
+
+test('GET /api/standards/[id] rejects invalid secret', async () => {
+  process.env.API_SECRET = 'shhh';
+  const queryMock = jest.fn();
+  jest.unstable_mockModule('../lib/db.js', () => ({ default: { query: queryMock } }));
+  const { default: handler } = await import('../pages/api/standards/[id].js');
+  const req = { method: 'GET', headers: {}, query: { id: '1', secret: 'nope' } };
+  const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn(), end: jest.fn() };
+  await handler(req, res);
+  expect(res.status).toHaveBeenCalledWith(403);
+  expect(res.json).toHaveBeenCalledWith({ error: 'Forbidden' });
+  expect(queryMock).not.toHaveBeenCalled();
+});
