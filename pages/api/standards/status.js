@@ -1,4 +1,5 @@
 import apiHandler from '../../../lib/apiHandler.js';
+import pool from '../../../lib/db.js';
 import { getIngestStatus } from '../../../services/standardIngestService.js';
 
 async function handler(req, res) {
@@ -10,7 +11,12 @@ async function handler(req, res) {
     res.setHeader('Allow', ['GET']);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
-  res.status(200).json({ running: getIngestStatus() });
+
+  const [rows] = await pool.query(
+    'SELECT id, code, source, version, last_fetched_at FROM standards'
+  );
+
+  res.status(200).json({ running: getIngestStatus(), standards: rows });
 }
 
 export default apiHandler(handler);
