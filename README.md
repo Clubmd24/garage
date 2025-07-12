@@ -139,3 +139,16 @@ Standards are pulled from external PDFs and inserted into the database using
 Once the dev server is running, open
 `http://localhost:3000/office/apprentices` or click **Apprentices** in the
 Office sidebar to view the list of apprentices.
+
+### Standards API
+
+Two endpoints expose the ingested standards and their quiz questions.
+
+- `/api/standards/status` – returns the current ingest status and an array of
+  available standards.
+- `/api/standards/:id` – returns the quiz questions for the standard with the
+  given ID.
+
+Both endpoints require the secret defined in the `API_SECRET` environment
+variable. Supply it as either a `secret` query parameter or an `X-API-SECRET`
+header when making requests.
