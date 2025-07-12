@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import Script from 'next/script';
 import Head from 'next/head';
 import Image from 'next/image';
 import Sidebar from '../components/Sidebar';
@@ -134,10 +133,6 @@ export default function Chat() {
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-y-auto">
         <Header />
-        <Script
-          src="/api/socket-io/socket.io.js"
-          strategy="afterInteractive"
-        />
         <main className="p-8 space-y-4">
           <Head>
             <title>Chat</title>
