@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { NavLink } from "./NavLink.js";
 
 export function Sidebar() {
   const [userRole, setUserRole] = useState(null);
@@ -89,6 +90,11 @@ export function Sidebar() {
             <a href="/admin/users" {...linkProps}>
               Users
             </a>
+            {process.env.NODE_ENV === 'development' && (
+              <NavLink href="/dev/error-log" onClick={() => setOpen(false)}>
+                Error Log
+              </NavLink>
+            )}
           </>
         )}
       </nav>
