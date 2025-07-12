@@ -20,10 +20,11 @@ async function handler(req, res) {
       `SELECT
          id,
          code,
-         title    AS source_name,
-         pdf_url  AS source_url
+         title   AS source_name,
+         pdf_url AS source_url,
+         created_at
        FROM standards
-       ORDER BY code`
+       ORDER BY id`
     );
   } catch (err) {
     console.error('Standards status query failed:', err);

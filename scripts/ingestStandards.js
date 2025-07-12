@@ -8,32 +8,33 @@ async function fetchPdf(url) {
   return Buffer.from(await res.arrayBuffer());
 }
 
-export async function ingestStandard({ name, url, version }) {
-  // Download PDF to confirm URL works
+export async function ingestStandard({ code, url }) {
+  // Download PDF to confirm URL is reachable
   await fetchPdf(url);
 
-  // Upsert into the standards table using the real columns
+  // Use the dummy PDF filename as title, or any placeholder
+  const title = 'Dummy PDF';
+
+  // Upsert into your actual columns: code, title, pdf_url
   await pool.query(
-    `INSERT INTO standards (source_name, source_url, version, last_fetched_at)
-     VALUES (?, ?, ?, NOW())
+    `INSERT INTO standards (code, title, pdf_url)
+     VALUES (?, ?, ?)
      ON DUPLICATE KEY UPDATE
-       source_url = VALUES(source_url),
-       version    = VALUES(version),
-       last_fetched_at = NOW()`,
-    [name, url, version]
+       title   = VALUES(title),
+       pdf_url = VALUES(pdf_url)`,
+    [code, title, url]
   );
 
-  console.log(`✅ Ingested standard ${name}@${version}`);
+  console.log(`✅ Ingested standard ${code}`);
 }
 
 export default async function ingestAll() {
   const standards = [
     {
-      name:    'Dummy PDF',
-      url:     'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-      version: '1.0'
+      code: 'STD001',
+      url:  'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
     },
-    // add more { name, url, version } here
+    // …add more {code,url} here
   ];
 
   for (const s of standards) {
