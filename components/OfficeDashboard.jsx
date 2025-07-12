@@ -13,6 +13,7 @@ export default function OfficeDashboard() {
   const [statuses, setStatuses] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [todayJobs, setTodayJobs] = useState([]);
+  const [activeStatus, setActiveStatus] = useState(null);
 
   useEffect(() => {
     Promise.all([fetchQuotes(), fetchJobs(), fetchInvoices(), fetchJobStatuses(), fetchVehicles()])
@@ -117,43 +118,65 @@ export default function OfficeDashboard() {
       </div>
       <div className="bg-white text-black rounded-2xl p-4 shadow mt-6">
         <h2 className="text-lg font-semibold mb-2">Jobs - showing oldest jobs</h2>
-        {statuses.map(s => {
-          const list = jobsByStatus[s.name] || [];
-          return (
-            <div key={s.id} className="mb-4">
-              <div className="font-semibold capitalize mb-1">
-                {s.name}:{' '}
-                <Link href={`/office/job-management?status=${encodeURIComponent(s.name)}`}>{jobStatusCounts[s.name] || 0}</Link>
-              </div>
-              {list.length > 0 && (
-                <table className="text-sm w-full">
-                  <thead>
-                    <tr>
-                      <th className="text-left">Job #</th>
-                      <th className="text-left">Vehicle</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {list.slice(0, 10).map(j => (
-                      <tr key={j.id}>
-                        <td className="pr-2">
-                          <Link href={`/office/jobs/${j.id}`} className="underline">
-                            {j.id}
-                          </Link>
-                        </td>
-                        <td>
-                          <Link href={`/office/jobs/${j.id}`} className="underline">
-                            {j.licence_plate || 'N/A'}
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          );
-        })}
+        <table className="text-sm w-full">
+          <thead>
+            <tr>
+              {statuses.map(s => (
+                <th key={s.id} className="text-left capitalize">
+                  {s.name}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              {statuses.map(s => {
+                const list = jobsByStatus[s.name] || [];
+                return (
+                  <td key={s.id} className="relative align-top p-1">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setActiveStatus(activeStatus === s.name ? null : s.name)
+                      }
+                      className="underline font-semibold capitalize"
+                    >
+                      {s.name}: {jobStatusCounts[s.name] || 0}
+                    </button>
+                    {activeStatus === s.name && list.length > 0 && (
+                      <div className="absolute bg-white shadow-lg rounded p-2 z-10 mt-2">
+                        <table className="text-sm">
+                          <thead>
+                            <tr>
+                              <th className="text-left">Job #</th>
+                              <th className="text-left">Vehicle</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {list.slice(0, 10).map(j => (
+                              <tr key={j.id}>
+                                <td className="pr-2">
+                                  <Link href={`/office/jobs/${j.id}`} className="underline">
+                                    {j.id}
+                                  </Link>
+                                </td>
+                                <td>
+                                  <Link href={`/office/jobs/${j.id}`} className="underline">
+                                    {j.licence_plate || 'N/A'}
+                                  </Link>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </td>
+                );
+              })}
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
