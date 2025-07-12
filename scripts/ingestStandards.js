@@ -5,28 +5,35 @@ import pool from '../lib/db.js';
 async function fetchPdf(url) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.statusText}`);
-  // We simply verify reachability—no parsing yet
   return Buffer.from(await res.arrayBuffer());
 }
 
-export async function ingestStandard({ code, url }) {
+export async function ingestStandard({ name, url, version }) {
+  // Download PDF to confirm URL works
   await fetchPdf(url);
-  const title = 'Imported Standard';
 
+  // Upsert into the standards table using the real columns
   await pool.query(
-    `INSERT INTO standards (code, title, pdf_url)
-     VALUES (?, ?, ?)
-     ON DUPLICATE KEY UPDATE title=VALUES(title), pdf_url=VALUES(pdf_url)`,
-    [code, title, url]
+    `INSERT INTO standards (source_name, source_url, version, last_fetched_at)
+     VALUES (?, ?, ?, NOW())
+     ON DUPLICATE KEY UPDATE
+       source_url = VALUES(source_url),
+       version    = VALUES(version),
+       last_fetched_at = NOW()`,
+    [name, url, version]
   );
 
-  console.log(`✅ Upserted standard ${code}`);
+  console.log(`✅ Ingested standard ${name}@${version}`);
 }
 
 export default async function ingestAll() {
   const standards = [
-    { code: 'STD001', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf' },
-    // add more sources here
+    {
+      name:    'Dummy PDF',
+      url:     'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+      version: '1.0'
+    },
+    // add more { name, url, version } here
   ];
 
   for (const s of standards) {
