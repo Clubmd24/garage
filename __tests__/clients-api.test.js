@@ -46,6 +46,30 @@ test('clients index creates client', async () => {
   expect(createMock).toHaveBeenCalledWith(req.body);
 });
 
+test('clients index validates input on create', async () => {
+  const createMock = jest.fn();
+  jest.unstable_mockModule('../services/clientsService.js', () => ({
+    getAllClients: jest.fn(),
+    createClient: createMock,
+    searchClients: jest.fn(),
+  }));
+  const { default: handler } = await import('../pages/api/clients/index.js');
+  const req = {
+    method: 'POST',
+    body: { first_name: '' },
+    headers: {},
+  };
+  const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn(), end: jest.fn() };
+  await handler(req, res);
+  expect(res.status).toHaveBeenCalledWith(400);
+  expect(res.json).toHaveBeenCalledWith(
+    expect.objectContaining({ error: 'validation_error' })
+  );
+  const [{ details }] = res.json.mock.calls[0];
+  expect(details).toBeDefined();
+  expect(createMock).not.toHaveBeenCalled();
+});
+
 
 test('clients index rejects unsupported method', async () => {
   jest.unstable_mockModule('../services/clientsService.js', () => ({
