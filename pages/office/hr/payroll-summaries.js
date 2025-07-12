@@ -12,7 +12,7 @@ export default function PayrollSummaries() {
       .catch(() => setError('Failed to load payroll entries'));
   };
 
-  useEffect(load, []);
+  useEffect(load, [load]);
 
   return (
     <OfficeLayout>

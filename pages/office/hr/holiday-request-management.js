@@ -12,7 +12,7 @@ export default function HolidayRequestManagement() {
       .catch(() => setError('Failed to load requests'));
   };
 
-  useEffect(load, []);
+  useEffect(load, [load]);
 
   return (
     <OfficeLayout>
