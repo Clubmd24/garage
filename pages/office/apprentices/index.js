@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import OfficeLayout from '../../../components/OfficeLayout';
+import Spinner from '../../../components/Spinner.jsx';
+import Toast from '../../../components/Toast.jsx';
 import { fetchApprentices } from '../../../lib/apprentices';
 
 export default function ApprenticesPage() {
   const [apprentices, setApprentices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [ingestRunning, setIngestRunning] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [toast, setToast] = useState(null);
 
   const load = () => {
     setLoading(true);
@@ -16,13 +21,44 @@ export default function ApprenticesPage() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(load, []);
+  const fetchStatus = () => {
+    fetch(`/api/standards/status?secret=${process.env.NEXT_PUBLIC_API_SECRET}`)
+      .then(r => (r.ok ? r.json() : { running: false }))
+      .then(d => setIngestRunning(!!d.running))
+      .catch(() => setIngestRunning(false));
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const res = await fetch(
+        `/api/standards/ingest?secret=${process.env.NEXT_PUBLIC_API_SECRET}`,
+        { method: 'POST' }
+      );
+      if (!res.ok) throw new Error('failed');
+      setToast({ type: 'success', message: 'Curriculum refresh started' });
+    } catch {
+      setToast({ type: 'error', message: 'Failed to refresh curriculum' });
+    } finally {
+      setRefreshing(false);
+      fetchStatus();
+    }
+  };
+
+  useEffect(() => {
+    load();
+    fetchStatus();
+  }, []);
 
   return (
     <OfficeLayout>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-semibold">Apprentices</h1>
+        <button onClick={handleRefresh} className="button flex items-center">
+          {refreshing ? <Spinner /> : 'Refresh Curriculum'}
+        </button>
       </div>
+      {ingestRunning && <p>Refreshing curriculum…</p>}
       {loading && <p>Loading…</p>}
       {error && <p className="text-red-500">{error}</p>}
       {!loading && !error && (
@@ -39,6 +75,13 @@ export default function ApprenticesPage() {
             </div>
           ))}
         </div>
+      )}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
       )}
     </OfficeLayout>
   );
