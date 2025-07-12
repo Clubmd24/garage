@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 export function Sidebar() {
   const [userRole, setUserRole] = useState(null);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    fetch("/api/auth/me", { credentials: "include" })
+    fetch('/api/auth/me', { credentials: 'include' })
       .then((r) => (r.ok ? r.json() : null))
       .then((u) => setUserRole(u?.role?.toLowerCase()))
       .catch(() => null);
@@ -13,7 +13,7 @@ export function Sidebar() {
 
   const linkProps = {
     className:
-      "bg-gray-200 text-black rounded-full px-4 py-2 shadow hover:bg-gray-300 block text-center w-full",
+      'bg-gray-200 text-black rounded-full px-4 py-2 shadow hover:bg-gray-300 block text-center w-full',
     onClick: () => setOpen(false),
   };
 
@@ -39,7 +39,7 @@ export function Sidebar() {
         </svg>
       </button>
       <nav
-        className={`rounded-r-3xl shadow-lg bg-gradient-to-r from-blue-100 via-blue-200 to-blue-300 dark:from-blue-900 dark:via-blue-800 dark:to-blue-700 text-[var(--color-text-primary)] space-y-4 p-4 sm:h-screen sm:block ${open ? "block" : "hidden"}`}
+        className={`rounded-r-3xl shadow-lg bg-gradient-to-r from-blue-100 via-blue-200 to-blue-300 dark:from-blue-900 dark:via-blue-800 dark:to-blue-700 text-[var(--color-text-primary)] space-y-4 p-4 sm:h-screen sm:block ${open ? 'block' : 'hidden'}`}
       >
         <a
           href="/dashboard"
@@ -48,7 +48,7 @@ export function Sidebar() {
         >
           Garage Vision
         </a>
-        {userRole === "engineer" && (
+        {userRole === 'engineer' && (
           <>
             <a
               href="/engineer"
@@ -62,7 +62,7 @@ export function Sidebar() {
             </a>
           </>
         )}
-        {(userRole === "developer" || userRole === "admin") && (
+        {(userRole === 'developer' || userRole === 'admin') && (
           <>
             <a
               href="/dev"

@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from "react";
-import Script from "next/script";
-import Head from "next/head";
-import { Sidebar } from "../components/Sidebar";
-import { Header } from "../components/Header";
+import { useEffect, useRef, useState } from 'react';
+import Script from 'next/script';
+import Head from 'next/head';
+import { Sidebar } from '../components/Sidebar';
+import { Header } from '../components/Header';
 
-import { highlightMentions } from "../lib/highlightMentions.js";
+import { highlightMentions } from '../lib/highlightMentions.js';
 
 const S3_BASE_URL = `https://${process.env.NEXT_PUBLIC_S3_BUCKET}.s3.${process.env.NEXT_PUBLIC_AWS_REGION}.amazonaws.com`;
 
@@ -21,8 +21,8 @@ export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [topics, setTopics] = useState([]);
   const [topicId, setTopicId] = useState(null);
-  const [newTopic, setNewTopic] = useState("");
-  const [input, setInput] = useState("");
+  const [newTopic, setNewTopic] = useState('');
+  const [input, setInput] = useState('');
   const [file, setFile] = useState(null);
   const [user, setUser] = useState(null);
   const [socketReady, setSocketReady] = useState(false);
@@ -31,14 +31,14 @@ export default function Chat() {
   useEffect(() => {
     const init = async () => {
       try {
-        const r = await fetch("/api/auth/me", { credentials: "include" });
+        const r = await fetch('/api/auth/me', { credentials: 'include' });
         setUser(r.ok ? await r.json() : null);
       } catch (err) {
         setUser(null);
       }
 
       try {
-        const r = await fetch("/api/chat/topics");
+        const r = await fetch('/api/chat/topics');
         if (r.ok) {
           const ts = await r.json();
           setTopics(ts);
@@ -48,16 +48,16 @@ export default function Chat() {
         // ignore
       }
 
-      await fetch("/api/socket-io"); // start socket endpoint
-      const socket = window.io({ path: "/api/socket-io" });
+      await fetch('/api/socket-io'); // start socket endpoint
+      const socket = window.io({ path: '/api/socket-io' });
       socketRef.current = socket;
       setSocketReady(true);
 
-      socket.on("chat:recv", (msg) => {
+      socket.on('chat:recv', (msg) => {
         setMessages((m) => [...m, msg]);
       });
 
-      socket.on("chat:delete", (id) => {
+      socket.on('chat:delete', (id) => {
         setMessages((m) => m.filter((msg) => msg.id !== id));
       });
     };
@@ -67,7 +67,7 @@ export default function Chat() {
 
   useEffect(() => {
     if (!socketReady || !socketRef.current || !topicId) return;
-    socketRef.current.emit("chat:join", topicId);
+    socketRef.current.emit('chat:join', topicId);
     const load = async () => {
       try {
         const hist = await fetch(`/api/chat/history?room_id=${topicId}`);
@@ -83,7 +83,7 @@ export default function Chat() {
     if (!input && !file) return;
     if (!socketRef.current) return;
     if (!topicId) {
-      console.warn("topicId not set; refusing to send message");
+      console.warn('topicId not set; refusing to send message');
       return;
     }
     let s3Key = null;
@@ -124,7 +124,7 @@ export default function Chat() {
 
   const deleteMessage = (id) => {
     if (socketRef.current) {
-      socketRef.current.emit("chat:delete", id);
+      socketRef.current.emit('chat:delete', id);
     }
   };
 
@@ -164,9 +164,9 @@ export default function Chat() {
               className="button"
               onClick={async () => {
                 if (!newTopic.trim()) return;
-                const r = await fetch("/api/chat/topics", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
+                const r = await fetch('/api/chat/topics', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ name: newTopic.trim() }),
                 });
                 if (r.ok) {
@@ -174,7 +174,7 @@ export default function Chat() {
                   const t = { id, name: newTopic.trim() };
                   setTopics((ts) => [...ts, t]);
                   setTopicId(id);
-                  setNewTopic("");
+                  setNewTopic('');
                 }
               }}
             >
@@ -232,7 +232,7 @@ export default function Chat() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter") sendMessage();
+                if (e.key === 'Enter') sendMessage();
               }}
               placeholder="Type a message..."
             />
