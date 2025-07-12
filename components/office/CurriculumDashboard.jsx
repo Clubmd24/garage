@@ -3,16 +3,19 @@ import Table from '../ui/Table.jsx';
 import Modal from '../ui/Modal.jsx';
 import Button from '../ui/Button.jsx';
 import { Card } from '../Card.js';
+import fetchJSON from '../../lib/fetchJSON.js';
 
 export default function CurriculumDashboard() {
   const [standards, setStandards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selected, setSelected] = useState(null);
+  const [questions, setQuestions] = useState([]);
 
   useEffect(() => {
-    fetch('/api/standards/status')
-      .then(r => (r.ok ? r.json() : Promise.reject()))
+    fetchJSON(
+      `/api/standards/status?secret=${process.env.NEXT_PUBLIC_API_SECRET}`
+    )
       .then(d => {
         setStandards(d.standards || []);
         setLoading(false);
@@ -22,6 +25,16 @@ export default function CurriculumDashboard() {
         setLoading(false);
       });
   }, []);
+
+  const handleView = std => {
+    setSelected(std);
+    setQuestions([]);
+    fetchJSON(
+      `/api/standards/${std.id}?secret=${process.env.NEXT_PUBLIC_API_SECRET}`
+    )
+      .then(d => setQuestions(d.questions || []))
+      .catch(() => setQuestions([]));
+  };
 
   return (
     <div>
@@ -33,7 +46,7 @@ export default function CurriculumDashboard() {
             <tr>
               <th className="px-2 py-1 text-left">Code</th>
               <th className="px-2 py-1 text-left">Title</th>
-              <th className="px-2 py-1 text-left">Sections</th>
+              <th className="px-2 py-1 text-left">Questions</th>
             </tr>
           </thead>
           <tbody>
@@ -42,8 +55,8 @@ export default function CurriculumDashboard() {
                 <td className="px-2 py-1">{s.code}</td>
                 <td className="px-2 py-1">{s.title}</td>
                 <td className="px-2 py-1">
-                  <Button className="button-secondary" onClick={() => setSelected(s)}>
-                    View
+                  <Button className="button-secondary" onClick={() => handleView(s)}>
+                    View Questions
                   </Button>
                 </td>
               </tr>
@@ -59,16 +72,14 @@ export default function CurriculumDashboard() {
               <thead>
                 <tr>
                   <th className="px-2 py-1 text-left">#</th>
-                  <th className="px-2 py-1 text-left">Title</th>
-                  <th className="px-2 py-1 text-left">Status</th>
+                  <th className="px-2 py-1 text-left">Question</th>
                 </tr>
               </thead>
               <tbody>
-                {(selected.sections || []).map(sec => (
-                  <tr key={sec.id || sec.number}>
-                    <td className="px-2 py-1">{sec.number}</td>
-                    <td className="px-2 py-1">{sec.title}</td>
-                    <td className="px-2 py-1">{sec.status}</td>
+                {questions.map(q => (
+                  <tr key={q.no}>
+                    <td className="px-2 py-1">{q.no}</td>
+                    <td className="px-2 py-1">{q.text}</td>
                   </tr>
                 ))}
               </tbody>
