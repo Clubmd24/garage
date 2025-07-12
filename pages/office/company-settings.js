@@ -142,11 +142,12 @@ export default function CompanySettingsPage() {
             <Image
               src={form.logo_url}
               alt="Logo"
-              width={0}
-              height={0}
+              width={1}
+              height={1}
               sizes="100vw"
               style={{ width: '100%', height: 'auto' }}
               className="max-h-32 mb-2"
+              unoptimized
             />
           )}
           <input type="file" onChange={handleLogoUpload} disabled={uploading} />

@@ -87,11 +87,12 @@ export default function DevDashboard() {
                           <Image
                             src={`${S3_BASE_URL}/${a.s3_key}`}
                             alt="attachment"
-                            width={0}
-                            height={0}
+                            width={1}
+                            height={1}
                             sizes="100vw"
                             style={{ width: '100%', height: 'auto' }}
                             className="mt-2 max-w-xs"
+                            unoptimized
                           />
                         ) : (
                           <a href={`${S3_BASE_URL}/${a.s3_key}`} target="_blank" rel="noopener noreferrer" className="block mt-2 text-blue-500 underline" download>

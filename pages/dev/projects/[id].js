@@ -186,11 +186,12 @@ export default function ProjectDetail() {
                     <Image
                       src={`${S3_BASE_URL}/${f.s3_key}`}
                       alt="attachment"
-                      width={0}
-                      height={0}
+                      width={1}
+                      height={1}
                       sizes="100vw"
                       style={{ width: '100%', height: 'auto' }}
                       className="max-w-xs"
+                      unoptimized
                     />
                   ) : (
                     <a href={`${S3_BASE_URL}/${f.s3_key}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline" download>

@@ -36,11 +36,12 @@ export default function Landing() {
             <Image
               src="/mechanic-cards.png"
               alt="Mechanic illustration"
-              width={0}
-              height={0}
+              width={1}
+              height={1}
               sizes="100vw"
               style={{ width: '100%', height: 'auto' }}
               className="max-w-md w-full rounded-2xl shadow-xl"
+              unoptimized
             />
           </div>
         </div>
@@ -84,11 +85,12 @@ export default function Landing() {
           <Image
             src="/web-header-image.png"
             alt="App preview"
-            width={0}
-            height={0}
+            width={1}
+            height={1}
             sizes="100vw"
             style={{ width: '100%', height: 'auto' }}
             className="max-w-4xl w-full rounded-2xl shadow-2xl"
+            unoptimized
           />
         </div>
       </section>
