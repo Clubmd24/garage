@@ -2,7 +2,7 @@
 
 ## Setup
 
-1. Copy `.env.example` to `.env.local` and fill in secrets. The required variables are `DATABASE_URL` and `JWT_SECRET`.
+1. Copy `.env.example` to `.env.local` and fill in secrets. The required variables are `DATABASE_URL`, `JWT_SECRET` and `NEXT_PUBLIC_API_SECRET`.
 2. Configure AWS S3 to enable uploading logos and other files. Add the following environment variables from `.env.example`:
    - `S3_BUCKET`
    - `AWS_REGION`
