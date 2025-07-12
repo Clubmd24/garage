@@ -17,7 +17,7 @@ export default function SuppliersPage() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(load, [load]);
+  useEffect(load, []);
 
   const filtered = suppliers.filter(s =>
     (s.name || '').toLowerCase().includes(searchQuery.toLowerCase())

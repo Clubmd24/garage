@@ -12,7 +12,7 @@ export default function AttendanceOverview() {
       .catch(() => setError('Failed to load records'));
   };
 
-  useEffect(load, [load]);
+  useEffect(load, []);
 
   return (
     <OfficeLayout>

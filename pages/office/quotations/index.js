@@ -22,7 +22,7 @@ const QuotationsPage = () => {
       .finally(() => setLoading(false));
   };
 
-  useEffect(load, [load]);
+  useEffect(load, []);
 
   useEffect(() => {
     fetchClients()

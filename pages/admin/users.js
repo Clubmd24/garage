@@ -44,7 +44,7 @@ export default function Users() {
 
   useEffect(() => {
     loadUsers();
-  }, [loadUsers]);
+  }, []);
 
   const handleAdd = async (e) => {
     e.preventDefault();

@@ -27,7 +27,7 @@ const ClientsPage = () => {
       .finally(() => setLoading(false));
   };
 
-  useEffect(load, [load]);
+  useEffect(load, []);
 
   const handleDelete = async id => {
     if (!confirm('Delete this client?')) return;

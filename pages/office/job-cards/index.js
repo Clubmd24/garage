@@ -26,7 +26,7 @@ const JobCardsPage = () => {
       .finally(() => setLoading(false));
   };
 
-  useEffect(load, [load]);
+  useEffect(load, []);
 
   useEffect(() => {
     fetchClients()
