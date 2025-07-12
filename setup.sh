@@ -24,9 +24,9 @@ else
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 fi
 
-# Ensure Node.js 20 is installed and active
-nvm install 20
-nvm use 20
+# Ensure Node.js 22 is installed and active
+nvm install 22
+nvm use 22
 
 # Install JS dependencies
 npm ci
