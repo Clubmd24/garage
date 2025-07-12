@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import OfficeLayout from '../../../components/OfficeLayout';
-import { Card } from '../../../components/Card';
+import Card from '../../../components/Card';
 import { fetchEngineers } from '../../../lib/engineers';
 import { fetchJobStatuses } from '../../../lib/jobStatuses.js';
 

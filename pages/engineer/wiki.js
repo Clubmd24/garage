@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Layout } from '../../components/Layout';
-import { Card } from '../../components/Card';
+import Card from '../../components/Card';
 
 function daysInMonth(year, month) {
   return new Date(year, month + 1, 0).getDate();
