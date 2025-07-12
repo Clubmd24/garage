@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import Table from '../ui/Table.jsx';
-import Modal from '../ui/Modal.jsx';
-import Button from '../ui/Button.jsx';
+import { Table } from '../ui/Table.jsx';
+import { Modal } from '../ui/Modal.jsx';
+import { Button } from '../ui/Button.jsx';
 import { Card } from '../Card.js';
 import { fetchJSON } from '@/lib/api';
 
