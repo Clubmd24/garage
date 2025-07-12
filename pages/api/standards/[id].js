@@ -13,28 +13,14 @@ async function handler(req, res) {
 
   const { id } = req.query;
   const [rows] = await pool.query(
-    `SELECT section, subsection
+    `SELECT question_no AS no, question AS text
        FROM quiz_questions
       WHERE standard_id = ?
-      ORDER BY section, subsection`,
+      ORDER BY question_no`,
     [id]
   );
 
-  const map = new Map();
-  for (const row of rows) {
-    if (!map.has(row.section)) {
-      map.set(row.section, []);
-    }
-    if (row.subsection !== undefined) {
-      map.get(row.section).push(row.subsection);
-    }
-  }
-  const sections = Array.from(map, ([section, subsections]) => ({
-    section,
-    subsections,
-  }));
-
-  res.status(200).json({ sections });
+  res.status(200).json({ questions: rows });
 }
 
 export default apiHandler(handler);
