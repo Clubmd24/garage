@@ -34,13 +34,20 @@ test('catches errors and responds with 500', async () => {
       requestLogger: jest.fn(() => log),
     };
   });
+  const oldEnv = process.env.NODE_ENV;
+  process.env.NODE_ENV = 'development';
   const { default: withApiHandler } = await import('../lib/apiHandler.js');
   const err = new Error('fail');
-  const fn = jest.fn(() => { throw err; });
+  const fn = jest.fn(() => {
+    throw err;
+  });
   const wrapped = withApiHandler(fn);
   const req = { method: 'GET', url: '/foo', headers: {} };
   const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), headersSent: false, setHeader: jest.fn() };
   await wrapped(req, res);
   expect(res.status).toHaveBeenCalledWith(500);
-  expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ error: 'internal_error' }));
+  expect(res.json).toHaveBeenCalledWith(
+    expect.objectContaining({ error: 'internal_error', message: 'fail' })
+  );
+  process.env.NODE_ENV = oldEnv;
 });
