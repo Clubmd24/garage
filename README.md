@@ -114,3 +114,28 @@ The header on the office layout includes a search bar that queries multiple
 entities at once. Results are grouped by type and link to the relevant
 view or edit pages. Behind the scenes the `/api/search` endpoint performs
 `LIKE` searches across clients, vehicles, jobs, quotes, invoices and parts.
+
+## Apprentice Manager
+
+The Apprentice Manager tracks engineering apprentices and the standards they are
+working towards. Training standards are stored in the database so questions can
+be linked to each apprentice.
+
+### Ingesting standards
+
+Standards are pulled from external PDFs and inserted into the database using
+`scripts/ingestStandards.js`. There are two ways to run this script:
+
+1. **Manually** – execute `node scripts/ingestStandards.js` from the repository
+   root. Ensure the `DATABASE_URL` and `API_SECRET` environment variables are
+   exported so the script can connect and authenticate.
+2. **Scheduled workflow** – the GitHub Actions workflow
+   `.github/workflows/ingest-standards.yml` runs the same command every Monday at
+   02:00 UTC. Both `DATABASE_URL` and `API_SECRET` must be added as repository
+   secrets for the workflow to succeed.
+
+### Accessing the apprentice page
+
+Once the dev server is running, open
+`http://localhost:3000/office/apprentices` or click **Apprentices** in the
+Office sidebar to view the list of apprentices.
