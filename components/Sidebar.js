@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-export function Sidebar() {
+export default function Sidebar() {
   const [userRole, setUserRole] = useState(null);
   const [open, setOpen] = useState(false);
 
