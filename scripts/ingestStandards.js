@@ -3,7 +3,7 @@ import pool from '../lib/db.js';
 
 export async function fetchPdf(url) {
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to fetch ${url}`);
+  if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.statusText}`);
   return Buffer.from(await res.arrayBuffer());
 }
 
@@ -19,16 +19,25 @@ export async function parseQuestions(text) {
 
 export async function ingestStandard({ code, url }) {
   const buffer = await fetchPdf(url);
-  const { text } = await pdf(buffer);
+  const { text } = await pdf(buffer);          // now pdf() is defined
   const title = text.split(/\n/)[0].trim();
+
+  // upsert standard
   const [{ insertId }] = await pool.query(
     `INSERT INTO standards (code, title, pdf_url)
      VALUES (?,?,?)
      ON DUPLICATE KEY UPDATE title=VALUES(title), pdf_url=VALUES(pdf_url)`,
     [code, title, url]
   );
-  const [[row]] = await pool.query('SELECT id FROM standards WHERE code=?', [code]);
+
+  // get the standard_id
+  const [[row]] = await pool.query(
+    'SELECT id FROM standards WHERE code=?',
+    [code]
+  );
   const standardId = row.id || insertId;
+
+  // parse and upsert questions
   const questions = await parseQuestions(text);
   let no = 1;
   for (const q of questions) {
@@ -43,14 +52,19 @@ export async function ingestStandard({ code, url }) {
 
 export default async function ingestAll() {
   const standards = [
-    // example list
     { code: 'STD001', url: 'https://example.com/std1.pdf' },
+    // add more { code, url } entries here
   ];
+
   for (const s of standards) {
+    console.log(`Ingesting ${s.code} from ${s.url}`);
     await ingestStandard(s);
   }
 }
 
-if (import.meta.url === process.argv[1] || import.meta.url === `file://${process.argv[1]}`) {
-  ingestAll().then(() => process.exit(0)).catch(err => { console.error(err); process.exit(1); });
+// allow running via `node scripts/ingestStandards.js`
+if (import.meta.url === `file://${process.argv[1]}`) {
+  ingestAll()
+    .then(() => { console.log('Done'); process.exit(0); })
+    .catch(err => { console.error(err); process.exit(1); });
 }
