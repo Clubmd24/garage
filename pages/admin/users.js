@@ -2,9 +2,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import Sidebar from '../../components/Sidebar';
-import Header from '../../components/Header';
-import Card from '../../components/Card';
+import { Sidebar } from '../../components/Sidebar';
+import { Header } from '../../components/Header';
+import { Card } from '../../components/Card';
 
 export default function Users() {
   const router = useRouter();

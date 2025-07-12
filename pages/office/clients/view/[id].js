@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import OfficeLayout from '../../../../components/OfficeLayout';
-import Card from '../../../../components/Card';
+import { Card } from '../../../../components/Card';
 import { fetchVehicles } from '../../../../lib/vehicles';
 import { fetchDocuments } from '../../../../lib/documents';
 

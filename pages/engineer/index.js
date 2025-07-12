@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Layout } from '../../components/Layout';
-import Card from '../../components/Card';
+import { Card } from '../../components/Card';
 
 export default function EngineerHome() {
   const [jobs, setJobs] = useState([]);

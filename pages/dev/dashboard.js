@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
-import Sidebar from '../../components/Sidebar';
-import Header from '../../components/Header';
+import { Sidebar } from '../../components/Sidebar';
+import { Header } from '../../components/Header';
 import Image from 'next/image';
-import Card from '../../components/Card';
+import { Card } from '../../components/Card';
 import { highlightMentions } from '../../lib/highlightMentions.js';
 
 const S3_BASE_URL = `https://${process.env.NEXT_PUBLIC_S3_BUCKET}.s3.${process.env.NEXT_PUBLIC_AWS_REGION}.amazonaws.com`;

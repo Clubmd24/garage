@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Card from './Card';
+import { Card } from './Card';
 import { updateQuote } from '../lib/quotes';
 import { fetchJobStatuses } from '../lib/jobStatuses.js';
 import { fetchInvoiceStatuses } from '../lib/invoiceStatuses.js';
