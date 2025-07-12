@@ -15,10 +15,10 @@
 3. Install the Python dependencies:
    `pip install -r requirements.txt`
 4. Run `./setup.sh` to install Node.js and all JavaScript dependencies.
-   The script installs `nvm` if needed, runs `nvm install 20` then `nvm use 20`,
+   The script installs `nvm` if needed, runs `nvm install 22` then `nvm use 22`,
    and executes `npm ci`. If the online installation of `nvm` fails it will look
    for a local copy at `scripts/nvm-install.sh` and use that instead. When
-   preparing an offline environment download Node 20 and all packages listed in
+   preparing an offline environment download Node 22 and all packages listed in
    `package-lock.json` in advance so `npm ci` can run with the cached files.
 5. Make the bootstrap script executable and run it to scaffold the portal:
    `chmod +x bootstrap_dev_portal.sh && ./bootstrap_dev_portal.sh`
