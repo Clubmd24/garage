@@ -4,9 +4,9 @@ import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import Sidebar from '../../../components/Sidebar';
-import Header from '../../../components/Header';
-import Card from '../../../components/Card';
+import { Sidebar } from '../../../components/Sidebar';
+import { Header } from '../../../components/Header';
+import { Card } from '../../../components/Card';
 import Image from 'next/image';
 
 const S3_BASE_URL = `https://${process.env.NEXT_PUBLIC_S3_BUCKET}.s3.${process.env.NEXT_PUBLIC_AWS_REGION}.amazonaws.com`;
