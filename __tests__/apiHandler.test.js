@@ -6,9 +6,13 @@ afterEach(() => {
 });
 
 test('passes through successful handler', async () => {
-  jest.unstable_mockModule('../lib/logger.js', () => ({
-    default: { info: jest.fn(), error: jest.fn() },
-  }));
+  jest.unstable_mockModule('../lib/logger.js', () => {
+    const log = { info: jest.fn(), error: jest.fn() };
+    return {
+      default: log,
+      requestLogger: jest.fn(() => log),
+    };
+  });
   const { default: withApiHandler } = await import('../lib/apiHandler.js');
   const fn = jest.fn(async (req, res) => {
     res.status(200).json({ ok: true });
@@ -23,9 +27,13 @@ test('passes through successful handler', async () => {
 });
 
 test('catches errors and responds with 500', async () => {
-  jest.unstable_mockModule('../lib/logger.js', () => ({
-    default: { info: jest.fn(), error: jest.fn() },
-  }));
+  jest.unstable_mockModule('../lib/logger.js', () => {
+    const log = { info: jest.fn(), error: jest.fn() };
+    return {
+      default: log,
+      requestLogger: jest.fn(() => log),
+    };
+  });
   const { default: withApiHandler } = await import('../lib/apiHandler.js');
   const err = new Error('fail');
   const fn = jest.fn(() => { throw err; });

@@ -13,7 +13,7 @@ async function handler(req, res) {
       const docs = await getDocuments(entity_type, entity_id);
       return res.status(200).json(docs);
     } catch (err) {
-      console.error(err);
+      req.log.error({ err });
       return res.status(500).json({ error: 'Internal Server Error' });
     }
   }
@@ -27,7 +27,7 @@ async function handler(req, res) {
       const doc = await createDocument({ entity_type, entity_id, filename, url });
       return res.status(201).json(doc);
     } catch (err) {
-      console.error(err);
+      req.log.error({ err });
       return res.status(500).json({ error: 'Internal Server Error' });
     }
   }
