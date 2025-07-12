@@ -32,7 +32,7 @@ export default function Landing() {
             </div>
           </div>
           <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center">
-            <img src="/mechanic cards.png" alt="Mechanic illustration" className="max-w-md w-full rounded-2xl shadow-xl" />
+            <img src="/mechanic-cards.png" alt="Mechanic illustration" className="max-w-md w-full rounded-2xl shadow-xl" />
           </div>
         </div>
       </section>
