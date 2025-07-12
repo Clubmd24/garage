@@ -1,6 +1,7 @@
 import apiHandler from '../../../lib/apiHandler.js';
 // pages/api/clients/[id].js
 import { getClientById, updateClient, deleteClient } from '../../../services/clientsService';
+import { UpdateClientSchema } from '../../../lib/schemas.js';
 
 async function handler(req, res) {
   const { id } = req.query;
@@ -10,7 +11,8 @@ async function handler(req, res) {
       return res.status(200).json(client);
     }
     if (req.method === 'PUT') {
-      const updated = await updateClient(id, req.body);
+      const data = UpdateClientSchema.parse(req.body);
+      const updated = await updateClient(id, data);
       return res.status(200).json(updated);
     }
     if (req.method === 'DELETE') {

@@ -5,6 +5,7 @@ import {
   createClient,
   searchClients,
 } from '../../../services/clientsService';
+import { CreateClientSchema } from '../../../lib/schemas.js';
 
 async function handler(req, res) {
     if (req.method === 'GET') {
@@ -13,7 +14,8 @@ async function handler(req, res) {
       return res.status(200).json(clients);
     }
     if (req.method === 'POST') {
-      const newClient = await createClient(req.body);
+      const data = CreateClientSchema.parse(req.body);
+      const newClient = await createClient(data);
       return res.status(201).json(newClient);
     }
     res.setHeader('Allow', ['GET','POST']);
