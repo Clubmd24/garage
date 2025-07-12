@@ -1,23 +1,18 @@
 #!/usr/bin/env node
 
 import pool from '../lib/db.js';
-import fetch from 'node-fetch';
 
 async function fetchPdf(url) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.statusText}`);
-  // We don’t parse the PDF yet—just ensure it’s reachable.
+  // We simply verify reachability—no parsing yet
   return Buffer.from(await res.arrayBuffer());
 }
 
 export async function ingestStandard({ code, url }) {
-  // Download PDF to confirm URL works
   await fetchPdf(url);
-
-  // Use a placeholder title for now
   const title = 'Imported Standard';
 
-  // Upsert the standard record
   await pool.query(
     `INSERT INTO standards (code, title, pdf_url)
      VALUES (?, ?, ?)
@@ -30,11 +25,8 @@ export async function ingestStandard({ code, url }) {
 
 export default async function ingestAll() {
   const standards = [
-    {
-      code: 'STD001',
-      url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
-    },
-    // add more { code, url } entries here
+    { code: 'STD001', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf' },
+    // add more sources here
   ];
 
   for (const s of standards) {
