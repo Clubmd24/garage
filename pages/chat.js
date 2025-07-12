@@ -201,11 +201,12 @@ export default function Chat() {
                       <Image
                         src={`${S3_BASE_URL}/${m.s3_key}`}
                         alt="uploaded"
-                        width={0}
-                        height={0}
+                        width={1}
+                        height={1}
                         sizes="100vw"
                         style={{ width: '100%', height: 'auto' }}
                         className="mt-2 max-w-xs"
+                        unoptimized
                       />
                     ) : (
                       <a

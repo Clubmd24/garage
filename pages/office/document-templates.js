@@ -11,11 +11,12 @@ function TemplateBox({ title, company }) {
           <Image
             src={company.logo_url}
             alt="Logo"
-            width={0}
-            height={0}
+            width={1}
+            height={1}
             sizes="100vw"
             style={{ width: '100%', height: 'auto' }}
             className="h-16"
+            unoptimized
           />
         )}
         {company.company_name && (
