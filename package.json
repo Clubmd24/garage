@@ -25,15 +25,15 @@
     "next": "15.3.4",
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.8",
+    "pdf-parse": "^1.1.1",
     "pdfkit": "^0.13.0",
+    "pino": "^8.17.0",
     "react": "18.x",
     "react-big-calendar": "^1.19.4",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "18.x",
     "socket.io": "^4.7.5",
-    "pino": "^8.17.0",
-    "pdf-parse": "^1.1.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {
