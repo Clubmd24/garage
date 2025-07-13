@@ -30,7 +30,7 @@ function splitSections(text) {
 export async function ingestStandard({ code, title, url }) {
   console.log(`\n🔍 Fetching ${code}: ${url}`);
   const buf  = await fetchPdf(url);
-  const { text } = await pdf(buf);
+  const { text } = await pdf({ data: buf });
   const sections = splitSections(text);
 
   // upsert standard, recording target_questions = number of sections
