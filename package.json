@@ -25,7 +25,6 @@
     "next": "15.3.4",
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.8",
-    "pdf-parse": "^1.1.1",
     "pdfjs-dist": "^4.10.38",
     "pdfkit": "^0.13.0",
     "pino": "^8.17.0",
