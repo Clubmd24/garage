@@ -1,17 +1,18 @@
 #!/usr/bin/env node
-import { getDocument } from 'pdfjs-dist';
+import { getDocument } from 'pdfjs-dist/legacy/build/pdf.js';
 import pool from '../lib/db.js';
 
-// Use the built-in fetch
-async function fetchPdf(url) {
+// Download the PDF and return a Uint8Array
+async function fetchPdfAsUint8Array(url) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.statusText}`);
-  return Buffer.from(await res.arrayBuffer());
+  const arrayBuffer = await res.arrayBuffer();
+  return new Uint8Array(arrayBuffer);
 }
 
-// Pull all text out of a PDF buffer via pdfjs-dist
-async function pdfToText(buffer) {
-  const loadingTask = getDocument({ data: buffer });
+// Pull all text out of a PDF Uint8Array via pdfjs-dist
+async function pdfToText(dataUint8) {
+  const loadingTask = getDocument({ data: dataUint8 });
   const doc = await loadingTask.promise;
   let fullText = '';
   for (let i = 1; i <= doc.numPages; i++) {
@@ -25,10 +26,15 @@ async function pdfToText(buffer) {
 
 // Naïve split on headings like "1. Title"
 function splitSections(text) {
-  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const lines = text
+    .split(/\r?\n/)
+    .map(l => l.trim())
+    .filter(Boolean);
+
   const sections = [];
   let buffer = [];
   let no = 1;
+
   for (const line of lines) {
     if (/^\d+\.\s+/.test(line) && buffer.length) {
       sections.push({ no: no++, content: buffer.join(' ') });
@@ -42,9 +48,9 @@ function splitSections(text) {
 
 async function ingestStandard({ code, title, url }) {
   console.log(`\n🔍 Ingesting ${code}`);
-  const buf  = await fetchPdf(url);
-  const text = await pdfToText(buf);
-  const secs = splitSections(text);
+  const pdfData = await fetchPdfAsUint8Array(url);
+  const text    = await pdfToText(pdfData);
+  const secs    = splitSections(text);
 
   // upsert standard
   await pool.query(
