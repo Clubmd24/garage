@@ -60,6 +60,7 @@ export default function CurriculumDashboard({ active }) {
               <th className="px-2 py-1 text-left">Code</th>
               <th className="px-2 py-1 text-left">Title</th>
               <th className="px-2 py-1 text-left">PDF</th>
+              <th className="px-2 py-1 text-left">Generated</th>
               <th className="px-2 py-1 text-left">Questions</th>
             </tr>
           </thead>
@@ -72,6 +73,9 @@ export default function CurriculumDashboard({ active }) {
                   <a href={s.source_url} target="_blank" rel="noopener noreferrer">
                     PDF
                   </a>
+                </td>
+                <td className="px-2 py-1">
+                  {s.generated_questions} / {s.target_questions}
                 </td>
                 <td className="px-2 py-1">
                   <Button className="button-secondary" onClick={() => handleView(s)}>
@@ -97,6 +101,7 @@ export default function CurriculumDashboard({ active }) {
                   <tr>
                     <th className="px-2 py-1 text-left">#</th>
                     <th className="px-2 py-1 text-left">Question</th>
+                    <th className="px-2 py-1 text-left">Options</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -104,6 +109,19 @@ export default function CurriculumDashboard({ active }) {
                     <tr key={q.no}>
                       <td className="px-2 py-1">{q.no}</td>
                       <td className="px-2 py-1">{q.text}</td>
+                      <td className="px-2 py-1">
+                        <ul className="list-disc pl-4">
+                          {q.options.map((opt, idx) => (
+                            <li
+                              key={idx}
+                              className={idx === q.answer_index ? 'font-semibold' : ''}
+                            >
+                              {idx === q.answer_index ? '✓ ' : ''}
+                              {opt}
+                            </li>
+                          ))}
+                        </ul>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
