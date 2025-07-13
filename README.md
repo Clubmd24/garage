@@ -158,3 +158,13 @@ variable. Supply it as either a `secret` query parameter or an `X-API-SECRET`
 header when making requests.
 
 Both responses include `Cache-Control: no-store` to prevent caching.
+
+### Seeding quiz questions
+
+Sample quiz questions live in `data/questionBank.json`. Use `scripts/seedQuestions.js` to insert or update these rows in the `quiz_questions` table:
+
+```bash
+node scripts/seedQuestions.js
+```
+
+Ensure `DATABASE_URL` is set so the script can connect to the database.
