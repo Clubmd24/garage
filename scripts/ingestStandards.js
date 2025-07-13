@@ -9,34 +9,41 @@ async function fetchPdf(url) {
   return Buffer.from(await res.arrayBuffer());
 }
 
-// Split the raw text into numbered sections
+// Split raw text into numbered sections
 function splitSections(text) {
   const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
   const sections = [];
   let buffer = [];
   let no = 1;
+
   for (const line of lines) {
-    // whenever we see a heading like "1. Something" or "2 Something"
-    if (/^\d+[\.\s]/.test(line) && buffer.length) {
+    // start a new section whenever we see "1. ", "2. ", etc.
+    if (/^\d+\.\s+/.test(line) && buffer.length) {
       sections.push({ no: no++, content: buffer.join(' ') });
       buffer = [];
     }
     buffer.push(line);
   }
-  if (buffer.length) sections.push({ no: no++, content: buffer.join(' ') });
+  if (buffer.length) {
+    sections.push({ no: no++, content: buffer.join(' ') });
+  }
   return sections;
 }
 
 export async function ingestStandard({ code, title, url }) {
   console.log(`\n🔍 Fetching ${code}: ${url}`);
-  const buf  = await fetchPdf(url);
+  const buf = await fetchPdf(url);
+
+  // pass buffer as { data: buf } to pdf-parse
   const { text } = await pdf({ data: buf });
+
   const sections = splitSections(text);
 
-  // upsert standard, recording target_questions = number of sections
+  // upsert the standard, recording how many sections we found
   await pool.query(
-    `INSERT INTO standards (code, title, pdf_url, target_questions)
-     VALUES (?, ?, ?, ?)
+    `INSERT INTO standards
+       (code, title, pdf_url, target_questions)
+     VALUES (?,?,?,?)
      ON DUPLICATE KEY UPDATE
        title            = VALUES(title),
        pdf_url          = VALUES(pdf_url),
@@ -44,28 +51,29 @@ export async function ingestStandard({ code, title, url }) {
     [code, title, url, sections.length]
   );
 
-  // get its id
-  const [[row]] = await pool.query(
-    'SELECT id FROM standards WHERE code = ?', [code]
+  // fetch its id
+  const [[{ id: standardId }]] = await pool.query(
+    `SELECT id FROM standards WHERE code = ?`,
+    [code]
   );
-  const standardId = row.id;
 
   // clear old sections
   await pool.query(
-    'DELETE FROM standard_sections WHERE standard_id = ?', [standardId]
+    `DELETE FROM standard_sections WHERE standard_id = ?`,
+    [standardId]
   );
 
-  // insert new sections
+  // insert each new section
   for (const { no, content } of sections) {
     await pool.query(
       `INSERT INTO standard_sections
          (standard_id, section_no, section_text)
-       VALUES (?, ?, ?)`,
+       VALUES (?,?,?)`,
       [standardId, no, content]
     );
   }
 
-  console.log(`✅ ${code} — "${title}" (${sections.length} sections)`);
+  console.log(`✅ ${code}: inserted ${sections.length} sections`);
 }
 
 export async function ingestAll() {
@@ -110,16 +118,13 @@ export async function ingestAll() {
   for (const std of specs) {
     await ingestStandard(std);
   }
+
   console.log('\n🎉 All standards ingested');
+  await pool.end();
 }
 
-(async () => {
-  try {
-    await ingestAll();
-    await pool.end();
-    console.log('✅ Done');
-  } catch (err) {
-    console.error('🚨 Ingestion failed:', err);
-    process.exit(1);
-  }
-})();
+// run the ingestion when invoked
+ingestAll().catch(err => {
+  console.error('🚨 Ingestion failed:', err);
+  process.exit(1);
+});
