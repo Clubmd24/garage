@@ -5,14 +5,15 @@ import { Button } from '../ui/Button.jsx';
 import { Card } from '../Card.js';
 import { fetchJSON } from '../../lib/api';
 
-export default function CurriculumDashboard() {
+export default function CurriculumDashboard({ active }) {
   const [standards, setStandards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selected, setSelected] = useState(null);
   const [questions, setQuestions] = useState([]);
 
-  useEffect(() => {
+  const load = () => {
+    setLoading(true);
     fetchJSON(
       `/api/standards/status?secret=${process.env.NEXT_PUBLIC_API_SECRET}`
     )
@@ -24,7 +25,11 @@ export default function CurriculumDashboard() {
         setError('Failed to load standards');
         setLoading(false);
       });
-  }, []);
+  };
+
+  useEffect(() => {
+    if (active) load();
+  }, [active]);
 
   const handleView = std => {
     setSelected(std);

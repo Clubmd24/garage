@@ -14,6 +14,7 @@ export default function ApprenticesPage() {
   const [ingestRunning, setIngestRunning] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [toast, setToast] = useState(null);
+  const [tab, setTab] = useState('Apprentices');
 
   const load = () => {
     setLoading(true);
@@ -39,6 +40,7 @@ export default function ApprenticesPage() {
       );
       if (!res.ok) throw new Error('failed');
       setToast({ type: 'success', message: 'Curriculum refresh started' });
+      setTab('Curriculum');
     } catch {
       setToast({ type: 'error', message: 'Failed to refresh curriculum' });
     } finally {
@@ -55,6 +57,8 @@ export default function ApprenticesPage() {
   return (
     <OfficeLayout>
       <Tabs
+        selected={tab}
+        onChange={setTab}
         tabs={[
           {
             label: 'Apprentices',
@@ -89,7 +93,7 @@ export default function ApprenticesPage() {
           },
           {
             label: 'Curriculum',
-            content: <CurriculumDashboard />,
+            content: <CurriculumDashboard active={tab === 'Curriculum'} />,
           },
         ]}
       />

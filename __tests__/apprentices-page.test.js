@@ -27,7 +27,9 @@ test('refresh button posts ingest and shows toast', async () => {
     .fn()
     .mockResolvedValueOnce({ ok: true, json: async () => [] })
     .mockResolvedValueOnce({ ok: true, json: async () => ({ running: false }) })
-    .mockResolvedValueOnce({ ok: true, json: async () => ({ started: true }) });
+    .mockResolvedValueOnce({ ok: true, json: async () => ({ started: true }) })
+    .mockResolvedValueOnce({ ok: true, json: async () => ({ running: false }) })
+    .mockResolvedValueOnce({ ok: true, json: async () => ({ standards: [] }) });
   const { default: Page } = await import('../pages/office/apprentices/index.js');
   render(<Page />);
   const btn = await screen.findByRole('button', { name: 'Refresh Curriculum' });
@@ -41,4 +43,9 @@ test('refresh button posts ingest and shows toast', async () => {
   );
   await screen.findByRole('alert');
   expect(screen.getByRole('alert').textContent).toMatch('Curriculum refresh started');
+  expect(
+    global.fetch.mock.calls.filter(c =>
+      c[0].startsWith('/api/standards/status')
+    ).length
+  ).toBeGreaterThan(1);
 });
