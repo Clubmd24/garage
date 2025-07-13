@@ -35,7 +35,8 @@ export async function ingestStandard({ code, title, url }) {
   const buf = await fetchPdf(url);
 
   // pass buffer as { data: buf } to pdf-parse
-  const { text } = await pdf({ data: buf });
+  const data = await pdf(buf);
+  const text = data.text;
 
   const sections = splitSections(text);
 
