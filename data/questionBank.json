@@ -1,0 +1,22 @@
+[
+  {
+    "standard": "STD001",
+    "no": 1,
+    "text": "What is the first step when diagnosing brake problems?"
+  },
+  {
+    "standard": "STD001",
+    "no": 2,
+    "text": "Which tool measures disc brake rotor thickness?"
+  },
+  {
+    "standard": "STD002",
+    "no": 1,
+    "text": "Name one use for a digital multimeter."
+  },
+  {
+    "standard": "STD002",
+    "no": 2,
+    "text": "What safety equipment should always be worn when welding?"
+  }
+]
