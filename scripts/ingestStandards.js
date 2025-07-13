@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import pdf from 'pdf-parse';
 import pool from '../lib/db.js';
-import pdfjs from 'pdfjs-dist/legacy/build/pdf.js';
+import fetch from 'node-fetch';
 
 // Download the PDF and return a Buffer
 async function fetchPdf(url) {
@@ -10,41 +10,31 @@ async function fetchPdf(url) {
   return Buffer.from(await res.arrayBuffer());
 }
 
-async function pdfToText(buf) {
-  const doc = await pdfjs.getDocument({ data: buf }).promise;
-  let text = '';
-  for (let i = 1; i <= doc.numPages; i++) {
-    const page = await doc.getPage(i);
-    const content = await page.getTextContent();
-    text += content.items.map((it) => it.str).join(' ') + '\n';
-  }
-  return text;
-}
-
+// Split the raw text into numbered sections
 function splitSections(text) {
-  const lines = text.split(/\n+/).map((l) => l.trim());
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
   const sections = [];
   let buffer = [];
   let no = 1;
   for (const line of lines) {
-    if (/^\d+(?:\.\d+)*\s/.test(line) && buffer.length) {
-      sections.push({ no: no++, text: buffer.join(' ') });
+    // whenever we see a heading like "1. Something" or "2 Something"
+    if (/^\d+[\.\s]/.test(line) && buffer.length) {
+      sections.push({ no: no++, content: buffer.join(' ') });
       buffer = [];
     }
-    if (line) buffer.push(line);
+    buffer.push(line);
   }
-  if (buffer.length) {
-    sections.push({ no: no++, text: buffer.join(' ') });
-  }
+  if (buffer.length) sections.push({ no: no++, content: buffer.join(' ') });
   return sections;
 }
 
 export async function ingestStandard({ code, title, url }) {
   console.log(`\n🔍 Fetching ${code}: ${url}`);
-  const buf = await fetchPdf(url);
-  const text = await pdfToText(buf);
+  const buf  = await fetchPdf(url);
+  const { text } = await pdf(buf);
   const sections = splitSections(text);
 
+  // upsert standard, recording target_questions = number of sections
   await pool.query(
     `INSERT INTO standards (code, title, pdf_url, target_questions)
      VALUES (?, ?, ?, ?)
@@ -55,14 +45,24 @@ export async function ingestStandard({ code, title, url }) {
     [code, title, url, sections.length]
   );
 
-  const [[row]] = await pool.query('SELECT id FROM standards WHERE code = ?', [code]);
-  const id = row.id;
-  await pool.query('DELETE FROM standard_sections WHERE standard_id = ?', [id]);
-  for (const { no, text: sectionText } of sections) {
+  // get its id
+  const [[row]] = await pool.query(
+    'SELECT id FROM standards WHERE code = ?', [code]
+  );
+  const standardId = row.id;
+
+  // clear old sections
+  await pool.query(
+    'DELETE FROM standard_sections WHERE standard_id = ?', [standardId]
+  );
+
+  // insert new sections
+  for (const { no, content } of sections) {
     await pool.query(
-      `INSERT INTO standard_sections (standard_id, section_no, section_text)
+      `INSERT INTO standard_sections
+         (standard_id, section_no, section_text)
        VALUES (?, ?, ?)`,
-      [id, no, sectionText]
+      [standardId, no, content]
     );
   }
 
@@ -70,7 +70,7 @@ export async function ingestStandard({ code, title, url }) {
 }
 
 export async function ingestAll() {
-  const standards = [
+  const specs = [
     {
       code:  'STD001',
       title: 'NATEF A5 Brake Task List (Grenada NTA CVQ L2)',
@@ -105,28 +105,22 @@ export async function ingestAll() {
       code:  'STD007',
       title: 'William D. Ford CTC Automotive Technology II Syllabus (24-25)',
       url:   'https://www.wwcsd.net/downloads/william_d_ford/24-25_automotive_technology_ii_syllabus.pdf'
-    },
+    }
   ];
 
-  for (const std of standards) {
+  for (const std of specs) {
     await ingestStandard(std);
   }
-
   console.log('\n🎉 All standards ingested');
 }
 
-// ALWAYS run ingestAll when this script is invoked by Node
-async function run() {
+(async () => {
   try {
     await ingestAll();
-    console.log('\n✅ Done');
+    await pool.end();
+    console.log('✅ Done');
   } catch (err) {
     console.error('🚨 Ingestion failed:', err);
-    process.exitCode = 1;
-  } finally {
-    await pool.end();
+    process.exit(1);
   }
-}
-
-run();
-
+})();
