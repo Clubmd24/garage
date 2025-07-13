@@ -140,6 +140,10 @@ Once the dev server is running, open
 `http://localhost:3000/office/apprentices` or click **Apprentices** in the
 Office sidebar to view the list of apprentices.
 
+The page includes a **Curriculum** tab that lists all training standards. Each
+row shows the standard code, title, a **PDF** link to the original document and
+a button to view any quiz questions.
+
 ### Standards API
 
 Two endpoints expose the ingested standards and their quiz questions.

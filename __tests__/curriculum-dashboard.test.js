@@ -15,7 +15,14 @@ test('CurriculumDashboard displays source names', async () => {
     .fn()
     .mockResolvedValueOnce({
       running: false,
-      standards: [{ id: 1, code: 'STD1', source_name: 'Standard One' }]
+      standards: [
+        {
+          id: 1,
+          code: 'STD1',
+          source_name: 'Standard One',
+          source_url: 'http://example.com/std1.pdf'
+        }
+      ]
     })
     .mockResolvedValueOnce({ questions: [] });
 
@@ -30,6 +37,8 @@ test('CurriculumDashboard displays source names', async () => {
 
   await screen.findByText('Standard One');
   expect(screen.getByText('Standard One')).toBeInTheDocument();
+  const link = screen.getByRole('link', { name: 'PDF' });
+  expect(link).toHaveAttribute('href', 'http://example.com/std1.pdf');
 
   fireEvent.click(screen.getByRole('button', { name: 'View Questions' }));
   await screen.findByText('Loading…');

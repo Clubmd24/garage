@@ -59,6 +59,7 @@ export default function CurriculumDashboard({ active }) {
             <tr>
               <th className="px-2 py-1 text-left">Code</th>
               <th className="px-2 py-1 text-left">Title</th>
+              <th className="px-2 py-1 text-left">PDF</th>
               <th className="px-2 py-1 text-left">Questions</th>
             </tr>
           </thead>
@@ -67,6 +68,11 @@ export default function CurriculumDashboard({ active }) {
               <tr key={s.id || s.code}>
                 <td className="px-2 py-1">{s.code}</td>
                 <td className="px-2 py-1">{s.source_name}</td>
+                <td className="px-2 py-1">
+                  <a href={s.source_url} target="_blank" rel="noopener noreferrer">
+                    PDF
+                  </a>
+                </td>
                 <td className="px-2 py-1">
                   <Button className="button-secondary" onClick={() => handleView(s)}>
                     View Questions
