@@ -20,11 +20,17 @@ test('CurriculumDashboard displays source names', async () => {
           id: 1,
           code: 'STD1',
           source_name: 'Standard One',
-          source_url: 'http://example.com/std1.pdf'
+          source_url: 'http://example.com/std1.pdf',
+          generated_questions: 1,
+          target_questions: 2
         }
       ]
     })
-    .mockResolvedValueOnce({ questions: [] });
+    .mockResolvedValueOnce({
+      questions: [
+        { no: 1, text: 'Q1', options: ['A', 'B'], answer_index: 1 }
+      ]
+    });
 
   jest.unstable_mockModule('../lib/api', () => ({
     fetchJSON: fetchMock
@@ -39,6 +45,7 @@ test('CurriculumDashboard displays source names', async () => {
   expect(screen.getByText('Standard One')).toBeInTheDocument();
   const link = screen.getByRole('link', { name: 'PDF' });
   expect(link).toHaveAttribute('href', 'http://example.com/std1.pdf');
+  expect(screen.getByText('1 / 2')).toBeInTheDocument();
 
   fireEvent.click(screen.getByRole('button', { name: 'View Questions' }));
   await screen.findByText('Loading…');
@@ -46,5 +53,6 @@ test('CurriculumDashboard displays source names', async () => {
 
   await screen.findByRole('heading', { name: 'Standard One' });
   expect(screen.getByRole('heading', { name: 'Standard One' })).toBeInTheDocument();
-  await screen.findByText('No questions found for this standard.');
+  await screen.findByText('Q1');
+  expect(screen.getByText('✓ B')).toBeInTheDocument();
 });

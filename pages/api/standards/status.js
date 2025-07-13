@@ -23,6 +23,7 @@ async function handler(req, res) {
          s.title   AS source_name,
          s.pdf_url AS source_url,
          s.created_at,
+         s.target_questions,
          COUNT(q.id) AS generated_questions
        FROM standards s
        LEFT JOIN quiz_questions q ON q.standard_id = s.id
