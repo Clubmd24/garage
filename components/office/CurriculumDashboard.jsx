@@ -11,6 +11,7 @@ export default function CurriculumDashboard({ active }) {
   const [error, setError] = useState(null);
   const [selected, setSelected] = useState(null);
   const [questions, setQuestions] = useState([]);
+  const [questionsLoading, setQuestionsLoading] = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -34,11 +35,18 @@ export default function CurriculumDashboard({ active }) {
   const handleView = std => {
     setSelected(std);
     setQuestions([]);
+    setQuestionsLoading(true);
     fetchJSON(
       `/api/standards/${std.id}?secret=${process.env.NEXT_PUBLIC_API_SECRET}`
     )
-      .then(d => setQuestions(d.questions || []))
-      .catch(() => setQuestions([]));
+      .then(d => {
+        setQuestions(d.questions || []);
+        setQuestionsLoading(false);
+      })
+      .catch(() => {
+        setQuestions([]);
+        setQuestionsLoading(false);
+      });
   };
 
   return (
@@ -73,22 +81,28 @@ export default function CurriculumDashboard({ active }) {
         <Modal onClose={() => setSelected(null)}>
           <Card>
             <h2 className="text-lg font-semibold mb-2">{selected.source_name}</h2>
-            <Table>
-              <thead>
-                <tr>
-                  <th className="px-2 py-1 text-left">#</th>
-                  <th className="px-2 py-1 text-left">Question</th>
-                </tr>
-              </thead>
-              <tbody>
-                {questions.map(q => (
-                  <tr key={q.no}>
-                    <td className="px-2 py-1">{q.no}</td>
-                    <td className="px-2 py-1">{q.text}</td>
+            {questionsLoading ? (
+              <p>Loading…</p>
+            ) : questions.length === 0 ? (
+              <em>No questions found for this standard.</em>
+            ) : (
+              <Table>
+                <thead>
+                  <tr>
+                    <th className="px-2 py-1 text-left">#</th>
+                    <th className="px-2 py-1 text-left">Question</th>
                   </tr>
-                ))}
-              </tbody>
-            </Table>
+                </thead>
+                <tbody>
+                  {questions.map(q => (
+                    <tr key={q.no}>
+                      <td className="px-2 py-1">{q.no}</td>
+                      <td className="px-2 py-1">{q.text}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            )}
           </Card>
         </Modal>
       )}
