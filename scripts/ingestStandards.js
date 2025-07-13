@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import pdf from 'pdf-parse';
 import pool from '../lib/db.js';
-import fetch from 'node-fetch';
 
 // Download the PDF and return a Buffer
 async function fetchPdf(url) {
