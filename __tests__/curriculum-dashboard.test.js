@@ -32,6 +32,10 @@ test('CurriculumDashboard displays source names', async () => {
   expect(screen.getByText('Standard One')).toBeInTheDocument();
 
   fireEvent.click(screen.getByRole('button', { name: 'View Questions' }));
+  await screen.findByText('Loading…');
+  expect(screen.getByText('Loading…')).toBeInTheDocument();
+
   await screen.findByRole('heading', { name: 'Standard One' });
   expect(screen.getByRole('heading', { name: 'Standard One' })).toBeInTheDocument();
+  await screen.findByText('No questions found for this standard.');
 });
