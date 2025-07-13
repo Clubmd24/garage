@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { getDocument } from 'pdfjs-dist/legacy/build/pdf.js';
+import { getDocument } from '../lib/pdf.js';
 import pool from '../lib/db.js';
 
 // Download the PDF and return a Uint8Array
