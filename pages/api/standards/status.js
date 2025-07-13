@@ -31,6 +31,7 @@ async function handler(req, res) {
     return res.status(500).json({ error: 'internal_error' });
   }
 
+  res.setHeader('Cache-Control', 'no-store');
   return res.status(200).json({
     running: getIngestStatus(),
     standards: rows

@@ -20,6 +20,7 @@ async function handler(req, res) {
     [id]
   );
 
+  res.setHeader('Cache-Control', 'no-store');
   res.status(200).json({ questions: rows });
 }
 

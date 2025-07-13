@@ -152,3 +152,5 @@ Two endpoints expose the ingested standards and their quiz questions.
 Both endpoints require the secret defined in the `API_SECRET` environment
 variable. Supply it as either a `secret` query parameter or an `X-API-SECRET`
 header when making requests.
+
+Both responses include `Cache-Control: no-store` to prevent caching.
