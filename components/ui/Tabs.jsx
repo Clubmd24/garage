@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 
-export default function Tabs({ tabs, className = '' }) {
-  const [active, setActive] = useState(tabs[0]?.label);
+export default function Tabs({ tabs, className = '', selected, onChange }) {
+  const [internal, setInternal] = useState(tabs[0]?.label);
+  const active = selected ?? internal;
+  const setActive = onChange ?? setInternal;
   const current = tabs.find(t => t.label === active) || tabs[0];
   return (
     <div className={className}>
