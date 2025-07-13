@@ -71,12 +71,14 @@ export default async function ingestAll() {
   console.log('\n🎉 All standards ingested');
 }
 
-// If run directly, kick off ingestion
-if (import.meta.url === `file://${process.argv[1]}`) {
-  ingestAll()
-    .then(() => process.exit(0))
-    .catch(err => {
-      console.error('🚨 Ingestion failed:', err);
-      process.exit(1);
-    });
-}
+// ALWAYS run ingestAll when this script is invoked by Node
+ingestAll()
+  .then(() => {
+    console.log('\n✅ Done');
+    process.exit(0);
+  })
+  .catch(err => {
+    console.error('🚨 Ingestion failed:', err);
+    process.exit(1);
+  });
+
