@@ -69,7 +69,7 @@ export async function ingestStandard({ code, title, url }) {
   console.log(`✅ ${code} — "${title}" (${sections.length} sections)`);
 }
 
-export default async function ingestAll() {
+export async function ingestAll() {
   const standards = [
     {
       code:  'STD001',
@@ -113,16 +113,20 @@ export default async function ingestAll() {
   }
 
   console.log('\n🎉 All standards ingested');
-  await pool.end();
 }
 
 // ALWAYS run ingestAll when this script is invoked by Node
-ingestAll()
-  .then(() => {
+async function run() {
+  try {
+    await ingestAll();
     console.log('\n✅ Done');
-  })
-  .catch(err => {
+  } catch (err) {
     console.error('🚨 Ingestion failed:', err);
-    process.exit(1);
-  });
+    process.exitCode = 1;
+  } finally {
+    await pool.end();
+  }
+}
+
+run();
 
