@@ -5,15 +5,13 @@ import pool from '../lib/db.js';
 async function fetchPdf(url) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.statusText}`);
-  // We only verify reachability here — parsing happens later
   return Buffer.from(await res.arrayBuffer());
 }
 
 export async function ingestStandard({ name, url, version }) {
-  // 1. Download PDF to confirm URL works
-  await fetchPdf(url);
+  await fetchPdf(url);  // verify URL
 
-  // 2. Upsert into your actual standards table schema
+  // Upsert into the real standards schema
   await pool.query(
     `INSERT INTO standards (source_name, source_url, version, last_fetched_at)
      VALUES (?, ?, ?, NOW())
@@ -24,11 +22,10 @@ export async function ingestStandard({ name, url, version }) {
     [name, url, version]
   );
 
-  console.log(`✅ Ingested standard "${name}" (v${version})`);
+  console.log(`✅ Ingested "${name}" @ ${version}`);
 }
 
 export default async function ingestAll() {
-  // ── Drop in your real syllabus URLs here ──
   const standards = [
     {
       name:    'NATEF A5 Brake Task List (Grenada NTA CVQ L2)',
@@ -71,14 +68,14 @@ export default async function ingestAll() {
     await ingestStandard(s);
   }
 
-  console.log('🎉 All standards ingested.');
+  console.log('🎉 All standards ingested');
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   ingestAll()
     .then(() => process.exit(0))
     .catch(err => {
-      console.error('🚨 Ingestion failed:', err);
+      console.error('🚨 Ingest failed:', err);
       process.exit(1);
     });
 }
