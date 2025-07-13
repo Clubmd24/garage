@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-
+import pdf from 'pdf-parse';
 import pool from '../lib/db.js';
 import pdfjs from 'pdfjs-dist/legacy/build/pdf.js';
 
