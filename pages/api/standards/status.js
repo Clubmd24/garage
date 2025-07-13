@@ -18,13 +18,16 @@ async function handler(req, res) {
   try {
     [rows] = await pool.query(
       `SELECT
-         id,
-         code,
-         title   AS source_name,
-         pdf_url AS source_url,
-         created_at
-       FROM standards
-       ORDER BY id`
+         s.id,
+         s.code,
+         s.title   AS source_name,
+         s.pdf_url AS source_url,
+         s.created_at,
+         COUNT(q.id) AS generated_questions
+       FROM standards s
+       LEFT JOIN quiz_questions q ON q.standard_id = s.id
+       GROUP BY s.id
+       ORDER BY s.id`
     );
   } catch (err) {
     console.error('Standards status query failed:', err);

@@ -33,6 +33,7 @@ test('GET /api/standards/status returns status and standards', async () => {
       source: 'example',
       version: '1.0',
       last_fetched_at: '2024-01-01',
+      generated_questions: 3,
     },
   ];
   const queryMock = jest.fn().mockResolvedValue([rows]);
@@ -61,6 +62,7 @@ test('GET /api/standards/status includes fields', async () => {
       source: 'src',
       version: 'v2',
       last_fetched_at: '2024-02-02',
+      generated_questions: 1,
     },
   ];
   const queryMock = jest.fn().mockResolvedValue([rows]);
@@ -108,8 +110,8 @@ test('GET /api/standards/status rejects invalid secret', async () => {
 test('GET /api/standards/[id] returns questions', async () => {
   process.env.API_SECRET = 'shhh';
   const rows = [
-    { no: 1, text: 'Q1' },
-    { no: 2, text: 'Q2' },
+    { no: 1, text: 'Q1', options: ['a', 'b'], answer_index: 0 },
+    { no: 2, text: 'Q2', options: ['x', 'y'], answer_index: 1 },
   ];
   const queryMock = jest.fn().mockResolvedValue([rows]);
   jest.unstable_mockModule('../lib/db.js', () => ({ default: { query: queryMock } }));

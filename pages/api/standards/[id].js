@@ -16,13 +16,14 @@ async function handler(req, res) {
 
   // Fetch questions for this standard
   const [rows] = await pool.query(
-    `SELECT question_no AS no, question
+    `SELECT question_no AS no, question AS text, options, answer_index
        FROM quiz_questions
       WHERE standard_id = ?
       ORDER BY question_no`,
     [id]
   );
 
+  res.setHeader('Cache-Control', 'no-store');
   return res.status(200).json({ questions: rows });
 }
 
