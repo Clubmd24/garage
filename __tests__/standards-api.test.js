@@ -45,6 +45,7 @@ test('GET /api/standards/status returns status and standards', async () => {
   expect(queryMock).toHaveBeenCalledWith(expect.any(String));
   expect(res.status).toHaveBeenCalledWith(200);
   expect(res.json).toHaveBeenCalledWith({ running: true, standards: rows });
+  expect(res.setHeader).toHaveBeenCalledWith('Cache-Control', 'no-store');
 });
 
 test('GET /api/standards/status includes fields', async () => {
@@ -119,6 +120,7 @@ test('GET /api/standards/[id] returns questions', async () => {
   expect(queryMock).toHaveBeenCalledWith(expect.any(String), ['1']);
   expect(res.status).toHaveBeenCalledWith(200);
   expect(res.json).toHaveBeenCalledWith({ questions: rows });
+  expect(res.setHeader).toHaveBeenCalledWith('Cache-Control', 'no-store');
 });
 
 test('GET /api/standards/[id] rejects invalid secret', async () => {
