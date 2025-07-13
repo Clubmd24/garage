@@ -134,6 +134,19 @@ Standards are pulled from external PDFs and inserted into the database using
    02:00 UTC. Both `DATABASE_URL` and `API_SECRET` must be added as repository
    secrets for the workflow to succeed.
 
+### Running ingestion and seeding
+
+Populate the database with both training standards and sample quiz questions by
+executing the ingestion and seeding scripts:
+
+```bash
+node scripts/ingestStandards.js
+node scripts/seedQuestions.js
+```
+
+`seedQuestions.js` loads questions from `data/questionBank.json` and inserts
+them into the `quiz_questions` table.
+
 ### Accessing the apprentice page
 
 Once the dev server is running, open
