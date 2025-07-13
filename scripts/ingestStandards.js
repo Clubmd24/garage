@@ -10,16 +10,15 @@ async function fetchPdf(url) {
 }
 
 export async function ingestStandard({ code, title, url }) {
-  // 1) Check URL
+  console.log(`\n🔍 Fetching ${code}: ${url}`);
   await fetchPdf(url);
 
-  // 2) Upsert into your real schema: (code, title, pdf_url)
   await pool.query(
     `INSERT INTO standards (code, title, pdf_url)
      VALUES (?, ?, ?)
      ON DUPLICATE KEY UPDATE
-       title    = VALUES(title),
-       pdf_url  = VALUES(pdf_url)`,
+       title   = VALUES(title),
+       pdf_url = VALUES(pdf_url)`,
     [code, title, url]
   );
 
@@ -68,9 +67,11 @@ export default async function ingestAll() {
   for (const std of standards) {
     await ingestStandard(std);
   }
-  console.log('🎉 All standards ingested');
+
+  console.log('\n🎉 All standards ingested');
 }
 
+// If run directly, kick off ingestion
 if (import.meta.url === `file://${process.argv[1]}`) {
   ingestAll()
     .then(() => process.exit(0))
