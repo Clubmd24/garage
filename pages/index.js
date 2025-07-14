@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import Link from 'next/link';
 
 export default function Landing() {
   return (
@@ -8,10 +9,10 @@ export default function Landing() {
       </Head>
       <header className="flex items-center justify-between px-6 py-3 text-gray-100">
         <img src="/logo.png" alt="Garage Vision Logo" className="h-8 w-auto" />
-        <nav className="space-x-6 text-sm">
-          <a href="/login" className="hover:underline">Garage Login</a>
-          <a href="/local/login" className="hover:underline">Car Owner Login</a>
-          <a href="/fleet/login" className="hover:underline">Company Login</a>
+        <nav className="space-x-4 text-sm">
+          <Link href="/login" className="button px-4">Garage Login</Link>
+          <Link href="/local/login" className="button px-4">Car Owner Login</Link>
+          <Link href="/fleet/login" className="button px-4">Company Login</Link>
         </nav>
       </header>
 

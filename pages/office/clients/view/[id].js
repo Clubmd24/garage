@@ -70,9 +70,9 @@ export default function ClientViewPage() {
   return (
     <OfficeLayout>
       <div className="mb-6 flex flex-wrap items-center gap-4">
-        <Link href={`/office/clients/${id}`}><a className="button">Edit Client</a></Link>
+        <Link href={`/office/clients/${id}`} className="button">Edit Client</Link>
         <button onClick={deleteClient} className="button bg-red-600 hover:bg-red-700">Delete Client</button>
-        <Link href="/office/clients"><a className="button">Back to Clients</a></Link>
+        <Link href="/office/clients" className="button">Back to Clients</Link>
       </div>
       {client.pin && (
         <p className="mb-2 font-semibold">PIN: {client.pin}</p>
@@ -97,7 +97,7 @@ export default function ClientViewPage() {
         <Card>
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">Vehicles</h2>
-            <Link href={`/office/vehicles/new?customer_id=${id}`}><a className="underline">Add Vehicle</a></Link>
+            <Link href={`/office/vehicles/new?customer_id=${id}`} className="button px-4">Add Vehicle</Link>
           </div>
           {vehicles.length === 0 ? (
             <p>No vehicles</p>
@@ -111,11 +111,9 @@ export default function ClientViewPage() {
                     <p className="text-sm">{v.color}</p>
                   </div>
                   <div className="space-x-2">
-                    <Link href={`/office/vehicles/view/${v.id}`}>
-                      <a className="underline text-sm">View</a>
-                    </Link>
-                    <Link href={`/office/vehicles/${v.id}`}> <a className="underline text-sm">Edit</a> </Link>
-                    <button onClick={() => deleteVehicle(v.id)} className="underline text-red-600 text-sm">Delete</button>
+                    <Link href={`/office/vehicles/view/${v.id}`} className="button px-4 text-sm">View</Link>
+                    <Link href={`/office/vehicles/${v.id}`} className="button px-4 text-sm">Edit</Link>
+                    <button onClick={() => deleteVehicle(v.id)} className="button px-4 text-sm bg-red-600 hover:bg-red-700">Delete</button>
                   </div>
                 </div>
               ))}
