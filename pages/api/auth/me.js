@@ -6,7 +6,7 @@ async function handler(req, res) {
   const t = getTokenFromReq(req);
   if (!t) return res.status(401).json({ error: 'Unauthorized' });
   const [rows] = await pool.query(
-    `SELECT u.id, u.username, u.email, r.name AS role
+    `SELECT u.id, u.username, u.email, r.name AS role, r.description
        FROM users u
   LEFT JOIN user_roles ur ON u.id = ur.user_id
   LEFT JOIN roles r ON ur.role_id = r.id

@@ -18,7 +18,7 @@ async function handler(req, res) {
   if (req.method === 'GET') {
     // return all users + roles
     const [users] = await pool.query(
-      `SELECT u.id, u.username, u.email, r.name AS role
+      `SELECT u.id, u.username, u.email, r.name AS role, r.description
          FROM users u
          JOIN user_roles ur ON u.id = ur.user_id
          JOIN roles r ON ur.role_id = r.id`
@@ -47,6 +47,14 @@ async function handler(req, res) {
           'INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)',
           [userId, roleRow.id]
         );
+        if (role === 'apprentice') {
+          const [firstName, ...rest] = username.split(' ');
+          const lastName = rest.join(' ') || firstName;
+          await pool.query(
+            'INSERT INTO apprentices (first_name, last_name, email) VALUES (?, ?, ?)',
+            [firstName, lastName, email]
+          );
+        }
       }
       return res.status(200).json({ id: userId, username, email, role });
     } catch (err) {
