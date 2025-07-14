@@ -11,7 +11,6 @@ import { fetchJobStatuses } from '../../../lib/jobStatuses';
 import { fetchJob } from '../../../lib/jobs';
 import { fetchClient } from '../../../lib/clients';
 import { fetchVehicle } from '../../../lib/vehicles';
-import { fetchQuotesForJob } from '../../../lib/quotations';
 
 export default function JobViewPage() {
   const router = useRouter();
@@ -22,7 +21,7 @@ export default function JobViewPage() {
   const [vehicle, setVehicle] = useState(null);
   const [engineers, setEngineers] = useState([]);
   const [statuses, setStatuses] = useState([]);
-  const [quotes, setQuotes] = useState([]);
+  const [quotes, setQuotes] = useState([]);         // now populated from job.quote.items
   const [form, setForm] = useState({
     status: '',
     engineer_id: '',
@@ -39,27 +38,39 @@ export default function JobViewPage() {
       fetchJob(id),
       fetchEngineers(),
       fetchJobStatuses(),
-      fetchQuotesForJob(id)
     ])
-      .then(async ([jobData, engs, stats, quoteList]) => {
+      .then(async ([jobData, engs, stats]) => {
         setJob(jobData);
         setEngineers(engs);
         setStatuses(stats);
-        setQuotes(Array.isArray(quoteList) ? quoteList : []);
+
+        // initialize form from jobData
         setForm({
           status: jobData.status || '',
           engineer_id: jobData.engineer_id || '',
           scheduled_start: jobData.scheduled_start || '',
           notes: jobData.notes || '',
         });
-        if (jobData.client_id) setClient(await fetchClient(jobData.client_id));
-        if (jobData.vehicle_id) setVehicle(await fetchVehicle(jobData.vehicle_id));
+
+        // pull quotes directly from jobData.quote.items
+        setQuotes(Array.isArray(jobData.quote?.items)
+          ? jobData.quote.items
+          : []);
+
+        // related client & vehicle
+        if (jobData.customer_id) {
+          setClient(await fetchClient(jobData.customer_id));
+        }
+        if (jobData.vehicle_id) {
+          setVehicle(await fetchVehicle(jobData.vehicle_id));
+        }
       })
       .catch(() => setError('Failed to load job data'))
       .finally(() => setLoading(false));
   }, [id]);
 
-  const change = e => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  const change = e =>
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
   const deleteJob = async () => {
     if (!confirm('Delete this job?')) return;
@@ -82,7 +93,7 @@ export default function JobViewPage() {
   };
 
   if (loading) return <OfficeLayout><p>Loading…</p></OfficeLayout>;
-  if (error)   return <OfficeLayout><p className="text-red-500">{error}</p></OfficeLayout>;
+  if (error) return <OfficeLayout><p className="text-red-500">{error}</p></OfficeLayout>;
 
   return (
     <OfficeLayout>
@@ -106,7 +117,10 @@ export default function JobViewPage() {
                   ? new Date(form.scheduled_start).toLocaleString()
                   : 'N/A'}
               </p>
-              <p><strong>Reported Defect:</strong> {job.reported_defect || 'N/A'}</p>
+              <p>
+                <strong>Reported Defect:</strong>{' '}
+                {job.quote?.defect_description || 'N/A'}
+              </p>
             </Card>
 
             {/* ASSIGN ENGINEER */}
@@ -179,13 +193,13 @@ export default function JobViewPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {quotes.map(q => {
-                      const unit = Number(q.unit_price || 0).toFixed(2);
-                      const qty  = Number(q.quantity  || 0);
-                      const total= (qty * Number(q.unit_price || 0)).toFixed(2);
+                    {quotes.map(item => {
+                      const unit = Number(item.unit_price || item.unit_cost || 0).toFixed(2);
+                      const qty  = Number(item.qty         || item.quantity || 0);
+                      const total= (qty * Number(unit)).toFixed(2);
                       return (
-                        <tr key={q.id}>
-                          <td>{q.part_name || '—'}</td>
+                        <tr key={item.id}>
+                          <td>{item.description || item.part_name || '—'}</td>
                           <td className="text-center">{qty}</td>
                           <td className="text-right">€{unit}</td>
                           <td className="text-right">€{total}</td>
