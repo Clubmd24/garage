@@ -24,7 +24,12 @@ async function handler(req, res) {
       return res.status(200).json(jobs);
     }
     if (req.method === 'POST') {
-      const job = await service.createJob(req.body);
+      const data = { ...req.body };
+      if (data.vehicle_id !== undefined && data.vehicle_id !== null) {
+        const vid = Number(data.vehicle_id);
+        if (!Number.isNaN(vid)) data.vehicle_id = vid;
+      }
+      const job = await service.createJob(data);
       return res.status(201).json(job);
     }
     res.setHeader('Allow', ['GET','POST']);
