@@ -10,7 +10,17 @@ async function handler(req, res) {
     const created = await service.createShift(req.body || {});
     return res.status(201).json(created);
   }
-  res.setHeader('Allow', ['GET','POST']);
+  if (req.method === 'PUT') {
+    const { id, ...data } = req.body || {};
+    const updated = await service.updateShift(id, data);
+    return res.status(200).json(updated);
+  }
+  if (req.method === 'DELETE') {
+    const { id } = req.body || {};
+    await service.deleteShift(id);
+    return res.status(204).end();
+  }
+  res.setHeader('Allow', ['GET','POST','PUT','DELETE']);
   res.status(405).end(`Method ${req.method} Not Allowed`);
 }
 
