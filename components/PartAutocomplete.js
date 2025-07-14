@@ -58,7 +58,7 @@ export default function PartAutocomplete({
         }}
         placeholder="Part number or description"
       />
-      {term && (
+      {term && (results.length > 0 || showAdd) && (
         <div className="absolute z-10 bg-white shadow rounded w-full text-black">
           {results.map(p => (
             <div
