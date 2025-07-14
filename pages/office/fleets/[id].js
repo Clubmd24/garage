@@ -127,7 +127,7 @@ const EditFleetPage = () => {
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-xl font-semibold">Vehicles</h2>
           <div className="flex gap-4">
-            <Link href={`/office/vehicles/new?fleet_id=${id}`} className="underline">Add Vehicle</Link>
+            <Link href={`/office/vehicles/new?fleet_id=${id}`} className="button px-4">Add Vehicle</Link>
           </div>
         </div>
         {vehicles.length === 0 ? (

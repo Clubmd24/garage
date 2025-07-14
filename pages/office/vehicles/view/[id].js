@@ -62,14 +62,14 @@ export default function VehicleViewPage() {
   return (
     <OfficeLayout>
       <div className="mb-6 flex flex-wrap items-center gap-4">
-        <Link href={`/office/vehicles/${id}`}><a className="button">Edit Vehicle</a></Link>
+        <Link href={`/office/vehicles/${id}`} className="button">Edit Vehicle</Link>
         {client && (
-          <Link href={`/office/clients/${client.id}`}><a className="button">Edit Client</a></Link>
+          <Link href={`/office/clients/${client.id}`} className="button">Edit Client</Link>
         )}
-        <Link href={`/office/quotations/new?vehicle_id=${id}`}><a className="button">New Quote</a></Link>
-        <Link href={`/office/jobs/new?vehicle_id=${id}`}><a className="button">New Job</a></Link>
+        <Link href={`/office/quotations/new?vehicle_id=${id}`} className="button">New Quote</Link>
+        <Link href={`/office/jobs/new?vehicle_id=${id}`} className="button">New Job</Link>
         <button onClick={deleteVehicle} className="button bg-red-600 hover:bg-red-700">Delete</button>
-        <Link href="/office/vehicles"><a className="button">Back to Vehicles</a></Link>
+        <Link href="/office/vehicles" className="button">Back to Vehicles</Link>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card>
