@@ -89,6 +89,7 @@ export default function JobViewPage() {
       {job && (
         <>
           <SectionGrid>
+            {/* SUMMARY */}
             <Card>
               <div className="flex justify-between items-start mb-4">
                 <h2 className="text-xl font-semibold">Job #{job.id}</h2>
@@ -105,37 +106,66 @@ export default function JobViewPage() {
                   ? new Date(form.scheduled_start).toLocaleString()
                   : 'N/A'}
               </p>
+              <p><strong>Reported Defect:</strong> {job.reported_defect || 'N/A'}</p>
             </Card>
 
+            {/* ASSIGN ENGINEER */}
             <Card>
               <h3 className="text-xl font-semibold mb-4">Assign Engineer</h3>
               <div className="space-y-4">
                 <div>
                   <label className="block mb-1">Status</label>
-                  <select name="status" value={form.status} onChange={change} className="input w-full">
+                  <select
+                    name="status"
+                    value={form.status}
+                    onChange={change}
+                    className="input w-full"
+                  >
                     <option value="">Select…</option>
-                    {statuses.map(s => <option key={s.slug} value={s.slug}>{s.name}</option>)}
+                    {statuses.map(s => (
+                      <option key={s.slug} value={s.slug}>{s.name}</option>
+                    ))}
                   </select>
                 </div>
                 <div>
                   <label className="block mb-1">Engineer</label>
-                  <select name="engineer_id" value={form.engineer_id} onChange={change} className="input w-full">
+                  <select
+                    name="engineer_id"
+                    value={form.engineer_id}
+                    onChange={change}
+                    className="input w-full"
+                  >
                     <option value="">Select…</option>
-                    {engineers.map(e => <option key={e.id} value={e.id}>{e.username}</option>)}
+                    {engineers.map(e => (
+                      <option key={e.id} value={e.id}>{e.username}</option>
+                    ))}
                   </select>
                 </div>
                 <div>
                   <label className="block mb-1">Scheduled Start</label>
-                  <input type="datetime-local" name="scheduled_start" value={form.scheduled_start} onChange={change} className="input w-full" />
+                  <input
+                    type="datetime-local"
+                    name="scheduled_start"
+                    value={form.scheduled_start}
+                    onChange={change}
+                    className="input w-full"
+                  />
                 </div>
               </div>
             </Card>
 
+            {/* NOTES */}
             <Card>
               <h3 className="text-xl font-semibold mb-4">Notes</h3>
-              <textarea name="notes" value={form.notes} onChange={change} className="input w-full h-32 resize-none" />
+              <textarea
+                name="notes"
+                value={form.notes}
+                onChange={change}
+                className="input w-full h-32 resize-none"
+              />
             </Card>
 
+            {/* QUOTE ITEMS (FULL-WIDTH) */}
             <div className="col-span-1 lg:col-span-2">
               <Card>
                 <h3 className="text-xl font-semibold mb-4">Quote Items</h3>
@@ -151,8 +181,8 @@ export default function JobViewPage() {
                   <tbody>
                     {quotes.map(q => {
                       const unit = Number(q.unit_price || 0).toFixed(2);
-                      const qty = Number(q.quantity || 0);
-                      const total = (qty * Number(q.unit_price || 0)).toFixed(2);
+                      const qty  = Number(q.quantity  || 0);
+                      const total= (qty * Number(q.unit_price || 0)).toFixed(2);
                       return (
                         <tr key={q.id}>
                           <td>{q.part_name || '—'}</td>
@@ -164,18 +194,19 @@ export default function JobViewPage() {
                     })}
                   </tbody>
                 </table>
-                <div className="mt-6 flex space-x-2">
-                  <button onClick={() => router.push(`/office/quotations/${quotes[0]?.id}/edit`)} className="button">
-                    Edit Quote
-                  </button>
-                  <Link href={`/office/quotations/new?job_id=${id}`} className="button">
-                    New Quote for Job
+                <div className="mt-6">
+                  <Link
+                    href={`/office/quotations/new?job_id=${id}`}
+                    className="inline-block bg-blue-600 text-white rounded-full px-4 py-2"
+                  >
+                    + New Quote Item
                   </Link>
                 </div>
               </Card>
             </div>
           </SectionGrid>
 
+          {/* GLOBAL SAVE */}
           <div className="max-w-5xl mx-auto mt-6 flex justify-end">
             <button onClick={saveAll} className="button">Save Changes</button>
           </div>
