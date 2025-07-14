@@ -156,9 +156,6 @@ export default function JobViewPage() {
   return (
     <OfficeLayout>
       <h1 className="text-2xl font-semibold mb-4">Job #{id}</h1>
-      <div className="mb-6 flex flex-wrap items-center gap-4">
-        <button onClick={deleteJob} className="button bg-red-600 hover:bg-red-700">Delete Job</button>
-      </div>
       {job && (
         <div className="space-y-2">
           <p><strong>Status:</strong> {job.status}</p>
@@ -205,14 +202,7 @@ export default function JobViewPage() {
               ? new Date(job.scheduled_end).toLocaleString()
               : 'N/A'}
           </p>
-          <div className="mt-4">
-            <Link href={`/office/jobs/assign?id=${id}`} className="button">
-              {job.assignments && job.assignments.length > 0
-                ? 'Edit Assignment'
-                : 'Assign Engineer'}
-            </Link>
-          </div>
-          <form onSubmit={submit} className="space-y-2 max-w-sm mt-4">
+          <form id="statusForm" onSubmit={submit} className="space-y-2 max-w-sm mt-4">
             <div>
               <label className="block mb-1">Status</label>
               <select
@@ -253,9 +243,8 @@ export default function JobViewPage() {
                 className="input w-full"
               />
             </div>
-            <button type="submit" className="button">Save</button>
           </form>
-          <form onSubmit={saveNotes} className="space-y-2 max-w-sm mt-4">
+          <form id="notesForm" onSubmit={saveNotes} className="space-y-2 max-w-sm mt-4">
             <div>
               <label className="block mb-1">Notes</label>
               <textarea
@@ -265,18 +254,15 @@ export default function JobViewPage() {
                 className="input w-full"
               />
             </div>
-            <div className="space-x-2">
-              <button type="submit" className="button">Save Notes</button>
-              {job.notes && (
-                <button
-                  type="button"
-                  onClick={deleteNotes}
-                  className="button bg-red-600 hover:bg-red-700"
-                >
-                  Delete Notes
-                </button>
-              )}
-            </div>
+            {job.notes && (
+              <button
+                type="button"
+                onClick={deleteNotes}
+                className="button bg-red-600 hover:bg-red-700"
+              >
+                Delete Notes
+              </button>
+            )}
           </form>
           {job.quote && job.quote.defect_description && (
             <p className="mt-2">
@@ -322,9 +308,15 @@ export default function JobViewPage() {
               </ul>
             </div>
           )}
-          <Link href={`/office/quotations/new?job_id=${id}`} className="button mt-2 inline-block">
-            New Quote for Job
-          </Link>
+          <div className="mt-8 pt-4 border-t flex flex-wrap gap-4">
+            <button onClick={deleteJob} className="button bg-red-600 hover:bg-red-700">Delete Job</button>
+            <Link href={`/office/jobs/assign?id=${id}`} className="button">
+              {job.assignments && job.assignments.length > 0 ? 'Edit Assignment' : 'Assign Engineer'}
+            </Link>
+            <button type="submit" form="statusForm" className="button">Save Status/Engineer</button>
+            <button type="submit" form="notesForm" className="button">Save Notes</button>
+            <Link href={`/office/quotations/new?job_id=${id}`} className="button">New Quote</Link>
+          </div>
         </div>
       )}
     </OfficeLayout>
