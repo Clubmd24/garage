@@ -14,13 +14,14 @@ test('job purchase orders page posts grouped orders', async () => {
 
   global.fetch = jest
     .fn()
-    .mockResolvedValueOnce({ ok: true, json: async () => [
-      { id: 1, part_number: 'A', description: 'a', supplier_id: 5 },
-      { id: 2, part_number: 'B', description: 'b', supplier_id: 6 }
-    ] })
+    .mockResolvedValueOnce({ ok: true, json: async () => [ { id: 1 } ] })
     .mockResolvedValueOnce({ ok: true, json: async () => [
       { id: 5, name: 'S1' },
       { id: 6, name: 'S2' }
+    ] })
+    .mockResolvedValueOnce({ ok: true, json: async () => [
+      { part_id: 1, partNumber: 'A', description: 'a', supplier_id: 5 },
+      { part_id: 2, partNumber: 'B', description: 'b', supplier_id: 6 }
     ] })
     .mockResolvedValue({ ok: true, json: async () => ({}) });
 
@@ -33,9 +34,9 @@ test('job purchase orders page posts grouped orders', async () => {
   fireEvent.click(screen.getByLabelText('B - b'));
   fireEvent.click(screen.getByText('Send Purchase Order'));
 
-  await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(4));
-  expect(global.fetch.mock.calls[2][0]).toBe('/api/purchase-orders');
+  await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(5));
   expect(global.fetch.mock.calls[3][0]).toBe('/api/purchase-orders');
+  expect(global.fetch.mock.calls[4][0]).toBe('/api/purchase-orders');
 });
 
 test('request supplier quote creates order and updates statuses', async () => {
@@ -45,10 +46,11 @@ test('request supplier quote creates order and updates statuses', async () => {
 
   global.fetch = jest
     .fn()
-    .mockResolvedValueOnce({ ok: true, json: async () => [
-      { id: 1, part_number: 'A', description: 'a', supplier_id: 5 }
-    ] })
+    .mockResolvedValueOnce({ ok: true, json: async () => [ { id: 1 } ] })
     .mockResolvedValueOnce({ ok: true, json: async () => [ { id: 5, name: 'S1' } ] })
+    .mockResolvedValueOnce({ ok: true, json: async () => [
+      { part_id: 1, partNumber: 'A', description: 'a', supplier_id: 5 }
+    ] })
     .mockResolvedValueOnce({ ok: true, json: async () => ({ id: 9 }) })
     .mockResolvedValueOnce({ ok: true, json: async () => ({}) })
     .mockResolvedValue({ ok: true, json: async () => ({}) });
@@ -60,9 +62,9 @@ test('request supplier quote creates order and updates statuses', async () => {
   fireEvent.click(screen.getByLabelText('A - a'));
   fireEvent.click(screen.getByText('Request Supplier Quote'));
 
-  await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(5));
-  expect(global.fetch.mock.calls[2][0]).toBe('/api/purchase-orders');
-  expect(global.fetch.mock.calls[3][0]).toBe('/api/purchase-orders/9/request-quote');
-  expect(global.fetch.mock.calls[4][0]).toBe('/api/jobs/4');
-  expect(global.fetch.mock.calls[4][1].method).toBe('PUT');
+  await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(6));
+  expect(global.fetch.mock.calls[3][0]).toBe('/api/purchase-orders');
+  expect(global.fetch.mock.calls[4][0]).toBe('/api/purchase-orders/9/request-quote');
+  expect(global.fetch.mock.calls[5][0]).toBe('/api/jobs/4');
+  expect(global.fetch.mock.calls[5][1].method).toBe('PUT');
 });

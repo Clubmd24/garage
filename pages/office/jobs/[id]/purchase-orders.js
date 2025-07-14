@@ -17,14 +17,33 @@ export default function JobPurchaseOrdersPage() {
     async function load() {
       setLoading(true);
       try {
-        const [partsRes, suppRes] = await Promise.all([
-          fetch('/api/parts'),
+        const [quotesRes, suppRes] = await Promise.all([
+          fetch(`/api/quotes?job_id=${id}`),
           fetch('/api/suppliers'),
         ]);
-        const p = partsRes.ok ? await partsRes.json() : [];
-        const s = suppRes.ok ? await suppRes.json() : [];
-        setParts(p);
-        setSuppliers(s);
+        const quotes = quotesRes.ok ? await quotesRes.json() : [];
+        const suppliers = suppRes.ok ? await suppRes.json() : [];
+        const items = (
+          await Promise.all(
+            quotes.map(q =>
+              fetch(`/api/quote-items?quote_id=${q.id}`).then(r =>
+                r.ok ? r.json() : [],
+              ),
+            ),
+          )
+        ).flat();
+        const map = {};
+        items.forEach(it => {
+          if (!it.part_id) return;
+          map[it.part_id] = {
+            id: it.part_id,
+            part_number: it.partNumber,
+            description: it.description,
+            supplier_id: it.supplier_id,
+          };
+        });
+        setParts(Object.values(map));
+        setSuppliers(suppliers);
       } catch {
         setError('Failed to load');
       } finally {
