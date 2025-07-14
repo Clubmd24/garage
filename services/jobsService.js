@@ -45,6 +45,10 @@ export async function getJobById(id) {
 
 export async function createJob({ id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay }) {
   const finalStatus = status || 'unassigned';
+  const parsedVehicleId =
+    vehicle_id !== undefined && vehicle_id !== null && !Number.isNaN(Number(vehicle_id))
+      ? Number(vehicle_id)
+      : null;
   if (!(await jobStatusExists(finalStatus))) {
     throw new Error('Invalid job status');
   }
@@ -56,16 +60,16 @@ export async function createJob({ id, customer_id, vehicle_id, scheduled_start, 
     await pool.query(
       `INSERT INTO jobs (id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay)
        VALUES (?,?,?,?,?,?,?)`,
-      [id, customer_id || null, vehicle_id || null, scheduled_start || null, scheduled_end || null, finalStatus, bay || null]
+      [id, customer_id || null, parsedVehicleId, scheduled_start || null, scheduled_end || null, finalStatus, bay || null]
     );
-    return { id, customer_id, vehicle_id, scheduled_start, scheduled_end, status: finalStatus, bay };
+    return { id, customer_id, vehicle_id: parsedVehicleId, scheduled_start, scheduled_end, status: finalStatus, bay };
   }
   const [{ insertId }] = await pool.query(
     `INSERT INTO jobs (customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay)
      VALUES (?,?,?,?,?,?)`,
-    [customer_id || null, vehicle_id || null, scheduled_start || null, scheduled_end || null, finalStatus, bay || null]
+    [customer_id || null, parsedVehicleId, scheduled_start || null, scheduled_end || null, finalStatus, bay || null]
   );
-  return { id: insertId, customer_id, vehicle_id, scheduled_start, scheduled_end, status: finalStatus, bay };
+  return { id: insertId, customer_id, vehicle_id: parsedVehicleId, scheduled_start, scheduled_end, status: finalStatus, bay };
 }
 
 export async function updateJob(
