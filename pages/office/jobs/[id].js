@@ -1,148 +1,72 @@
+// pages/office/jobs/[id].js
+
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import OfficeLayout from '../../../components/OfficeLayout';
 import { Card } from '../../../components/Card';
+import SectionGrid from '../../../components/SectionGrid';
 import { fetchEngineers } from '../../../lib/engineers';
-import { fetchJobStatuses } from '../../../lib/jobStatuses.js';
+import { fetchJobStatuses } from '../../../lib/jobStatuses';
+import { fetchJob } from '../../../lib/jobs';
+import { fetchClient } from '../../../lib/clients';
+import { fetchVehicle } from '../../../lib/vehicles';
+import { fetchQuotesForJob } from '../../../lib/quotations';
 
 export default function JobViewPage() {
   const router = useRouter();
   const { id } = router.query;
+
   const [job, setJob] = useState(null);
   const [client, setClient] = useState(null);
   const [vehicle, setVehicle] = useState(null);
-  const [quotes, setQuotes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [engineers, setEngineers] = useState([]);
   const [statuses, setStatuses] = useState([]);
+  const [quotes, setQuotes] = useState([]);
   const [form, setForm] = useState({
     status: '',
     engineer_id: '',
     scheduled_start: '',
     notes: '',
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  useEffect(() => {
-    fetchEngineers()
-      .then(setEngineers)
-      .catch(() => setEngineers([]));
-    fetchJobStatuses()
-      .then(setStatuses)
-      .catch(() => setStatuses([]));
-  }, []);
-
-  const formatEuro = n =>
-    new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR' }).format(
-      n || 0
-    );
-
+  // Fetch all data on mount / id change
   useEffect(() => {
     if (!id) return;
-    async function load() {
-      try {
-        const res = await fetch(`/api/jobs/${id}`);
-        if (!res.ok) throw new Error();
-        const j = await res.json();
-        setJob(j);
+    setLoading(true);
+    Promise.all([
+      fetchJob(id),
+      fetchEngineers(),
+      fetchJobStatuses(),
+      fetchQuotesForJob(id)
+    ])
+      .then(async ([jobData, engs, stats, quoteList]) => {
+        setJob(jobData);
+        setEngineers(engs);
+        setStatuses(stats);
+        setQuotes(quoteList);
         setForm({
-          status: j.status || '',
-          engineer_id:
-            Array.isArray(j.assignments) && j.assignments.length > 0
-              ? j.assignments[0].user_id
-              : '',
-          scheduled_start: j.scheduled_start
-            ? j.scheduled_start.slice(0, 16)
-            : '',
-          notes: j.notes || '',
+          status: jobData.status || '',
+          engineer_id: jobData.engineer_id || '',
+          scheduled_start: jobData.scheduled_start || '',
+          notes: jobData.notes || '',
         });
-        if (j.customer_id) {
-          const c = await fetch(`/api/clients/${j.customer_id}`);
-          if (c.ok) setClient(await c.json());
+        // Fetch related client & vehicle
+        if (jobData.client_id) {
+          setClient(await fetchClient(jobData.client_id));
         }
-        if (j.vehicle) {
-          setVehicle(j.vehicle);
-        } else if (j.vehicle_id) {
-          const v = await fetch(`/api/vehicles/${j.vehicle_id}`);
-          if (v.ok) setVehicle(await v.json());
+        if (jobData.vehicle_id) {
+          setVehicle(await fetchVehicle(jobData.vehicle_id));
         }
-        const qRes = await fetch(`/api/quotes?job_id=${id}`);
-        if (qRes.ok) setQuotes(await qRes.json());
-      } catch (err) {
-        setError('Failed to load');
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
+      })
+      .catch(() => setError('Failed to load job data'))
+      .finally(() => setLoading(false));
   }, [id]);
 
   const change = e =>
-    setForm(f => ({ ...f, [e.target.name]: e.target.value }));
-
-  const submit = async e => {
-    e.preventDefault();
-    try {
-      if (form.engineer_id) {
-        const res = await fetch(`/api/jobs/${id}/assign`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            engineer_id: form.engineer_id,
-            scheduled_start: form.scheduled_start,
-          }),
-        });
-        if (!res.ok) throw new Error();
-      }
-      if (form.status) {
-        const res = await fetch(`/api/jobs/${id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: form.status }),
-        });
-        if (!res.ok) throw new Error();
-      }
-      const r = await fetch(`/api/jobs/${id}`);
-      if (r.ok) setJob(await r.json());
-    } catch {
-      setError('Failed to update');
-    }
-  };
-
-  const saveNotes = async e => {
-    e.preventDefault();
-    try {
-      const res = await fetch(`/api/jobs/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notes: form.notes }),
-      });
-      if (!res.ok) throw new Error();
-      const r = await fetch(`/api/jobs/${id}`);
-      if (r.ok) setJob(await r.json());
-    } catch {
-      setError('Failed to update');
-    }
-  };
-
-  const deleteNotes = async () => {
-    try {
-      const res = await fetch(`/api/jobs/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notes: '' }),
-      });
-      if (!res.ok) throw new Error();
-      const r = await fetch(`/api/jobs/${id}`);
-      if (r.ok) {
-        setJob(await r.json());
-        setForm(f => ({ ...f, notes: '' }));
-      }
-    } catch {
-      setError('Failed to update');
-    }
-  };
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
   const deleteJob = async () => {
     if (!confirm('Delete this job?')) return;
@@ -150,174 +74,157 @@ export default function JobViewPage() {
     router.push('/office/job-management');
   };
 
+  const saveAll = async () => {
+    try {
+      const res = await fetch(`/api/jobs/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error();
+      setJob(await res.json());
+    } catch {
+      setError('Failed to save changes');
+    }
+  };
+
   if (loading) return <OfficeLayout><p>Loading…</p></OfficeLayout>;
   if (error) return <OfficeLayout><p className="text-red-500">{error}</p></OfficeLayout>;
 
   return (
     <OfficeLayout>
-      <h1 className="text-2xl font-semibold mb-4">Job #{id}</h1>
       {job && (
-        <div className="space-y-2">
-          <p><strong>Status:</strong> {job.status}</p>
-          <p>
-            <strong>Client:</strong>{' '}
-            {client ? (
-              <Link href={`/office/clients/${client.id}`} className="underline">
-                {client.first_name} {client.last_name}
-              </Link>
-            ) : (
-              'N/A'
-            )}
-          </p>
-          <p>
-            <strong>Vehicle:</strong>{' '}
-            {vehicle ? (
-              <Link href={`/office/vehicles/view/${vehicle.id}`} className="underline">
-                {vehicle.licence_plate}
-              </Link>
-            ) : (
-              'N/A'
-            )}
-          </p>
-          {vehicle && (
-            <div className="ml-4 text-sm space-y-1">
-              <p>Make: {vehicle.make || 'N/A'}</p>
-              <p>Model: {vehicle.model || 'N/A'}</p>
-              <p>VIN: {vehicle.vin_number || 'N/A'}</p>
-            </div>
-          )}
-          <p>
-            <strong>Engineers:</strong>{' '}
-            {Array.isArray(job.assignments) && job.assignments.length > 0
-              ? job.assignments.map(a => a.username || a.user_id).join(', ')
-              : 'Unassigned'}
-          </p>
-          <p>
-            <strong>Scheduled:</strong>{' '}
-            {job.scheduled_start
-              ? new Date(job.scheduled_start).toLocaleString()
-              : 'N/A'}{' '}
-            -{' '}
-            {job.scheduled_end
-              ? new Date(job.scheduled_end).toLocaleString()
-              : 'N/A'}
-          </p>
-          <form id="statusForm" onSubmit={submit} className="space-y-2 max-w-sm mt-4">
-            <div>
-              <label className="block mb-1">Status</label>
-              <select
-                name="status"
-                value={form.status}
-                onChange={change}
-                className="input w-full"
-              >
-                <option value="">Select…</option>
-                {statuses.map(s => (
-                  <option key={s.id} value={s.name} className="capitalize">
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block mb-1">Engineer</label>
-              <select
-                name="engineer_id"
-                value={form.engineer_id}
-                onChange={change}
-                className="input w-full"
-              >
-                <option value="">Select…</option>
-                {engineers.map(e => (
-                  <option key={e.id} value={e.id}>{e.username}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block mb-1">Scheduled Start</label>
-              <input
-                type="datetime-local"
-                name="scheduled_start"
-                value={form.scheduled_start}
-                onChange={change}
-                className="input w-full"
-              />
-            </div>
-          </form>
-          <form id="notesForm" onSubmit={saveNotes} className="space-y-2 max-w-sm mt-4">
-            <div>
-              <label className="block mb-1">Notes</label>
+        <>
+          <SectionGrid>
+            {/* Summary */}
+            <Card>
+              <div className="flex justify-between items-start mb-4">
+                <h2 className="text-xl font-semibold">Job #{job.id}</h2>
+                <button
+                  onClick={deleteJob}
+                  className="button bg-red-600 hover:bg-red-700"
+                >
+                  Delete Job
+                </button>
+              </div>
+              <p><strong>Status:</strong> {job.status}</p>
+              <p><strong>Client:</strong> {client?.name || 'N/A'}</p>
+              <p><strong>Vehicle:</strong> {vehicle?.licence_plate || 'N/A'}</p>
+              <p>
+                <strong>Scheduled:</strong>{' '}
+                {form.scheduled_start
+                  ? new Date(form.scheduled_start).toLocaleString()
+                  : 'N/A'}
+              </p>
+            </Card>
+
+            {/* Assign Engineer */}
+            <Card>
+              <h3 className="text-xl font-semibold mb-4">Assign Engineer</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block mb-1">Status</label>
+                  <select
+                    name="status"
+                    value={form.status}
+                    onChange={change}
+                    className="input w-full"
+                  >
+                    <option value="">Select…</option>
+                    {statuses.map(s => (
+                      <option key={s.slug} value={s.slug}>{s.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block mb-1">Engineer</label>
+                  <select
+                    name="engineer_id"
+                    value={form.engineer_id}
+                    onChange={change}
+                    className="input w-full"
+                  >
+                    <option value="">Select…</option>
+                    {engineers.map(e => (
+                      <option key={e.id} value={e.id}>{e.username}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block mb-1">Scheduled Start</label>
+                  <input
+                    type="datetime-local"
+                    name="scheduled_start"
+                    value={form.scheduled_start}
+                    onChange={change}
+                    className="input w-full"
+                  />
+                </div>
+              </div>
+            </Card>
+
+            {/* Notes */}
+            <Card>
+              <h3 className="text-xl font-semibold mb-4">Notes</h3>
               <textarea
                 name="notes"
                 value={form.notes}
                 onChange={change}
-                className="input w-full"
+                className="input w-full h-32 resize-none"
               />
-            </div>
-            {job.notes && (
-              <button
-                type="button"
-                onClick={deleteNotes}
-                className="button bg-red-600 hover:bg-red-700"
-              >
-                Delete Notes
-              </button>
-            )}
-          </form>
-          {job.quote && job.quote.defect_description && (
-            <p className="mt-2">
-              <strong>Reported Defect:</strong> {job.quote.defect_description}
-            </p>
-          )}
-          {job.quote && Array.isArray(job.quote.items) && job.quote.items.length > 0 && (
-            <Card className="mt-4">
-              <h2 className="font-semibold mb-1">Quote Items</h2>
-              <table className="w-full text-sm">
-                <thead>
-                  <tr>
-                    <th className="text-left">Part</th>
-                    <th className="text-left">Qty</th>
-                    <th className="text-right">Unit Price</th>
-                    <th className="text-right">Line Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {job.quote.items.map(it => (
-                    <tr key={it.id}>
-                      <td>{it.partNumber || ''} {it.description}</td>
-                      <td>{it.qty}</td>
-                      <td className="text-right">{formatEuro(it.unit_price)}</td>
-                      <td className="text-right">{formatEuro(it.qty * it.unit_price)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
             </Card>
-          )}
-          {Array.isArray(quotes) && quotes.length > 0 && (
-            <div className="mt-4">
-              <h2 className="font-semibold mb-1">Quotes</h2>
-              <ul className="list-disc pl-5 space-y-1">
-                {quotes.map(q => (
-                  <li key={q.id}>
-                    <Link href={`/office/quotations/${q.id}/edit`}>
-                      <a className="underline">Quote #{q.id} rev {q.revision} - {q.status}</a>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+
+            {/* Quote Items (full-width) */}
+            <div className="col-span-1 lg:col-span-2">
+              <Card>
+                <h3 className="text-xl font-semibold mb-4">Quote Items</h3>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr>
+                      <th className="text-left">Part</th>
+                      <th>Qty</th>
+                      <th className="text-right">Unit Price</th>
+                      <th className="text-right">Line Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {quotes.map(q => (
+                      <tr key={q.id}>
+                        <td>{q.part_name}</td>
+                        <td className="text-center">{q.quantity}</td>
+                        <td className="text-right">€{q.unit_price.toFixed(2)}</td>
+                        <td className="text-right">
+                          €{(q.quantity * q.unit_price).toFixed(2)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="mt-6 flex space-x-2">
+                  <button
+                    onClick={() => router.push(`/office/quotations/${quotes[0]?.id}/edit`)}
+                    className="button"
+                  >
+                    Edit Quote
+                  </button>
+                  <Link
+                    href={`/office/quotations/new?job_id=${id}`}
+                    className="button"
+                  >
+                    New Quote for Job
+                  </Link>
+                </div>
+              </Card>
             </div>
-          )}
-          <div className="mt-8 pt-4 border-t flex flex-wrap gap-4">
-            <button onClick={deleteJob} className="button bg-red-600 hover:bg-red-700">Delete Job</button>
-            <Link href={`/office/jobs/assign?id=${id}`} className="button">
-              {job.assignments && job.assignments.length > 0 ? 'Edit Assignment' : 'Assign Engineer'}
-            </Link>
-            <button type="submit" form="statusForm" className="button">Save Status/Engineer</button>
-            <button type="submit" form="notesForm" className="button">Save Notes</button>
-            <Link href={`/office/quotations/new?job_id=${id}`} className="button">New Quote</Link>
+          </SectionGrid>
+
+          {/* Save all changes */}
+          <div className="max-w-5xl mx-auto mt-6 flex justify-end">
+            <button onClick={saveAll} className="button">
+              Save Changes
+            </button>
           </div>
-        </div>
+        </>
       )}
     </OfficeLayout>
   );
