@@ -9,7 +9,7 @@ export default function AssignJobPage() {
   const router = useRouter();
   const { id } = router.query;
   const [engineers, setEngineers] = useState([]);
-  const [form, setForm] = useState({ engineer_id: '', scheduled_start: '', scheduled_end: '' });
+  const [form, setForm] = useState({ engineer_id: '', scheduled_start: '' });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -32,7 +32,6 @@ export default function AssignJobPage() {
           scheduled_start: job.scheduled_start
             ? job.scheduled_start.slice(0, 16)
             : '',
-          scheduled_end: job.scheduled_end ? job.scheduled_end.slice(0, 16) : '',
         });
       } catch {
         // ignore
@@ -51,7 +50,6 @@ export default function AssignJobPage() {
         engineer_id: form.engineer_id,
         scheduled_start: form.scheduled_start,
       };
-      if (form.scheduled_end) data.scheduled_end = form.scheduled_end;
       const res = await fetch(`/api/jobs/${id}/assign`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -93,16 +91,6 @@ export default function AssignJobPage() {
             type="datetime-local"
             name="scheduled_start"
             value={form.scheduled_start}
-            onChange={change}
-            className="input w-full"
-          />
-        </div>
-        <div>
-          <label className="block mb-1">Scheduled End</label>
-          <input
-            type="datetime-local"
-            name="scheduled_end"
-            value={form.scheduled_end}
             onChange={change}
             className="input w-full"
           />

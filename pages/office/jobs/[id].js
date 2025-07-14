@@ -21,7 +21,6 @@ export default function JobViewPage() {
     status: '',
     engineer_id: '',
     scheduled_start: '',
-    scheduled_end: '',
     notes: '',
   });
 
@@ -56,7 +55,6 @@ export default function JobViewPage() {
           scheduled_start: j.scheduled_start
             ? j.scheduled_start.slice(0, 16)
             : '',
-          scheduled_end: j.scheduled_end ? j.scheduled_end.slice(0, 16) : '',
           notes: j.notes || '',
         });
         if (j.customer_id) {
@@ -93,7 +91,6 @@ export default function JobViewPage() {
           body: JSON.stringify({
             engineer_id: form.engineer_id,
             scheduled_start: form.scheduled_start,
-            ...(form.scheduled_end ? { scheduled_end: form.scheduled_end } : {}),
           }),
         });
         if (!res.ok) throw new Error();
@@ -252,16 +249,6 @@ export default function JobViewPage() {
                 type="datetime-local"
                 name="scheduled_start"
                 value={form.scheduled_start}
-                onChange={change}
-                className="input w-full"
-              />
-            </div>
-            <div>
-              <label className="block mb-1">Scheduled End</label>
-              <input
-                type="datetime-local"
-                name="scheduled_end"
-                value={form.scheduled_end}
                 onChange={change}
                 className="input w-full"
               />

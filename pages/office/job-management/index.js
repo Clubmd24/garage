@@ -50,7 +50,6 @@ export default function JobManagementPage() {
         body: JSON.stringify({
           engineer_id: data.engineer_id,
           scheduled_start: data.scheduled_start,
-          scheduled_end: data.scheduled_end,
         }),
       });
       if (!res.ok) throw new Error();
@@ -155,15 +154,6 @@ export default function JobManagementPage() {
                     onChange={e => change(job.id, 'scheduled_start', e.target.value)}
                     className="input w-full"
                     required
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1">Scheduled End</label>
-                  <input
-                    type="datetime-local"
-                    value={f.scheduled_end || ''}
-                    onChange={e => change(job.id, 'scheduled_end', e.target.value)}
-                    className="input w-full"
                   />
                 </div>
                 <div className="flex gap-2">
