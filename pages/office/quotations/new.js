@@ -16,6 +16,7 @@ const emptyItem = {
   price: 0,
 };
 import PartAutocomplete from '../../../components/PartAutocomplete';
+import DescriptionAutocomplete from '../../../components/DescriptionAutocomplete';
 import ClientAutocomplete from '../../../components/ClientAutocomplete';
 
 export default function NewQuotationPage() {
@@ -357,11 +358,13 @@ export default function NewQuotationPage() {
                   changeItem(i, 'unit_cost', p.unit_cost || 0);
                 }}
               />
-              <input
-                className="input w-full col-span-4"
-                placeholder="Description"
+              <DescriptionAutocomplete
                 value={it.description}
-                onChange={e => changeItem(i, 'description', e.target.value)}
+                onChange={v => changeItem(i, 'description', v)}
+                onSelect={p => {
+                  changeItem(i, 'description', p.description || '');
+                  changeItem(i, 'part_id', p.id);
+                }}
               />
               <input
                 type="number"
