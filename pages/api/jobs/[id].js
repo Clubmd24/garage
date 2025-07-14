@@ -16,24 +16,7 @@ async function handler(req, res) {
       return res.status(200).json(job);
     }
     if (req.method === 'PUT') {
-      const {
-        customer_id,
-        vehicle_id,
-        scheduled_start,
-        scheduled_end,
-        status,
-        bay,
-        notes,
-      } = req.body;
-      const updated = await service.updateJob(id, {
-        customer_id,
-        vehicle_id,
-        scheduled_start,
-        scheduled_end,
-        status,
-        bay,
-        notes,
-      });
+      const updated = await service.updateJob(id, req.body);
       return res.status(200).json(updated);
     }
     if (req.method === 'DELETE') {

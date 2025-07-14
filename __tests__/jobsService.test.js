@@ -20,7 +20,7 @@ test('updateJob creates invoice when notifying client for collection', async () 
 
   expect(queryMock).toHaveBeenCalledWith(
     expect.stringMatching(/UPDATE jobs/),
-    [4, null, null, null, 'notified client for collection', null, 2]
+    [4, 'notified client for collection', 2]
   );
   expect(createInvoiceMock).toHaveBeenCalledWith({ job_id: 2, customer_id: 4, status: 'awaiting collection' });
   expect(result).toEqual({ ok: true });
@@ -68,12 +68,12 @@ test('engineer completes job then office notifies client for collection', async 
   expect(queryMock).toHaveBeenNthCalledWith(
     1,
     expect.stringMatching(/UPDATE jobs/),
-    [null, null, null, null, 'engineer completed', null, 5]
+    ['engineer completed', 5]
   );
   expect(queryMock).toHaveBeenNthCalledWith(
     2,
     expect.stringMatching(/UPDATE jobs/),
-    [8, null, null, null, 'notified client for collection', null, 5]
+    [8, 'notified client for collection', 5]
   );
   expect(createInvoiceMock).toHaveBeenCalledWith({ job_id: 5, customer_id: 8, status: 'awaiting collection' });
 });
@@ -90,7 +90,7 @@ test('updateJob updates notes', async () => {
 
   expect(queryMock).toHaveBeenCalledWith(
     expect.stringMatching(/UPDATE jobs/),
-    [null, null, null, null, null, null, 'hello', 7]
+    ['hello', 7]
   );
 });
 

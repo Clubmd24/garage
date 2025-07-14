@@ -72,28 +72,39 @@ export async function createJob({ id, customer_id, vehicle_id, scheduled_start, 
   return { id: insertId, customer_id, vehicle_id: parsedVehicleId, scheduled_start, scheduled_end, status: finalStatus, bay };
 }
 
-export async function updateJob(
-  id,
-  { customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay, notes }
-) {
+export async function updateJob(id, data = {}) {
+  const { status } = data;
   if (status && !(await jobStatusExists(status))) {
     throw new Error('Invalid job status');
   }
-  await pool.query(
-    `UPDATE jobs SET customer_id=?, vehicle_id=?, scheduled_start=?, scheduled_end=?, status=?, bay=?, notes=? WHERE id=?`,
-    [
-      customer_id || null,
-      vehicle_id || null,
-      scheduled_start || null,
-      scheduled_end || null,
-      status || null,
-      bay || null,
-      notes || null,
-      id,
-    ]
-  );
+
+  const fields = [];
+  const params = [];
+  const allowed = [
+    'customer_id',
+    'vehicle_id',
+    'scheduled_start',
+    'scheduled_end',
+    'status',
+    'bay',
+    'notes',
+  ];
+
+  for (const key of allowed) {
+    if (Object.prototype.hasOwnProperty.call(data, key)) {
+      fields.push(`${key}=?`);
+      params.push(data[key] ?? null);
+    }
+  }
+
+  if (fields.length) {
+    const sql = `UPDATE jobs SET ${fields.join(', ')} WHERE id=?`;
+    params.push(id);
+    await pool.query(sql, params);
+  }
+
   if (status === 'notified client for collection') {
-    await createInvoice({ job_id: id, customer_id: customer_id || null, status: 'awaiting collection' });
+    await createInvoice({ job_id: id, customer_id: data.customer_id ?? null, status: 'awaiting collection' });
   }
   return { ok: true };
 }
