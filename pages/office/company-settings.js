@@ -193,7 +193,7 @@ export default function CompanySettingsPage() {
             {statuses.map(s => (
               <li
                 key={s.id}
-                className="flex justify-between bg-gray-100 px-2 py-1 rounded text-black"
+                className="flex justify-between bg-gray-100 px-2 py-1 rounded-lg shadow text-black"
               >
                 <span>{s.name}</span>
                 {s.name !== 'unassigned' && s.name !== 'awaiting supplier information' && (
