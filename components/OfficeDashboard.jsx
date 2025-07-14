@@ -129,7 +129,7 @@ export default function OfficeDashboard() {
             </tr>
           </thead>
           <tbody>
-            <tr>
+            <tr className="divide-x divide-gray-200">
               {statuses.map(s => {
                 const list = jobsByStatus[s.name] || [];
                 return (
@@ -141,7 +141,7 @@ export default function OfficeDashboard() {
                       }
                       className="underline font-semibold capitalize"
                     >
-                      {s.name}: {jobStatusCounts[s.name] || 0}
+                      {jobStatusCounts[s.name] || 0}
                     </button>
                     {activeStatus === s.name && list.length > 0 && (
                       <div className="absolute bg-white shadow-lg rounded p-2 z-10 mt-2">
