@@ -138,6 +138,9 @@ export default function CompanySettingsPage() {
       <Link href="/office/user-roles" className="text-blue-600 underline mb-4 ml-4 inline-block">
         Manage User Roles
       </Link>
+      <Link href="/office/users" className="text-blue-600 underline mb-4 ml-4 inline-block">
+        Manage Users
+      </Link>
       <a href="/api/company/export-clients" className="text-blue-600 underline mb-4 ml-4 inline-block">
         Export Clients
       </a>
