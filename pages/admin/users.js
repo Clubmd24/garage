@@ -46,36 +46,40 @@ export default function Users() {
     loadUsers();
   }, []);
 
-  const handleAdd = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const res = await fetch('/api/admin/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(form),
-      });
-    } catch (err) {
-    } finally {
-      setForm({ username: '', email: '', password: '', role: 'developer' });
-      await loadUsers();
-      setLoading(false);
-    }
-  };
+const handleAdd = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setError('');
+  try {
+    const res = await fetch('/api/admin/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(form),
+    });
+    if (!res.ok) throw new Error('Failed to add user');
+    await loadUsers();
+  } catch (err) {
+    setError(err?.message || 'Failed to add user');
+  } finally {
+    setForm({ username: '', email: '', password: '', role: 'developer' });
+    setLoading(false);
+  }
+};
 
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this user?')) return;
-    try {
-      const res = await fetch(`/api/admin/users/${id}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      if (!res.ok) throw new Error('Failed to delete user');
-      await loadUsers();
-    } catch (err) {
-    }
-  };
+const handleDelete = async (id) => {
+  if (!confirm('Delete this user?')) return;
+  try {
+    const res = await fetch(`/api/admin/users/${id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+    if (!res.ok) throw new Error('Failed to delete user');
+    await loadUsers();
+  } catch (err) {
+    setError(err?.message || 'Failed to delete user');
+  }
+};
 
   return (
     <div className="min-h-screen flex flex-col sm:flex-row">
