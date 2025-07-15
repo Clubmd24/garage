@@ -51,14 +51,11 @@ export default function JobViewPage() {
           notes: jobData.notes || '',
         });
 
-        // initialize quotes if any
         setQuotes(Array.isArray(jobData.quote?.items) ? jobData.quote.items : []);
 
-        // fetch related client
         if (jobData.customer_id) {
           setClient(await fetchClient(jobData.customer_id));
         }
-        // fetch related vehicle
         if (jobData.vehicle_id) {
           setVehicle(await fetchVehicle(jobData.vehicle_id));
         }
@@ -194,6 +191,7 @@ export default function JobViewPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr>
+                      <th className="text-left">Part #</th>
                       <th className="text-left">Part</th>
                       <th>Qty</th>
                       <th className="text-right">Unit Price</th>
@@ -203,10 +201,11 @@ export default function JobViewPage() {
                   <tbody>
                     {quotes.map(item => {
                       const unit = Number(item.unit_price || item.unit_cost || 0).toFixed(2);
-                      const qty = Number(item.qty || item.quantity || 0);
-                      const total = (qty * Number(unit)).toFixed(2);
+                      const qty  = Number(item.qty || item.quantity || 0);
+                      const total= (qty * Number(unit)).toFixed(2);
                       return (
                         <tr key={item.id}>
+                          <td>{item.partNumber || '—'}</td>
                           <td>{item.description || item.part_name || '—'}</td>
                           <td className="text-center">{qty}</td>
                           <td className="text-right">€{unit}</td>
