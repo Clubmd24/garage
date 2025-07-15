@@ -413,6 +413,11 @@ This table enumerates the valid statuses that a job can be in. The `status` colu
 |--------|------------|
 | `id` | int(11) NOT NULL AUTO_INCREMENT |
 | `name` | varchar(50) NOT NULL |
+| `developer` | tinyint(1) NOT NULL DEFAULT 0 |
+| `office` | tinyint(1) NOT NULL DEFAULT 0 |
+| `engineer` | tinyint(1) NOT NULL DEFAULT 0 |
+| `apprentice` | tinyint(1) NOT NULL DEFAULT 0 |
+| `description` | varchar(255) DEFAULT NULL |
 | `name` | (`name`) |
 
 ## Table: `sessions`
