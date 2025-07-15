@@ -24,6 +24,7 @@ export async function updateRole(id, { name, description, developer, office, eng
 }
 
 export async function deleteRole(id) {
+  await pool.query('DELETE FROM user_roles WHERE role_id=?', [id]);
   await pool.query('DELETE FROM roles WHERE id=?', [id]);
   return { ok: true };
 }
