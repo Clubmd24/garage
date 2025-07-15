@@ -21,7 +21,7 @@ export default function JobViewPage() {
   const [vehicle, setVehicle] = useState(null);
   const [engineers, setEngineers] = useState([]);
   const [statuses, setStatuses] = useState([]);
-  const [quotes, setQuotes] = useState([]);         // now populated from job.quote.items
+  const [quotes, setQuotes] = useState([]);
   const [form, setForm] = useState({
     status: '',
     engineer_id: '',
@@ -44,7 +44,6 @@ export default function JobViewPage() {
         setEngineers(engs);
         setStatuses(stats);
 
-        // initialize form from jobData
         setForm({
           status: jobData.status || '',
           engineer_id: jobData.engineer_id || '',
@@ -52,15 +51,14 @@ export default function JobViewPage() {
           notes: jobData.notes || '',
         });
 
-        // pull quotes directly from jobData.quote.items
-        setQuotes(Array.isArray(jobData.quote?.items)
-          ? jobData.quote.items
-          : []);
+        // initialize quotes if any
+        setQuotes(Array.isArray(jobData.quote?.items) ? jobData.quote.items : []);
 
-        // related client & vehicle
+        // fetch related client
         if (jobData.customer_id) {
           setClient(await fetchClient(jobData.customer_id));
         }
+        // fetch related vehicle
         if (jobData.vehicle_id) {
           setVehicle(await fetchVehicle(jobData.vehicle_id));
         }
@@ -93,7 +91,7 @@ export default function JobViewPage() {
   };
 
   if (loading) return <OfficeLayout><p>Loading…</p></OfficeLayout>;
-  if (error) return <OfficeLayout><p className="text-red-500">{error}</p></OfficeLayout>;
+  if (error)   return <OfficeLayout><p className="text-red-500">{error}</p></OfficeLayout>;
 
   return (
     <OfficeLayout>
@@ -109,16 +107,26 @@ export default function JobViewPage() {
                 </button>
               </div>
               <p><strong>Status:</strong> {job.status}</p>
-              <p><strong>Client:</strong> {client?.name || 'N/A'}</p>
-              <p><strong>Vehicle:</strong> {vehicle?.licence_plate || 'N/A'}</p>
+              <p>
+                <strong>Client:</strong>{' '}
+                {client
+                  ? client.name ??
+                    client.username ??
+                    (client.first_name && client.last_name
+                      ? `${client.first_name} ${client.last_name}`
+                      : null) ??
+                    client.company_name ??
+                    'N/A'
+                  : 'N/A'}
+              </p>
+              <p><strong>Vehicle:</strong> {vehicle?.licence_plate ?? 'N/A'}</p>
               <p>
                 <strong>Scheduled:</strong>{' '}
                 {form.scheduled_start
                   ? new Date(form.scheduled_start).toLocaleString()
                   : 'N/A'}
               </p>
-              <p>
-                <strong>Reported Defect:</strong>{' '}
+              <p><strong>Reported Defect:</strong>{' '}
                 {job.quote?.defect_description || 'N/A'}
               </p>
             </Card>
@@ -195,8 +203,8 @@ export default function JobViewPage() {
                   <tbody>
                     {quotes.map(item => {
                       const unit = Number(item.unit_price || item.unit_cost || 0).toFixed(2);
-                      const qty  = Number(item.qty         || item.quantity || 0);
-                      const total= (qty * Number(unit)).toFixed(2);
+                      const qty = Number(item.qty || item.quantity || 0);
+                      const total = (qty * Number(unit)).toFixed(2);
                       return (
                         <tr key={item.id}>
                           <td>{item.description || item.part_name || '—'}</td>
