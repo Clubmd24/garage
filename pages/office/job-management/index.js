@@ -117,16 +117,8 @@ export default function JobManagementPage() {
       ) : (
         <div className="space-y-6">
           {jobs.map(job => {
-            const f = forms[job.id] || {};
             return (
-              <form
-                key={job.id}
-                onSubmit={e => {
-                  e.preventDefault();
-                  assign(job.id);
-                }}
-                className="space-y-2 bg-white text-black p-4 rounded"
-              >
+              <div key={job.id} className="space-y-2 bg-white text-black p-4 rounded">
                 <p className="font-semibold">Job #{job.id}</p>
                 {job.partsHere && (
                   <p className="text-green-600 font-bold">PARTS HERE</p>
@@ -142,73 +134,7 @@ export default function JobManagementPage() {
                 {job.quote?.defect_description && (
                   <p className="text-sm">{job.quote.defect_description}</p>
                 )}
-                {job.quote && Array.isArray(job.quote.items) && job.quote.items.length > 0 && (
-                  <table className="text-sm w-full mb-2">
-                    <thead>
-                      <tr>
-                        <th className="text-left">Part #</th>
-                        <th className="text-left">Description</th>
-                        <th className="text-right">Qty</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {job.quote.items.map(it => (
-                        <tr key={it.id}>
-                          <td>{it.partNumber || ''}</td>
-                          <td>{it.description}</td>
-                          <td className="text-right">{it.qty}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-                <div>
-                  <label className="block mb-1">Engineer</label>
-                  <select
-                    value={f.engineer_id || ''}
-                    onChange={e => change(job.id, 'engineer_id', e.target.value)}
-                    className="input w-full"
-                    required
-                  >
-                    <option value="">Select…</option>
-                    {engineers.map(e => (
-                      <option key={e.id} value={e.id}>
-                        {e.username}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block mb-1">Scheduled Start</label>
-                  <input
-                    type="datetime-local"
-                    value={f.scheduled_start || ''}
-                    onChange={e => change(job.id, 'scheduled_start', e.target.value)}
-                    className="input w-full"
-                    required
-                  />
-                </div>
                 <div className="flex gap-2">
-                  <button type="submit" className="button px-4">
-                    Schedule
-                  </button>
-                  {job.status === 'awaiting parts' ? (
-                    <button
-                      type="button"
-                      onClick={() => setPartsModal(job.id)}
-                      className="button-secondary px-4"
-                    >
-                      Parts Arrived
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => markAwaitingParts(job.id)}
-                      className="button-secondary px-4"
-                    >
-                      Awaiting Parts
-                    </button>
-                  )}
                   <Link
                     href={`/office/jobs/${job.id}`}
                     className="button-secondary px-4"
@@ -221,15 +147,8 @@ export default function JobManagementPage() {
                   >
                     Purchase Orders
                   </Link>
-                  <button
-                    type="button"
-                    onClick={() => deleteJob(job.id)}
-                    className="button bg-red-600 hover:bg-red-700 px-4"
-                  >
-                    Delete
-                  </button>
                 </div>
-              </form>
+              </div>
             );
           })}
         </div>
