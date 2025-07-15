@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import OfficeLayout from '../../../components/OfficeLayout';
-import { fetchJobs, fetchJob } from '../../../lib/jobs';
+import PartsArrivedModal from '../../../components/office/PartsArrivedModal.jsx';
+import { fetchJobs, fetchJob, markPartsArrived } from '../../../lib/jobs';
 import { fetchEngineers } from '../../../lib/engineers';
 
 export default function JobManagementPage() {
@@ -9,11 +10,14 @@ export default function JobManagementPage() {
   const [engineers, setEngineers] = useState([]);
   const [forms, setForms] = useState({});
   const [error, setError] = useState(null);
+  const [partsModal, setPartsModal] = useState(null);
 
   useEffect(() => {
     async function load() {
       try {
-        const list = await fetchJobs({ status: 'unassigned' });
+        const unassigned = await fetchJobs({ status: 'unassigned' });
+        const awaiting = await fetchJobs({ status: 'awaiting parts' });
+        const list = [...unassigned, ...awaiting];
         const withDetails = await Promise.all(
           list.map(async j => {
             try {
@@ -59,6 +63,19 @@ export default function JobManagementPage() {
     }
   };
 
+  const markPartsHere = async id => {
+    try {
+      await markPartsArrived(id);
+      setJobs(j =>
+        j.map(job =>
+          job.id === id ? { ...job, status: 'unassigned', partsHere: true } : job
+        )
+      );
+    } catch {
+      setError('Failed to update job');
+    }
+  };
+
   const markAwaitingParts = async id => {
     try {
       const res = await fetch(`/api/jobs/${id}/assign`, {
@@ -81,6 +98,18 @@ export default function JobManagementPage() {
 
   return (
     <OfficeLayout>
+      {partsModal && (
+        <PartsArrivedModal
+          onScheduleNow={() => {
+            assign(partsModal);
+            setPartsModal(null);
+          }}
+          onScheduleLater={() => {
+            markPartsHere(partsModal);
+            setPartsModal(null);
+          }}
+        />
+      )}
       <h1 className="text-xl font-semibold mb-4">Unassigned Jobs</h1>
       {error && <p className="text-red-500">{error}</p>}
       {jobs.length === 0 ? (
@@ -99,6 +128,9 @@ export default function JobManagementPage() {
                 className="space-y-2 bg-white text-black p-4 rounded"
               >
                 <p className="font-semibold">Job #{job.id}</p>
+                {job.partsHere && (
+                  <p className="text-green-600 font-bold">PARTS HERE</p>
+                )}
                 {job.vehicle && (
                   <>
                     <p className="text-sm">{job.vehicle.licence_plate}</p>
@@ -160,13 +192,23 @@ export default function JobManagementPage() {
                   <button type="submit" className="button px-4">
                     Schedule
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => markAwaitingParts(job.id)}
-                    className="button-secondary px-4"
-                  >
-                    Awaiting Parts
-                  </button>
+                  {job.status === 'awaiting parts' ? (
+                    <button
+                      type="button"
+                      onClick={() => setPartsModal(job.id)}
+                      className="button-secondary px-4"
+                    >
+                      Parts Arrived
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => markAwaitingParts(job.id)}
+                      className="button-secondary px-4"
+                    >
+                      Awaiting Parts
+                    </button>
+                  )}
                   <Link
                     href={`/office/jobs/${job.id}`}
                     className="button-secondary px-4"
