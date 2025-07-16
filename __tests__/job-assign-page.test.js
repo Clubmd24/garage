@@ -8,7 +8,7 @@ import { jest } from '@jest/globals';
 afterEach(() => { jest.resetModules(); jest.clearAllMocks(); });
 
 
-test('assign job form submits without scheduled end', async () => {
+test('assign job form submits with scheduled end', async () => {
   const push = jest.fn();
   jest.unstable_mockModule('next/router', () => ({
     useRouter: () => ({ query: { id: '5' }, push })
@@ -27,12 +27,17 @@ test('assign job form submits without scheduled end', async () => {
 
   await screen.findByText('Assign Engineer');
   fireEvent.change(screen.getByLabelText('Engineer'), { target: { value: '2' } });
-  fireEvent.change(screen.getByLabelText('Scheduled Start'), { target: { value: '2024-01-01T09:00' } });
+  fireEvent.change(screen.getByLabelText('Scheduled Start'), {
+    target: { value: '2024-01-01T09:00' },
+  });
+  fireEvent.change(screen.getByLabelText('Scheduled End'), {
+    target: { value: '2024-01-01T10:30' },
+  });
   fireEvent.click(screen.getByRole('button', { name: 'Assign' }));
 
   await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));
   const body = JSON.parse(global.fetch.mock.calls[0][1].body);
   expect(body.scheduled_start).toBe('2024-01-01T09:00');
-  expect(body.scheduled_end).toBeUndefined();
+  expect(body.scheduled_end).toBe('2024-01-01T10:30');
   expect(push).toHaveBeenCalledWith('/office/jobs/5');
 });
