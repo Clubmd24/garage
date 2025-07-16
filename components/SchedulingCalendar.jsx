@@ -40,17 +40,17 @@ export default function SchedulingCalendar() {
   const [pending, setPending] = useState(null);
   const [form, setForm] = useState({ engineer_id: '', status: '' });
   const [filters, setFilters] = useState({ engineer_id: '', status: '' });
+  const initialStart = new Date();
+  initialStart.setDate(initialStart.getDate() - 7);
+  const initialEnd = new Date();
+  initialEnd.setDate(initialEnd.getDate() + 30);
+  const [range, setRange] = useState({ start: initialStart, end: initialEnd });
 
   // Load jobs from API
-  const load = () => {
-    const start = new Date();
-    start.setDate(start.getDate() - 7);
-    const end = new Date();
-    end.setDate(end.getDate() + 30);
-
+  const load = (startDate, endDate) => {
     fetchJobsInRange(
-      start.toISOString().slice(0, 10),
-      end.toISOString().slice(0, 10),
+      startDate.toISOString().slice(0, 10),
+      endDate.toISOString().slice(0, 10),
       filters.engineer_id,
       filters.status
     ).then(jobs => {
@@ -79,7 +79,9 @@ export default function SchedulingCalendar() {
       });
   }
 
-  useEffect(load, [filters]);
+  useEffect(() => {
+    load(range.start, range.end);
+  }, [filters, range]);
   useEffect(() => {
     fetchEngineers()
       .then(setEngineers)
@@ -106,6 +108,19 @@ export default function SchedulingCalendar() {
     window.__scheduleDrop = onDropFromOutside;
   });
 
+  const onRangeChange = r => {
+    let start;
+    let end;
+    if (Array.isArray(r)) {
+      start = r[0];
+      end = r[r.length - 1];
+    } else {
+      start = r.start;
+      end = r.end;
+    }
+    if (start && end) setRange({ start, end });
+  };
+
   const change = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
   const filterChange = e =>
     setFilters(f => ({ ...f, [e.target.name]: e.target.value }));
@@ -118,7 +133,7 @@ export default function SchedulingCalendar() {
       scheduled_start: pending.start.toISOString(),
       scheduled_end: pending.end.toISOString(),
     })
-      .finally(load)
+      .finally(() => load(range.start, range.end))
       .finally(() => setPending(null));
   };
 
@@ -243,6 +258,7 @@ export default function SchedulingCalendar() {
               scrollToTime={MIN_TIME}
               eventPropGetter={eventPropGetter}
               onDropFromOutside={onDropFromOutside}
+              onRangeChange={onRangeChange}
               dragFromOutsideItem={() => dragFromOutsideItem}
               selectable
             />
