@@ -15,9 +15,8 @@ export default function JobManagementPage() {
   useEffect(() => {
     async function load() {
       try {
-        const unassigned = await fetchJobs({ status: 'unassigned' });
-        const awaiting = await fetchJobs({ status: 'awaiting parts' });
-        const list = [...unassigned, ...awaiting];
+        const all = await fetchJobs();
+        const list = all.filter(j => j.status !== 'completed');
         const withDetails = await Promise.all(
           list.map(async j => {
             try {
@@ -57,7 +56,8 @@ export default function JobManagementPage() {
         }),
       });
       if (!res.ok) throw new Error();
-      setJobs(j => j.filter(job => job.id !== id));
+      const updated = await fetchJob(id);
+      setJobs(j => j.map(job => (job.id === id ? { ...job, ...updated } : job)));
     } catch {
       setError('Failed to assign job');
     }
@@ -66,9 +66,10 @@ export default function JobManagementPage() {
   const markPartsHere = async id => {
     try {
       await markPartsArrived(id);
+      const updated = await fetchJob(id);
       setJobs(j =>
         j.map(job =>
-          job.id === id ? { ...job, status: 'unassigned', partsHere: true } : job
+          job.id === id ? { ...job, ...updated, partsHere: true } : job
         )
       );
     } catch {
@@ -84,7 +85,8 @@ export default function JobManagementPage() {
         body: JSON.stringify({ awaiting_parts: true }),
       });
       if (!res.ok) throw new Error();
-      setJobs(j => j.filter(job => job.id !== id));
+      const updated = await fetchJob(id);
+      setJobs(j => j.map(job => (job.id === id ? { ...job, ...updated } : job)));
     } catch {
       setError('Failed to update job');
     }
@@ -110,10 +112,10 @@ export default function JobManagementPage() {
           }}
         />
       )}
-      <h1 className="text-xl font-semibold mb-4">Unassigned Jobs</h1>
+      <h1 className="text-xl font-semibold mb-4">Jobs</h1>
       {error && <p className="text-red-500">{error}</p>}
       {jobs.length === 0 ? (
-        <p>No unassigned jobs.</p>
+        <p>No jobs found.</p>
       ) : (
         <div className="space-y-6">
           {jobs.map(job => {

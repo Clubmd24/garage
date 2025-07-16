@@ -92,8 +92,15 @@ export async function updateJob(id, data = {}) {
 
   for (const key of allowed) {
     if (Object.prototype.hasOwnProperty.call(data, key)) {
+      let value = data[key];
+      if (
+        (key === 'scheduled_start' || key === 'scheduled_end') &&
+        (value === '' || value === undefined)
+      ) {
+        value = null;
+      }
       fields.push(`${key}=?`);
-      params.push(data[key] ?? null);
+      params.push(value ?? null);
     }
   }
 
