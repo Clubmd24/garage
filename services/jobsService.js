@@ -135,15 +135,21 @@ export async function removeAssignment(id) {
   return { ok: true };
 }
 
-export async function listActiveJobsForEngineer(user_id) {
+export async function listActiveJobsForEngineer(user_id, status) {
+  const params = [user_id];
+  let where = 'ja.user_id=?';
+  if (status) {
+    where += ' AND j.status=?';
+    params.push(status);
+  }
   const [rows] = await pool.query(
     `SELECT j.id, j.customer_id, j.vehicle_id, j.scheduled_start, j.scheduled_end,
             j.status, j.bay, j.created_at
        FROM jobs j
        JOIN job_assignments ja ON j.id = ja.job_id
-      WHERE ja.user_id=? AND j.status='in progress'
+      WHERE ${where}
       ORDER BY j.id`,
-    [user_id]
+    params
   );
   return rows;
 }
