@@ -16,7 +16,13 @@ export default function OfficeDashboard() {
   const [activeStatus, setActiveStatus] = useState(null);
 
   useEffect(() => {
-    Promise.all([fetchQuotes(), fetchJobs(), fetchInvoices(), fetchJobStatuses(), fetchVehicles()])
+    Promise.all([
+      fetchQuotes(),
+      fetchJobs(),
+      fetchInvoices(),
+      fetchJobStatuses(),
+      fetchVehicles(),
+    ])
       .then(([q, j, i, s, v]) => {
         setQuotes(q);
         setJobs(j);
@@ -40,21 +46,27 @@ export default function OfficeDashboard() {
   }, []);
 
   const openQuotes = useMemo(
-    () => quotes.filter(q => !['job-card', 'completed', 'invoiced'].includes(q.status)),
+    () =>
+      quotes.filter(
+        (q) => !['job-card', 'completed', 'invoiced'].includes(q.status)
+      ),
     [quotes]
   );
 
   const unpaidInvoices = useMemo(
-    () => invoices.filter(inv => (inv.status || '').toLowerCase() === 'unpaid'),
+    () =>
+      invoices.filter(
+        (inv) => (inv.status || '').toLowerCase() === 'unpaid'
+      ),
     [invoices]
   );
 
   const jobStatusCounts = useMemo(() => {
     const counts = {};
-    statuses.forEach(s => {
+    statuses.forEach((s) => {
       counts[s.name] = 0;
     });
-    jobs.forEach(j => {
+    jobs.forEach((j) => {
       if (counts[j.status] !== undefined) counts[j.status] += 1;
     });
     return counts;
@@ -64,7 +76,7 @@ export default function OfficeDashboard() {
     const now = new Date();
     const soon = new Date();
     soon.setDate(now.getDate() + 30);
-    return vehicles.filter(v => {
+    return vehicles.filter((v) => {
       const dueDates = [];
       if (v.service_date) {
         const d = new Date(v.service_date);
@@ -76,24 +88,24 @@ export default function OfficeDashboard() {
         d.setFullYear(d.getFullYear() + 1);
         dueDates.push(d);
       }
-      return dueDates.some(d => d >= now && d <= soon);
+      return dueDates.some((d) => d >= now && d <= soon);
     });
   }, [vehicles]);
 
   const jobsByStatus = useMemo(() => {
     const byId = {};
-    vehicles.forEach(v => {
+    vehicles.forEach((v) => {
       byId[v.id] = v.licence_plate;
     });
     const map = {};
-    statuses.forEach(s => {
+    statuses.forEach((s) => {
       map[s.name] = [];
     });
-    jobs.forEach(j => {
+    jobs.forEach((j) => {
       if (map[j.status]) {
         map[j.status].push({
           ...j,
-          licence_plate: byId[j.vehicle_id] || ''
+          licence_plate: byId[j.vehicle_id] || '',
         });
       }
     });
@@ -115,24 +127,32 @@ export default function OfficeDashboard() {
   return (
     <>
       <div className="flex flex-wrap justify-center gap-4">
-        <Link href="/office/quotations/new" className="button px-8 text-lg">Create Quote</Link>
-        <Link href="/office/jobs/new" className="button px-8 text-lg">New Job</Link>
-        <Link href="/office/invoices/new" className="button px-8 text-lg">Create Invoice</Link>
-        <Link href="/office/invoices?status=unpaid" className="button px-8 text-lg">Pay Invoice</Link>
+        <Link href="/office/quotations/new" className="button px-8 text-lg">
+          Create Quote
+        </Link>
+        <Link href="/office/jobs/new" className="button px-8 text-lg">
+          New Job
+        </Link>
+        <Link href="/office/invoices/new" className="button px-8 text-lg">
+          Create Invoice
+        </Link>
+        <Link
+          href="/office/invoices?status=unpaid"
+          className="button px-8 text-lg"
+        >
+          Pay Invoice
+        </Link>
       </div>
+
       <div className="bg-white text-black rounded-2xl p-4 shadow mt-6">
-        <h2 className="text-lg font-semibold mb-2">Jobs - showing oldest jobs</h2>
+        <h2 className="text-lg font-semibold mb-2">
+          Jobs - showing oldest jobs
+        </h2>
         <table className="text-sm w-full table-fixed text-center">
           <thead>
+            {/* 1) First-half headers */}
             <tr>
-              {firstHalf.map(s => (
-                <th key={s.id} className="capitalize">
-                  {s.name}
-                </th>
-              ))}
-            </tr>
-            <tr>
-              {secondHalf.map(s => (
+              {firstHalf.map((s) => (
                 <th key={s.id} className="capitalize">
                   {s.name}
                 </th>
@@ -140,15 +160,21 @@ export default function OfficeDashboard() {
             </tr>
           </thead>
           <tbody>
-            <tr className="divide-x divide-gray-200 text-center">
-              {firstHalf.map(s => {
+            {/* 2) First-half counts */}
+            <tr className="divide-x divide-gray-200">
+              {firstHalf.map((s) => {
                 const list = jobsByStatus[s.name] || [];
                 return (
-                  <td key={s.id} className="relative align-top p-1">
+                  <td
+                    key={s.id}
+                    className="p-1 relative align-top"
+                  >
                     <button
                       type="button"
                       onClick={() =>
-                        setActiveStatus(activeStatus === s.name ? null : s.name)
+                        setActiveStatus(
+                          activeStatus === s.name ? null : s.name
+                        )
                       }
                       className="underline font-semibold capitalize"
                     >
@@ -164,15 +190,21 @@ export default function OfficeDashboard() {
                             </tr>
                           </thead>
                           <tbody>
-                            {list.slice(0, 10).map(j => (
+                            {list.slice(0, 10).map((j) => (
                               <tr key={j.id}>
                                 <td className="pr-2">
-                                  <Link href={`/office/jobs/${j.id}`} className="underline">
+                                  <Link
+                                    href={`/office/jobs/${j.id}`}
+                                    className="underline"
+                                  >
                                     {j.id}
                                   </Link>
                                 </td>
                                 <td>
-                                  <Link href={`/office/jobs/${j.id}`} className="underline">
+                                  <Link
+                                    href={`/office/jobs/${j.id}`}
+                                    className="underline"
+                                  >
                                     {j.licence_plate || 'N/A'}
                                   </Link>
                                 </td>
@@ -186,15 +218,31 @@ export default function OfficeDashboard() {
                 );
               })}
             </tr>
-            <tr className="divide-x divide-gray-200 text-center">
-              {secondHalf.map(s => {
+
+            {/* 3) Second-half headers */}
+            <tr>
+              {secondHalf.map((s) => (
+                <th key={s.id} className="capitalize">
+                  {s.name}
+                </th>
+              ))}
+            </tr>
+
+            {/* 4) Second-half counts */}
+            <tr className="divide-x divide-gray-200">
+              {secondHalf.map((s) => {
                 const list = jobsByStatus[s.name] || [];
                 return (
-                  <td key={s.id} className="relative align-top p-1">
+                  <td
+                    key={s.id}
+                    className="p-1 relative align-top"
+                  >
                     <button
                       type="button"
                       onClick={() =>
-                        setActiveStatus(activeStatus === s.name ? null : s.name)
+                        setActiveStatus(
+                          activeStatus === s.name ? null : s.name
+                        )
                       }
                       className="underline font-semibold capitalize"
                     >
@@ -210,15 +258,21 @@ export default function OfficeDashboard() {
                             </tr>
                           </thead>
                           <tbody>
-                            {list.slice(0, 10).map(j => (
+                            {list.slice(0, 10).map((j) => (
                               <tr key={j.id}>
                                 <td className="pr-2">
-                                  <Link href={`/office/jobs/${j.id}`} className="underline">
+                                  <Link
+                                    href={`/office/jobs/${j.id}`}
+                                    className="underline"
+                                  >
                                     {j.id}
                                   </Link>
                                 </td>
                                 <td>
-                                  <Link href={`/office/jobs/${j.id}`} className="underline">
+                                  <Link
+                                    href={`/office/jobs/${j.id}`}
+                                    className="underline"
+                                  >
                                     {j.licence_plate || 'N/A'}
                                   </Link>
                                 </td>
@@ -246,18 +300,25 @@ export default function OfficeDashboard() {
         <div className="bg-white text-black rounded-2xl p-4 shadow">
           <h2 className="text-lg font-semibold mb-2">Unpaid Invoices</h2>
           <p className="text-4xl font-bold text-blue-600">
-            <Link href="/office/invoices?status=unpaid">{unpaidInvoices.length}</Link>
+            <Link href="/office/invoices?status=unpaid">
+              {unpaidInvoices.length}
+            </Link>
           </p>
         </div>
         <div className="bg-white text-black rounded-2xl p-4 shadow">
-          <h2 className="text-lg font-semibold mb-2">Upcoming ITV &amp; Services</h2>
+          <h2 className="text-lg font-semibold mb-2">
+            Upcoming ITV &amp; Services
+          </h2>
           {upcomingVehicles.length === 0 ? (
             <p>No vehicles due in next 30 days.</p>
           ) : (
             <ul className="text-sm space-y-1">
-              {upcomingVehicles.map(v => (
+              {upcomingVehicles.map((v) => (
                 <li key={v.id}>
-                  <Link href={`/office/vehicles/view/${v.id}`} className="underline">
+                  <Link
+                    href={`/office/vehicles/view/${v.id}`}
+                    className="underline"
+                  >
                     {v.licence_plate} - {v.customer_name || 'N/A'}
                   </Link>
                 </li>
@@ -266,15 +327,19 @@ export default function OfficeDashboard() {
           )}
         </div>
         <div className="bg-white text-black rounded-2xl p-4 shadow">
-          <h2 className="text-lg font-semibold mb-2">Today&apos;s Jobs</h2>
+          <h2 className="text-lg font-semibold mb-2">Today's Jobs</h2>
           {todayJobs.length === 0 ? (
             <p>No jobs today.</p>
           ) : (
             <ul className="text-sm space-y-1">
-              {todayJobs.map(j => (
+              {todayJobs.map((j) => (
                 <li key={j.id}>
-                  <Link href={`/office/jobs/${j.id}`} className="underline">
-                    {j.licence_plate} - {j.engineers || 'Unassigned'} - {j.status}
+                  <Link
+                    href={`/office/jobs/${j.id}`}
+                    className="underline"
+                  >
+                    {j.licence_plate} - {j.engineers || 'Unassigned'} -{' '}
+                    {j.status}
                   </Link>
                   <div className="text-xs">
                     {j.scheduled_start
