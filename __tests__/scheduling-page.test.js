@@ -60,7 +60,15 @@ test('dragging unassigned job calls assign endpoint', async () => {
   fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'in progress' } });
   fireEvent.click(screen.getByRole('button', { name: 'Assign' }));
   await act(() => Promise.resolve());
-  expect(assignMock).toHaveBeenCalledWith(3, expect.objectContaining({ engineer_id: 1, status: 'in progress' }));
+  expect(assignMock).toHaveBeenCalledWith(
+    3,
+    expect.objectContaining({
+      engineer_id: 1,
+      status: 'in progress',
+      scheduled_start: '2024-05-02T09:00:00.000Z',
+      scheduled_end: '2024-05-02T10:00:00.000Z',
+    })
+  );
 });
 
 test('dragging cancelled does not assign job', async () => {
