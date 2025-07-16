@@ -45,6 +45,8 @@ export async function getJobById(id) {
 
 export async function createJob({ id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay }) {
   const finalStatus = status || 'unassigned';
+  const startDate = scheduled_start ? new Date(scheduled_start) : null;
+  const endDate = scheduled_end ? new Date(scheduled_end) : null;
   const parsedVehicleId =
     vehicle_id !== undefined && vehicle_id !== null && !Number.isNaN(Number(vehicle_id))
       ? Number(vehicle_id)
@@ -60,14 +62,29 @@ export async function createJob({ id, customer_id, vehicle_id, scheduled_start, 
     await pool.query(
       `INSERT INTO jobs (id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay)
        VALUES (?,?,?,?,?,?,?)`,
-      [id, customer_id || null, parsedVehicleId, scheduled_start || null, scheduled_end || null, finalStatus, bay || null]
+      [
+        id,
+        customer_id || null,
+        parsedVehicleId,
+        startDate || null,
+        endDate || null,
+        finalStatus,
+        bay || null,
+      ]
     );
     return { id, customer_id, vehicle_id: parsedVehicleId, scheduled_start, scheduled_end, status: finalStatus, bay };
   }
   const [{ insertId }] = await pool.query(
     `INSERT INTO jobs (customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay)
      VALUES (?,?,?,?,?,?)`,
-    [customer_id || null, parsedVehicleId, scheduled_start || null, scheduled_end || null, finalStatus, bay || null]
+    [
+      customer_id || null,
+      parsedVehicleId,
+      startDate || null,
+      endDate || null,
+      finalStatus,
+      bay || null,
+    ]
   );
   return { id: insertId, customer_id, vehicle_id: parsedVehicleId, scheduled_start, scheduled_end, status: finalStatus, bay };
 }
@@ -93,11 +110,13 @@ export async function updateJob(id, data = {}) {
   for (const key of allowed) {
     if (Object.prototype.hasOwnProperty.call(data, key)) {
       let value = data[key];
-      if (
-        (key === 'scheduled_start' || key === 'scheduled_end') &&
-        (value === '' || value === undefined)
-      ) {
-        value = null;
+      if (key === 'scheduled_start' || key === 'scheduled_end') {
+        if (value === '' || value === undefined) {
+          value = null;
+        } else {
+          const d = new Date(value);
+          value = Number.isNaN(d.getTime()) ? null : d;
+        }
       }
       fields.push(`${key}=?`);
       params.push(value ?? null);
