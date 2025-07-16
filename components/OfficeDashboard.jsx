@@ -13,7 +13,6 @@ export default function OfficeDashboard() {
   const [statuses, setStatuses] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [todayJobs, setTodayJobs] = useState([]);
-  const [activeStatus, setActiveStatus] = useState(null);
 
   useEffect(() => {
     Promise.all([
@@ -92,33 +91,6 @@ export default function OfficeDashboard() {
     });
   }, [vehicles]);
 
-  const jobsByStatus = useMemo(() => {
-    const byId = {};
-    vehicles.forEach((v) => {
-      byId[v.id] = v.licence_plate;
-    });
-    const map = {};
-    statuses.forEach((s) => {
-      map[s.name] = [];
-    });
-    jobs.forEach((j) => {
-      if (map[j.status]) {
-        map[j.status].push({
-          ...j,
-          licence_plate: byId[j.vehicle_id] || '',
-        });
-      }
-    });
-    for (const key in map) {
-      map[key].sort((a, b) => {
-        if (a.created_at && b.created_at) {
-          return new Date(a.created_at) - new Date(b.created_at);
-        }
-        return a.id - b.id;
-      });
-    }
-    return map;
-  }, [jobs, vehicles, statuses]);
 
   const mid = Math.ceil(statuses.length / 2);
   const firstHalf = statuses.slice(0, mid);
@@ -162,61 +134,18 @@ export default function OfficeDashboard() {
           <tbody>
             {/* 2) First-half counts */}
             <tr className="divide-x divide-gray-200">
-              {firstHalf.map((s) => {
-                const list = jobsByStatus[s.name] || [];
-                return (
-                  <td
-                    key={s.id}
-                    className="p-1 relative align-top"
+              {firstHalf.map((s) => (
+                <td key={s.id} className="p-1 align-top">
+                  <Link
+                    href={`/office/job-management?status=${encodeURIComponent(
+                      s.name
+                    )}`}
+                    className="underline font-semibold capitalize"
                   >
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setActiveStatus(
-                          activeStatus === s.name ? null : s.name
-                        )
-                      }
-                      className="underline font-semibold capitalize"
-                    >
-                      {jobStatusCounts[s.name] || 0}
-                    </button>
-                    {activeStatus === s.name && list.length > 0 && (
-                      <div className="absolute bg-white shadow-lg rounded p-2 z-10 mt-2">
-                        <table className="text-sm">
-                          <thead>
-                            <tr>
-                              <th className="text-left">Job #</th>
-                              <th className="text-left">Vehicle</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {list.slice(0, 10).map((j) => (
-                              <tr key={j.id}>
-                                <td className="pr-2">
-                                  <Link
-                                    href={`/office/jobs/${j.id}`}
-                                    className="underline"
-                                  >
-                                    {j.id}
-                                  </Link>
-                                </td>
-                                <td>
-                                  <Link
-                                    href={`/office/jobs/${j.id}`}
-                                    className="underline"
-                                  >
-                                    {j.licence_plate || 'N/A'}
-                                  </Link>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-                  </td>
-                );
-              })}
+                    {jobStatusCounts[s.name] || 0}
+                  </Link>
+                </td>
+              ))}
             </tr>
 
             {/* 3) Second-half headers */}
@@ -230,61 +159,18 @@ export default function OfficeDashboard() {
 
             {/* 4) Second-half counts */}
             <tr className="divide-x divide-gray-200">
-              {secondHalf.map((s) => {
-                const list = jobsByStatus[s.name] || [];
-                return (
-                  <td
-                    key={s.id}
-                    className="p-1 relative align-top"
+              {secondHalf.map((s) => (
+                <td key={s.id} className="p-1 align-top">
+                  <Link
+                    href={`/office/job-management?status=${encodeURIComponent(
+                      s.name
+                    )}`}
+                    className="underline font-semibold capitalize"
                   >
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setActiveStatus(
-                          activeStatus === s.name ? null : s.name
-                        )
-                      }
-                      className="underline font-semibold capitalize"
-                    >
-                      {jobStatusCounts[s.name] || 0}
-                    </button>
-                    {activeStatus === s.name && list.length > 0 && (
-                      <div className="absolute bg-white shadow-lg rounded p-2 z-10 mt-2">
-                        <table className="text-sm">
-                          <thead>
-                            <tr>
-                              <th className="text-left">Job #</th>
-                              <th className="text-left">Vehicle</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {list.slice(0, 10).map((j) => (
-                              <tr key={j.id}>
-                                <td className="pr-2">
-                                  <Link
-                                    href={`/office/jobs/${j.id}`}
-                                    className="underline"
-                                  >
-                                    {j.id}
-                                  </Link>
-                                </td>
-                                <td>
-                                  <Link
-                                    href={`/office/jobs/${j.id}`}
-                                    className="underline"
-                                  >
-                                    {j.licence_plate || 'N/A'}
-                                  </Link>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-                  </td>
-                );
-              })}
+                    {jobStatusCounts[s.name] || 0}
+                  </Link>
+                </td>
+              ))}
             </tr>
           </tbody>
         </table>

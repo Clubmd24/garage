@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import OfficeLayout from '../../../components/OfficeLayout';
 import PartsArrivedModal from '../../../components/office/PartsArrivedModal.jsx';
 import { fetchJobs, fetchJob, markPartsArrived } from '../../../lib/jobs';
 import { fetchEngineers } from '../../../lib/engineers';
+import { fetchJobStatuses } from '../../../lib/jobStatuses';
 
 export default function JobManagementPage() {
   const [jobs, setJobs] = useState([]);
@@ -11,12 +13,20 @@ export default function JobManagementPage() {
   const [forms, setForms] = useState({});
   const [error, setError] = useState(null);
   const [partsModal, setPartsModal] = useState(null);
+  const [statuses, setStatuses] = useState([]);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const router = useRouter();
 
   useEffect(() => {
     async function load() {
       try {
-        const all = await fetchJobs();
-        const list = all.filter(j => j.status !== 'completed');
+        const params =
+          statusFilter === 'all' ? {} : { status: statusFilter };
+        const all = await fetchJobs(params);
+        const list =
+          statusFilter === 'all'
+            ? all.filter(j => j.status !== 'completed')
+            : all;
         const withDetails = await Promise.all(
           list.map(async j => {
             try {
@@ -39,7 +49,16 @@ export default function JobManagementPage() {
       }
     }
     load();
-  }, []);
+  }, [statusFilter]);
+
+  useEffect(() => {
+    if (router.query.status) {
+      setStatusFilter(router.query.status);
+    }
+    fetchJobStatuses()
+      .then(setStatuses)
+      .catch(() => setStatuses([]));
+  }, [router.query.status]);
 
   const change = (id, field, value) =>
     setForms(f => ({ ...f, [id]: { ...f[id], [field]: value } }));
@@ -113,6 +132,25 @@ export default function JobManagementPage() {
         />
       )}
       <h1 className="text-xl font-semibold mb-4">Jobs</h1>
+      <select
+        value={statusFilter}
+        onChange={e => {
+          setStatusFilter(e.target.value);
+          router.replace(
+            `/office/job-management?status=${encodeURIComponent(e.target.value)}`,
+            undefined,
+            { shallow: true }
+          );
+        }}
+        className="input mb-4"
+      >
+        <option value="all">All</option>
+        {statuses.map(s => (
+          <option key={s.id} value={s.name}>
+            {s.name}
+          </option>
+        ))}
+      </select>
       {error && <p className="text-red-500">{error}</p>}
       {jobs.length === 0 ? (
         <p>No jobs found.</p>
