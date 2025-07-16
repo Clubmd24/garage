@@ -118,18 +118,25 @@ export default function OfficeDashboard() {
       </div>
       <div className="bg-white text-black rounded-2xl p-4 shadow mt-6">
         <h2 className="text-lg font-semibold mb-2">Jobs - showing oldest jobs</h2>
-        <table className="text-sm w-full">
+        <table className="text-sm w-full table-fixed text-center">
           <thead>
             <tr>
-              {statuses.map(s => (
-                <th key={s.id} className="text-left capitalize">
+              {statuses.slice(0, Math.ceil(statuses.length / 2)).map(s => (
+                <th key={s.id} className="capitalize">
+                  {s.name}
+                </th>
+              ))}
+            </tr>
+            <tr>
+              {statuses.slice(Math.ceil(statuses.length / 2)).map(s => (
+                <th key={s.id} className="capitalize">
                   {s.name}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            <tr className="divide-x divide-gray-200">
+            <tr className="divide-x divide-gray-200 text-center">
               {statuses.map(s => {
                 const list = jobsByStatus[s.name] || [];
                 return (
