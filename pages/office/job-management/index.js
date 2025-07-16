@@ -120,6 +120,7 @@ export default function JobManagementPage() {
             return (
               <div key={job.id} className="space-y-2 bg-white text-black p-4 rounded">
                 <p className="font-semibold">Job #{job.id}</p>
+                <p className="text-sm">Status: {job.status}</p>
                 {job.partsHere && (
                   <p className="text-green-600 font-bold">PARTS HERE</p>
                 )}
@@ -147,6 +148,14 @@ export default function JobManagementPage() {
                   >
                     Purchase Orders
                   </Link>
+                  {job.status === 'awaiting parts' && (
+                    <button
+                      onClick={() => setPartsModal(job.id)}
+                      className="button px-4"
+                    >
+                      Parts Arrived
+                    </button>
+                  )}
                 </div>
               </div>
             );

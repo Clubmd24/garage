@@ -27,6 +27,25 @@ test('schedule later calls parts arrived endpoint', async () => {
   expect(fetchSpy.mock.calls[0][0]).toBe('/api/jobs/1/parts-arrived');
 });
 
+test('parts arrived button shows modal', async () => {
+  jest.unstable_mockModule('../lib/jobs', () => ({
+    fetchJobs: jest.fn().mockResolvedValue([{ id: 3, status: 'awaiting parts' }]),
+    fetchJob: jest.fn().mockResolvedValue({ id: 3, vehicle: {}, quote: {} }),
+    markPartsArrived: jest.fn(),
+  }));
+  jest.unstable_mockModule('../lib/engineers', () => ({
+    fetchEngineers: jest.fn().mockResolvedValue([]),
+  }));
+  const { default: Page } = await import('../pages/office/job-management/index.js');
+  render(<Page />);
+  await screen.findByText('Job #3');
+  const btn = screen.getByRole('button', { name: 'Parts Arrived' });
+  fireEvent.click(btn);
+  expect(
+    await screen.findByText('Parts have arrived for this job.')
+  ).toBeInTheDocument();
+});
+
 test('schedule now assigns via assign endpoint', async () => {
   jest.unstable_mockModule('../lib/jobs', () => ({
     fetchJobs: jest.fn().mockResolvedValue([{ id: 2, status: 'awaiting parts' }]),
