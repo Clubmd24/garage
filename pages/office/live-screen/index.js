@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import OfficeLayout from '../../../components/OfficeLayout';
 import { fetchQuotes } from '../../../lib/quotes';
-import { fetchJobs } from '../../../lib/jobs';
+import { fetchJobsForDate } from '../../../lib/jobs';
 import { fetchInvoices } from '../../../lib/invoices';
 import { fetchJobStatuses } from '../../../lib/jobStatuses.js';
 
@@ -16,7 +16,13 @@ const LiveScreenPage = () => {
 
   const load = () => {
     setLoading(true);
-    Promise.all([fetchQuotes(), fetchJobs(), fetchInvoices(), fetchJobStatuses()])
+    const dateStr = new Date().toISOString().slice(0, 10);
+    Promise.all([
+      fetchQuotes(),
+      fetchJobsForDate(dateStr),
+      fetchInvoices(),
+      fetchJobStatuses(),
+    ])
       .then(([q, j, i, s]) => {
         setQuotes(q);
         setJobs(j);
