@@ -6,7 +6,10 @@ afterEach(() => {
 });
 
 test('engineer jobs returns active jobs', async () => {
-  const jobs = [{ id: 1 }];
+  const jobs = [
+    { id: 1, status: 'in progress' },
+    { id: 2, status: 'completed' },
+  ];
   const listMock = jest.fn().mockResolvedValue(jobs);
   jest.unstable_mockModule('../services/jobsService.js', () => ({
     listActiveJobsForEngineer: listMock,

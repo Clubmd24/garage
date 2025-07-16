@@ -125,3 +125,26 @@ test('getJobsInRange returns unscheduled jobs', async () => {
     },
   ]);
 });
+
+test('listActiveJobsForEngineer returns all assignments without status filter', async () => {
+  const rows = [{ id: 1 }, { id: 2 }];
+  const queryMock = jest.fn().mockResolvedValue([rows]);
+  jest.unstable_mockModule('../lib/db.js', () => ({ default: { query: queryMock } }));
+  const { listActiveJobsForEngineer } = await import('../services/jobsService.js');
+  const result = await listActiveJobsForEngineer(5);
+  expect(queryMock).toHaveBeenCalledWith(expect.stringMatching(/FROM jobs/), [5]);
+  expect(result).toEqual(rows);
+});
+
+test('listActiveJobsForEngineer filters by status when provided', async () => {
+  const rows = [{ id: 3 }];
+  const queryMock = jest.fn().mockResolvedValue([rows]);
+  jest.unstable_mockModule('../lib/db.js', () => ({ default: { query: queryMock } }));
+  const { listActiveJobsForEngineer } = await import('../services/jobsService.js');
+  const result = await listActiveJobsForEngineer(7, 'completed');
+  expect(queryMock).toHaveBeenCalledWith(
+    expect.stringMatching(/j.status=/),
+    [7, 'completed']
+  );
+  expect(result).toEqual(rows);
+});
