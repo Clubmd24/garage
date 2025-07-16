@@ -108,6 +108,10 @@ export default function OfficeDashboard() {
     return map;
   }, [jobs, vehicles, statuses]);
 
+  const mid = Math.ceil(statuses.length / 2);
+  const firstHalf = statuses.slice(0, mid);
+  const secondHalf = statuses.slice(mid);
+
   return (
     <>
       <div className="flex flex-wrap justify-center gap-4">
@@ -121,14 +125,14 @@ export default function OfficeDashboard() {
         <table className="text-sm w-full table-fixed text-center">
           <thead>
             <tr>
-              {statuses.slice(0, Math.ceil(statuses.length / 2)).map(s => (
+              {firstHalf.map(s => (
                 <th key={s.id} className="capitalize">
                   {s.name}
                 </th>
               ))}
             </tr>
             <tr>
-              {statuses.slice(Math.ceil(statuses.length / 2)).map(s => (
+              {secondHalf.map(s => (
                 <th key={s.id} className="capitalize">
                   {s.name}
                 </th>
@@ -137,7 +141,53 @@ export default function OfficeDashboard() {
           </thead>
           <tbody>
             <tr className="divide-x divide-gray-200 text-center">
-              {statuses.map(s => {
+              {firstHalf.map(s => {
+                const list = jobsByStatus[s.name] || [];
+                return (
+                  <td key={s.id} className="relative align-top p-1">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setActiveStatus(activeStatus === s.name ? null : s.name)
+                      }
+                      className="underline font-semibold capitalize"
+                    >
+                      {jobStatusCounts[s.name] || 0}
+                    </button>
+                    {activeStatus === s.name && list.length > 0 && (
+                      <div className="absolute bg-white shadow-lg rounded p-2 z-10 mt-2">
+                        <table className="text-sm">
+                          <thead>
+                            <tr>
+                              <th className="text-left">Job #</th>
+                              <th className="text-left">Vehicle</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {list.slice(0, 10).map(j => (
+                              <tr key={j.id}>
+                                <td className="pr-2">
+                                  <Link href={`/office/jobs/${j.id}`} className="underline">
+                                    {j.id}
+                                  </Link>
+                                </td>
+                                <td>
+                                  <Link href={`/office/jobs/${j.id}`} className="underline">
+                                    {j.licence_plate || 'N/A'}
+                                  </Link>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </td>
+                );
+              })}
+            </tr>
+            <tr className="divide-x divide-gray-200 text-center">
+              {secondHalf.map(s => {
                 const list = jobsByStatus[s.name] || [];
                 return (
                   <td key={s.id} className="relative align-top p-1">
