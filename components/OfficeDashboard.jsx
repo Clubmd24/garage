@@ -165,10 +165,7 @@ export default function OfficeDashboard() {
               {firstHalf.map((s) => {
                 const list = jobsByStatus[s.name] || [];
                 return (
-                  <td
-                    key={s.id}
-                    className="p-1 relative align-top"
-                  >
+                  <td key={s.id} className="p-1 relative align-top">
                     <button
                       type="button"
                       onClick={() =>
@@ -233,10 +230,7 @@ export default function OfficeDashboard() {
               {secondHalf.map((s) => {
                 const list = jobsByStatus[s.name] || [];
                 return (
-                  <td
-                    key={s.id}
-                    className="p-1 relative align-top"
-                  >
+                  <td key={s.id} className="p-1 relative align-top">
                     <button
                       type="button"
                       onClick={() =>
@@ -327,7 +321,7 @@ export default function OfficeDashboard() {
           )}
         </div>
         <div className="bg-white text-black rounded-2xl p-4 shadow">
-          <h2 className="text-lg font-semibold mb-2">Today's Jobs</h2>
+          <h2 className="text-lg font-semibold mb-2">Today&apos;s Jobs</h2>
           {todayJobs.length === 0 ? (
             <p>No jobs today.</p>
           ) : (
