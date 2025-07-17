@@ -158,3 +158,21 @@ test('job view page lists quotes and new revision link', async () => {
   const newLink = screen.getByRole('link', { name: 'New Quote for Job' });
   expect(newLink).toHaveAttribute('href', '/office/quotations/new?job_id=12');
 });
+
+test('engineer dropdown defaults to assigned engineer', async () => {
+  jest.unstable_mockModule('next/router', () => ({
+    useRouter: () => ({ query: { id: '21' } })
+  }));
+
+  global.fetch = jest
+    .fn()
+    .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 2, username: 'E' }] })
+    .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 1, name: 'open' }] })
+    .mockResolvedValueOnce({ ok: true, json: async () => ({ id: 21, status: 'open', assignments: [{ user_id: 2 }] }) });
+
+  const { default: Page } = await import('../pages/office/jobs/[id].js');
+  render(<Page />);
+
+  await screen.findByText('Job #21');
+  expect(screen.getByLabelText('Engineer').value).toBe('2');
+});
