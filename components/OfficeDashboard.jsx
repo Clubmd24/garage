@@ -13,7 +13,6 @@ export default function OfficeDashboard() {
   const [statuses, setStatuses] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [todayJobs, setTodayJobs] = useState([]);
-  const [activeStatus, setActiveStatus] = useState(null);
 
   useEffect(() => {
     Promise.all([
@@ -162,58 +161,16 @@ export default function OfficeDashboard() {
           <tbody>
             {/* 2) First-half counts */}
             <tr className="divide-x divide-gray-200">
-              {firstHalf.map((s) => {
-                const list = jobsByStatus[s.name] || [];
-                return (
-                  <td key={s.id} className="p-1 relative align-top">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setActiveStatus(
-                          activeStatus === s.name ? null : s.name
-                        )
-                      }
-                      className="underline font-semibold capitalize"
-                    >
-                      {jobStatusCounts[s.name] || 0}
-                    </button>
-                    {activeStatus === s.name && list.length > 0 && (
-                      <div className="absolute bg-white shadow-lg rounded p-2 z-10 mt-2">
-                        <table className="text-sm">
-                          <thead>
-                            <tr>
-                              <th className="text-left">Job #</th>
-                              <th className="text-left">Vehicle</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {list.slice(0, 10).map((j) => (
-                              <tr key={j.id}>
-                                <td className="pr-2">
-                                  <Link
-                                    href={`/office/jobs/${j.id}`}
-                                    className="underline"
-                                  >
-                                    {j.id}
-                                  </Link>
-                                </td>
-                                <td>
-                                  <Link
-                                    href={`/office/jobs/${j.id}`}
-                                    className="underline"
-                                  >
-                                    {j.licence_plate || 'N/A'}
-                                  </Link>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-                  </td>
-                );
-              })}
+              {firstHalf.map((s) => (
+                <td key={s.id} className="p-1 align-top">
+                  <Link
+                    href={`/office/job-management?status=${encodeURIComponent(s.name)}`}
+                    className="underline font-semibold capitalize"
+                  >
+                    {jobStatusCounts[s.name] || 0}
+                  </Link>
+                </td>
+              ))}
             </tr>
 
             {/* 3) Second-half headers */}
@@ -227,58 +184,16 @@ export default function OfficeDashboard() {
 
             {/* 4) Second-half counts */}
             <tr className="divide-x divide-gray-200">
-              {secondHalf.map((s) => {
-                const list = jobsByStatus[s.name] || [];
-                return (
-                  <td key={s.id} className="p-1 relative align-top">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setActiveStatus(
-                          activeStatus === s.name ? null : s.name
-                        )
-                      }
-                      className="underline font-semibold capitalize"
-                    >
-                      {jobStatusCounts[s.name] || 0}
-                    </button>
-                    {activeStatus === s.name && list.length > 0 && (
-                      <div className="absolute bg-white shadow-lg rounded p-2 z-10 mt-2">
-                        <table className="text-sm">
-                          <thead>
-                            <tr>
-                              <th className="text-left">Job #</th>
-                              <th className="text-left">Vehicle</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {list.slice(0, 10).map((j) => (
-                              <tr key={j.id}>
-                                <td className="pr-2">
-                                  <Link
-                                    href={`/office/jobs/${j.id}`}
-                                    className="underline"
-                                  >
-                                    {j.id}
-                                  </Link>
-                                </td>
-                                <td>
-                                  <Link
-                                    href={`/office/jobs/${j.id}`}
-                                    className="underline"
-                                  >
-                                    {j.licence_plate || 'N/A'}
-                                  </Link>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-                  </td>
-                );
-              })}
+              {secondHalf.map((s) => (
+                <td key={s.id} className="p-1 align-top">
+                  <Link
+                    href={`/office/job-management?status=${encodeURIComponent(s.name)}`}
+                    className="underline font-semibold capitalize"
+                  >
+                    {jobStatusCounts[s.name] || 0}
+                  </Link>
+                </td>
+              ))}
             </tr>
           </tbody>
         </table>
