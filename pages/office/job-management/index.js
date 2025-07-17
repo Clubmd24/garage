@@ -1,21 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import OfficeLayout from '../../../components/OfficeLayout';
 import PartsArrivedModal from '../../../components/office/PartsArrivedModal.jsx';
 import { fetchJobs, fetchJob, markPartsArrived } from '../../../lib/jobs';
 import { fetchEngineers } from '../../../lib/engineers';
+import { fetchJobStatuses } from '../../../lib/jobStatuses';
 
 export default function JobManagementPage() {
+  const router = useRouter();
   const [jobs, setJobs] = useState([]);
   const [engineers, setEngineers] = useState([]);
+  const [statuses, setStatuses] = useState([]);
+  const [statusFilter, setStatusFilter] = useState('');
   const [forms, setForms] = useState({});
   const [error, setError] = useState(null);
   const [partsModal, setPartsModal] = useState(null);
 
   useEffect(() => {
+    if (!router.isReady) return;
+    const qStatus = router.query.status ? String(router.query.status) : '';
+    setStatusFilter(qStatus);
+  }, [router.isReady, router.query.status]);
+
+  useEffect(() => {
     async function load() {
       try {
-        const all = await fetchJobs();
+        const params = {};
+        if (statusFilter) params.status = statusFilter;
+        const all = await fetchJobs(params);
         const list = all.filter(j => j.status !== 'completed');
         const withDetails = await Promise.all(
           list.map(async j => {
@@ -37,9 +50,15 @@ export default function JobManagementPage() {
       } catch {
         setEngineers([]);
       }
+      try {
+        const stats = await fetchJobStatuses();
+        setStatuses(stats);
+      } catch {
+        setStatuses([]);
+      }
     }
     load();
-  }, []);
+  }, [statusFilter]);
 
   const change = (id, field, value) =>
     setForms(f => ({ ...f, [id]: { ...f[id], [field]: value } }));
@@ -113,6 +132,20 @@ export default function JobManagementPage() {
         />
       )}
       <h1 className="text-xl font-semibold mb-4">Jobs</h1>
+      <div className="mb-4">
+        <label className="block text-white text-sm">Status</label>
+        <select
+          value={statusFilter}
+          onChange={e => setStatusFilter(e.target.value)}
+          className="input"
+          aria-label="Status Filter"
+        >
+          <option value="">All</option>
+          {statuses.map(s => (
+            <option key={s.id ?? s.name} value={s.name}>{s.name}</option>
+          ))}
+        </select>
+      </div>
       {error && <p className="text-red-500">{error}</p>}
       {jobs.length === 0 ? (
         <p>No jobs found.</p>
