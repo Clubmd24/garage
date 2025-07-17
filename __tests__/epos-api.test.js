@@ -68,10 +68,11 @@ test('end session closes day', async () => {
     endSession: endMock,
   }));
   const { default: handler } = await import('../pages/api/epos/end-day.js');
-  const req = { method: 'POST', body: { cash_total: 1, card_total: 2 }, headers: {} };
+  const reqBody = { end_50: 1, end_20: 0, end_10: 0, end_5: 1, end_coins: 0.5, pdq_total: 2 };
+  const req = { method: 'POST', body: reqBody, headers: {} };
   const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn(), end: jest.fn() };
   await handler(req, res);
-  expect(endMock).toHaveBeenCalledWith(session.id, { cash_total: 1, card_total: 2 });
+  expect(endMock).toHaveBeenCalledWith(session.id, reqBody);
   expect(res.status).toHaveBeenCalledWith(200);
   expect(res.json).toHaveBeenCalledWith(session);
 });
