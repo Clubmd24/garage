@@ -11,4 +11,8 @@ if (envFile) config({ path: envFile });
 
 export default {
   testEnvironment: 'node',
+  transform: {
+    '^.+\\.[jt]sx?$': 'babel-jest',
+  },
+  transformIgnorePatterns: [],
 };

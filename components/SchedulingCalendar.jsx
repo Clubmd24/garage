@@ -132,11 +132,12 @@ export default function SchedulingCalendar() {
 
   const confirm = () => {
     if (!pending) return;
+    const duration = Math.round((pending.end - pending.start) / 60000);
     assignJob(pending.job.id, {
       engineer_id: Number(form.engineer_id),
       status: form.status,
       scheduled_start: pending.start.toISOString(),
-      scheduled_end: pending.end.toISOString(),
+      duration: String(duration),
     })
       .finally(() => load(range.start, range.end))
       .finally(() => setPending(null));
