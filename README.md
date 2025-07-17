@@ -39,9 +39,11 @@ For a local installation, ensure the MySQL service is running and a database nam
    - This command executes every `.sql` file in the `migrations/` directory in
      order and records which have been run.
    - Running the script again safely skips already-applied migrations.
-7. Run tests and lint checks: `npm test` and `npm run lint`. The test suite
-   requires Node and all npm packages to be installed, so ensure the previous
-   step succeeded or use a Docker image with these dependencies preinstalled.
+7. Run tests and lint checks: `npm test` and `npm run lint`.
+   The test suite expects environment variables such as `JWT_SECRET`
+   (and the other variables in `.env.example`) to be defined.
+   Copy `.env.example` to `.env.test` or create those variables in your environment before running Jest.
+   The tests will automatically load variables from `.env.test` if it exists.
 8. Start dev server: `npm run dev`
 
 ## Code Style
