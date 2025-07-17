@@ -81,7 +81,7 @@ export default function EposPage() {
         setCartItems(
           data.items.map((it) => ({
             part_id: it.part_id,
-            name: it.description,
+            description: it.description,
             price: it.unit_price,
             quantity: it.qty,
           }))
@@ -246,14 +246,36 @@ export default function EposPage() {
         <Card className="flex-1 mb-4">
           <CardContent className="space-y-2">
             <h2 className="text-lg font-semibold">Cart</h2>
-            <ul className="space-y-1">
-              {cartItems.map((item, idx) => (
-                <li key={idx} className="flex justify-between">
-                  <span>{item.name} x{item.quantity}</span>
-                  <span>${(item.price * item.quantity).toFixed(2)}</span>
-                </li>
-              ))}
-            </ul>
+            <div className="grid grid-cols-8 gap-2 font-semibold text-sm">
+              <div>Part #</div>
+              <div className="col-span-4">Description</div>
+              <div>Qty</div>
+              <div>Unit Cost</div>
+              <div>Line Total</div>
+            </div>
+            {cartItems.map((item, idx) => {
+              const product = products.find(p => p.id === (item.part_id || item.id)) || {};
+              const partNum = item.part_number || product.part_number || '';
+              return (
+                <div key={idx} className="grid grid-cols-8 gap-2 mb-1">
+                  <div className="flex items-center px-2 border rounded bg-gray-50">
+                    {partNum}
+                  </div>
+                  <div className="col-span-4 flex items-center px-2 border rounded bg-gray-50">
+                    {item.description || item.name}
+                  </div>
+                  <div className="flex items-center px-2 border rounded bg-gray-50 justify-center">
+                    {item.quantity}
+                  </div>
+                  <div className="flex items-center px-2 border rounded bg-gray-50 justify-end">
+                    €{Number(item.price).toFixed(2)}
+                  </div>
+                  <div className="flex items-center px-2 border rounded bg-gray-50 justify-end">
+                    €{(item.price * item.quantity).toFixed(2)}
+                  </div>
+                </div>
+              );
+            })}
           </CardContent>
         </Card>
 
@@ -308,7 +330,8 @@ export default function EposPage() {
                     onClick={() =>
                       addToCart({
                         id: p.id,
-                        name: p.description || p.part_number,
+                        part_number: p.part_number,
+                        description: p.description || p.part_number,
                         price: p.unit_cost || 0,
                       })
                     }
