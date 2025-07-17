@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import ClientAutocomplete from "../../../components/ClientAutocomplete";
+import VehicleAutocomplete from "../../../components/VehicleAutocomplete";
 
 export default function EposPage() {
   // sample data
@@ -23,6 +25,19 @@ export default function EposPage() {
   const [selectedCategory, setSelectedCategory] = useState(categories[0]);
   const [cartItems, setCartItems] = useState([]);
   const [inputValue, setInputValue] = useState("");
+  const [clientName, setClientName] = useState("");
+  const [customerId, setCustomerId] = useState("");
+  const [vehiclePlate, setVehiclePlate] = useState("");
+  const [vehicleId, setVehicleId] = useState("");
+  const [invoiceLookup, setInvoiceLookup] = useState("");
+  const [session, setSession] = useState(null);
+
+  useEffect(() => {
+    fetch('/api/epos/start-day')
+      .then(r => (r.ok ? r.json() : null))
+      .then(setSession)
+      .catch(() => setSession(null));
+  }, []);
 
   const addToCart = (product) => {
     setCartItems((prev) => [...prev, { ...product, quantity: 1 }]);
@@ -33,14 +48,89 @@ export default function EposPage() {
   };
 
   const clearInput = () => setInputValue("");
+  const total = cartItems.reduce(
+    (sum, it) => sum + it.price * it.quantity,
+    0
+  );
 
-  const takePayment = () => {
-    // TODO: integrate payment handling
-    alert(`Processing payment: $${inputValue}`);
+  const loadInvoice = async () => {
+    if (!invoiceLookup) return;
+    try {
+      const res = await fetch(`/api/invoices/${invoiceLookup}`);
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      if (data.customer_id) setCustomerId(data.customer_id);
+      if (data.vehicle_id) setVehicleId(data.vehicle_id);
+      if (Array.isArray(data.items)) {
+        setCartItems(
+          data.items.map((it) => ({
+            part_id: it.part_id,
+            name: it.description,
+            price: it.unit_price,
+            quantity: it.qty,
+          }))
+        );
+      }
+    } catch {}
+  };
+
+  const takePayment = async () => {
+    if (!session) {
+      alert('No active session');
+      return;
+    }
+    await fetch('/api/epos/sales', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        session_id: session.id,
+        customer_id: customerId || null,
+        vehicle_id: vehicleId || null,
+        payment_type: 'cash',
+        total_amount: total,
+        items: cartItems.map((it) => ({
+          part_id: it.part_id || it.id,
+          qty: it.quantity,
+          unit_price: it.price,
+        })),
+      }),
+    });
+    alert(`Processed payment: €${total.toFixed(2)}`);
+    setCartItems([]);
+    setInputValue('');
   };
 
   return (
     <div className="flex flex-col h-full space-y-4 p-4">
+      <div className="flex gap-2 mb-2">
+        <ClientAutocomplete
+          value={clientName}
+          onChange={setClientName}
+          onSelect={(c) => {
+            setClientName(`${c.first_name || ''} ${c.last_name || ''}`.trim());
+            setCustomerId(c.id);
+          }}
+        />
+        <VehicleAutocomplete
+          value={vehiclePlate}
+          onChange={setVehiclePlate}
+          onSelect={(v) => {
+            setVehiclePlate(v.licence_plate);
+            setVehicleId(v.id);
+          }}
+        />
+        <div className="flex gap-1">
+          <Input
+            value={invoiceLookup}
+            onChange={(e) => setInvoiceLookup(e.target.value)}
+            placeholder="Invoice ID"
+            className="w-24"
+          />
+          <Button type="button" onClick={loadInvoice}>
+            Load
+          </Button>
+        </div>
+      </div>
       {/* Cart & keypad pane - now full width */}
       <div className="flex flex-col flex-1 justify-between">
         <Card className="flex-1 mb-4">
