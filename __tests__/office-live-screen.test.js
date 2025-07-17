@@ -12,7 +12,8 @@ afterEach(() => {
 
 
 test('LiveScreen lists todays jobs only', async () => {
-  const today = new Date().toISOString().slice(0, 10);
+  const date = new Date();
+  const today = date.toLocaleDateString('en-CA');
   const jobs = [
     { id: 1, status: 'in progress', scheduled_start: '2024-01-01T10:00:00Z', scheduled_end: '2024-01-01T11:00:00Z' }
   ];
