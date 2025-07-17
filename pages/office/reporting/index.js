@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import OfficeLayout from '../../../components/OfficeLayout';
-import { fetchFinanceReport, fetchEngineerPerformance, fetchBusinessPerformance } from '../../../lib/reporting';
+import { fetchFinanceReport, fetchEngineerPerformance, fetchBusinessPerformance, fetchEposReport } from '../../../lib/reporting';
 
 function formatDate(d) {
   return d.toISOString().substring(0, 10);
@@ -13,6 +13,7 @@ const ReportingPage = () => {
   const [finance, setFinance] = useState(null);
   const [engineers, setEngineers] = useState([]);
   const [business, setBusiness] = useState(null);
+  const [epos, setEpos] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -50,11 +51,13 @@ const ReportingPage = () => {
       fetchFinanceReport(dates.start, dates.end),
       fetchEngineerPerformance(dates.start, dates.end),
       fetchBusinessPerformance(dates.start, dates.end),
+      fetchEposReport(dates.start, dates.end),
     ])
-      .then(([fin, eng, biz]) => {
+      .then(([fin, eng, biz, epos]) => {
         setFinance(fin);
         setEngineers(eng);
         setBusiness(biz);
+        setEpos(epos);
         setError(null);
       })
       .catch(err => {
@@ -136,6 +139,44 @@ const ReportingPage = () => {
                 <tr>
                   <td className="px-2 py-1">{business.jobs_created}</td>
                   <td className="px-2 py-1">{business.jobs_completed}</td>
+                </tr>
+              </tbody>
+            </table>
+          )}
+          <h2 className="text-lg font-semibold mt-4 mb-2">EPOS</h2>
+          {epos && (
+            <table className="mb-4 table-auto">
+              <thead>
+                <tr>
+                  <th className="px-2 py-1">Session</th>
+                  <th className="px-2 py-1">Cash Sales</th>
+                  <th className="px-2 py-1">Declared Cash</th>
+                  <th className="px-2 py-1">Cash Diff</th>
+                  <th className="px-2 py-1">Card Sales</th>
+                  <th className="px-2 py-1">Declared Card</th>
+                  <th className="px-2 py-1">Card Diff</th>
+                </tr>
+              </thead>
+              <tbody>
+                {epos.sessions.map(s => (
+                  <tr key={s.id}>
+                    <td className="px-2 py-1">{s.id}</td>
+                    <td className="px-2 py-1">€{s.sales_cash.toFixed(2)}</td>
+                    <td className="px-2 py-1">€{s.declared_cash.toFixed(2)}</td>
+                    <td className="px-2 py-1">€{s.cash_difference.toFixed(2)}</td>
+                    <td className="px-2 py-1">€{s.sales_card.toFixed(2)}</td>
+                    <td className="px-2 py-1">€{s.declared_card.toFixed(2)}</td>
+                    <td className="px-2 py-1">€{s.card_difference.toFixed(2)}</td>
+                  </tr>
+                ))}
+                <tr className="font-semibold border-t">
+                  <td className="px-2 py-1">Total</td>
+                  <td className="px-2 py-1">€{epos.totals.sales_cash.toFixed(2)}</td>
+                  <td className="px-2 py-1">€{epos.totals.declared_cash.toFixed(2)}</td>
+                  <td className="px-2 py-1">€{epos.totals.cash_difference.toFixed(2)}</td>
+                  <td className="px-2 py-1">€{epos.totals.sales_card.toFixed(2)}</td>
+                  <td className="px-2 py-1">€{epos.totals.declared_card.toFixed(2)}</td>
+                  <td className="px-2 py-1">€{epos.totals.card_difference.toFixed(2)}</td>
                 </tr>
               </tbody>
             </table>
