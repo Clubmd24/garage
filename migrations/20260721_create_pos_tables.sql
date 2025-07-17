@@ -1,0 +1,28 @@
+CREATE TABLE IF NOT EXISTS pos_sessions (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  started_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  ended_at DATETIME DEFAULT NULL,
+  float_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
+  cash_total DECIMAL(10,2) NOT NULL DEFAULT 0,
+  card_total DECIMAL(10,2) NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS pos_sales (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  session_id INT NOT NULL,
+  customer_id INT DEFAULT NULL,
+  vehicle_id INT DEFAULT NULL,
+  payment_type ENUM('cash','card') NOT NULL,
+  total_amount DECIMAL(10,2) NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (session_id) REFERENCES pos_sessions(id)
+);
+
+CREATE TABLE IF NOT EXISTS pos_sale_items (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  sale_id INT NOT NULL,
+  part_id INT NOT NULL,
+  qty INT NOT NULL,
+  unit_price DECIMAL(10,2) NOT NULL,
+  FOREIGN KEY (sale_id) REFERENCES pos_sales(id)
+);
