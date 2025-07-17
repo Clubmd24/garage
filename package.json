@@ -16,6 +16,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.270.0",
     "@aws-sdk/s3-request-presigner": "^3.270.0",
+    "@shadcn/ui": "^0.0.4",
     "bcryptjs": "^2.4.3",
     "classnames": "^2.5.1",
     "cookie": "^1.0.2",
