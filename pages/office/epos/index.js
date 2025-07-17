@@ -160,14 +160,7 @@ export default function EposPage() {
 
         <Card>
           <CardContent>
-            <div className="mb-2">
-              <Input
-                readOnly
-                value={inputValue}
-                placeholder="Enter payment amount"
-              />
-            </div>
-            <div className="grid grid-cols-3 gap-2 mb-2">
+            <div className="grid grid-cols-3 gap-2 mb-2 w-1/2">
               {["1","2","3","4","5","6","7","8","9","0","C"].map((key) => (
                 <Button
                   key={key}
