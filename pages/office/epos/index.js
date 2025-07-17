@@ -223,6 +223,7 @@ export default function EposPage() {
           </Card>
         </div>
       </div>
+      </div>
     </OfficeLayout>
   );
 }
