@@ -65,6 +65,7 @@ results so it can be run repeatedly without errors.
 - `/api/purchase-orders` - create purchase orders with items.
 - `/api/quote-items` - create or fetch quote items.
 - `/api/search` - search across clients, vehicles, jobs, quotes, invoices and parts.
+- `/office/job-management?status=<status>` - view jobs filtered by the given status. Dashboard job counts link here.
 
 ## Invoice Generation
 
