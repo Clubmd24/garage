@@ -11,31 +11,34 @@ afterEach(() => {
 });
 
 
-test('LiveScreen lists todays jobs only', async () => {
+test('LiveScreen lists todays jobs with details', async () => {
   const date = new Date();
   const today = date.toLocaleDateString('en-CA');
   const jobs = [
-    { id: 1, status: 'in progress', scheduled_start: '2024-01-01T10:00:00Z', scheduled_end: '2024-01-01T11:00:00Z' }
+    {
+      id: 1,
+      licence_plate: 'AAA111',
+      make: 'Ford',
+      model: 'Focus',
+      engineers: 'Bob',
+      status: 'in progress',
+      scheduled_start: '2024-01-01T10:00:00Z',
+      defect_description: 'leak'
+    }
   ];
   const fetchJobsForDate = jest.fn().mockResolvedValue(jobs);
 
-  jest.unstable_mockModule('../lib/quotes', () => ({
-    fetchQuotes: jest.fn().mockResolvedValue([])
-  }));
   jest.unstable_mockModule('../lib/jobs', () => ({
     fetchJobsForDate
-  }));
-  jest.unstable_mockModule('../lib/invoices', () => ({
-    fetchInvoices: jest.fn().mockResolvedValue([])
-  }));
-  jest.unstable_mockModule('../lib/jobStatuses.js', () => ({
-    fetchJobStatuses: jest.fn().mockResolvedValue([{ id: 1, name: 'in progress' }])
   }));
 
   const { default: Page } = await import('../pages/office/live-screen/index.js');
   render(<Page />);
 
-  const link = await screen.findByRole('link', { name: 'Job #1 – in progress' });
+  await screen.findByText('AAA111');
+  expect(screen.getByText('Ford Focus')).toBeInTheDocument();
+  expect(screen.getByText('Bob')).toBeInTheDocument();
+  const link = screen.getByRole('link', { name: 'View Job' });
   expect(link).toHaveAttribute('href', '/office/jobs/1');
   expect(fetchJobsForDate).toHaveBeenCalledWith(today);
 });

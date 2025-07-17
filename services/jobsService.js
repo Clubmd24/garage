@@ -182,13 +182,21 @@ export async function listActiveJobsForEngineer(user_id, status) {
 
 export async function getJobsForDate(date) {
   const [rows] = await pool.query(
-    `SELECT j.id, v.licence_plate,
+    `SELECT j.id, v.licence_plate, v.make, v.model,
             GROUP_CONCAT(u.username ORDER BY u.username SEPARATOR ', ') AS engineers,
-            j.status, j.scheduled_start, j.scheduled_end
+            j.status, j.scheduled_start, j.scheduled_end,
+            q.defect_description
        FROM jobs j
        JOIN vehicles v ON j.vehicle_id = v.id
   LEFT JOIN job_assignments ja ON j.id = ja.job_id
   LEFT JOIN users u ON ja.user_id = u.id
+  LEFT JOIN (
+        SELECT q1.job_id, q1.defect_description
+          FROM quotes q1
+          JOIN (
+            SELECT job_id, MAX(revision) AS rev FROM quotes GROUP BY job_id
+          ) q2 ON q1.job_id = q2.job_id AND q1.revision = q2.rev
+  ) q ON q.job_id = j.id
       WHERE DATE(j.scheduled_start)=?
    GROUP BY j.id
    ORDER BY j.id`,
