@@ -13,13 +13,15 @@ function useCart(initial = []) {
   const [items, setItems] = useState(initial);
   const add = product => {
     setItems(prev => {
-      const exists = prev.find(i => i.part_id === product.id || i.id === product.id);
-      if (exists) return prev.map(i =>
-        (i.part_id === (product.id || product.part_id) || i.id === product.id)
-          ? { ...i, quantity: i.quantity + 1 }
-          : i
-      );
-      return [...prev, { ...product, part_id: product.id || product.part_id, quantity: 1 }];
+      const exists = prev.find(i => i.part_id === product.part_id);
+      if (exists) {
+        return prev.map(i =>
+          i.part_id === product.part_id
+            ? { ...i, quantity: i.quantity + 1 }
+            : i
+        );
+      }
+      return [...prev, { ...product, quantity: product.quantity || 1 }];
     });
   };
   const updateQty = (part_id, delta) => {
@@ -75,7 +77,12 @@ export default function EposPage() {
     ])
       .then(([c, p]) => {
         setCategories(c);
-        setProducts(p);
+        // Normalize unit_cost to number
+        const normalized = p.map(item => ({
+          ...item,
+          unit_cost: Number(item.unit_cost) || 0,
+        }));
+        setProducts(normalized);
         if (c.length) setSelectedCategory(c[0].id);
       })
       .catch(() => setError('Failed to load products'))
@@ -85,20 +92,20 @@ export default function EposPage() {
   // Invoice lookup
   const loadInvoice = async () => {
     if (!invoiceLookup) return;
+    setError(null);
     try {
       const res = await fetch(`/api/invoices/${invoiceLookup}`);
       if (!res.ok) throw new Error();
       const data = await res.json();
-      data.customer_id && setCustomerId(data.customer_id);
-      data.vehicle_id && setVehicleId(data.vehicle_id);
+      if (data.customer_id) setCustomerId(data.customer_id);
+      if (data.vehicle_id) setVehicleId(data.vehicle_id);
       if (Array.isArray(data.items)) {
         clearCart();
         data.items.forEach(it => {
           addToCart({
             part_id: it.part_id,
-            id: it.part_id,
             description: it.description,
-            price: it.unit_price,
+            price: Number(it.unit_price) || 0,
             quantity: it.qty
           });
         });
@@ -148,6 +155,7 @@ export default function EposPage() {
           className="w-32"
         />
         <Button onClick={loadInvoice} variant="outline-light">Search</Button>
+        {error && <span className="text-red-300 ml-2">{error}</span>}
         <ClientAutocomplete
           value={clientName}
           onChange={setClientName}
@@ -184,7 +192,11 @@ export default function EposPage() {
             {products
               .filter(p => p.category_id === selectedCategory)
               .map(p => (
-                <Card key={p.id} className="cursor-pointer hover:shadow-lg" onClick={() => addToCart({ id: p.id, part_id: p.id, description: p.description, price: p.unit_cost })}>
+                <Card
+                  key={p.id}
+                  className="cursor-pointer hover:shadow-lg"
+                  onClick={() => addToCart({ part_id: p.id, description: p.description, price: p.unit_cost })}
+                >
                   <CardContent className="flex flex-col justify-between h-32">
                     <div className="font-semibold truncate">{p.description}</div>
                     <div>€{p.unit_cost.toFixed(2)}</div>
@@ -199,7 +211,10 @@ export default function EposPage() {
           <h2 className="text-xl font-semibold mb-2">Cart</h2>
           <div className="flex-1 overflow-y-auto">
             {cartItems.map(item => (
-              <div key={item.part_id} className="flex items-center justify-between mb-2 p-2 border rounded">
+              <div
+                key={item.part_id}
+                className="flex items-center justify-between mb-2 p-2 border rounded"
+              >
                 <div>
                   <div className="font-medium">{item.description}</div>
                   <div className="text-sm text-gray-600">€{item.price.toFixed(2)}</div>
@@ -227,10 +242,14 @@ export default function EposPage() {
       {showPayment && (
         <Modal onClose={() => setShowPayment(false)}>
           <div className="p-4 space-y-4">
-            <h3 className="text-lg font-semibold">Payment</h3>
+            <h3 className="text-lg font-semibold">Payment</n            h3>
             <div>
-              <label>Type</label>
-              <select value={paymentType} onChange={e => setPaymentType(e.target.value)} className="input w-full">
+              <label className="block mb-1">Type</label>
+              <select
+                value={paymentType}
+                onChange={e => setPaymentType(e.target.value)}
+                className="input w-full"
+              >
                 <option value="cash">Cash</option>
                 <option value="card">Card</option>
               </select>
@@ -239,18 +258,29 @@ export default function EposPage() {
               <div className="grid grid-cols-2 gap-4">
                 {['n50','n20','n10','n5'].map(note => (
                   <div key={note}>
-                    <label>€{note.slice(1)} notes</label>
-                    <Input type="number" value={cash[note]} onChange={e => setCash({...cash, [note]: Number(e.target.value)})} />
+                    <label className="block mb-1">€{note.slice(1)} notes</label>
+                    <Input
+                      type="number"
+                      value={cash[note]}
+                      onChange={e => setCash({ ...cash, [note]: Number(e.target.value) })}
+                      className="w-full"
+                    />
                   </div>
                 ))}
                 <div>
-                  <label>Coins</label>
-                  <Input type="number" step="0.01" value={cash.coins} onChange={e => setCash({...cash, coins: Number(e.target.value)})} />
+                  <label className="block mb-1">Coins</label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={cash.coins}
+                    onChange={e => setCash({ ...cash, coins: Number(e.target.value) })}
+                    className="w-full"
+                  />
                 </div>
               </div>
             )}
             {paymentType === 'cash' && (
-              <div className="mt-2">
+              <div className="mt-2 space-y-1">
                 <div>Received: €{received.toFixed(2)}</div>
                 <div>Change: €{changeDue.toFixed(2)}</div>
               </div>
