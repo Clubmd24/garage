@@ -88,6 +88,12 @@ export default function OfficeLayout({ children }) {
                   Pay Invoice
                 </Link>
               </li>
+              <li>
+                <Link href="/office/epos" className="flex items-center hover:underline">
+                  <ArrowIcon />
+                  EPOS
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
