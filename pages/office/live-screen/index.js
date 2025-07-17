@@ -16,7 +16,8 @@ const LiveScreenPage = () => {
 
   const load = () => {
     setLoading(true);
-    const dateStr = new Date().toISOString().slice(0, 10);
+    const date = new Date();
+    const dateStr = date.toLocaleDateString('en-CA');
     Promise.all([
       fetchQuotes(),
       fetchJobsForDate(dateStr),
