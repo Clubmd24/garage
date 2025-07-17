@@ -30,7 +30,10 @@ const LiveScreenPage = () => {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {jobs.map(j => (
-            <div key={j.id} className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
+            <div
+              key={j.id}
+              className="bg-white dark:bg-gray-800 text-black dark:text-white rounded-lg p-4 shadow"
+            >
               <h2 className="text-lg font-semibold mb-1">{j.licence_plate}</h2>
               <p className="text-sm mb-1">{j.make} {j.model}</p>
               <p className="text-sm mb-1">
