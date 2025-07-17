@@ -8,16 +8,23 @@ export default function NewPartPage() {
     description: '',
     unit_cost: '',
     supplier_id: '',
+    category_id: '',
   });
   const [suppliers, setSuppliers] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [error, setError] = useState(null);
   const router = useRouter();
   const { query } = router;
 
   useEffect(() => {
-    fetch('/api/suppliers')
-      .then(r => (r.ok ? r.json() : Promise.reject()))
-      .then(setSuppliers)
+    Promise.all([
+      fetch('/api/suppliers').then(r => (r.ok ? r.json() : Promise.reject())),
+      fetch('/api/categories').then(r => (r.ok ? r.json() : Promise.reject())),
+    ])
+      .then(([s, c]) => {
+        setSuppliers(s);
+        setCategories(c);
+      })
       .catch(() => setError('Failed to load suppliers'));
   }, []);
 
@@ -28,6 +35,7 @@ export default function NewPartPage() {
       part_number: query.part_number || f.part_number,
       description: query.description || f.description,
       unit_cost: query.unit_cost || f.unit_cost,
+      category_id: query.category_id || f.category_id,
     }));
   }, [router.isReady]);
 
@@ -44,6 +52,7 @@ export default function NewPartPage() {
           description: form.description,
           unit_cost: form.unit_cost,
           supplier_id: form.supplier_id || null,
+          category_id: form.category_id || null,
         }),
       });
       if (!res.ok) throw new Error();
@@ -77,6 +86,15 @@ export default function NewPartPage() {
             <option value="">-- None --</option>
             {suppliers.map(s => (
               <option key={s.id} value={s.id}>{s.name}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block mb-1">Category</label>
+          <select name="category_id" value={form.category_id} onChange={change} className="input w-full">
+            <option value="">-- None --</option>
+            {categories.map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
         </div>

@@ -10,8 +10,10 @@ export default function EditPartPage() {
     description: '',
     unit_cost: '',
     supplier_id: '',
+    category_id: '',
   });
   const [suppliers, setSuppliers] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -21,15 +23,18 @@ export default function EditPartPage() {
     Promise.all([
       fetch(`/api/parts/${id}`).then(r => (r.ok ? r.json() : Promise.reject())),
       fetch('/api/suppliers').then(r => (r.ok ? r.json() : Promise.reject())),
+      fetch('/api/categories').then(r => (r.ok ? r.json() : Promise.reject())),
     ])
-      .then(([p, s]) => {
+      .then(([p, s, c]) => {
         setForm({
           part_number: p.part_number || '',
           description: p.description || '',
           unit_cost: p.unit_cost || '',
           supplier_id: p.supplier_id || '',
+          category_id: p.category_id || '',
         });
         setSuppliers(s);
+        setCategories(c);
       })
       .catch(() => setError('Failed to load part'))
       .finally(() => setLoading(false));
@@ -50,6 +55,7 @@ export default function EditPartPage() {
           description: form.description,
           unit_cost: form.unit_cost,
           supplier_id: form.supplier_id || null,
+          category_id: form.category_id || null,
         }),
       });
       router.push('/office/parts');
@@ -83,6 +89,15 @@ export default function EditPartPage() {
             <option value="">-- None --</option>
             {suppliers.map(s => (
               <option key={s.id} value={s.id}>{s.name}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block mb-1">Category</label>
+          <select name="category_id" value={form.category_id} onChange={change} className="input w-full">
+            <option value="">-- None --</option>
+            {categories.map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
         </div>
