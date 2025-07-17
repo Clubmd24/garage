@@ -40,46 +40,9 @@ export default function EposPage() {
   };
 
   return (
-    <div className="flex h-full space-x-4 p-4">
-      {/* Categories pane */}
-      <aside className="w-1/6">
-        <Card className="h-full">
-          <CardContent className="space-y-2">
-            <h2 className="text-lg font-semibold">Categories</h2>
-            {categories.map((cat) => (
-              <Button
-                key={cat}
-                variant={cat === selectedCategory ? "secondary" : "outline"}
-                onClick={() => setSelectedCategory(cat)}
-                className="w-full text-left"
-              >
-                {cat}
-              </Button>
-            ))}
-          </CardContent>
-        </Card>
-      </aside>
-
-      {/* Products pane */}
-      <div className="w-1/4">
-        <Card className="h-full">
-          <CardContent className="grid grid-cols-2 gap-2">
-            {products[selectedCategory]?.map((p) => (
-              <Button
-                key={p.id}
-                onClick={() => addToCart(p)}
-                className="flex flex-col items-center p-2"
-              >
-                <span>{p.name}</span>
-                <small>${p.price.toFixed(2)}</small>
-              </Button>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Cart & keypad pane */}
-      <div className="flex-1 flex flex-col justify-between">
+    <div className="flex flex-col h-full space-y-4 p-4">
+      {/* Cart & keypad pane - now full width */}
+      <div className="flex flex-col flex-1 justify-between">
         <Card className="flex-1 mb-4">
           <CardContent className="space-y-2">
             <h2 className="text-lg font-semibold">Cart</h2>
@@ -118,6 +81,45 @@ export default function EposPage() {
             </Button>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Categories & products panes beneath the cart */}
+      <div className="flex space-x-4">
+        <aside className="w-1/6">
+          <Card className="h-full">
+            <CardContent className="space-y-2">
+              <h2 className="text-lg font-semibold">Categories</h2>
+              {categories.map((cat) => (
+                <Button
+                  key={cat}
+                  variant={cat === selectedCategory ? "secondary" : "outline"}
+                  onClick={() => setSelectedCategory(cat)}
+                  className="w-full text-left"
+                >
+                  {cat}
+                </Button>
+              ))}
+            </CardContent>
+          </Card>
+        </aside>
+
+        {/* Products pane */}
+        <div className="w-1/4">
+          <Card className="h-full">
+            <CardContent className="grid grid-cols-2 gap-2">
+              {products[selectedCategory]?.map((p) => (
+                <Button
+                  key={p.id}
+                  onClick={() => addToCart(p)}
+                  className="flex flex-col items-center p-2"
+                >
+                  <span>{p.name}</span>
+                  <small>${p.price.toFixed(2)}</small>
+                </Button>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
