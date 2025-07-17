@@ -21,6 +21,7 @@
    and available locally or use a prebuilt Docker image that contains them.
 5. Make the bootstrap script executable and run it to scaffold the portal:
    `chmod +x bootstrap_dev_portal.sh && ./bootstrap_dev_portal.sh`
+6. /workspaces/garage/database/garagev11.sql contains all live database information  
 
 ### Start the database
 
