@@ -241,9 +241,9 @@ export default function EposPage() {
             Manager
           </Link>
         </div>
-      {/* Cart & keypad pane - now full width */}
-      <div className="flex flex-col flex-1 justify-between">
-        <Card className="flex-1 mb-4">
+      {/* Cart and keypad side by side */}
+      <div className="flex flex-1 gap-4 mb-4">
+        <Card className="flex-1">
           <CardContent className="space-y-2">
             <h2 className="text-lg font-semibold">Cart</h2>
             <div className="grid grid-cols-8 gap-2 font-semibold text-sm">
@@ -279,9 +279,9 @@ export default function EposPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="w-1/4">
           <CardContent>
-            <div className="grid grid-cols-3 gap-2 mb-2 w-1/2">
+            <div className="grid grid-cols-3 gap-2 mb-2 w-full">
               {["1","2","3","4","5","6","7","8","9","0","C"].map((key) => (
                 <Button
                   key={key}
@@ -298,9 +298,9 @@ export default function EposPage() {
         </Card>
       </div>
 
-      {/* Categories & products panes beneath the cart */}
-      <div className="flex space-x-4">
-        <aside className="w-1/6">
+      {/* Categories and products */}
+      <div className="flex flex-1 gap-4">
+        <aside className="w-1/4">
           <Card className="h-full">
             <CardContent className="space-y-2">
               <h2 className="text-lg font-semibold">Categories</h2>
@@ -319,7 +319,7 @@ export default function EposPage() {
         </aside>
 
         {/* Products pane */}
-        <div className="w-1/4">
+        <div className="w-3/4">
           <Card className="h-full">
             <CardContent className="grid grid-cols-2 gap-2">
               {products
