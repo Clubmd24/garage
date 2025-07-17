@@ -12,7 +12,7 @@ export default function AssignJobPage() {
   const [form, setForm] = useState({
     engineer_id: '',
     scheduled_start: '',
-    scheduled_end: '',
+    duration: '',
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -28,6 +28,13 @@ export default function AssignJobPage() {
     (async () => {
       try {
         const job = await fetchJob(id);
+        const duration =
+          job.scheduled_start && job.scheduled_end
+            ? Math.round(
+                (new Date(job.scheduled_end) - new Date(job.scheduled_start)) /
+                  60000
+              )
+            : '';
         setForm({
           engineer_id:
             Array.isArray(job.assignments) && job.assignments.length > 0
@@ -36,7 +43,7 @@ export default function AssignJobPage() {
           scheduled_start: job.scheduled_start
             ? job.scheduled_start.slice(0, 16)
             : '',
-          scheduled_end: job.scheduled_end ? job.scheduled_end.slice(0, 16) : '',
+          duration: duration ? String(duration) : '',
         });
       } catch {
         // ignore
@@ -51,10 +58,19 @@ export default function AssignJobPage() {
   const submit = async e => {
     e.preventDefault();
     try {
+      let scheduled_end = '';
+      if (form.duration && form.scheduled_start) {
+        const start = new Date(form.scheduled_start);
+        if (!Number.isNaN(start.getTime())) {
+          const end = new Date(start.getTime() + Number(form.duration) * 60000);
+          scheduled_end = end.toISOString().slice(0, 16);
+        }
+      }
       const data = {
         engineer_id: form.engineer_id,
         scheduled_start: form.scheduled_start,
-        scheduled_end: form.scheduled_end,
+        scheduled_end,
+        duration: form.duration,
       };
       const res = await fetch(`/api/jobs/${id}/assign`, {
         method: 'POST',
@@ -102,11 +118,13 @@ export default function AssignJobPage() {
           />
         </div>
         <div>
-          <label className="block mb-1">Scheduled End</label>
+          <label className="block mb-1">Duration (minutes)</label>
           <input
-            type="datetime-local"
-            name="scheduled_end"
-            value={form.scheduled_end}
+            type="number"
+            step="30"
+            min="30"
+            name="duration"
+            value={form.duration}
             onChange={change}
             className="input w-full"
           />
