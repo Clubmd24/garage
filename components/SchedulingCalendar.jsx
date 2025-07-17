@@ -63,7 +63,12 @@ export default function SchedulingCalendar() {
       )
       setEvents(
         jobs
-          .filter(j => j.scheduled_start && j.scheduled_end)
+          .filter(
+            j =>
+              j.scheduled_start &&
+              j.scheduled_end &&
+              j.status !== 'completed'
+          )
           .map(j => ({
             id: j.id,
             title: `Job #${j.id}`,
