@@ -1,9 +1,15 @@
 import pool from '../lib/db.js';
 
-export async function startSession(float_amount) {
+export async function startSession({ start_50 = 0, start_20 = 0, start_10 = 0, start_5 = 0, start_coins = 0 } = {}) {
+  const float_amount =
+    start_50 * 50 +
+    start_20 * 20 +
+    start_10 * 10 +
+    start_5 * 5 +
+    parseFloat(start_coins);
   const [{ insertId }] = await pool.query(
-    `INSERT INTO pos_sessions (float_amount) VALUES (?)`,
-    [float_amount]
+    `INSERT INTO pos_sessions (float_amount, start_50, start_20, start_10, start_5, start_coins) VALUES (?,?,?,?,?,?)`,
+    [float_amount, start_50, start_20, start_10, start_5, start_coins]
   );
   const [[row]] = await pool.query(
     'SELECT * FROM pos_sessions WHERE id=?',
