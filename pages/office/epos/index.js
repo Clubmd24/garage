@@ -228,11 +228,19 @@ export default function EposPage() {
           </Button>
         </div>
       </div>
-      {error && <p className="text-red-500">{error}</p>}
-      {loading && <p>Loading…</p>}
-      <Link href="/office" className="button inline-block mb-4">
-        Return to Office
-      </Link>
+        {error && <p className="text-red-500">{error}</p>}
+        {loading && <p>Loading…</p>}
+        <div className="flex justify-between items-center mb-4">
+          <Link href="/office" className="button">
+            Return to Office
+          </Link>
+          <Link
+            href={session ? "/office/epos/end-day" : "/office/epos/start-day"}
+            className="button-secondary"
+          >
+            Manager
+          </Link>
+        </div>
       {/* Cart & keypad pane - now full width */}
       <div className="flex flex-col flex-1 justify-between">
         <Card className="flex-1 mb-4">
