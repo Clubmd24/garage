@@ -8,7 +8,7 @@ import { Card } from '../../../components/Card';
 import SectionGrid from '../../../components/SectionGrid';
 import { fetchEngineers } from '../../../lib/engineers';
 import { fetchJobStatuses } from '../../../lib/jobStatuses';
-import { fetchJob } from '../../../lib/jobs';
+import { fetchJob, assignJob } from '../../../lib/jobs';
 import { fetchClient } from '../../../lib/clients';
 import { fetchVehicle } from '../../../lib/vehicles';
 
@@ -75,10 +75,19 @@ export default function JobViewPage() {
 
   const saveAll = async () => {
     try {
+      if (form.engineer_id) {
+        await assignJob(id, {
+          engineer_id: form.engineer_id,
+          scheduled_start: form.scheduled_start,
+        });
+        setJob(await fetchJob(id));
+      }
+      const data = { ...form };
+      delete data.engineer_id;
       const res = await fetch(`/api/jobs/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error();
       setJob(await res.json());
