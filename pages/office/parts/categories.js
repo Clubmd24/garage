@@ -4,6 +4,8 @@ import OfficeLayout from '../../../components/OfficeLayout';
 export default function PartCategoriesPage() {
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState('');
+  const [editingId, setEditingId] = useState(null);
+  const [editName, setEditName] = useState('');
   const [error, setError] = useState(null);
 
   const load = () => {
@@ -36,6 +38,31 @@ export default function PartCategoriesPage() {
     load();
   };
 
+  const startEdit = (id, currentName) => {
+    setEditingId(id);
+    setEditName(currentName);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditName('');
+  };
+
+  const update = async id => {
+    try {
+      const res = await fetch(`/api/categories/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: editName }),
+      });
+      if (!res.ok) throw new Error();
+      cancelEdit();
+      load();
+    } catch {
+      setError('Failed to update category');
+    }
+  };
+
   return (
     <OfficeLayout>
       <h1 className="text-2xl font-semibold mb-4">Part Categories</h1>
@@ -47,8 +74,38 @@ export default function PartCategoriesPage() {
       <ul className="space-y-2">
         {categories.map(c => (
           <li key={c.id} className="flex justify-between items-center border p-2 rounded">
-            <span>{c.name}</span>
-            <button onClick={() => remove(c.id)} className="button bg-red-600 hover:bg-red-700 px-2 py-1 text-sm">Delete</button>
+            {editingId === c.id ? (
+              <>
+                <input
+                  value={editName}
+                  onChange={e => setEditName(e.target.value)}
+                  className="input flex-grow mr-2"
+                />
+                <div className="flex gap-2">
+                  <button onClick={() => update(c.id)} className="button px-2 py-1 text-sm">
+                    Save
+                  </button>
+                  <button onClick={cancelEdit} className="button-secondary px-2 py-1 text-sm">
+                    Cancel
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <span>{c.name}</span>
+                <div className="flex gap-2">
+                  <button onClick={() => startEdit(c.id, c.name)} className="button px-2 py-1 text-sm">
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => remove(c.id)}
+                    className="button bg-red-600 hover:bg-red-700 px-2 py-1 text-sm"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </>
+            )}
           </li>
         ))}
       </ul>
