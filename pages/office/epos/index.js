@@ -4,6 +4,7 @@ import OfficeLayout from "../../../components/OfficeLayout";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Modal } from "../../../components/ui/Modal.jsx";
 import ClientAutocomplete from "../../../components/ClientAutocomplete";
 import VehicleAutocomplete from "../../../components/VehicleAutocomplete";
 
@@ -21,6 +22,9 @@ export default function EposPage() {
   const [vehicleId, setVehicleId] = useState("");
   const [invoiceLookup, setInvoiceLookup] = useState("");
   const [session, setSession] = useState(null);
+  const [showPayment, setShowPayment] = useState(false);
+  const [paymentType, setPaymentType] = useState("cash");
+  const [cash, setCash] = useState({ n50: 0, n20: 0, n10: 0, n5: 0, coins: 0 });
 
   useEffect(() => {
     fetch('/api/epos/start-day')
@@ -57,6 +61,13 @@ export default function EposPage() {
     (sum, it) => sum + it.price * it.quantity,
     0
   );
+  const received =
+    50 * cash.n50 +
+    20 * cash.n20 +
+    10 * cash.n10 +
+    5 * cash.n5 +
+    Number(cash.coins || 0);
+  const changeDue = received - total;
 
   const loadInvoice = async () => {
     if (!invoiceLookup) return;
@@ -91,7 +102,7 @@ export default function EposPage() {
         session_id: session.id,
         customer_id: customerId || null,
         vehicle_id: vehicleId || null,
-        payment_type: 'cash',
+        payment_type: paymentType,
         total_amount: total,
         items: cartItems.map((it) => ({
           part_id: it.part_id || it.id,
@@ -103,10 +114,90 @@ export default function EposPage() {
     alert(`Processed payment: €${total.toFixed(2)}`);
     setCartItems([]);
     setInputValue('');
+    setShowPayment(false);
+    setCash({ n50: 0, n20: 0, n10: 0, n5: 0, coins: 0 });
   };
 
   return (
     <OfficeLayout>
+      {showPayment && (
+        <Modal onClose={() => setShowPayment(false)} data-testid="payment-modal">
+          <div className="space-y-2">
+            <div>
+              <label className="block mb-1">Payment Type</label>
+              <select
+                value={paymentType}
+                onChange={(e) => setPaymentType(e.target.value)}
+                className="input w-full"
+                aria-label="Payment Type"
+              >
+                <option value="cash">Cash</option>
+                <option value="card">Card</option>
+              </select>
+            </div>
+            {paymentType === 'cash' && (
+              <div className="space-y-2">
+                <div>
+                  <label className="block mb-1">€50 notes</label>
+                  <Input
+                    type="number"
+                    value={cash.n50}
+                    onChange={(e) => setCash({ ...cash, n50: Number(e.target.value) })}
+                    aria-label="€50 notes"
+                    className="input w-full"
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1">€20 notes</label>
+                  <Input
+                    type="number"
+                    value={cash.n20}
+                    onChange={(e) => setCash({ ...cash, n20: Number(e.target.value) })}
+                    aria-label="€20 notes"
+                    className="input w-full"
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1">€10 notes</label>
+                  <Input
+                    type="number"
+                    value={cash.n10}
+                    onChange={(e) => setCash({ ...cash, n10: Number(e.target.value) })}
+                    aria-label="€10 notes"
+                    className="input w-full"
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1">€5 notes</label>
+                  <Input
+                    type="number"
+                    value={cash.n5}
+                    onChange={(e) => setCash({ ...cash, n5: Number(e.target.value) })}
+                    aria-label="€5 notes"
+                    className="input w-full"
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1">Coins</label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={cash.coins}
+                    onChange={(e) => setCash({ ...cash, coins: Number(e.target.value) })}
+                    aria-label="Coins"
+                    className="input w-full"
+                  />
+                </div>
+                <p>Received: €{received.toFixed(2)}</p>
+                <p>Change: €{changeDue.toFixed(2)}</p>
+              </div>
+            )}
+            <div className="text-right">
+              <Button onClick={takePayment}>Confirm</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
       <div className="flex flex-col h-full space-y-4 p-4">
       <div className="flex gap-2 mb-2">
         <ClientAutocomplete
@@ -170,7 +261,7 @@ export default function EposPage() {
                 </Button>
               ))}
             </div>
-            <Button onClick={takePayment} className="w-full">
+            <Button onClick={() => setShowPayment(true)} className="w-full">
               Take Payment
             </Button>
           </CardContent>
