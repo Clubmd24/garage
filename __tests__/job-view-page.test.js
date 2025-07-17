@@ -93,11 +93,13 @@ test('job view page updates job status and assignment', async () => {
   fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'in progress' } });
   fireEvent.change(screen.getByLabelText('Engineer'), { target: { value: '2' } });
   fireEvent.change(screen.getByLabelText('Scheduled Start'), { target: { value: '2024-01-01T10:00' } });
+  fireEvent.change(screen.getByLabelText('Allocated Time'), { target: { value: '60' } });
   fireEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(6));
   expect(global.fetch.mock.calls[3][0]).toBe('/api/jobs/5/assign');
   const body = JSON.parse(global.fetch.mock.calls[3][1].body);
+  expect(body.duration).toBe('60');
   expect(body.scheduled_end).toBeUndefined();
   expect(global.fetch.mock.calls[4][0]).toBe('/api/jobs/5');
   expect(global.fetch.mock.calls[4][1].method).toBe('PUT');
