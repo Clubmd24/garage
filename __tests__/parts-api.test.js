@@ -13,7 +13,7 @@ test('parts index creates part', async () => {
     createPart: createMock,
   }));
   const { default: handler } = await import('../pages/api/parts/index.js');
-  const req = { method: 'POST', body: { part_number: 'P1', supplier_id: 2 }, headers: {} };
+  const req = { method: 'POST', body: { part_number: 'P1', supplier_id: 2, category_id: 3 }, headers: {} };
   const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn(), end: jest.fn() };
   await handler(req, res);
   expect(res.status).toHaveBeenCalledWith(201);
@@ -23,6 +23,7 @@ test('parts index creates part', async () => {
     description: undefined,
     unit_cost: undefined,
     supplier_id: 2,
+    category_id: 3,
   });
 });
 
