@@ -26,6 +26,7 @@ export default function JobViewPage() {
     status: '',
     engineer_id: '',
     scheduled_start: '',
+    duration: '',
     notes: '',
   });
   const [loading, setLoading] = useState(true);
@@ -44,10 +45,22 @@ export default function JobViewPage() {
         setEngineers(engs);
         setStatuses(stats);
 
+        const duration =
+          jobData.scheduled_start && jobData.scheduled_end
+            ? Math.round(
+                (new Date(jobData.scheduled_end) -
+                  new Date(jobData.scheduled_start)) /
+                  60000
+              )
+            : '';
+
         setForm({
           status: jobData.status || '',
           engineer_id: jobData.assignments?.[0]?.user_id || '',
-          scheduled_start: jobData.scheduled_start || '',
+          scheduled_start: jobData.scheduled_start
+            ? jobData.scheduled_start.slice(0, 16)
+            : '',
+          duration: duration ? String(duration) : '',
           notes: jobData.notes || '',
         });
 
@@ -79,11 +92,13 @@ export default function JobViewPage() {
         await assignJob(id, {
           engineer_id: form.engineer_id,
           scheduled_start: form.scheduled_start,
+          duration: form.duration,
         });
         setJob(await fetchJob(id));
       }
       const data = { ...form };
       delete data.engineer_id;
+      delete data.duration;
       const res = await fetch(`/api/jobs/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -175,6 +190,18 @@ export default function JobViewPage() {
                     type="datetime-local"
                     name="scheduled_start"
                     value={form.scheduled_start}
+                    onChange={change}
+                    className="input w-full"
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1">Allocated Time (minutes)</label>
+                  <input
+                    type="number"
+                    step="30"
+                    min="30"
+                    name="duration"
+                    value={form.duration}
                     onChange={change}
                     className="input w-full"
                   />
