@@ -46,7 +46,7 @@ export default function JobViewPage() {
 
         setForm({
           status: jobData.status || '',
-          engineer_id: jobData.engineer_id || '',
+          engineer_id: jobData.assignments?.[0]?.user_id || '',
           scheduled_start: jobData.scheduled_start || '',
           notes: jobData.notes || '',
         });
