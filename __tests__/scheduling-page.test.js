@@ -22,8 +22,9 @@ test('jobs fetch and display in calendar and side panel', async () => {
     },
     { id: 2, status: 'unassigned', assignments: [], licence_plate: 'BBB222' },
   ];
+  const fetchJobsInRange = jest.fn().mockResolvedValue(jobs);
   jest.unstable_mockModule('../lib/jobs', () => ({
-    fetchJobsInRange: jest.fn().mockResolvedValue(jobs),
+    fetchJobsInRange,
     assignJob: jest.fn(),
   }));
   jest.unstable_mockModule('next/router', () => ({
@@ -33,6 +34,16 @@ test('jobs fetch and display in calendar and side panel', async () => {
   render(<Page />);
   await screen.findByText('Job #1');
   expect(screen.getByTestId('side-panel')).toHaveTextContent('Job #2 – BBB222');
+  const start = new Date();
+  start.setDate(start.getDate() - 7);
+  const end = new Date();
+  end.setDate(end.getDate() + 30);
+  expect(fetchJobsInRange).toHaveBeenCalledWith(
+    start.toLocaleDateString('en-CA'),
+    end.toLocaleDateString('en-CA'),
+    '',
+    ''
+  );
 });
 
 test('dragging unassigned job calls assign endpoint', async () => {
@@ -128,7 +139,16 @@ test('changing filters reloads jobs', async () => {
   fireEvent.change(screen.getByLabelText('Engineer Filter'), { target: { value: '1' } });
   fireEvent.change(screen.getByLabelText('Status Filter'), { target: { value: 'done' } });
   await act(() => Promise.resolve());
-  expect(fetchMock).toHaveBeenLastCalledWith(expect.any(String), expect.any(String), '1', 'done');
+  const s = new Date();
+  s.setDate(s.getDate() - 7);
+  const e = new Date();
+  e.setDate(e.getDate() + 30);
+  expect(fetchMock).toHaveBeenLastCalledWith(
+    s.toLocaleDateString('en-CA'),
+    e.toLocaleDateString('en-CA'),
+    '1',
+    'done'
+  );
 });
 
 test('assign with duration computes end time', async () => {
