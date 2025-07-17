@@ -1,107 +1,124 @@
-import { useEffect, useState } from 'react';
-import OfficeLayout from '../../../components/OfficeLayout';
-
-function Keypad({ value, onChange }) {
-  return (
-    <input
-      type="number"
-      value={value}
-      onChange={e => onChange(e.target.value)}
-      className="input w-full mb-2"
-    />
-  );
-}
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 export default function EposPage() {
-  const [categories, setCategories] = useState([]);
-  const [parts, setParts] = useState([]);
-  const [categoryId, setCategoryId] = useState(null);
-  const [cart, setCart] = useState([]);
-  const [qty, setQty] = useState(1);
-  const [showPay, setShowPay] = useState(false);
-
-  useEffect(() => {
-    fetch('/api/categories')
-      .then(r => r.json())
-      .then(setCategories);
-  }, []);
-
-  useEffect(() => {
-    if (!categoryId) return;
-    fetch(`/api/parts?category_id=${categoryId}`)
-      .then(r => r.json())
-      .then(setParts);
-  }, [categoryId]);
-
-  const add = p => {
-    setCart(c => [...c, { ...p, qty }]);
-    setQty(1);
+  // sample data
+  const categories = ["Beverages", "Snacks", "Meals", "Desserts"];
+  const products = {
+    Beverages: [
+      { id: 1, name: "Coffee", price: 2.5 },
+      { id: 2, name: "Tea", price: 2.0 },
+      { id: 3, name: "Soda", price: 1.5 },
+    ],
+    Snacks: [
+      { id: 4, name: "Chips", price: 1.0 },
+      { id: 5, name: "Nuts", price: 1.2 },
+    ],
+    // ... more
   };
 
-  const remove = idx => setCart(c => c.filter((_, i) => i !== idx));
+  const [selectedCategory, setSelectedCategory] = useState(categories[0]);
+  const [cartItems, setCartItems] = useState([]);
+  const [inputValue, setInputValue] = useState("");
 
-  const pay = async type => {
-    const total = cart.reduce((sum, i) => sum + i.unit_cost * i.qty, 0);
-    await fetch('/api/epos/sales', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ session_id: 1, payment_type: type, total_amount: total, items: cart.map(i => ({ part_id: i.id, qty: i.qty, unit_price: i.unit_cost })) }),
-    });
-    setCart([]);
-    setShowPay(false);
+  const addToCart = (product) => {
+    setCartItems((prev) => [...prev, { ...product, quantity: 1 }]);
+  };
+
+  const handleKeypad = (digit) => {
+    setInputValue((prev) => prev + digit);
+  };
+
+  const clearInput = () => setInputValue("");
+
+  const takePayment = () => {
+    // TODO: integrate payment handling
+    alert(`Processing payment: $${inputValue}`);
   };
 
   return (
-    <OfficeLayout>
-      <h1 className="text-2xl font-semibold mb-4">EPOS</h1>
-      {!categoryId && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          {categories.map(c => (
-            <button key={c.id} onClick={() => setCategoryId(c.id)} className="button">
-              {c.name}
-            </button>
-          ))}
-        </div>
-      )}
-      {categoryId && (
-        <div className="space-y-2">
-          <button onClick={() => setCategoryId(null)} className="button-secondary mb-2">Back</button>
-          <Keypad value={qty} onChange={setQty} />
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            {parts.map(p => (
-              <button key={p.id} onClick={() => add(p)} className="button">
-                {p.part_number}
-              </button>
+    <div className="flex h-full space-x-4 p-4">
+      {/* Categories pane */}
+      <aside className="w-1/6">
+        <Card className="h-full">
+          <CardContent className="space-y-2">
+            <h2 className="text-lg font-semibold">Categories</h2>
+            {categories.map((cat) => (
+              <Button
+                key={cat}
+                variant={cat === selectedCategory ? "secondary" : "outline"}
+                onClick={() => setSelectedCategory(cat)}
+                className="w-full text-left"
+              >
+                {cat}
+              </Button>
             ))}
-          </div>
-        </div>
-      )}
-      <h2 className="text-xl font-semibold mt-4 mb-2">Cart</h2>
-      <ul className="space-y-1">
-        {cart.map((item, i) => (
-          <li key={i} className="flex justify-between">
-            <span>
-              {item.qty} x {item.part_number}
-            </span>
-            <button onClick={() => remove(i)} className="text-red-500">Remove</button>
-          </li>
-        ))}
-      </ul>
-      {cart.length > 0 && (
-        <div className="mt-4 space-x-2">
-          <button onClick={() => setShowPay(true)} className="button">Pay</button>
-          <button onClick={() => setCart([])} className="button-secondary">Clear</button>
-        </div>
-      )}
-      {showPay && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-4 rounded space-x-2">
-            <button onClick={() => pay('cash')} className="button">Cash</button>
-            <button onClick={() => pay('card')} className="button">Card</button>
-            <button onClick={() => setShowPay(false)} className="button-secondary">Cancel</button>
-          </div>
-        </div>
-      )}
-    </OfficeLayout>
+          </CardContent>
+        </Card>
+      </aside>
+
+      {/* Products pane */}
+      <div className="w-1/4">
+        <Card className="h-full">
+          <CardContent className="grid grid-cols-2 gap-2">
+            {products[selectedCategory]?.map((p) => (
+              <Button
+                key={p.id}
+                onClick={() => addToCart(p)}
+                className="flex flex-col items-center p-2"
+              >
+                <span>{p.name}</span>
+                <small>${p.price.toFixed(2)}</small>
+              </Button>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Cart & keypad pane */}
+      <div className="flex-1 flex flex-col justify-between">
+        <Card className="flex-1 mb-4">
+          <CardContent className="space-y-2">
+            <h2 className="text-lg font-semibold">Cart</h2>
+            <ul className="space-y-1">
+              {cartItems.map((item, idx) => (
+                <li key={idx} className="flex justify-between">
+                  <span>{item.name} x{item.quantity}</span>
+                  <span>${(item.price * item.quantity).toFixed(2)}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent>
+            <div className="mb-2">
+              <Input
+                readOnly
+                value={inputValue}
+                placeholder="Enter payment amount"
+              />
+            </div>
+            <div className="grid grid-cols-3 gap-2 mb-2">
+              {["1","2","3","4","5","6","7","8","9","0","C"].map((key) => (
+                <Button
+                  key={key}
+                  onClick={() => key === "C" ? clearInput() : handleKeypad(key)}
+                >
+                  {key}
+                </Button>
+              ))}
+            </div>
+            <Button onClick={takePayment} className="w-full">
+              Take Payment
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }
