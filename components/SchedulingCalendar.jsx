@@ -13,6 +13,7 @@ import enUS from 'date-fns/locale/en-US';
 import { fetchJobsInRange, assignJob } from '../lib/jobs';
 import { fetchEngineers } from '../lib/engineers';
 import { fetchJobStatuses } from '../lib/jobStatuses';
+import { formatLocalDate } from '../lib/datetime';
 
 // Note: Global CSS imports for react-big-calendar belong in pages/_app.js
 const locales = { 'en-US': enUS };
@@ -49,8 +50,8 @@ export default function SchedulingCalendar() {
   // Load jobs from API
   const load = (startDate, endDate) => {
     fetchJobsInRange(
-      startDate.toISOString().slice(0, 10),
-      endDate.toISOString().slice(0, 10),
+      formatLocalDate(startDate),
+      formatLocalDate(endDate),
       filters.engineer_id,
       filters.status
     ).then(jobs => {
