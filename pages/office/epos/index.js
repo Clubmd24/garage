@@ -2,27 +2,15 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 import ClientAutocomplete from "../../../components/ClientAutocomplete";
 import VehicleAutocomplete from "../../../components/VehicleAutocomplete";
 
 export default function EposPage() {
-  // sample data
-  const categories = ["Beverages", "Snacks", "Meals", "Desserts"];
-  const products = {
-    Beverages: [
-      { id: 1, name: "Coffee", price: 2.5 },
-      { id: 2, name: "Tea", price: 2.0 },
-      { id: 3, name: "Soda", price: 1.5 },
-    ],
-    Snacks: [
-      { id: 4, name: "Chips", price: 1.0 },
-      { id: 5, name: "Nuts", price: 1.2 },
-    ],
-    // ... more
-  };
-
-  const [selectedCategory, setSelectedCategory] = useState(categories[0]);
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [cartItems, setCartItems] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [clientName, setClientName] = useState("");
@@ -37,6 +25,21 @@ export default function EposPage() {
       .then(r => (r.ok ? r.json() : null))
       .then(setSession)
       .catch(() => setSession(null));
+  }, []);
+
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([
+      fetch('/api/categories').then(r => (r.ok ? r.json() : Promise.reject())),
+      fetch('/api/parts').then(r => (r.ok ? r.json() : Promise.reject())),
+    ])
+      .then(([c, p]) => {
+        setCategories(c);
+        setProducts(p);
+        if (c.length) setSelectedCategory(c[0].id);
+      })
+      .catch(() => setError('Failed to load products'))
+      .finally(() => setLoading(false));
   }, []);
 
   const addToCart = (product) => {
@@ -131,6 +134,8 @@ export default function EposPage() {
           </Button>
         </div>
       </div>
+      {error && <p className="text-red-500">{error}</p>}
+      {loading && <p>Loading…</p>}
       {/* Cart & keypad pane - now full width */}
       <div className="flex flex-col flex-1 justify-between">
         <Card className="flex-1 mb-4">
@@ -181,12 +186,12 @@ export default function EposPage() {
               <h2 className="text-lg font-semibold">Categories</h2>
               {categories.map((cat) => (
                 <Button
-                  key={cat}
-                  variant={cat === selectedCategory ? "secondary" : "outline"}
-                  onClick={() => setSelectedCategory(cat)}
+                  key={cat.id}
+                  variant={cat.id === selectedCategory ? "secondary" : "outline"}
+                  onClick={() => setSelectedCategory(cat.id)}
                   className="w-full text-left"
                 >
-                  {cat}
+                  {cat.name}
                 </Button>
               ))}
             </CardContent>
@@ -197,16 +202,24 @@ export default function EposPage() {
         <div className="w-1/4">
           <Card className="h-full">
             <CardContent className="grid grid-cols-2 gap-2">
-              {products[selectedCategory]?.map((p) => (
-                <Button
-                  key={p.id}
-                  onClick={() => addToCart(p)}
-                  className="flex flex-col items-center p-2"
-                >
-                  <span>{p.name}</span>
-                  <small>${p.price.toFixed(2)}</small>
-                </Button>
-              ))}
+              {products
+                .filter((p) => p.category_id === selectedCategory)
+                .map((p) => (
+                  <Button
+                    key={p.id}
+                    onClick={() =>
+                      addToCart({
+                        id: p.id,
+                        name: p.description || p.part_number,
+                        price: p.unit_cost || 0,
+                      })
+                    }
+                    className="flex flex-col items-center p-2"
+                  >
+                    <span>{p.description || p.part_number}</span>
+                    <small>€{Number(p.unit_cost || 0).toFixed(2)}</small>
+                  </Button>
+                ))}
             </CardContent>
           </Card>
         </div>
