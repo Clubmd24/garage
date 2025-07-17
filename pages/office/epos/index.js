@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import OfficeLayout from "../../../components/OfficeLayout";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -104,7 +106,8 @@ export default function EposPage() {
   };
 
   return (
-    <div className="flex flex-col h-full space-y-4 p-4">
+    <OfficeLayout>
+      <div className="flex flex-col h-full space-y-4 p-4">
       <div className="flex gap-2 mb-2">
         <ClientAutocomplete
           value={clientName}
@@ -136,6 +139,9 @@ export default function EposPage() {
       </div>
       {error && <p className="text-red-500">{error}</p>}
       {loading && <p>Loading…</p>}
+      <Link href="/office" className="button inline-block mb-4">
+        Return to Office
+      </Link>
       {/* Cart & keypad pane - now full width */}
       <div className="flex flex-col flex-1 justify-between">
         <Card className="flex-1 mb-4">
@@ -224,6 +230,6 @@ export default function EposPage() {
           </Card>
         </div>
       </div>
-    </div>
+    </OfficeLayout>
   );
 }
