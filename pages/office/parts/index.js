@@ -42,7 +42,12 @@ export default function PartsPage() {
     <OfficeLayout>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-semibold">Parts</h1>
-        <Link href="/office/parts/new" className="button">+ New Part</Link>
+        <div className="flex gap-2">
+          <Link href="/office/parts/categories" className="button-secondary">
+            Categories
+          </Link>
+          <Link href="/office/parts/new" className="button">+ New Part</Link>
+        </div>
       </div>
       {error && <p className="text-red-500">{error}</p>}
       {loading ? (

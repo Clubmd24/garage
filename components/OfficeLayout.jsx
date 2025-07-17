@@ -195,9 +195,21 @@ export default function OfficeLayout({ children }) {
             <h3 className="uppercase text-sm font-semibold mb-2 text-cyan-400">Assets</h3>
             <ul className="space-y-1">
               <li>
-                <Link href="/office/parts" className="flex items-center hover:underline">
+                <Link
+                  href="/office/parts"
+                  className={`flex items-center hover:underline ${router.pathname.startsWith('/office/parts') && !router.pathname.startsWith('/office/parts/categories') ? 'text-yellow-300 font-semibold' : ''}`}
+                >
                   <ArrowIcon />
                   Parts
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/office/parts/categories"
+                  className={`flex items-center hover:underline ${router.pathname.startsWith('/office/parts/categories') ? 'text-yellow-300 font-semibold' : ''}`}
+                >
+                  <ArrowIcon />
+                  Part Categories
                 </Link>
               </li>
               <li>
