@@ -44,6 +44,7 @@ For a local installation, ensure the MySQL service is running and a database nam
    (and the other variables in `.env.example`) to be defined.
    Copy `.env.example` to `.env.test` or create those variables in your environment before running Jest.
    The tests will automatically load variables from `.env.test` if it exists.
+   Jest uses Next.js' built-in SWC compiler via `next/jest` so no Babel configuration is required.
 8. Start dev server: `npm run dev`
 
 ## Code Style

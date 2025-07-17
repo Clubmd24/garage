@@ -1,3 +1,4 @@
+import nextJest from 'next/jest.js';
 import { config } from 'dotenv';
 import fs from 'fs';
 
@@ -9,10 +10,9 @@ const envFile = fs.existsSync('.env.test')
 
 if (envFile) config({ path: envFile });
 
-export default {
+const createJestConfig = nextJest({ dir: './' });
+
+export default createJestConfig({
   testEnvironment: 'node',
-  transform: {
-    '^.+\\.[jt]sx?$': 'babel-jest',
-  },
   transformIgnorePatterns: [],
-};
+});
