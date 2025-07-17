@@ -22,6 +22,7 @@ async function handler(req, res) {
         engineer_id,
         scheduled_start,
         scheduled_end,
+        duration,
         awaiting_parts,
       } = req.body || {};
       if (awaiting_parts) {
@@ -31,10 +32,18 @@ async function handler(req, res) {
           return res.status(400).json({ error: 'engineer_id required' });
         }
         await assignUser(id, engineer_id);
+        let end = scheduled_end;
+        if (!end && duration && scheduled_start) {
+          const start = new Date(scheduled_start);
+          if (!Number.isNaN(start.getTime())) {
+            const calc = new Date(start.getTime() + Number(duration) * 60000);
+            end = calc.toISOString().slice(0, 16);
+          }
+        }
         await updateJob(id, {
           status: 'awaiting assessment',
           scheduled_start,
-          scheduled_end,
+          scheduled_end: end,
         });
       }
       const job = await getJobDetails(id);

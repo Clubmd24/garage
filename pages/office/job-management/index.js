@@ -65,6 +65,14 @@ export default function JobManagementPage() {
 
   const assign = async id => {
     const data = forms[id] || {};
+    let scheduled_end = '';
+    if (data.duration && data.scheduled_start) {
+      const start = new Date(data.scheduled_start);
+      if (!Number.isNaN(start.getTime())) {
+        const end = new Date(start.getTime() + Number(data.duration) * 60000);
+        scheduled_end = end.toISOString().slice(0, 16);
+      }
+    }
     try {
       const res = await fetch(`/api/jobs/${id}/assign`, {
         method: 'POST',
@@ -72,6 +80,8 @@ export default function JobManagementPage() {
         body: JSON.stringify({
           engineer_id: data.engineer_id,
           scheduled_start: data.scheduled_start,
+          scheduled_end,
+          duration: data.duration,
         }),
       });
       if (!res.ok) throw new Error();
