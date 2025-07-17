@@ -29,10 +29,11 @@ test('start session returns new session', async () => {
     startSession: startMock,
   }));
   const { default: handler } = await import('../pages/api/epos/start-day.js');
-  const req = { method: 'POST', body: { float_amount: 5 }, headers: {} };
+  const body = { start_50: 1, start_20: 0, start_10: 0, start_5: 1, start_coins: 0.5 };
+  const req = { method: 'POST', body, headers: {} };
   const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn(), end: jest.fn() };
   await handler(req, res);
-  expect(startMock).toHaveBeenCalledWith(5);
+  expect(startMock).toHaveBeenCalledWith(body);
   expect(res.status).toHaveBeenCalledWith(201);
   expect(res.json).toHaveBeenCalledWith(sess);
 });
