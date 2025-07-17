@@ -7,7 +7,18 @@ import { Input } from "@/components/ui/input";
 import { Modal } from "../../../components/ui/Modal.jsx";
 import ClientAutocomplete from "../../../components/ClientAutocomplete";
 import VehicleAutocomplete from "../../../components/VehicleAutocomplete";
-import { SectionCard } from "@/components/SectionCard";
+
+// Simple section wrapper
+function SectionCard({ title, children }) {
+  return (
+    <div className="mb-6 bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="px-4 py-2 bg-blue-700 text-white font-semibold">
+        {title}
+      </div>
+      <div className="p-4">{children}</div>
+    </div>
+  );
+}
 
 // Cart hook
 function useCart(initial = []) {
@@ -109,21 +120,21 @@ export default function EposPage() {
       if (data.vehicle_id) setVehicleId(data.vehicle_id);
       if (Array.isArray(data.items)) {
         clearCart();
-        data.items.forEach(it => {
+        data.items.forEach(it =>
           addToCart({
             part_id: it.part_id,
             description: it.description,
             price: Number(it.unit_price) || 0,
             quantity: it.qty,
-          });
-        });
+          })
+        );
       }
     } catch {
       setError("Invoice not found");
     }
   };
 
-  // Payment calculations
+  // Payment calcs
   const received =
     50 * cash.n50 +
     20 * cash.n20 +
@@ -134,10 +145,7 @@ export default function EposPage() {
 
   // Process payment
   const takePayment = async () => {
-    if (!session) {
-      alert("No active session");
-      return;
-    }
+    if (!session) return alert("No active session");
     await fetch("/api/epos/sales", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -147,7 +155,11 @@ export default function EposPage() {
         vehicle_id: vehicleId || null,
         payment_type: paymentType,
         total_amount: total,
-        items: cartItems.map(it => ({ part_id: it.part_id, qty: it.quantity, unit_price: it.price })),
+        items: cartItems.map(it => ({
+          part_id: it.part_id,
+          qty: it.quantity,
+          unit_price: it.price,
+        })),
       }),
     });
     alert(`Processed payment: €${total.toFixed(2)}`);
@@ -215,6 +227,7 @@ export default function EposPage() {
               ))}
             </div>
           </SectionCard>
+
           <SectionCard title="Products">
             <div className="grid grid-cols-3 gap-4">
               {products
@@ -223,11 +236,13 @@ export default function EposPage() {
                   <Card
                     key={p.id}
                     className="cursor-pointer hover:shadow-lg"
-                    onClick={() => addToCart({
-                      part_id: p.id,
-                      description: p.description,
-                      price: p.unit_cost,
-                    })}
+                    onClick={() =>
+                      addToCart({
+                        part_id: p.id,
+                        description: p.description,
+                        price: p.unit_cost,
+                      })
+                    }
                   >
                     <CardContent className="flex flex-col justify-between h-32">
                       <div className="font-semibold truncate">{p.description}</div>
@@ -247,17 +262,34 @@ export default function EposPage() {
                 cartItems.map(item => (
                   <div
                     key={item.part_id}
-                    className="flex items-center justify-between mb-2 p-2 border rounded">
+                    className="flex items-center justify-between mb-2 p-2 border rounded"
+                  >
                     <div>
                       <div className="font-medium">{item.description}</div>
-                      <div className="text-sm text-gray-600">€{item.price.toFixed(2)}</div>
+                      <div className="text-sm text-gray-600">
+                        €{item.price.toFixed(2)}
+                      </div>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <Button size="sm" variant="outline" onClick={() => updateQty(item.part_id, -1)}>-</Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => updateQty(item.part_id, -1)}
+                      >
+                        –
+                      </Button>
                       <span className="px-2">{item.quantity}</span>
-                      <Button size="sm" variant="outline" onClick={() => updateQty(item.part_id, +1)}>+</Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => updateQty(item.part_id, +1)}
+                      >
+                        +
+                      </Button>
                     </div>
-                    <div className="font-semibold">€{(item.price * item.quantity).toFixed(2)}</div>
+                    <div className="font-semibold">
+                      €{(item.price * item.quantity).toFixed(2)}
+                    </div>
                   </div>
                 ))
               ) : (
@@ -265,16 +297,20 @@ export default function EposPage() {
               )}
             </div>
           </SectionCard>
-          <SectionCard title="Summary & Payment">
+
+          <SectionCard title="Summary & Payment">  
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span>Subtotal</span><span>€{total.toFixed(2)}</span>
+                <span>Subtotal</span>
+                <span>€{total.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Tax</span><span>€0.00</span>
+                <span>Tax</span>
+                <span>€0.00</span>
               </div>
               <div className="flex justify-between font-semibold">
-                <span>Total</span><span>€{total.toFixed(2)}</span>
+                <span>Total</span>
+                <span>€{total.toFixed(2)}</span>
               </div>
               <Button className="w-full mt-4" onClick={() => setShowPayment(true)}>
                 Take Payment
@@ -303,15 +339,30 @@ export default function EposPage() {
             {paymentType === "cash" && (
               <>
                 <div className="grid grid-cols-2 gap-4">
-                  {['n50','n20','n10','n5'].map(note => (
+                  {["n50", "n20", "n10", "n5"].map(note => (
                     <div key={note}>
                       <label className="block mb-1">€{note.slice(1)} notes</label>
-                      <Input type="number" value={cash[note]} onChange={e => setCash({...cash,[note]:Number(e.target.value)})} className="w-full" />
+                      <Input
+                        type="number"
+                        value={cash[note]}
+                        onChange={e =>
+                          setCash({ ...cash, [note]: Number(e.target.value) })
+                        }
+                        className="w-full"
+                      />
                     </div>
                   ))}
                   <div>
                     <label className="block mb-1">Coins</label>
-                    <Input type="number" step="0.01" value={cash.coins} onChange={e => setCash({...cash,coins:Number(e.target.value)})} className="w-full" />
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={cash.coins}
+                      onChange={e =>
+                        setCash({ ...cash, coins: Number(e.target.value) })
+                      }
+                      className="w-full"
+                    />
                   </div>
                 </div>
                 <div className="mt-2 space-y-1">
