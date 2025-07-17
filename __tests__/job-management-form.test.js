@@ -7,6 +7,30 @@ import { jest } from '@jest/globals';
 
 afterEach(() => { jest.resetModules(); jest.clearAllMocks(); });
 
+test('job management page loads with status filter from query', async () => {
+  jest.unstable_mockModule('next/router', () => ({
+    useRouter: () => ({ query: { status: 'awaiting parts' }, isReady: true })
+  }));
+  const fetchJobsMock = jest.fn().mockResolvedValue([{ id: 1, status: 'awaiting parts' }]);
+  jest.unstable_mockModule('../lib/jobs', () => ({
+    fetchJobs: fetchJobsMock,
+    fetchJob: jest.fn().mockResolvedValue({ id: 1, vehicle: {}, quote: {} }),
+  }));
+  jest.unstable_mockModule('../lib/engineers', () => ({
+    fetchEngineers: jest.fn().mockResolvedValue([]),
+  }));
+  jest.unstable_mockModule('../lib/jobStatuses', () => ({
+    fetchJobStatuses: jest.fn().mockResolvedValue([{ id: 1, name: 'awaiting parts' }])
+  }));
+
+  const { default: Page } = await import('../pages/office/job-management/index.js');
+  render(<Page />);
+
+  await screen.findByText('Job #1');
+  expect(fetchJobsMock).toHaveBeenCalledWith({ status: 'awaiting parts' });
+  expect(screen.getByDisplayValue('awaiting parts')).toBeInTheDocument();
+});
+
 test('job management form submits with scheduled end', async () => {
   jest.unstable_mockModule('../lib/jobs', () => ({
     fetchJobs: jest.fn().mockResolvedValue([{ id: 9 }]),
