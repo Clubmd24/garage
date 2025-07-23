@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Modal } from "../../../components/ui/Modal.jsx";
+import { createInvoice } from "../../../lib/invoices";
 import ClientAutocomplete from "../../../components/ClientAutocomplete";
 import VehicleAutocomplete from "../../../components/VehicleAutocomplete";
 
@@ -176,13 +177,22 @@ export default function EposPage() {
   // Submit payment
   const takePayment = async () => {
     if(!session) return alert("No session");
-    await fetch("/api/epos/sales",{
+    const saleRes = await fetch("/api/epos/sales",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({ session_id:session.id, customer_id:customerId||null, vehicle_id:vehicleId||null, payment_type:paymentType, total_amount:total, items:cartItems.map(i=>({part_id:i.part_id, qty:i.quantity, unit_price:i.price})) })
     });
-    alert(`Processed €${total.toFixed(2)}`);
-    clearCart(); setShowPayment(false); setCash({n50:0,n20:0,n10:0,n5:0,coins:0});
+    const sale = await saleRes.json();
+    const invoice = await createInvoice({
+      customer_id: customerId || null,
+      amount: total,
+      status: 'paid'
+    });
+    await fetch(`/api/invoices/${invoice.id}/pdf`);
+    window.open(`/api/invoices/${invoice.id}/pdf`);
+    clearCart();
+    setShowPayment(false);
+    setCash({n50:0,n20:0,n10:0,n5:0,coins:0});
   };
 
   // Filter products
