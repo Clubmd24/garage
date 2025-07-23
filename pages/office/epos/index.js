@@ -121,7 +121,18 @@ export default function EposPage() {
   const [session, setSession]             = useState(null);
   const [showPayment, setShowPayment]     = useState(false);
   const [paymentType, setPaymentType]     = useState("cash");
-  const [cash, setCash]                   = useState({ n50:0,n20:0,n10:0,n5:0,coins:0 });
+  const [cash, setCash] = useState({
+    n50: 0,
+    n20: 0,
+    n10: 0,
+    n5: 0,
+    n2: 0,
+    n1: 0,
+    c050: 0,
+    c020: 0,
+    c010: 0,
+    c005: 0,
+  });
 
   // Search
   const [searchTerm, setSearchTerm] = useState("");
@@ -171,7 +182,17 @@ export default function EposPage() {
   };
 
   // Payment calc
-  const received = 50*cash.n50 + 20*cash.n20 + 10*cash.n10 + 5*cash.n5 + Number(cash.coins||0);
+  const received =
+    50 * cash.n50 +
+    20 * cash.n20 +
+    10 * cash.n10 +
+    5 * cash.n5 +
+    2 * cash.n2 +
+    1 * cash.n1 +
+    0.5 * cash.c050 +
+    0.2 * cash.c020 +
+    0.1 * cash.c010 +
+    0.05 * cash.c005;
   const changeDue = received - total;
 
   // Submit payment
@@ -192,7 +213,18 @@ export default function EposPage() {
     window.open(`/api/invoices/${invoice.id}/pdf`);
     clearCart();
     setShowPayment(false);
-    setCash({n50:0,n20:0,n10:0,n5:0,coins:0});
+    setCash({
+      n50: 0,
+      n20: 0,
+      n10: 0,
+      n5: 0,
+      n2: 0,
+      n1: 0,
+      c050: 0,
+      c020: 0,
+      c010: 0,
+      c005: 0,
+    });
   };
 
   // Filter products
@@ -333,16 +365,19 @@ export default function EposPage() {
               {paymentType==="cash" && (
                 <>
                   <div className="grid grid-cols-2 gap-4">
-                    {['n50','n20','n10','n5'].map(n=>(
+                    {['n50','n20','n10','n5','n2','n1','c050','c020','c010','c005'].map(n => (
                       <div key={n}>
-                        <label className="block mb-1">€{n.slice(1)} notes</label>
-                        <Input type="number" value={cash[n]} onChange={e=>setCash({...cash,[n]:Number(e.target.value)})} className="w-full" />
+                        <label className="block mb-1">
+                          {n.startsWith('n') ? `€${n.slice(1)} notes` : `${n.slice(1)} coins`}
+                        </label>
+                        <Input
+                          type="number"
+                          value={cash[n]}
+                          onChange={e => setCash({ ...cash, [n]: Number(e.target.value) })}
+                          className="w-full"
+                        />
                       </div>
                     ))}
-                    <div>
-                      <label className="block mb-1">Coins</label>
-                      <Input type="number" step="0.01" value={cash.coins} onChange={e=>setCash({...cash,coins:Number(e.target.value)})} className="w-full" />
-                    </div>
                   </div>
                   <div className="mt-2 space-y-1">
                     <div>Received: €{received.toFixed(2)}</div>
