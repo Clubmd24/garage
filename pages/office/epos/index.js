@@ -118,6 +118,7 @@ export default function EposPage() {
   const [customerId, setCustomerId]       = useState("");
   const [vehiclePlate, setVehiclePlate]   = useState("");
   const [vehicleId, setVehicleId]         = useState("");
+  const [quickSale, setQuickSale]         = useState(false);
   const [session, setSession]             = useState(null);
   const [showPayment, setShowPayment]     = useState(false);
   const [paymentType, setPaymentType]     = useState("cash");
@@ -133,6 +134,15 @@ export default function EposPage() {
     c010: 0,
     c005: 0,
   });
+
+  useEffect(() => {
+    if (quickSale) {
+      setClientName("");
+      setCustomerId("");
+      setVehiclePlate("");
+      setVehicleId("");
+    }
+  }, [quickSale]);
 
   // Search
   const [searchTerm, setSearchTerm] = useState("");
@@ -198,14 +208,16 @@ export default function EposPage() {
   // Submit payment
   const takePayment = async () => {
     if(!session) return alert("No session");
+    const custId = quickSale ? null : customerId || null;
+    const vehId = quickSale ? null : vehicleId || null;
     const saleRes = await fetch("/api/epos/sales",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({ session_id:session.id, customer_id:customerId||null, vehicle_id:vehicleId||null, payment_type:paymentType, total_amount:total, items:cartItems.map(i=>({part_id:i.part_id, qty:i.quantity, unit_price:i.price})) })
+      body:JSON.stringify({ session_id:session.id, customer_id:custId, vehicle_id:vehId, payment_type:paymentType, total_amount:total, items:cartItems.map(i=>({part_id:i.part_id, qty:i.quantity, unit_price:i.price})) })
     });
     const sale = await saleRes.json();
     const invoice = await createInvoice({
-      customer_id: customerId || null,
+      customer_id: custId,
       amount: total,
       status: 'paid'
     });
@@ -246,16 +258,24 @@ export default function EposPage() {
           />
           <Button onClick={loadInvoice}>Search</Button>
           {error && <span className="text-red-200">{error}</span>}
-          <ClientAutocomplete
-            value={clientName}
-            onChange={setClientName}
-            onSelect={c=>{setClientName(`${c.first_name} ${c.last_name}`); setCustomerId(c.id);}}
-          />
-          <VehicleAutocomplete
-            value={vehiclePlate}
-            onChange={setVehiclePlate}
-            onSelect={v=>{setVehiclePlate(v.licence_plate); setVehicleId(v.id);}}
-          />
+          <label className="flex items-center space-x-1">
+            <input type="checkbox" checked={quickSale} onChange={e=>setQuickSale(e.target.checked)} />
+            <span>Quick Sale</span>
+          </label>
+          {!quickSale && (
+            <ClientAutocomplete
+              value={clientName}
+              onChange={setClientName}
+              onSelect={c=>{setClientName(`${c.first_name} ${c.last_name}`); setCustomerId(c.id);}}
+            />
+          )}
+          {!quickSale && (
+            <VehicleAutocomplete
+              value={vehiclePlate}
+              onChange={setVehiclePlate}
+              onSelect={v=>{setVehiclePlate(v.licence_plate); setVehicleId(v.id);}}
+            />
+          )}
           <div className="flex-grow"/>
           <Link href="/office" className="underline">Return to Office</Link>
           <Link href={session?"/office/epos/end-day":"/office/epos/start-day"} className="ml-4 underline">Manager</Link>
