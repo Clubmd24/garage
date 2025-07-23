@@ -198,9 +198,11 @@ export async function getClientsWithVehicles() {
     `SELECT c.id AS client_id, c.first_name, c.last_name, c.email, c.mobile,
             c.landline, c.nie_number, c.street_address, c.town,
             c.province, c.post_code, c.garage_name, c.vehicle_reg, c.pin,
-            v.licence_plate, v.make, v.model, v.color, v.company_vehicle_id
+            v.licence_plate, v.make, v.model, v.color, v.company_vehicle_id,
+            v.fleet_id, f.company_name
        FROM clients c
   LEFT JOIN vehicles v ON v.customer_id = c.id
+  LEFT JOIN fleets f ON v.fleet_id = f.id
    ORDER BY c.id, v.id`
   );
   return rows;
