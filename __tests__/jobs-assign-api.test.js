@@ -141,3 +141,38 @@ test('assign endpoint returns 403 for non-office role', async () => {
   expect(res.status).toHaveBeenCalledWith(403);
   expect(res.json).toHaveBeenCalledWith({ error: 'Forbidden' });
 });
+
+test('assign endpoint replaces existing assignment', async () => {
+  const assignMock = jest
+    .fn()
+    .mockResolvedValueOnce({ id: 1 })
+    .mockResolvedValueOnce({ id: 2 });
+  const updateMock = jest.fn().mockResolvedValue({ ok: true });
+  const job1 = { id: 1, status: 'awaiting assessment', assignments: [{ id: 1, user_id: 5 }] };
+  const job2 = { id: 1, status: 'awaiting assessment', assignments: [{ id: 2, user_id: 6 }] };
+  const getMock = jest.fn().mockResolvedValueOnce(job1).mockResolvedValueOnce(job2);
+  jest.unstable_mockModule('../services/jobsService.js', () => ({
+    assignUser: assignMock,
+    updateJob: updateMock,
+    getJobDetails: getMock,
+  }));
+  jest.unstable_mockModule('../lib/auth.js', () => ({
+    getTokenFromReq: () => ({ sub: 11 }),
+  }));
+  jest.unstable_mockModule('../lib/db.js', () => ({
+    default: { query: jest.fn().mockResolvedValue([[{ name: 'office' }]]) },
+  }));
+  const { default: handler } = await import('../pages/api/jobs/[id]/assign.js');
+  const req1 = { method: 'POST', query: { id: '1' }, body: { engineer_id: 5 }, headers: {} };
+  let res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn(), end: jest.fn() };
+  await handler(req1, res);
+  expect(res.json).toHaveBeenCalledWith(job1);
+
+  const req2 = { method: 'POST', query: { id: '1' }, body: { engineer_id: 6 }, headers: {} };
+  res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn(), end: jest.fn() };
+  await handler(req2, res);
+  expect(assignMock).toHaveBeenNthCalledWith(1, '1', 5);
+  expect(assignMock).toHaveBeenNthCalledWith(2, '1', 6);
+  expect(res.json).toHaveBeenCalledWith(job2);
+  expect(job2.assignments).toHaveLength(1);
+});
