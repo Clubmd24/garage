@@ -1,14 +1,31 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import logout from '../lib/logout.js';
 
 export function Header() {
   const [user, setUser] = useState(null);
+  const [hasAnnouncement, setHasAnnouncement] = useState(false);
   const router = useRouter();
   useEffect(() => {
     fetch('/api/auth/me', { credentials:'include' })
       .then(r=>r.json()).then(setUser).catch(()=>null);
   }, []);
+
+  useEffect(() => {
+    if (!user || user.role?.toLowerCase() !== 'developer') return;
+    fetch('/api/dev/announcements?limit=1', { credentials: 'include' })
+      .then(r => (r.ok ? r.json() : []))
+      .then(rows => {
+        const latest = rows[0];
+        if (!latest) return;
+        const seen = localStorage.getItem('announcement_seen_at');
+        if (!seen || new Date(latest.created_at) > new Date(seen)) {
+          setHasAnnouncement(true);
+        }
+      })
+      .catch(() => {});
+  }, [user]);
   async function handleLogout() {
     try {
       await logout();
@@ -24,6 +41,17 @@ export function Header() {
       </div>
       {user && (
         <div className="flex items-center space-x-4">
+          {user.role?.toLowerCase() === 'developer' && (
+            <Link href="/dev/dashboard" className="relative" aria-label="Important announcements">
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 2a6 6 0 00-6 6v3H3a1 1 0 000 2h14a1 1 0 000-2h-1V8a6 6 0 00-6-6z" />
+                <path d="M7 16a3 3 0 006 0" />
+              </svg>
+              {hasAnnouncement && (
+                <span className="absolute top-0 right-0 block w-2 h-2 bg-red-500 rounded-full" />
+              )}
+            </Link>
+          )}
           <span>{user.username}</span>
           <button
             onClick={handleLogout}

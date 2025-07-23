@@ -28,6 +28,7 @@ export default function DevDashboard() {
         if (!r.ok) throw new Error(`Fetch failed (${r.status})`);
         const d = await r.json();
         setData(d);
+        localStorage.setItem('announcement_seen_at', new Date().toISOString());
       } catch (err) {
         setError(err.message);
       }
@@ -77,20 +78,31 @@ export default function DevDashboard() {
                 <div className="space-y-4">
                   {announcements.map(a => (
                     <Card key={a.id}>
-                      <div>
-                        <span className="font-semibold mr-2" style={{ color: userColor(a.user) }}>
-                          {a.user}:
-                        </span>
-                        <span>{highlightMentions(a.body)}</span>
-                        {a.s3_key && (
-                          a.content_type && a.content_type.startsWith('image/') ? (
-                            <img src={`${S3_BASE_URL}/${a.s3_key}`} alt="attachment" className="mt-2 max-w-xs" />
-                          ) : (
-                            <a href={`${S3_BASE_URL}/${a.s3_key}`} target="_blank" rel="noopener noreferrer" className="block mt-2 text-blue-500 underline" download>
-                              {a.file_name || a.s3_key.split('/').pop()}
-                            </a>
-                          )
-                        )}
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <span className="font-semibold mr-2" style={{ color: userColor(a.user) }}>
+                            {a.user}:
+                          </span>
+                          <span>{highlightMentions(a.body)}</span>
+                          {a.s3_key && (
+                            a.content_type && a.content_type.startsWith('image/') ? (
+                              <img src={`${S3_BASE_URL}/${a.s3_key}`} alt="attachment" className="mt-2 max-w-xs" />
+                            ) : (
+                              <a href={`${S3_BASE_URL}/${a.s3_key}`} target="_blank" rel="noopener noreferrer" className="block mt-2 text-blue-500 underline" download>
+                                {a.file_name || a.s3_key.split('/').pop()}
+                              </a>
+                            )
+                          )}
+                        </div>
+                        <button
+                          className="text-red-500 ml-4 whitespace-nowrap"
+                          onClick={async () => {
+                            await fetch(`/api/dev/announcements/${a.id}`, { method: 'DELETE' });
+                            setData(d => ({ ...d, announcements: d.announcements.filter(x => x.id !== a.id) }));
+                          }}
+                        >
+                          Clear
+                        </button>
                       </div>
                     </Card>
                   ))}
