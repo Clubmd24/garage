@@ -186,3 +186,7 @@ node scripts/seedQuestions.js
 ```
 
 Ensure `DATABASE_URL` is set so the script can connect to the database.
+
+### Reporting Bugs
+
+A **Report Bug** button appears in the bottom-right corner of every page. Click it to open a modal where you can choose the affected section and describe the issue. Submitting the form sends the report to `/api/dev/report-bug` and displays a toast notification.
