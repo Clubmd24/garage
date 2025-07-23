@@ -136,8 +136,25 @@ export async function updateJob(id, data = {}) {
 }
 
 export async function deleteJob(id) {
-  await pool.query('DELETE FROM jobs WHERE id=?', [id]);
-  return { ok: true };
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    const [tables] = await conn.query(
+      `SELECT TABLE_NAME FROM INFORMATION_SCHEMA.COLUMNS
+       WHERE COLUMN_NAME='job_id' AND TABLE_SCHEMA=DATABASE() AND TABLE_NAME <> 'jobs'`
+    );
+    for (const { TABLE_NAME } of tables) {
+      await conn.query(`DELETE FROM \`${TABLE_NAME}\` WHERE job_id=?`, [id]);
+    }
+    await conn.query('DELETE FROM jobs WHERE id=?', [id]);
+    await conn.commit();
+    return { ok: true };
+  } catch (err) {
+    await conn.rollback();
+    throw err;
+  } finally {
+    conn.release();
+  }
 }
 
 export async function getAssignments(job_id) {
