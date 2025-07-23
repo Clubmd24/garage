@@ -24,6 +24,7 @@ export default function CompanySettingsPage() {
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [statuses, setStatuses] = useState([]);
   const [statusInput, setStatusInput] = useState('');
 
@@ -65,6 +66,24 @@ export default function CompanySettingsPage() {
       setError('Upload failed');
     }
     setUploading(false);
+    e.target.value = '';
+  }
+
+  async function handleImport(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    setImporting(true);
+    try {
+      const text = await file.text();
+      await fetch('/api/company/import-clients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/csv' },
+        body: text,
+      });
+    } catch {
+      alert('Import failed');
+    }
+    setImporting(false);
     e.target.value = '';
   }
 
@@ -144,6 +163,13 @@ export default function CompanySettingsPage() {
       <a href="/api/company/export-clients" className="text-blue-600 underline mb-4 ml-4 inline-block">
         Export Clients
       </a>
+      <input
+        type="file"
+        accept=".csv,.xlsx"
+        onChange={handleImport}
+        disabled={importing}
+        className="ml-4 mb-4"
+      />
       {error && <p className="text-red-500">{error}</p>}
       <div className="grid gap-8 md:grid-cols-2">
       <form onSubmit={submit} className="space-y-4 max-w-md md:flex-1">
