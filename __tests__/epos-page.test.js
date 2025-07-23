@@ -61,3 +61,12 @@ test('invoice created and printed without alert', async () => {
   expect(window.open).toHaveBeenCalledWith('/api/invoices/5/pdf');
   expect(global.alert).not.toHaveBeenCalled();
 });
+
+test('responsive layout classes applied', async () => {
+  setupFetch();
+  const { default: Page } = await import('../pages/office/epos/index.js');
+  const { container } = render(<Page />);
+  await screen.findByText('Part');
+  expect(container.querySelector('[class*=\"lg:w-2\\/3\"]')).toBeTruthy();
+  expect(container.querySelector('[class*=\"lg:w-1\\/3\"]')).toBeTruthy();
+});

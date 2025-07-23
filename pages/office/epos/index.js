@@ -236,7 +236,7 @@ export default function EposPage() {
     <div className="bg-gray-100 bg-opacity-50 p-4 min-h-screen">
       <OfficeLayout>
         {/* Top bar */}
-        <div className="flex items-center p-4 bg-blue-600 text-white space-x-2">
+        <div className="flex flex-col sm:flex-row items-center p-4 bg-blue-600 text-white gap-2">
           <label className="font-medium">Invoice:</label>
           <Input
             value={invoiceLookup}
@@ -261,11 +261,11 @@ export default function EposPage() {
           <Link href={session?"/office/epos/end-day":"/office/epos/start-day"} className="ml-4 underline">Manager</Link>
         </div>
 
-        <div className="flex flex-1 overflow-hidden mt-4">
+        <div className="flex flex-col lg:flex-row flex-1 overflow-hidden mt-4">
           {/* Left pane */}
-          <div className="w-2/3 overflow-y-auto pr-4">
+          <div className="w-full lg:w-2/3 overflow-y-auto lg:pr-4">
             <SectionCard title="Categories">
-              <div className="flex space-x-2 overflow-x-auto">
+              <div className="flex flex-col sm:flex-row sm:overflow-x-auto space-y-2 sm:space-y-0 sm:space-x-2">
                 {categories.map(cat=>(
                   <Button key={cat.id} variant={cat.id===selectedCategory?"primary":"outline"} onClick={()=>setSelectedCategory(cat.id)}>
                     {cat.name}
@@ -283,13 +283,13 @@ export default function EposPage() {
 
             <SectionCard title="Products">
               {loading ? (
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {Array.from({length:6}).map((_,i)=>(
                     <div key={i} className="h-32 bg-gray-200 rounded animate-pulse"/>
                   ))}
                 </div>
               ) : (
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {visibleProducts.map(p=>(
                     <div key={p.id}>
                       <Card className="hover:shadow-lg">
@@ -309,7 +309,7 @@ export default function EposPage() {
           </div>
 
           {/* Right pane */}
-          <div className="w-1/3 flex flex-col">
+          <div className="w-full lg:w-1/3 flex flex-col">
             <SectionCard title="Cart">
               {cartItems.length ? (
                 <div className="space-y-2 max-h-64 overflow-y-auto">
@@ -364,7 +364,7 @@ export default function EposPage() {
               </div>
               {paymentType==="cash" && (
                 <>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {['n50','n20','n10','n5','n2','n1','c050','c020','c010','c005'].map(n => (
                       <div key={n}>
                         <label className="block mb-1">
