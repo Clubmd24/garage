@@ -29,7 +29,18 @@ test('start session returns new session', async () => {
     startSession: startMock,
   }));
   const { default: handler } = await import('../pages/api/epos/start-day.js');
-  const body = { start_50: 1, start_20: 0, start_10: 0, start_5: 1, start_coins: 0.5 };
+  const body = {
+    start_50: 1,
+    start_20: 0,
+    start_10: 0,
+    start_5: 1,
+    start_2: 0,
+    start_1: 0,
+    start_0_50: 1,
+    start_0_20: 0,
+    start_0_10: 0,
+    start_0_05: 0,
+  };
   const req = { method: 'POST', body, headers: {} };
   const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn(), end: jest.fn() };
   await handler(req, res);
@@ -68,7 +79,19 @@ test('end session closes day', async () => {
     endSession: endMock,
   }));
   const { default: handler } = await import('../pages/api/epos/end-day.js');
-  const reqBody = { end_50: 1, end_20: 0, end_10: 0, end_5: 1, end_coins: 0.5, pdq_total: 2 };
+  const reqBody = {
+    end_50: 1,
+    end_20: 0,
+    end_10: 0,
+    end_5: 1,
+    end_2: 0,
+    end_1: 0,
+    end_0_50: 1,
+    end_0_20: 0,
+    end_0_10: 0,
+    end_0_05: 0,
+    pdq_total: 2,
+  };
   const req = { method: 'POST', body: reqBody, headers: {} };
   const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn(), end: jest.fn() };
   await handler(req, res);
