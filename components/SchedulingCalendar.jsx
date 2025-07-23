@@ -152,10 +152,10 @@ export default function SchedulingCalendar() {
     <div className="min-h-screen p-6 bg-gradient-to-br from-blue-600 to-blue-800">
       {pending && (
         <div
-          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
           data-testid="assign-modal"
         >
-          <div className="bg-white p-4 rounded space-y-2">
+          <div className="bg-white p-4 rounded space-y-2 text-black">
             <div>
               <label className="block mb-1">Engineer</label>
               <select
