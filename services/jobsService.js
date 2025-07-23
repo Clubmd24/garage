@@ -166,6 +166,7 @@ export async function getAssignments(job_id) {
 }
 
 export async function assignUser(job_id, user_id) {
+  await pool.query('DELETE FROM job_assignments WHERE job_id=?', [job_id]);
   const [{ insertId }] = await pool.query(
     'INSERT INTO job_assignments (job_id, user_id) VALUES (?, ?)',
     [job_id, user_id]
