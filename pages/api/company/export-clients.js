@@ -7,7 +7,12 @@ async function handler(req, res) {
     res.setHeader('Allow', ['GET']);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
-  const data = await getClientsWithVehicles();
+  const rows = await getClientsWithVehicles();
+  const data = rows.map(r => ({
+    ...r,
+    fleet_id: r.fleet_id ?? '',
+    company_name: r.company_name ?? '',
+  }));
   const wb = utils.book_new();
   const ws = utils.json_to_sheet(data);
   utils.book_append_sheet(wb, ws);
