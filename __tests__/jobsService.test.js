@@ -148,3 +148,30 @@ test('listActiveJobsForEngineer filters by status when provided', async () => {
   );
   expect(result).toEqual(rows);
 });
+
+test('deleteJob cascades purchase orders and assignments', async () => {
+  const conn = {
+    beginTransaction: jest.fn(),
+    query: jest
+      .fn()
+      .mockResolvedValueOnce([[{ TABLE_NAME: 'job_assignments' }, { TABLE_NAME: 'purchase_orders' }]])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]),
+    commit: jest.fn(),
+    rollback: jest.fn(),
+    release: jest.fn(),
+  };
+  const getConnection = jest.fn().mockResolvedValue(conn);
+  jest.unstable_mockModule('../lib/db.js', () => ({ default: { getConnection } }));
+  const { deleteJob } = await import('../services/jobsService.js');
+  const result = await deleteJob(5);
+  expect(getConnection).toHaveBeenCalled();
+  expect(conn.beginTransaction).toHaveBeenCalled();
+  expect(conn.query).toHaveBeenCalledWith(expect.stringMatching(/DELETE FROM `job_assignments`/), [5]);
+  expect(conn.query).toHaveBeenCalledWith(expect.stringMatching(/DELETE FROM `purchase_orders`/), [5]);
+  expect(conn.query).toHaveBeenCalledWith('DELETE FROM jobs WHERE id=?', [5]);
+  expect(conn.commit).toHaveBeenCalled();
+  expect(conn.release).toHaveBeenCalled();
+  expect(result).toEqual({ ok: true });
+});

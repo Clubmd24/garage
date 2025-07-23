@@ -20,8 +20,13 @@ async function handler(req, res) {
       return res.status(200).json(updated);
     }
     if (req.method === 'DELETE') {
-      await service.deleteJob(id);
-      return res.status(204).end();
+      try {
+        await service.deleteJob(id);
+        return res.status(204).end();
+      } catch (err) {
+        console.error(err);
+        return res.status(400).json({ error: err.message });
+      }
     }
     res.setHeader('Allow', ['GET','PUT','DELETE']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
