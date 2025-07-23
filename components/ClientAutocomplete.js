@@ -1,25 +1,33 @@
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 export default function ClientAutocomplete({ value, onChange, onSelect }) {
   const [term, setTerm] = useState(value || '');
   const [results, setResults] = useState([]);
+  const [showAdd, setShowAdd] = useState(false);
 
   useEffect(() => {
     if (value !== undefined) setTerm(value);
   }, [value]);
 
   useEffect(() => {
-    if (!term) return setResults([]);
+    if (!term) {
+      setResults([]);
+      setShowAdd(false);
+      return;
+    }
     let cancel = false;
     fetch(`/api/clients?q=${encodeURIComponent(term)}`)
       .then(r => (r.ok ? r.json() : []))
       .then(data => {
         if (cancel) return;
         setResults(data);
+        setShowAdd(data.length === 0);
       })
       .catch(() => {
         if (cancel) return;
         setResults([]);
+        setShowAdd(true);
       });
     return () => {
       cancel = true;
@@ -37,7 +45,7 @@ export default function ClientAutocomplete({ value, onChange, onSelect }) {
         }}
         placeholder="Client name or email"
       />
-      {term && results.length > 0 && (
+      {term && (results.length > 0 || showAdd) && (
         <div className="absolute z-10 bg-white shadow rounded w-full text-black">
           {results.map(c => (
             <div
@@ -57,6 +65,11 @@ export default function ClientAutocomplete({ value, onChange, onSelect }) {
               {(c.first_name || '') + ' ' + (c.last_name || '')}
             </div>
           ))}
+          {showAdd && (
+            <Link href="/office/clients/new" className="block px-2 py-1 hover:bg-gray-200">
+              Add Client
+            </Link>
+          )}
         </div>
       )}
     </div>

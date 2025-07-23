@@ -1,32 +1,40 @@
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 export default function VehicleAutocomplete({ value, onChange, onSelect }) {
   const [term, setTerm] = useState(value || '');
   const [results, setResults] = useState([]);
+  const [showAdd, setShowAdd] = useState(false);
 
   useEffect(() => {
     if (value !== undefined) setTerm(value);
   }, [value]);
 
   useEffect(() => {
-    if (!term) return setResults([]);
+    if (!term) {
+      setResults([]);
+      setShowAdd(false);
+      return;
+    }
     let cancel = false;
     fetch('/api/vehicles')
       .then(r => (r.ok ? r.json() : []))
       .then(data => {
         if (cancel) return;
         const q = term.toLowerCase();
-        setResults(
-          data.filter(v =>
+        const filtered = data.filter(
+          v =>
             (v.licence_plate || '').toLowerCase().includes(q) ||
             (v.make || '').toLowerCase().includes(q) ||
             (v.model || '').toLowerCase().includes(q)
-          )
         );
+        setResults(filtered);
+        setShowAdd(filtered.length === 0);
       })
       .catch(() => {
         if (cancel) return;
         setResults([]);
+        setShowAdd(true);
       });
     return () => {
       cancel = true;
@@ -44,7 +52,7 @@ export default function VehicleAutocomplete({ value, onChange, onSelect }) {
         }}
         placeholder="Vehicle search"
       />
-      {term && results.length > 0 && (
+      {term && (results.length > 0 || showAdd) && (
         <div className="absolute z-10 bg-white shadow rounded w-full text-black">
           {results.map(v => (
             <div
@@ -63,6 +71,11 @@ export default function VehicleAutocomplete({ value, onChange, onSelect }) {
               {v.licence_plate} {v.make} {v.model}
             </div>
           ))}
+          {showAdd && (
+            <Link href="/office/vehicles/new" className="block px-2 py-1 hover:bg-gray-200">
+              Add Vehicle
+            </Link>
+          )}
         </div>
       )}
     </div>
