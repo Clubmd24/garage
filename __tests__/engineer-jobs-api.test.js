@@ -43,7 +43,7 @@ test('engineer jobs returns 401 when unauthenticated', async () => {
   }));
   const { default: handler } = await import('../pages/api/engineer/jobs/index.js');
   const req = { method: 'GET', headers: {} };
-  const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+  const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn() };
   await handler(req, res);
   expect(res.status).toHaveBeenCalledWith(401);
   expect(res.json).toHaveBeenCalledWith({ error: 'Unauthorized' });
@@ -62,7 +62,7 @@ test('engineer jobs returns 403 for non-engineer role', async () => {
   }));
   const { default: handler } = await import('../pages/api/engineer/jobs/index.js');
   const req = { method: 'GET', headers: {} };
-  const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+  const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), setHeader: jest.fn() };
   await handler(req, res);
   expect(res.status).toHaveBeenCalledWith(403);
   expect(res.json).toHaveBeenCalledWith({ error: 'Forbidden' });

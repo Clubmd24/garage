@@ -190,8 +190,9 @@ export async function listActiveJobsForEngineer(user_id, status) {
     `SELECT j.id, j.customer_id, j.vehicle_id, j.scheduled_start, j.scheduled_end,
             j.status, j.bay, j.created_at
        FROM jobs j
-       JOIN job_assignments ja ON j.id = ja.job_id
+      JOIN job_assignments ja ON j.id = ja.job_id
       WHERE ${where}
+   GROUP BY j.id
       ORDER BY j.id`,
     params
   );
