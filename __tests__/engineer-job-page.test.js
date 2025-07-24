@@ -99,3 +99,26 @@ test('notes form updates notes', async () => {
   expect(global.fetch.mock.calls[2][0]).toBe('/api/jobs/7');
   expect(JSON.parse(global.fetch.mock.calls[2][1].body)).toEqual({ notes: 'note' });
 });
+
+test('vehicle dates form updates vehicle', async () => {
+  jest.unstable_mockModule('next/router', () => ({
+    useRouter: () => ({ query: { id: '8' } })
+  }));
+
+  global.fetch = jest
+    .fn()
+    .mockResolvedValueOnce({ ok: true, json: async () => [] })
+    .mockResolvedValueOnce({ ok: true, json: async () => ({ id: 8, vehicle_id: 3, vehicle: { service_date: '', itv_date: '' } }) })
+    .mockResolvedValue({ ok: true, json: async () => ({}) });
+
+  const { default: Page } = await import('../pages/engineer/jobs/[id].js');
+  render(<Page />);
+  await screen.findByText('Job #8');
+  fireEvent.change(screen.getByLabelText('Service Date'), { target: { value: '2024-05-01' } });
+  fireEvent.change(screen.getByLabelText('ITV Date'), { target: { value: '2024-06-01' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Save Dates' }));
+
+  await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(3));
+  expect(global.fetch.mock.calls[2][0]).toBe('/api/vehicles/3');
+  expect(JSON.parse(global.fetch.mock.calls[2][1].body)).toEqual({ service_date: '2024-05-01', itv_date: '2024-06-01' });
+});
