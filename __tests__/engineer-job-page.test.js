@@ -122,3 +122,31 @@ test('vehicle dates form updates vehicle', async () => {
   expect(global.fetch.mock.calls[2][0]).toBe('/api/vehicles/3');
   expect(JSON.parse(global.fetch.mock.calls[2][1].body)).toEqual({ service_date: '2024-05-01', itv_date: '2024-06-01' });
 });
+
+test('photo upload posts document with job entity type', async () => {
+  jest.unstable_mockModule('next/router', () => ({
+    useRouter: () => ({ query: { id: '11' } })
+  }));
+
+  const file = new File(['a'], 'photo.jpg', { type: 'image/jpeg' });
+
+  global.fetch = jest
+    .fn()
+    .mockResolvedValueOnce({ ok: true, json: async () => [] })
+    .mockResolvedValueOnce({ ok: true, json: async () => ({ id: 11 }) })
+    .mockResolvedValueOnce({ ok: true, json: async () => ({ url: 'https://s3', key: 'k' }) })
+    .mockResolvedValueOnce({ ok: true })
+    .mockResolvedValueOnce({ ok: true, json: async () => ({}) });
+
+  const { default: Page } = await import('../pages/engineer/jobs/[id].js');
+  const { container } = render(<Page />);
+  await screen.findByText('Job #11');
+  const input = container.querySelector('input[type="file"]');
+  fireEvent.change(input, { target: { files: [file] } });
+
+  await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(5));
+  expect(global.fetch.mock.calls[2][0]).toBe('/api/chat/upload');
+  expect(global.fetch.mock.calls[4][0]).toBe('/api/documents');
+  const body = JSON.parse(global.fetch.mock.calls[4][1].body);
+  expect(body.entity_type).toBe('job');
+});
