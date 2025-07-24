@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { Layout } from '../../components/Layout';
 import { Card } from '../../components/Card';
 
@@ -125,7 +126,7 @@ export default function EngineerHome() {
                   key={j.id}
                   className="flex items-center justify-between text-black dark:text-white"
                 >
-                  <span>Job #{j.id}</span>
+                  <Link href={`/engineer/jobs/${j.id}`}>Job #{j.id}</Link>
                   <button
                     onClick={() => completeJob(j.id)}
                     className="button-secondary px-3 py-1"
