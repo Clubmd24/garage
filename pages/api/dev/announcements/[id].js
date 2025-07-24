@@ -1,6 +1,6 @@
-import pool from '../../../../../lib/db';
-import { getTokenFromReq } from '../../../../../lib/auth';
-import apiHandler from '../../../../../lib/apiHandler.js';
+import pool from '../../../../lib/db';
+import { getTokenFromReq } from '../../../../lib/auth';
+import apiHandler from '../../../../lib/apiHandler.js';
 
 async function handler(req, res) {
   const t = getTokenFromReq(req);
