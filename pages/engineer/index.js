@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Layout } from '../../components/Layout';
 import { Card } from '../../components/Card';
+import VehicleConditionModal from '../../components/VehicleConditionModal.jsx';
 
 export default function EngineerHome() {
   const [jobs, setJobs] = useState([]);
@@ -9,6 +10,7 @@ export default function EngineerHome() {
   const [entry, setEntry] = useState(null);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [showConditionModal, setShowConditionModal] = useState(false);
 
   useEffect(() => {
     loadJobs();
@@ -39,6 +41,7 @@ export default function EngineerHome() {
         const e = await r.json();
         setEntry(e);
         setMessage('Clocked in');
+        setShowConditionModal(true);
       }
     } catch {
       setMessage('Clock in failed');
@@ -140,6 +143,12 @@ export default function EngineerHome() {
         )}
       </Card>
       {message && <p className="mb-4 text-green-500">{message}</p>}
+      {showConditionModal && (
+        <VehicleConditionModal
+          jobId={selectedJob}
+          onComplete={() => setShowConditionModal(false)}
+        />
+      )}
     </Layout>
   );
 }
