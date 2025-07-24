@@ -14,6 +14,8 @@ export default function EngineerJobPage() {
   const [status, setStatus] = useState('');
   const [mileage, setMileage] = useState('');
   const [notes, setNotes] = useState('');
+  const [serviceDate, setServiceDate] = useState('');
+  const [itvDate, setItvDate] = useState('');
   const [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -31,6 +33,8 @@ export default function EngineerJobPage() {
         setJob(jData);
         setStatus(jData.status || '');
         setNotes(jData.notes || '');
+        setServiceDate(jData.vehicle?.service_date || '');
+        setItvDate(jData.vehicle?.itv_date || '');
       } catch (err) {
         setMessage(err.message);
       }
@@ -68,6 +72,21 @@ export default function EngineerJobPage() {
       body: JSON.stringify({ notes })
     });
     setMessage('Notes saved');
+  }
+
+  async function updateVehicleDates(e) {
+    e.preventDefault();
+    if (!job?.vehicle_id) return;
+    await fetch(`/api/vehicles/${job.vehicle_id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...(job.vehicle || {}),
+        service_date: serviceDate || null,
+        itv_date: itvDate || null,
+      }),
+    });
+    setMessage('Vehicle dates updated');
   }
 
   async function handleUpload(e) {
@@ -152,6 +171,33 @@ export default function EngineerJobPage() {
           <button type="submit" className="button">Update</button>
         </form>
       </Card>
+
+      {job.vehicle && (
+        <Card className="mb-6">
+          <h2 className="text-xl font-semibold mb-2">Vehicle Dates</h2>
+          <form onSubmit={updateVehicleDates} className="space-y-2">
+            <div>
+              <label className="block mb-1">Service Date</label>
+              <input
+                type="date"
+                value={serviceDate || ''}
+                onChange={e => setServiceDate(e.target.value)}
+                className="input"
+              />
+            </div>
+            <div>
+              <label className="block mb-1">ITV Date</label>
+              <input
+                type="date"
+                value={itvDate || ''}
+                onChange={e => setItvDate(e.target.value)}
+                className="input"
+              />
+            </div>
+            <button type="submit" className="button">Save Dates</button>
+          </form>
+        </Card>
+      )}
 
       <Card className="mb-6">
         <h2 className="text-xl font-semibold mb-2">Engineer Notes</h2>
