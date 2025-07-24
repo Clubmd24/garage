@@ -140,11 +140,6 @@ export default function EngineerHome() {
         )}
       </Card>
       {message && <p className="mb-4 text-green-500">{message}</p>}
-      <div className="flex space-x-4 action-buttons">
-        <button onClick={clockIn}>Clock In</button>
-        <button onClick={clockOut}>Clock Out</button>
-        <button onClick={requestHoliday}>Request Holiday</button>
-      </div>
     </Layout>
   );
 }
