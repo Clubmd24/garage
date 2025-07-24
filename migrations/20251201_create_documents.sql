@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS documents (
   id INT PRIMARY KEY AUTO_INCREMENT,
-  entity_type ENUM('client','vehicle') NOT NULL,
+  entity_type ENUM('client','vehicle','job') NOT NULL,
   entity_id INT NOT NULL,
   filename VARCHAR(512) NOT NULL,
   url TEXT NOT NULL,
