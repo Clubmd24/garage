@@ -1334,6 +1334,24 @@ CREATE TABLE `time_entries` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `job_work_logs`
+--
+
+DROP TABLE IF EXISTS `job_work_logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `job_work_logs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `job_id` int(11) NOT NULL,
+  `action` varchar(10) NOT NULL,
+  `ts` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `fk_job_work_logs_job` (`job_id`),
+  CONSTRAINT `fk_job_work_logs_job` FOREIGN KEY (`job_id`) REFERENCES `jobs` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `user_roles`
 --
 

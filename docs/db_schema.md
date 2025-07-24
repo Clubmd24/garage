@@ -472,6 +472,15 @@ This table enumerates the valid statuses that a job can be in. The `status` colu
 | `end_ts` | datetime DEFAULT NULL |
 | `duration` | time DEFAULT NULL |
 
+## Table: `job_work_logs`
+
+| Column | Definition |
+|--------|------------|
+| `id` | int(11) NOT NULL AUTO_INCREMENT |
+| `job_id` | int(11) NOT NULL |
+| `action` | varchar(10) NOT NULL |
+| `ts` | datetime DEFAULT current_timestamp() |
+
 ## Table: `user_roles`
 
 | Column | Definition |

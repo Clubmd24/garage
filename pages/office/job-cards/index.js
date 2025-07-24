@@ -50,6 +50,16 @@ const JobCardsPage = () => {
     load();
   };
 
+  const startJob = async job => {
+    if (!job.job_id) return;
+    await fetch(`/api/jobs/${job.job_id}/start`, { method: 'POST' });
+  };
+
+  const finishJob = async job => {
+    if (!job.job_id) return;
+    await fetch(`/api/jobs/${job.job_id}/finish`, { method: 'POST' });
+  };
+
   const invoice = async job => {
     await createInvoice({
       job_id: job.job_id,
@@ -127,6 +137,22 @@ const JobCardsPage = () => {
               )}
               <p className="text-sm capitalize">Status: {j.status}</p>
               <div className="mt-3 flex flex-wrap gap-2">
+                {j.job_id && (
+                  <>
+                    <button
+                      onClick={() => startJob(j)}
+                      className="button px-4 text-sm"
+                    >
+                      Start Job
+                    </button>
+                    <button
+                      onClick={() => finishJob(j)}
+                      className="button px-4 text-sm"
+                    >
+                      Finish Job
+                    </button>
+                  </>
+                )}
                 {j.status === 'job-card' && (
                   <button
                     onClick={() => completeJob(j)}
