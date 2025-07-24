@@ -29,7 +29,7 @@ export default function EngineerDashboard() {
     <Layout>
       <h1 className="text-2xl font-semibold mb-4">Engineer Dashboard</h1>
       <Card className="mb-6">
-        <h2 className="text-xl font-semibold mb-2">Today's Jobs</h2>
+        <h2 className="text-xl font-semibold mb-2">Today&apos;s Jobs</h2>
         {todaysJobs.length === 0 ? (
           <p>No jobs today.</p>
         ) : (
