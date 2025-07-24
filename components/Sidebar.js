@@ -133,6 +133,9 @@ export function Sidebar() {
             >
               Engineer Portal
             </a>
+            <a href="/engineer/dashboard" {...linkProps}>
+              Dashboard
+            </a>
             <a href="/engineer/wiki" {...linkProps}>
               Wiki
             </a>
