@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { Layout } from '../../../components/Layout';
 import { Card } from '../../../components/Card';
+import VehicleConditionModal from '../../../components/VehicleConditionModal.jsx';
 
 const S3_BASE_URL = `https://${process.env.NEXT_PUBLIC_S3_BUCKET}.s3.${process.env.NEXT_PUBLIC_AWS_REGION}.amazonaws.com`;
 
@@ -17,6 +18,8 @@ export default function EngineerJobPage() {
   const [serviceDate, setServiceDate] = useState('');
   const [itvDate, setItvDate] = useState('');
   const [message, setMessage] = useState('');
+  const [conditionChecked, setConditionChecked] = useState(false);
+  const [showConditionModal, setShowConditionModal] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -35,6 +38,8 @@ export default function EngineerJobPage() {
         setNotes(jData.notes || '');
         setServiceDate(jData.vehicle?.service_date || '');
         setItvDate(jData.vehicle?.itv_date || '');
+        setConditionChecked(Boolean(jData.condition_checked));
+        if (!jData.condition_checked) setShowConditionModal(true);
       } catch (err) {
         setMessage(err.message);
       }
@@ -212,6 +217,15 @@ export default function EngineerJobPage() {
         <input type="file" onChange={handleUpload} />
       </Card>
       <p className="mt-6"><Link href="/engineer">&larr; Back</Link></p>
+      {showConditionModal && (
+        <VehicleConditionModal
+          jobId={id}
+          onComplete={() => {
+            setShowConditionModal(false);
+            setConditionChecked(true);
+          }}
+        />
+      )}
     </Layout>
   );
 }

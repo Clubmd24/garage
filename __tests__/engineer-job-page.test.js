@@ -150,3 +150,25 @@ test('photo upload posts document with job entity type', async () => {
   const body = JSON.parse(global.fetch.mock.calls[4][1].body);
   expect(body.entity_type).toBe('job');
 });
+
+test('vehicle condition modal posts report', async () => {
+  jest.unstable_mockModule('next/router', () => ({
+    useRouter: () => ({ query: { id: '12' } })
+  }));
+
+  global.fetch = jest
+    .fn()
+    .mockResolvedValueOnce({ ok: true, json: async () => [] })
+    .mockResolvedValueOnce({ ok: true, json: async () => ({ id: 12, condition_checked: 0 }) })
+    .mockResolvedValueOnce({ ok: true, json: async () => ({ id: 1 }) });
+
+  const { default: Page } = await import('../pages/engineer/jobs/[id].js');
+  render(<Page />);
+  await screen.findByText('Job #12');
+  fireEvent.change(screen.getByLabelText('Description of Defect'), { target: { value: 'scratch' } });
+  fireEvent.change(screen.getByLabelText('Photo URL'), { target: { value: 'u' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+  await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(3));
+  expect(global.fetch.mock.calls[2][0]).toBe('/api/jobs/12/condition');
+});
