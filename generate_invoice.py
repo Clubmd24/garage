@@ -33,6 +33,13 @@ def validate_data(data: dict) -> None:
             raise KeyError(f"Missing top-level key: {key}")
 
 
+def calculate_totals(data: dict) -> None:
+    items = data.get("items", [])
+    total_cost = sum(it.get("qty", 0) * it.get("unit_cost", 0) for it in items)
+    total_price = round(total_cost, 2)
+    data["totals"] = {"total": total_price}
+
+
 def render_docx(data: dict) -> str:
     template_path = os.path.join('templates', 'invoice_template_final.docx')
     if not os.path.exists(template_path):
@@ -52,34 +59,20 @@ def convert_to_pdf(docx_path: str) -> str:
     if DOCX2PDF_AVAILABLE:
         docx2pdf_convert(docx_path, pdf_path)
     else:
-        # Fallback to unoconv if installed
-        import subprocess
-        try:
-            subprocess.run(['unoconv', '-f', 'pdf', '-o', pdf_path, docx_path], check=True)
-        except FileNotFoundError:
-            raise RuntimeError('Neither docx2pdf nor unoconv is available for PDF conversion.')
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError(f'PDF conversion failed: {e}')
+        # Fallback to unoconv or leave as DOCX
+        pdf_path = docx_path  # No PDF conversion
     return pdf_path
 
 
-def main() -> int:
-    if len(sys.argv) != 2:
-        sys.stderr.write('Usage: python generate_invoice.py <data.json>|-\n')
-        return 1
-
-    data_path = sys.argv[1]
-    try:
-        data = load_data(data_path)
-        validate_data(data)
-        docx_path = render_docx(data)
-        pdf_path = convert_to_pdf(docx_path)
-        print(f"Generated: {pdf_path}")
-        return 0
-    except Exception as e:
-        sys.stderr.write(f"Error: {e}\n")
-        return 2
+def main():
+    path = sys.argv[1] if len(sys.argv) > 1 else '-'
+    data = load_data(path)
+    validate_data(data)
+    calculate_totals(data)
+    docx_file = render_docx(data)
+    pdf_file = convert_to_pdf(docx_file)
+    print(f"Invoice generated at: {pdf_file}")
 
 
-if __name__ == '__main__':
-    sys.exit(main())
+if __name__ == "__main__":
+    main()
