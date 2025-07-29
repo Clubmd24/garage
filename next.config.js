@@ -5,10 +5,14 @@ const nextConfig = {
     domains: [],  // add any image hostnames here
     unoptimized: true, // for static export compatibility
   },
-  // Handle static generation better
+  // Disable static generation for problematic pages
   trailingSlash: false,
   // Ensure proper build output
   output: 'standalone',
+  // Disable static optimization for the landing page
+  experimental: {
+    staticPageGenerationTimeout: 0,
+  },
 };
 
 export default nextConfig;

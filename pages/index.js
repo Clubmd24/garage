@@ -2,53 +2,66 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
 
-// Add static generation configuration
-export const getStaticProps = async () => {
-  return {
-    props: {},
-    revalidate: 60, // Revalidate every 60 seconds
-  };
-};
-
 export default function Landing() {
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-b from-blue-900 via-blue-800 to-blue-700">
       <Head>
         <title>Garage-Vision | Revolutionize Your Garage</title>
         <meta name="description" content="Revolutionize your garage operations with Garage-Vision. Streamline jobs, manage parts, and boost profitability." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <header className="flex items-center justify-between px-6 py-3 text-gray-100">
-        <Image src="/logo.png" alt="Garage Vision Logo" width={32} height={32} className="h-8 w-auto" />
+      
+      {/* Header */}
+      <header className="flex items-center justify-between px-6 py-3 text-white">
+        <div className="flex items-center">
+          <div className="w-8 h-8 bg-white rounded-full mr-3"></div>
+          <span className="text-xl font-bold">Garage Vision</span>
+        </div>
         <nav className="space-x-4 text-sm">
-          <Link href="/login" className="button px-4">Garage Login</Link>
-          <Link href="/local/login" className="button px-4">Car Owner Login</Link>
-          <Link href="/fleet/login" className="button px-4">Company Login</Link>
+          <Link href="/login" className="bg-white text-blue-900 px-4 py-2 rounded-full hover:bg-gray-100 transition">
+            Garage Login
+          </Link>
+          <Link href="/local/login" className="bg-white text-blue-900 px-4 py-2 rounded-full hover:bg-gray-100 transition">
+            Car Owner Login
+          </Link>
+          <Link href="/fleet/login" className="bg-white text-blue-900 px-4 py-2 rounded-full hover:bg-gray-100 transition">
+            Company Login
+          </Link>
         </nav>
       </header>
 
-      <section className="bg-gradient-to-b from-[#0d1e45] via-[#3f5dc6] to-[#d2e1ff] text-white py-20">
-        <div className="container mx-auto px-6 flex flex-col md:flex-row items-center">
-          <div className="md:w-1/2 space-y-6">
+      {/* Hero Section */}
+      <section className="py-20 px-6">
+        <div className="container mx-auto flex flex-col md:flex-row items-center">
+          <div className="md:w-1/2 space-y-6 text-white">
             <h1 className="text-4xl md:text-5xl font-bold">
               Revolutionize Your Garage. Own Your Future.
             </h1>
-            <p className="text-lg">
+            <p className="text-lg opacity-90">
               From first tap to final drive-away, Garage-Vision orchestrates every phase
               of your repair shop with precision, power, and profitability.
             </p>
             <div className="flex flex-wrap gap-4">
-              <a href="/login" className="button-accent px-6">Garage Login</a>
-              <a href="/local/login" className="button px-6">Car Owner Login</a>
-              <a href="/fleet/login" className="button px-6">Company Login</a>
+              <Link href="/login" className="bg-orange-500 text-white px-6 py-3 rounded-full hover:bg-orange-600 transition">
+                Garage Login
+              </Link>
+              <Link href="/local/login" className="bg-white text-blue-900 px-6 py-3 rounded-full hover:bg-gray-100 transition">
+                Car Owner Login
+              </Link>
+              <Link href="/fleet/login" className="bg-white text-blue-900 px-6 py-3 rounded-full hover:bg-gray-100 transition">
+                Company Login
+              </Link>
             </div>
           </div>
           <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center">
-            <Image src="/mechanic cards.png" alt="Mechanic illustration" width={400} height={300} className="max-w-md w-full rounded-2xl shadow-xl" />
+            <div className="w-96 h-64 bg-white/10 rounded-2xl flex items-center justify-center">
+              <span className="text-white text-lg">Mechanic Illustration</span>
+            </div>
           </div>
         </div>
       </section>
 
+      {/* Features Section */}
       <section className="py-16 bg-gray-50 text-gray-900">
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-semibold text-center mb-12">Why Every Shop Deserves Garage-Vision</h2>
@@ -64,7 +77,7 @@ export default function Landing() {
               <h3 className="text-xl font-bold mb-2">Vehicle Dispatch</h3>
               <p>
                 Customers track their vehicle in real time—no more endless
-                &lsquo;where is my car?&rsquo; calls. Satisfaction scores skyrocket.
+                where is my car calls. Satisfaction scores skyrocket.
               </p>
             </div>
             <div className="bg-white rounded-2xl shadow-lg p-6">
@@ -82,12 +95,16 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* App Preview */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-6 flex justify-center">
-          <Image src="/web-header-image.png" alt="App preview" width={800} height={600} className="max-w-4xl w-full rounded-2xl shadow-2xl" />
+          <div className="w-full max-w-4xl h-96 bg-gray-200 rounded-2xl flex items-center justify-center">
+            <span className="text-gray-600 text-lg">App Preview</span>
+          </div>
         </div>
       </section>
 
+      {/* Stats Section */}
       <section className="py-16 bg-gray-50 text-gray-900">
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-semibold text-center mb-10">See the Impact</h2>
@@ -112,6 +129,7 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Testimonials */}
       <section className="py-16 bg-white text-gray-900">
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-semibold text-center mb-10">What Our Customers Say</h2>
@@ -135,10 +153,11 @@ export default function Landing() {
         </div>
       </section>
 
-      <footer className="py-6 text-center text-sm text-white bg-[#0d1e45]">
-        <Image src="/logo.png" alt="Garage Vision Logo" width={24} height={24} className="h-6 w-auto mx-auto mb-2" />
+      {/* Footer */}
+      <footer className="py-6 text-center text-sm text-white bg-blue-900">
+        <div className="w-6 h-6 bg-white rounded-full mx-auto mb-2"></div>
         Garage Vision © 2025
       </footer>
-    </>
+    </div>
   );
 }
