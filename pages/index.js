@@ -119,14 +119,14 @@ export default function Landing() {
             <blockquote className="bg-gray-50 rounded-2xl p-6 shadow">
               <p>
                 Garage-Vision transformed our shop overnight. Jobs flow seamlessly and
-                customers love the transparency. It's literally the heart of our
+                customers love the transparency. It&apos;s literally the heart of our
                 operation.
               </p>
               <footer className="mt-4 font-semibold">— AutoTech Repairs</footer>
             </blockquote>
             <blockquote className="bg-gray-50 rounded-2xl p-6 shadow">
               <p>
-                We've doubled our throughput without adding staff. The analytics module
+                We&apos;ve doubled our throughput without adding staff. The analytics module
                 pinpoints exactly where we win and where we lose. Unbeatable.
               </p>
               <footer className="mt-4 font-semibold">— Speedy Garage</footer>
