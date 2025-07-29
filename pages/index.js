@@ -2,11 +2,21 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
 
+// Add static generation configuration
+export const getStaticProps = async () => {
+  return {
+    props: {},
+    revalidate: 60, // Revalidate every 60 seconds
+  };
+};
+
 export default function Landing() {
   return (
     <>
       <Head>
         <title>Garage-Vision | Revolutionize Your Garage</title>
+        <meta name="description" content="Revolutionize your garage operations with Garage-Vision. Streamline jobs, manage parts, and boost profitability." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <header className="flex items-center justify-between px-6 py-3 text-gray-100">
         <Image src="/logo.png" alt="Garage Vision Logo" width={32} height={32} className="h-8 w-auto" />
@@ -39,7 +49,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="py-16 bg-[var(--color-bg)] text-[var(--color-text-primary)]">
+      <section className="py-16 bg-gray-50 text-gray-900">
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-semibold text-center mb-12">Why Every Shop Deserves Garage-Vision</h2>
           <div className="grid gap-8 md:grid-cols-2">
@@ -78,45 +88,45 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="py-16 bg-[var(--color-bg)] text-[var(--color-text-primary)]">
+      <section className="py-16 bg-gray-50 text-gray-900">
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-semibold text-center mb-10">See the Impact</h2>
           <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-4 text-center">
             <div>
-              <h3 className="text-2xl font-bold text-[var(--color-primary)]">+80%</h3>
+              <h3 className="text-2xl font-bold text-blue-600">+80%</h3>
               <p>Time Saved</p>
             </div>
             <div>
-              <h3 className="text-2xl font-bold text-[var(--color-primary)]">+35%</h3>
+              <h3 className="text-2xl font-bold text-blue-600">+35%</h3>
               <p>More Jobs Completed</p>
             </div>
             <div>
-              <h3 className="text-2xl font-bold text-[var(--color-primary)]">4.9/5</h3>
+              <h3 className="text-2xl font-bold text-blue-600">4.9/5</h3>
               <p>Average Rating</p>
             </div>
             <div>
-              <h3 className="text-2xl font-bold text-[var(--color-primary)]">250+</h3>
+              <h3 className="text-2xl font-bold text-blue-600">250+</h3>
               <p>Garages Running</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="py-16 bg-white text-[var(--color-text-primary)]">
+      <section className="py-16 bg-white text-gray-900">
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-semibold text-center mb-10">What Our Customers Say</h2>
           <div className="grid gap-8 md:grid-cols-2">
-            <blockquote className="bg-[var(--color-bg)] rounded-2xl p-6 shadow">
+            <blockquote className="bg-gray-50 rounded-2xl p-6 shadow">
               <p>
                 Garage-Vision transformed our shop overnight. Jobs flow seamlessly and
-                customers love the transparency. It’s literally the heart of our
+                customers love the transparency. It's literally the heart of our
                 operation.
               </p>
               <footer className="mt-4 font-semibold">— AutoTech Repairs</footer>
             </blockquote>
-            <blockquote className="bg-[var(--color-bg)] rounded-2xl p-6 shadow">
+            <blockquote className="bg-gray-50 rounded-2xl p-6 shadow">
               <p>
-                We’ve doubled our throughput without adding staff. The analytics module
+                We've doubled our throughput without adding staff. The analytics module
                 pinpoints exactly where we win and where we lose. Unbeatable.
               </p>
               <footer className="mt-4 font-semibold">— Speedy Garage</footer>
