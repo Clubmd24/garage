@@ -20,7 +20,7 @@ test('invoice pdf endpoint returns PDF', async () => {
   jest.unstable_mockModule('../services/invoiceItemsService.js', () => ({
     getInvoiceItems: jest.fn().mockResolvedValue([])
   }));
-  jest.unstable_mockModule('../lib/pdf.js', () => ({
+  jest.unstable_mockModule('../lib/pdf/buildInvoicePdf.js', () => ({
     buildInvoicePdf: buildMock
   }));
   const { default: handler } = await import('../pages/api/invoices/[id]/pdf.js');
