@@ -28,13 +28,50 @@ const JobCardsPage = () => {
     const mileageStr = prompt('Current mileage');
     const mileage = Number.parseInt(mileageStr, 10);
     if (!Number.isFinite(mileage)) return;
-    await fetch('/api/vehicle-mileage', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ vehicle_id: job.vehicle_id, mileage }),
-    });
-    await updateQuote(job.id, { status: 'completed' });
-    load();
+    
+    try {
+      // Update vehicle mileage
+      await fetch('/api/vehicle-mileage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vehicle_id: job.vehicle_id, mileage }),
+      });
+
+      // Update job status if job exists, otherwise update quote status
+      if (job.job_id) {
+        // Update job status to completed
+        const res = await fetch(`/api/jobs/${job.job_id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'completed' }),
+        });
+        
+        if (!res.ok) {
+          throw new Error('Failed to update job status');
+        }
+        
+        const updatedJob = await res.json();
+        console.log('Job completed successfully:', updatedJob);
+        
+        // Show payment modal if invoice was created
+        if (updatedJob.invoice_id) {
+          const payNow = confirm('Job completed! Invoice created. Would you like to process payment now? (OK for Pay Now, Cancel for Pay Later)');
+          if (payNow) {
+            window.location.href = `/office/epos?invoice_id=${updatedJob.invoice_id}&job_id=${job.job_id}`;
+          } else {
+            window.location.href = '/office/invoices?status=awaiting collection';
+          }
+        }
+      } else {
+        // Fallback to updating quote status if no job exists
+        await updateQuote(job.id, { status: 'completed' });
+      }
+      
+      load();
+    } catch (error) {
+      console.error('Error completing job:', error);
+      alert('Failed to complete job. Please try again.');
+    }
   };
 
   const startJob = async job => {
