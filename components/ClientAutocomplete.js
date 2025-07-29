@@ -60,6 +60,7 @@ export default function ClientAutocomplete({ value, onChange, onSelect }) {
                   setTerm(name);
                 }
                 setResults([]);
+                setShowAdd(false);
               }}
             >
               {(c.first_name || '') + ' ' + (c.last_name || '')}

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import Link from 'next/link';
 import OfficeLayout from '../../../components/OfficeLayout';
 import { fetchInvoices } from '../../../lib/invoices';
 import { fetchClients } from '../../../lib/clients';
@@ -104,6 +105,10 @@ const InvoicesPage = () => {
               <p className="text-sm">{vehicleMap[inv.vehicle_id]?.make || ''}</p>
               <p className="text-sm">Amount: €{inv.amount}</p>
               <p className="text-sm">Status: {inv.status}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Link href={`/office/invoices/${inv.id}`} className="button px-4 text-sm">View</Link>
+                <a href={`/api/invoices/${inv.id}/pdf`} className="button-secondary px-4 text-sm">Download PDF</a>
+              </div>
             </div>
           ))}
           </div>

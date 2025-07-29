@@ -51,7 +51,7 @@ export default function MyApp({ Component, pageProps }) {
       )}
       <button
         onClick={() => setShowBug(true)}
-        className="fixed bottom-4 right-4 button px-4 z-40"
+        className="fixed bottom-16 right-4 button px-4 z-40"
       >
         Report Bug
       </button>
