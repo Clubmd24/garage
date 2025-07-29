@@ -1,0 +1,32 @@
+{
+  "invoice_number": "999",
+  "garage": {
+    "name": "Car Fix",
+    "address": "Polígono de Poniente, Calle Galicia, Nave 9",
+    "phone": "966 19 40 90"
+  },
+  "client": {
+    "name": "Kieran Jenkinson",
+    "address": "Oxford Road, Blackpool, FY1 3QL",
+    "phone": "075951581303",
+    "email": "kieranj1989@sky.com"
+  },
+  "vehicle": {
+    "licence_plate": "AT45 KPK",
+    "make": "FORD",
+    "model": "KUGAR",
+    "color": "WHITE",
+    "vin": "123456VIN"
+  },
+  "defect_description": "service with fuel filter",
+  "items": [
+    {
+      "part_number": "C24026",
+      "description": "Air Filter",
+      "qty": 1,
+      "unit_cost": 21.23
+    }
+  ],
+  "totals": {},
+  "terms": "Please pay within 14 days."
+}
