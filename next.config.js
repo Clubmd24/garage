@@ -9,10 +9,6 @@ const nextConfig = {
   trailingSlash: false,
   // Ensure proper build output
   output: 'standalone',
-  // Disable static optimization for the landing page
-  experimental: {
-    staticPageGenerationTimeout: 0,
-  },
 };
 
 export default nextConfig;

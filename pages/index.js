@@ -1,6 +1,5 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import Image from 'next/image';
 
 export default function Landing() {
   return (
@@ -14,7 +13,7 @@ export default function Landing() {
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-3 text-white">
         <div className="flex items-center">
-          <div className="w-8 h-8 bg-white rounded-full mr-3"></div>
+          <img src="/logo.png" alt="Garage Vision Logo" className="h-8 w-auto mr-3" />
           <span className="text-xl font-bold">Garage Vision</span>
         </div>
         <nav className="space-x-4 text-sm">
@@ -54,9 +53,7 @@ export default function Landing() {
             </div>
           </div>
           <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center">
-            <div className="w-96 h-64 bg-white/10 rounded-2xl flex items-center justify-center">
-              <span className="text-white text-lg">Mechanic Illustration</span>
-            </div>
+            <img src="/mechanic cards.png" alt="Mechanic illustration" className="max-w-md w-full rounded-2xl shadow-xl" />
           </div>
         </div>
       </section>
@@ -98,9 +95,7 @@ export default function Landing() {
       {/* App Preview */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-6 flex justify-center">
-          <div className="w-full max-w-4xl h-96 bg-gray-200 rounded-2xl flex items-center justify-center">
-            <span className="text-gray-600 text-lg">App Preview</span>
-          </div>
+          <img src="/web-header-image.png" alt="App preview" className="max-w-4xl w-full rounded-2xl shadow-2xl" />
         </div>
       </section>
 
@@ -155,7 +150,7 @@ export default function Landing() {
 
       {/* Footer */}
       <footer className="py-6 text-center text-sm text-white bg-blue-900">
-        <div className="w-6 h-6 bg-white rounded-full mx-auto mb-2"></div>
+        <img src="/logo.png" alt="Garage Vision Logo" className="h-6 w-auto mx-auto mb-2" />
         Garage Vision © 2025
       </footer>
     </div>
