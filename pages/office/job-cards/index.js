@@ -36,10 +36,10 @@ const JobCardsPage = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ vehicle_id: job.vehicle_id, mileage }),
       });
-
+  
       // Update job status if job exists, otherwise update quote status
       if (job.job_id) {
-        // Update job status to completed
+        // Update job status to completed (this will trigger invoice creation)
         const res = await fetch(`/api/jobs/${job.job_id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -112,6 +112,9 @@ const JobCardsPage = () => {
   };
 
   const filteredJobs = jobs.filter(j => {
+    // Exclude completed jobs - they're now in the invoice pipeline
+    if (j.status === 'completed') return false;
+    
     const q = searchQuery.toLowerCase();
     const clientName = getClientName(j).toLowerCase();
     const vehicleInfo = getVehicleInfo(j).toLowerCase();
@@ -173,20 +176,12 @@ const JobCardsPage = () => {
                     </button>
                   </>
                 )}
-                {j.status === 'job-card' && (
+                {j.status === 'ready for completion' && (
                   <button
                     onClick={() => completeJob(j)}
-                    className="button px-4 text-sm"
+                    className="button px-4 text-sm bg-green-600 hover:bg-green-700 text-white"
                   >
-                    Mark Completed
-                  </button>
-                )}
-                {j.status === 'completed' && (
-                  <button
-                    onClick={() => invoice(j)}
-                    className="button px-4 text-sm"
-                  >
-                    Generate Invoice
+                    ✅ Complete Job
                   </button>
                 )}
               </div>

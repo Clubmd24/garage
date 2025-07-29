@@ -35,9 +35,13 @@ export default function JobManagementPage() {
         const all = await fetchJobs(params);
         console.log('Fetched jobs:', all.length, all.map(j => ({ id: j.id, status: j.status })));
         
+        // Filter out completed jobs - they're now in the invoice pipeline
+        const activeJobs = all.filter(job => job.status !== 'completed');
+        console.log('Active jobs (excluding completed):', activeJobs.length);
+        
         // Don't filter out completed jobs - show all jobs based on filter
         const withDetails = await Promise.all(
-          all.map(async j => {
+          activeJobs.map(async j => {
             try {
               const full = await fetchJob(j.id);
               return { ...j, vehicle: full.vehicle, quote: full.quote };
@@ -182,7 +186,7 @@ export default function JobManagementPage() {
           aria-label="Status Filter"
         >
           <option value="">All</option>
-          {statuses.map(s => (
+          {statuses.filter(s => s.name !== 'completed').map(s => (
             <option key={s.id ?? s.name} value={s.name}>{s.name}</option>
           ))}
         </select>

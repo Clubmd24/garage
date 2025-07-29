@@ -134,6 +134,9 @@ export async function updateJob(id, data = {}) {
         due_date: new Date().toISOString().split('T')[0] // Today's date
       });
       invoice_id = invoice.id;
+      
+      // Update quote status to 'invoiced' to mark it as completed
+      await pool.query('UPDATE quotes SET status = ? WHERE id = ?', ['invoiced', quote.id]);
     } else {
       // Fallback to simple invoice creation
       const invoice = await createInvoice({ 
@@ -143,6 +146,9 @@ export async function updateJob(id, data = {}) {
       });
       invoice_id = invoice.id;
     }
+    
+    // Note: Job remains in database but is effectively "completed" 
+    // and will not appear in job management due to status filtering
   }
 
   if (status === 'notified client for collection') {
