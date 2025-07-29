@@ -25,13 +25,20 @@ async function handler(req, res) {
         duration,
         awaiting_parts,
       } = req.body || {};
+      
       if (awaiting_parts) {
         await updateJob(id, { status: 'awaiting parts' });
       } else {
         if (!engineer_id) {
           return res.status(400).json({ error: 'engineer_id required' });
         }
+        
+        // Clear existing assignments first
+        await pool.query('DELETE FROM job_assignments WHERE job_id=?', [id]);
+        
+        // Assign new engineer
         await assignUser(id, engineer_id);
+        
         let end = scheduled_end;
         if (!end && duration && scheduled_start) {
           const start = new Date(scheduled_start);
@@ -40,13 +47,16 @@ async function handler(req, res) {
             end = calc.toISOString().slice(0, 16);
           }
         }
+        
         await updateJob(id, {
           status: 'awaiting assessment',
           scheduled_start,
           scheduled_end: end,
         });
       }
-      const job = await getJobDetails(id);
+      
+      // Return full job details including quote and defect description
+      const job = await getJobFull(id);
       return res.status(200).json(job);
     }
     res.setHeader('Allow', ['POST']);

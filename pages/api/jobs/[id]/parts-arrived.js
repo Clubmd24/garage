@@ -18,6 +18,8 @@ async function handler(req, res) {
   }
   try {
     if (req.method === 'POST') {
+      // Clear engineer assignments and set status to unassigned
+      await pool.query('DELETE FROM job_assignments WHERE job_id=?', [id]);
       await updateJob(id, { status: 'unassigned' });
       const job = await getJobDetails(id);
       return res.status(200).json(job);

@@ -112,6 +112,35 @@ export async function updateJob(id, data = {}) {
     await pool.query(sql, params);
   }
 
+  // Handle status-specific logic
+  if (status === 'unassigned') {
+    // Clear engineer assignments when status changes to unassigned
+    await pool.query('DELETE FROM job_assignments WHERE job_id=?', [id]);
+  }
+
+  if (status === 'completed') {
+    // Find quote associated with this job
+    const [[quote]] = await pool.query(
+      `SELECT id FROM quotes WHERE job_id = ? ORDER BY id DESC LIMIT 1`,
+      [id]
+    );
+    
+    if (quote) {
+      // Create invoice from quote with all items
+      await createInvoiceFromQuote(quote.id, { 
+        status: 'awaiting collection',
+        due_date: new Date().toISOString().split('T')[0] // Today's date
+      });
+    } else {
+      // Fallback to simple invoice creation
+      await createInvoice({ 
+        job_id: id, 
+        customer_id: data.customer_id ?? null, 
+        status: 'awaiting collection' 
+      });
+    }
+  }
+
   if (status === 'notified client for collection') {
     // Find quote associated with this job
     const [[quote]] = await pool.query(
@@ -134,6 +163,7 @@ export async function updateJob(id, data = {}) {
       });
     }
   }
+
   return { ok: true };
 }
 
