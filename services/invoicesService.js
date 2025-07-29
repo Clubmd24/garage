@@ -32,12 +32,68 @@ export async function getInvoicesByFleet(fleet_id, status) {
 }
 
 export async function getInvoiceById(id) {
-  const [[row]] = await pool.query(
-    `SELECT id, job_id, customer_id, amount, due_date, status, terms, created_ts
-       FROM invoices WHERE id=?`,
+  const [[invoice]] = await pool.query(
+    `SELECT i.id, i.job_id, i.customer_id, i.amount, i.due_date, i.status, i.terms, i.created_ts
+       FROM invoices i WHERE i.id=?`,
     [id]
   );
-  return row || null;
+  
+  if (!invoice) return null;
+
+  // Get client details
+  let client = null;
+  if (invoice.customer_id) {
+    const [[clientData]] = await pool.query(
+      `SELECT id, first_name, last_name, email, phone, address
+       FROM clients WHERE id = ?`,
+      [invoice.customer_id]
+    );
+    client = clientData;
+  }
+
+  // Get vehicle details
+  let vehicle = null;
+  if (invoice.job_id) {
+    const [[vehicleData]] = await pool.query(
+      `SELECT v.id, v.licence_plate, v.make, v.model, v.color, v.year
+       FROM vehicles v
+       JOIN jobs j ON v.id = j.vehicle_id
+       WHERE j.id = ?`,
+      [invoice.job_id]
+    );
+    vehicle = vehicleData;
+  }
+
+  // Get invoice items
+  const [items] = await pool.query(
+    `SELECT id, description, qty, unit_price, (qty * unit_price) as line_total
+     FROM invoice_items 
+     WHERE invoice_id = ?
+     ORDER BY id`,
+    [id]
+  );
+
+  // Get defect description from associated quote
+  let defect_description = null;
+  if (invoice.job_id) {
+    const [[quoteData]] = await pool.query(
+      `SELECT defect_description 
+       FROM quotes 
+       WHERE job_id = ? 
+       ORDER BY revision DESC 
+       LIMIT 1`,
+      [invoice.job_id]
+    );
+    defect_description = quoteData?.defect_description;
+  }
+
+  return {
+    ...invoice,
+    client,
+    vehicle,
+    items,
+    defect_description
+  };
 }
 
 export async function createInvoice({ id, job_id, customer_id, amount, due_date, status, terms }) {
