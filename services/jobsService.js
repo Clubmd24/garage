@@ -1,6 +1,6 @@
 import pool from '../lib/db.js';
 import { jobStatusExists } from './jobStatusesService.js';
-import { createInvoice } from './invoicesService.js';
+import { createInvoice, createInvoiceFromQuote } from './invoicesService.js';
 import { getVehicleById } from './vehiclesService.js';
 import { getQuoteItems } from './quoteItemsService.js';
 
@@ -27,7 +27,8 @@ export async function getJobsByFleet(fleet_id, status) {
 
 export async function getJobsByCustomer(customer_id, status) {
   const base =
-    `SELECT id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay, created_at FROM jobs WHERE customer_id=?`;
+    `SELECT id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay, created_at
+       FROM jobs WHERE customer_id=?`;
   const [rows] = status
     ? await pool.query(`${base} AND status=? ORDER BY id`, [customer_id, status])
     : await pool.query(`${base} ORDER BY id`, [customer_id]);
@@ -36,7 +37,7 @@ export async function getJobsByCustomer(customer_id, status) {
 
 export async function getJobById(id) {
   const [[row]] = await pool.query(
-    `SELECT id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay, created_at
+    `SELECT id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay, created_at, quote_id
        FROM jobs WHERE id=?`,
     [id]
   );
@@ -44,15 +45,10 @@ export async function getJobById(id) {
 }
 
 export async function createJob({ id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay }) {
-  const finalStatus = status || 'unassigned';
-  const startDate = scheduled_start ? new Date(scheduled_start) : null;
-  const endDate = scheduled_end ? new Date(scheduled_end) : null;
-  const parsedVehicleId =
-    vehicle_id !== undefined && vehicle_id !== null && !Number.isNaN(Number(vehicle_id))
-      ? Number(vehicle_id)
-      : null;
-  if (!(await jobStatusExists(finalStatus))) {
-    throw new Error('Invalid job status');
+  let finalStatus = status;
+  if (!finalStatus) {
+    const [[row]] = await pool.query('SELECT name FROM job_statuses WHERE name="unassigned" LIMIT 1');
+    finalStatus = row?.name || 'unassigned';
   }
   if (id !== undefined) {
     const [[exists]] = await pool.query('SELECT 1 FROM jobs WHERE id=?', [id]);
@@ -60,33 +56,20 @@ export async function createJob({ id, customer_id, vehicle_id, scheduled_start, 
       throw new Error('Job ID already exists');
     }
     await pool.query(
-      `INSERT INTO jobs (id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay)
+      `INSERT INTO jobs
+        (id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay)
        VALUES (?,?,?,?,?,?,?)`,
-      [
-        id,
-        customer_id || null,
-        parsedVehicleId,
-        startDate || null,
-        endDate || null,
-        finalStatus,
-        bay || null,
-      ]
+      [id, customer_id || null, vehicle_id || null, scheduled_start || null, scheduled_end || null, finalStatus, bay || null]
     );
-    return { id, customer_id, vehicle_id: parsedVehicleId, scheduled_start, scheduled_end, status: finalStatus, bay };
+    return { id, customer_id, vehicle_id, scheduled_start, scheduled_end, status: finalStatus, bay };
   }
   const [{ insertId }] = await pool.query(
-    `INSERT INTO jobs (customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay)
+    `INSERT INTO jobs
+      (customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay)
      VALUES (?,?,?,?,?,?)`,
-    [
-      customer_id || null,
-      parsedVehicleId,
-      startDate || null,
-      endDate || null,
-      finalStatus,
-      bay || null,
-    ]
+    [customer_id || null, vehicle_id || null, scheduled_start || null, scheduled_end || null, finalStatus, bay || null]
   );
-  return { id: insertId, customer_id, vehicle_id: parsedVehicleId, scheduled_start, scheduled_end, status: finalStatus, bay };
+  return { id: insertId, customer_id, vehicle_id, scheduled_start, scheduled_end, status: finalStatus, bay };
 }
 
 export async function updateJob(id, data = {}) {
@@ -130,7 +113,22 @@ export async function updateJob(id, data = {}) {
   }
 
   if (status === 'notified client for collection') {
-    await createInvoice({ job_id: id, customer_id: data.customer_id ?? null, status: 'awaiting collection' });
+    // Get the job to find associated quote
+    const job = await getJobById(id);
+    if (job && job.quote_id) {
+      // Create invoice from quote with all items
+      await createInvoiceFromQuote(job.quote_id, { 
+        status: 'awaiting collection',
+        due_date: new Date().toISOString().split('T')[0] // Today's date
+      });
+    } else {
+      // Fallback to simple invoice creation
+      await createInvoice({ 
+        job_id: id, 
+        customer_id: data.customer_id ?? null, 
+        status: 'awaiting collection' 
+      });
+    }
   }
   return { ok: true };
 }
@@ -139,22 +137,16 @@ export async function deleteJob(id) {
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
-    const [tables] = await conn.query(
-      `SELECT TABLE_NAME FROM INFORMATION_SCHEMA.COLUMNS
-       WHERE COLUMN_NAME='job_id' AND TABLE_SCHEMA=DATABASE() AND TABLE_NAME <> 'jobs'`
-    );
-    for (const { TABLE_NAME } of tables) {
-      await conn.query(`DELETE FROM \`${TABLE_NAME}\` WHERE job_id=?`, [id]);
-    }
+    await conn.query('DELETE FROM job_assignments WHERE job_id=?', [id]);
     await conn.query('DELETE FROM jobs WHERE id=?', [id]);
     await conn.commit();
-    return { ok: true };
-  } catch (err) {
+  } catch (error) {
     await conn.rollback();
-    throw err;
+    throw error;
   } finally {
     conn.release();
   }
+  return { ok: true };
 }
 
 export async function getAssignments(job_id) {

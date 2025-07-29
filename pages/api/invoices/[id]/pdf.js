@@ -4,6 +4,7 @@ import { getClientById } from '../../../../services/clientsService.js';
 import { getInvoiceItems } from '../../../../services/invoiceItemsService.js';
 import * as jobService from '../../../../services/jobsService.js';
 import { getVehicleById } from '../../../../services/vehiclesService.js';
+import { getQuoteById } from '../../../../services/quotesService.js';
 import { buildInvoicePdf } from '../../../../lib/pdf/buildInvoicePdf.js';
 import apiHandler from '../../../../lib/apiHandler.js';
 
@@ -16,9 +17,11 @@ async function handler(req, res) {
   try {
     const invoice = await getInvoiceById(id);
     if (!invoice) return res.status(404).json({ error: 'Not Found' });
+    
     const company = await getSettings();
     const client = invoice.customer_id ? await getClientById(invoice.customer_id) : null;
     const items = await getInvoiceItems(id);
+    
     const garage = {
       name: company?.company_name,
       logo: company?.logo_url,
@@ -26,6 +29,7 @@ async function handler(req, res) {
       phone: company?.phone,
       email: company?.email,
     };
+    
     const clientInfo = client
       ? {
           name: `${client.first_name} ${client.last_name}`.trim(),
@@ -36,24 +40,37 @@ async function handler(req, res) {
           postcode: client.post_code,
         }
       : {};
+    
     const itemList = items.map(it => ({
-      partNumber: it.partNumber,
-      description: it.description,
-      qty: it.qty,
-      unit_price: it.unit_price,
+      partNumber: it.partNumber || '',
+      description: it.description || '',
+      qty: it.qty || 0,
+      unit_price: it.unit_price || 0,
     }));
-    const job = invoice.job_id
-      ? await (jobService.getJobFull
-          ? jobService.getJobFull(invoice.job_id)
-          : (async () => {
-              const j = await jobService.getJobById(invoice.job_id);
-              if (j && j.vehicle_id && getVehicleById)
-                j.vehicle = await getVehicleById(j.vehicle_id);
-              return j;
-            })())
-      : null;
-    const vehicle = job?.vehicle || {};
-    const defect = job?.quote?.defect_description || '';
+    
+    // Get job and vehicle data
+    let vehicle = {};
+    let defect = '';
+    
+    if (invoice.job_id) {
+      try {
+        const job = await jobService.getJobById(invoice.job_id);
+        if (job) {
+          // Get vehicle data
+          if (job.vehicle_id) {
+            vehicle = await getVehicleById(job.vehicle_id) || {};
+          }
+          
+          // Get defect description from quote
+          if (job.quote_id) {
+            const quote = await getQuoteById(job.quote_id);
+            defect = quote?.defect_description || '';
+          }
+        }
+      } catch (error) {
+        console.error('Error retrieving job/vehicle data:', error);
+      }
+    }
 
     const baseTerms = invoice.terms || company.invoice_terms || company.terms || '';
     const bankDetails = [
@@ -64,6 +81,7 @@ async function handler(req, res) {
     ]
       .filter(Boolean)
       .join('\n');
+    
     const pdf = await buildInvoicePdf({
       invoiceNumber: invoice.id,
       garage,
@@ -73,11 +91,12 @@ async function handler(req, res) {
       defect_description: defect,
       terms: bankDetails ? `${baseTerms}\n\n${bankDetails}` : baseTerms,
     });
+    
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=invoice-${id}.pdf`);
     res.send(pdf);
   } catch (err) {
-    console.error(err);
+    console.error('Invoice PDF generation error:', err);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }

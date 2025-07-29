@@ -16,7 +16,20 @@ async function handler(req, res) {
       return res.status(200).json(invoices);
     }
     if (req.method === 'POST') {
-      const newInvoice = await service.createInvoice(req.body);
+      let newInvoice;
+      
+      // Check if creating from quote
+      if (req.body.quote_id) {
+        newInvoice = await service.createInvoiceFromQuote(req.body.quote_id, {
+          amount: req.body.amount,
+          due_date: req.body.due_date,
+          status: req.body.status,
+          terms: req.body.terms,
+        });
+      } else {
+        newInvoice = await service.createInvoice(req.body);
+      }
+      
       try {
         const { sendInvoiceEmail } = await import('../../../services/emailService.js');
         await sendInvoiceEmail(newInvoice.id);

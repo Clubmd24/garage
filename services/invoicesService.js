@@ -1,6 +1,7 @@
 import pool from '../lib/db.js';
 import { invoiceStatusExists } from './invoiceStatusesService.js';
 import { getSettings } from './companySettingsService.js';
+import { getQuoteItems } from './quoteItemsService.js';
 
 export async function getAllInvoices() {
   const [rows] = await pool.query(
@@ -67,6 +68,48 @@ export async function createInvoice({ id, job_id, customer_id, amount, due_date,
     [job_id || null, customer_id || null, amount || null, due_date || null, status || null, terms || null]
   );
   return { id: insertId, job_id, customer_id, amount, due_date, status, terms };
+}
+
+export async function createInvoiceFromQuote(quoteId, { amount, due_date, status, terms }) {
+  // Get quote data
+  const [[quote]] = await pool.query(
+    `SELECT * FROM quotes WHERE id = ?`,
+    [quoteId]
+  );
+  
+  if (!quote) {
+    throw new Error('Quote not found');
+  }
+
+  // Create invoice
+  const invoice = await createInvoice({
+    job_id: quote.job_id,
+    customer_id: quote.customer_id,
+    amount: amount || quote.total_amount,
+    due_date,
+    status: status || 'issued',
+    terms: terms || quote.terms,
+  });
+
+  // Copy quote items to invoice items
+  const quoteItems = await getQuoteItems(quoteId);
+  
+  for (const item of quoteItems) {
+    await pool.query(
+      `INSERT INTO invoice_items 
+        (invoice_id, part_id, description, qty, unit_price)
+       VALUES (?, ?, ?, ?, ?)`,
+      [
+        invoice.id,
+        item.part_id,
+        item.description,
+        item.qty,
+        item.unit_price,
+      ]
+    );
+  }
+
+  return invoice;
 }
 
 export async function updateInvoice(
