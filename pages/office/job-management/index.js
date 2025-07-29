@@ -109,17 +109,56 @@ export default function JobManagementPage() {
     }
   };
 
-  const markPartsHere = async id => {
+  const markPartsHere = async (jobId) => {
     try {
-      await markPartsArrived(id);
-      const updated = await fetchJob(id);
-      setJobs(j =>
-        j.map(job =>
-          job.id === id ? { ...job, ...updated, partsHere: true } : job
-        )
-      );
-    } catch {
-      setError('Failed to update job');
+      await fetch(`/api/jobs/${jobId}/parts-arrived`, { method: 'POST' });
+      load();
+    } catch (error) {
+      console.error('Error marking parts arrived:', error);
+    }
+  };
+
+  const completeJob = async (job) => {
+    const mileageStr = prompt('Current mileage');
+    const mileage = Number.parseInt(mileageStr, 10);
+    if (!Number.isFinite(mileage)) return;
+    
+    try {
+      // Update vehicle mileage
+      await fetch('/api/vehicle-mileage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vehicle_id: job.vehicle_id, mileage }),
+      });
+  
+      // Update job status to completed (this will trigger invoice creation)
+      const res = await fetch(`/api/jobs/${job.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'completed' }),
+      });
+      
+      if (!res.ok) {
+        throw new Error('Failed to update job status');
+      }
+      
+      const updatedJob = await res.json();
+      console.log('Job completed successfully:', updatedJob);
+      
+      // Show payment modal if invoice was created
+      if (updatedJob.invoice_id) {
+        const payNow = confirm('Job completed! Invoice created. Would you like to process payment now? (OK for Pay Now, Cancel for Pay Later)');
+        if (payNow) {
+          window.location.href = `/office/epos?invoice_id=${updatedJob.invoice_id}&job_id=${job.id}`;
+        } else {
+          window.location.href = '/office/invoices?status=issued';
+        }
+      }
+      
+      load();
+    } catch (error) {
+      console.error('Error completing job:', error);
+      alert('Failed to complete job. Please try again.');
     }
   };
 
@@ -239,6 +278,14 @@ export default function JobManagementPage() {
                       className="button px-4"
                     >
                       Parts Arrived
+                    </button>
+                  )}
+                  {job.status === 'ready for completion' && (
+                    <button
+                      onClick={() => completeJob(job)}
+                      className="button px-4 bg-green-600 hover:bg-green-700"
+                    >
+                      ✅ Complete Job
                     </button>
                   )}
                 </div>

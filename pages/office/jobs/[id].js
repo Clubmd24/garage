@@ -132,8 +132,49 @@ export default function JobViewPage() {
 
   const handlePayLater = () => {
     setShowPaymentModal(false);
-    // Redirect to unpaid invoices page
     router.push('/office/invoices?status=issued');
+  };
+
+  const completeJob = async () => {
+    const mileageStr = prompt('Current mileage');
+    const mileage = Number.parseInt(mileageStr, 10);
+    if (!Number.isFinite(mileage)) return;
+    
+    try {
+      // Update vehicle mileage
+      await fetch('/api/vehicle-mileage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vehicle_id: job.vehicle_id, mileage }),
+      });
+  
+      // Update job status to completed (this will trigger invoice creation)
+      const res = await fetch(`/api/jobs/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'completed' }),
+      });
+      
+      if (!res.ok) {
+        throw new Error('Failed to update job status');
+      }
+      
+      const updatedJob = await res.json();
+      console.log('Job completed successfully:', updatedJob);
+      
+      // Show payment modal if invoice was created
+      if (updatedJob.invoice_id) {
+        const payNow = confirm('Job completed! Invoice created. Would you like to process payment now? (OK for Pay Now, Cancel for Pay Later)');
+        if (payNow) {
+          window.location.href = `/office/epos?invoice_id=${updatedJob.invoice_id}&job_id=${id}`;
+        } else {
+          window.location.href = '/office/invoices?status=issued';
+        }
+      }
+    } catch (error) {
+      console.error('Error completing job:', error);
+      alert('Failed to complete job. Please try again.');
+    }
   };
 
   if (loading) return <OfficeLayout><p>Loading…</p></OfficeLayout>;
@@ -289,7 +330,15 @@ export default function JobViewPage() {
           </SectionGrid>
 
           {/* GLOBAL SAVE */}
-          <div className="max-w-5xl mx-auto mt-6 flex justify-end">
+          <div className="max-w-5xl mx-auto mt-6 flex justify-end gap-4">
+            {job?.status === 'ready for completion' && (
+              <button 
+                onClick={completeJob} 
+                className="button bg-green-600 hover:bg-green-700"
+              >
+                ✅ Complete Job
+              </button>
+            )}
             <button onClick={saveAll} className="button">Save Changes</button>
           </div>
         </>
