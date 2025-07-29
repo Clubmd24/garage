@@ -107,6 +107,12 @@ generation.
 The resulting files are written to the `output/` directory as
 `quote_<quote_number>.docx` and `quote_<quote_number>.pdf`.
 
+## Invoice PDF Generation
+
+Invoices can be downloaded via `/api/invoices/[id]/pdf`. The endpoint
+builds the PDF using the invoice data, customer details and your
+company's banking terms.
+
 ## Viewing Quotes
 
 From the office interface you can view any quotes linked to a client or vehicle.
