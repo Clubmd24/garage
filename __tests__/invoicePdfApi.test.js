@@ -7,7 +7,8 @@ afterEach(() => {
 
 test('invoice pdf endpoint returns PDF', async () => {
   const invoice = { id: 1, customer_id: 2, job_id: 3, amount: 10 };
-  const job = { vehicle: { id: 'V1' }, quote: { defect_description: 'd' } };
+  const job = { vehicle_id: 'V1', quote: { defect_description: 'd' } };
+  const vehicle = { id: 'V1' };
   const buildMock = jest.fn().mockResolvedValue(Buffer.from('PDF'));
   jest.unstable_mockModule('../services/invoicesService.js', () => ({
     getInvoiceById: jest.fn().mockResolvedValue(invoice),
@@ -22,10 +23,10 @@ test('invoice pdf endpoint returns PDF', async () => {
     getInvoiceItems: jest.fn().mockResolvedValue([])
   }));
   jest.unstable_mockModule('../services/jobsService.js', () => ({
-    getJobFull: jest.fn().mockResolvedValue(job),
+    getJobById: jest.fn().mockResolvedValue(job),
   }));
   jest.unstable_mockModule('../services/vehiclesService.js', () => ({
-    getVehicleById: jest.fn(),
+    getVehicleById: jest.fn().mockResolvedValue(vehicle),
   }));
   jest.unstable_mockModule('../lib/pdf/buildInvoicePdf.js', () => ({
     buildInvoicePdf: buildMock
@@ -36,7 +37,7 @@ test('invoice pdf endpoint returns PDF', async () => {
   await handler(req, res);
   expect(buildMock).toHaveBeenCalledWith(
     expect.objectContaining({
-      vehicle: job.vehicle,
+      vehicle,
       defect_description: 'd'
     })
   );
