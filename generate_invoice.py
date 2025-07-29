@@ -5,12 +5,15 @@ from typing import Any
 
 try:
     from docxtpl import DocxTemplate
-except ImportError as e:
+except ImportError:
     sys.stderr.write("Missing dependency: docxtpl. Install with 'pip install docxtpl'.\n")
     sys.exit(1)
 
-# PDF conversion skipped on Linux
-DOCX2PDF_AVAILABLE = False
+try:
+    from docx2pdf import convert as docx2pdf_convert
+    DOCX2PDF_AVAILABLE = True
+except ImportError:
+    DOCX2PDF_AVAILABLE = False
 
 
 def load_data(path: str) -> Any:
@@ -52,19 +55,38 @@ def render_docx(data: dict) -> str:
 
 
 def convert_to_pdf(docx_path: str) -> str:
-    print("⚠️ PDF conversion skipped: docx2pdf is not supported on Linux.")
-    return docx_path  # Return the .docx path for now
+    pdf_path = docx_path.replace('.docx', '.pdf')
+    if DOCX2PDF_AVAILABLE:
+        docx2pdf_convert(docx_path, pdf_path)
+    else:
+        import subprocess
+        try:
+            subprocess.run(['unoconv', '-f', 'pdf', '-o', pdf_path, docx_path], check=True)
+        except FileNotFoundError:
+            raise RuntimeError('Neither docx2pdf nor unoconv is available for PDF conversion.')
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(f'PDF conversion failed: {e}')
+    return pdf_path
 
 
-def main():
-    path = sys.argv[1] if len(sys.argv) > 1 else '-'
-    data = load_data(path)
-    validate_data(data)
-    calculate_totals(data)
-    docx_file = render_docx(data)
-    final_file = convert_to_pdf(docx_file)
-    print(f"✅ Invoice generated at: {final_file}")
+def main() -> int:
+    if len(sys.argv) != 2:
+        sys.stderr.write('Usage: python generate_invoice.py <data.json>|-\n')
+        return 1
+
+    data_path = sys.argv[1]
+    try:
+        data = load_data(data_path)
+        validate_data(data)
+        calculate_totals(data)
+        docx_path = render_docx(data)
+        pdf_path = convert_to_pdf(docx_path)
+        print(f"Generated: {pdf_path}")
+        return 0
+    except Exception as e:
+        sys.stderr.write(f"Error: {e}\n")
+        return 2
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
