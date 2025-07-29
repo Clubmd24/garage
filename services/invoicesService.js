@@ -56,7 +56,7 @@ export async function getInvoiceById(id) {
   let vehicle = null;
   if (invoice.job_id) {
     const [[vehicleData]] = await pool.query(
-      `SELECT v.id, v.licence_plate, v.make, v.model, v.color, v.year
+      `SELECT v.id, v.licence_plate, v.make, v.model, v.color
        FROM vehicles v
        JOIN jobs j ON v.id = j.vehicle_id
        WHERE j.id = ?`,

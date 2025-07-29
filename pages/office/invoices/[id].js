@@ -63,7 +63,6 @@ export default function InvoiceViewPage() {
           <p><strong>Make:</strong> {invoice.vehicle.make}</p>
           <p><strong>Model:</strong> {invoice.vehicle.model}</p>
           {invoice.vehicle.color && <p><strong>Color:</strong> {invoice.vehicle.color}</p>}
-          {invoice.vehicle.year && <p><strong>Year:</strong> {invoice.vehicle.year}</p>}
         </div>
       )}
 
