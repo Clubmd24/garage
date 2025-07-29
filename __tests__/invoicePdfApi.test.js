@@ -6,7 +6,8 @@ afterEach(() => {
 });
 
 test('invoice pdf endpoint returns PDF', async () => {
-  const invoice = { id: 1, customer_id: 2, amount: 10 };
+  const invoice = { id: 1, customer_id: 2, job_id: 3, amount: 10 };
+  const job = { vehicle: { id: 'V1' }, quote: { defect_description: 'd' } };
   const buildMock = jest.fn().mockResolvedValue(Buffer.from('PDF'));
   jest.unstable_mockModule('../services/invoicesService.js', () => ({
     getInvoiceById: jest.fn().mockResolvedValue(invoice),
@@ -20,6 +21,12 @@ test('invoice pdf endpoint returns PDF', async () => {
   jest.unstable_mockModule('../services/invoiceItemsService.js', () => ({
     getInvoiceItems: jest.fn().mockResolvedValue([])
   }));
+  jest.unstable_mockModule('../services/jobsService.js', () => ({
+    getJobFull: jest.fn().mockResolvedValue(job),
+  }));
+  jest.unstable_mockModule('../services/vehiclesService.js', () => ({
+    getVehicleById: jest.fn(),
+  }));
   jest.unstable_mockModule('../lib/pdf/buildInvoicePdf.js', () => ({
     buildInvoicePdf: buildMock
   }));
@@ -27,7 +34,12 @@ test('invoice pdf endpoint returns PDF', async () => {
   const req = { method: 'GET', query: { id: '1' }, headers: {} };
   const res = { setHeader: jest.fn(), status: jest.fn().mockReturnThis(), send: jest.fn(), json: jest.fn(), end: jest.fn() };
   await handler(req, res);
-  expect(buildMock).toHaveBeenCalled();
+  expect(buildMock).toHaveBeenCalledWith(
+    expect.objectContaining({
+      vehicle: job.vehicle,
+      defect_description: 'd'
+    })
+  );
   expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'application/pdf');
   expect(res.setHeader).toHaveBeenCalledWith('Content-Disposition', 'attachment; filename=invoice-1.pdf');
   expect(res.send).toHaveBeenCalledWith(Buffer.from('PDF'));

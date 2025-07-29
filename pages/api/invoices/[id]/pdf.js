@@ -2,6 +2,8 @@ import { getSettings } from '../../../../services/companySettingsService.js';
 import { getInvoiceById } from '../../../../services/invoicesService.js';
 import { getClientById } from '../../../../services/clientsService.js';
 import { getInvoiceItems } from '../../../../services/invoiceItemsService.js';
+import * as jobService from '../../../../services/jobsService.js';
+import { getVehicleById } from '../../../../services/vehiclesService.js';
 import { buildInvoicePdf } from '../../../../lib/pdf/buildInvoicePdf.js';
 import apiHandler from '../../../../lib/apiHandler.js';
 
@@ -40,6 +42,19 @@ async function handler(req, res) {
       qty: it.qty,
       unit_price: it.unit_price,
     }));
+    const job = invoice.job_id
+      ? await (jobService.getJobFull
+          ? jobService.getJobFull(invoice.job_id)
+          : (async () => {
+              const j = await jobService.getJobById(invoice.job_id);
+              if (j && j.vehicle_id && getVehicleById)
+                j.vehicle = await getVehicleById(j.vehicle_id);
+              return j;
+            })())
+      : null;
+    const vehicle = job?.vehicle || {};
+    const defect = job?.quote?.defect_description || '';
+
     const baseTerms = invoice.terms || company.invoice_terms || company.terms || '';
     const bankDetails = [
       company.bank_name,
@@ -54,6 +69,8 @@ async function handler(req, res) {
       garage,
       client: clientInfo,
       items: itemList,
+      vehicle,
+      defect_description: defect,
       terms: bankDetails ? `${baseTerms}\n\n${bankDetails}` : baseTerms,
     });
     res.setHeader('Content-Type', 'application/pdf');
