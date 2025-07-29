@@ -6,6 +6,7 @@ import Link from 'next/link';
 import OfficeLayout from '../../../components/OfficeLayout';
 import { Card } from '../../../components/Card';
 import SectionGrid from '../../../components/SectionGrid';
+import PaymentModal from '../../../components/office/PaymentModal.jsx';
 import { fetchEngineers } from '../../../lib/engineers';
 import { fetchJobStatuses } from '../../../lib/jobStatuses';
 import { fetchJob, assignJob } from '../../../lib/jobs';
@@ -31,6 +32,8 @@ export default function JobViewPage() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [previousStatus, setPreviousStatus] = useState('');
 
   useEffect(() => {
     if (!id) return;
@@ -44,6 +47,7 @@ export default function JobViewPage() {
         setJob(jobData);
         setEngineers(engs);
         setStatuses(stats);
+        setPreviousStatus(jobData.status || '');
 
         const duration =
           jobData.scheduled_start && jobData.scheduled_end
@@ -105,10 +109,31 @@ export default function JobViewPage() {
         body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error();
-      setJob(await res.json());
+      
+      const updatedJob = await res.json();
+      setJob(updatedJob);
+      
+      // Check if status changed to 'completed'
+      if (form.status === 'completed' && previousStatus !== 'completed') {
+        setShowPaymentModal(true);
+      }
+      
+      setPreviousStatus(form.status);
     } catch {
       setError('Failed to save changes');
     }
+  };
+
+  const handlePayNow = () => {
+    setShowPaymentModal(false);
+    // Redirect to EPOS page with invoice data
+    router.push(`/office/epos?invoice_id=${job?.invoice_id}&job_id=${id}`);
+  };
+
+  const handlePayLater = () => {
+    setShowPaymentModal(false);
+    // Redirect to unpaid invoices page
+    router.push('/office/invoices?status=awaiting collection');
   };
 
   if (loading) return <OfficeLayout><p>Loading…</p></OfficeLayout>;
@@ -269,6 +294,20 @@ export default function JobViewPage() {
           </div>
         </>
       )}
+
+      {/* PAYMENT MODAL */}
+      <PaymentModal
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        onPayNow={handlePayNow}
+        onPayLater={handlePayLater}
+        jobData={{
+          id: job?.id,
+          client: client,
+          vehicle: vehicle,
+          invoice_id: job?.invoice_id
+        }}
+      />
     </OfficeLayout>
   );
 }

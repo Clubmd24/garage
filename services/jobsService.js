@@ -118,6 +118,8 @@ export async function updateJob(id, data = {}) {
     await pool.query('DELETE FROM job_assignments WHERE job_id=?', [id]);
   }
 
+  let invoice_id = null;
+
   if (status === 'completed') {
     // Find quote associated with this job
     const [[quote]] = await pool.query(
@@ -127,17 +129,19 @@ export async function updateJob(id, data = {}) {
     
     if (quote) {
       // Create invoice from quote with all items
-      await createInvoiceFromQuote(quote.id, { 
+      const invoice = await createInvoiceFromQuote(quote.id, { 
         status: 'awaiting collection',
         due_date: new Date().toISOString().split('T')[0] // Today's date
       });
+      invoice_id = invoice.id;
     } else {
       // Fallback to simple invoice creation
-      await createInvoice({ 
+      const invoice = await createInvoice({ 
         job_id: id, 
         customer_id: data.customer_id ?? null, 
         status: 'awaiting collection' 
       });
+      invoice_id = invoice.id;
     }
   }
 
@@ -150,21 +154,25 @@ export async function updateJob(id, data = {}) {
     
     if (quote) {
       // Create invoice from quote with all items
-      await createInvoiceFromQuote(quote.id, { 
+      const invoice = await createInvoiceFromQuote(quote.id, { 
         status: 'awaiting collection',
         due_date: new Date().toISOString().split('T')[0] // Today's date
       });
+      invoice_id = invoice.id;
     } else {
       // Fallback to simple invoice creation
-      await createInvoice({ 
+      const invoice = await createInvoice({ 
         job_id: id, 
         customer_id: data.customer_id ?? null, 
         status: 'awaiting collection' 
       });
+      invoice_id = invoice.id;
     }
   }
 
-  return { ok: true };
+  // Return updated job data with invoice_id if created
+  const updatedJob = await getJobById(id);
+  return { ...updatedJob, invoice_id };
 }
 
 export async function deleteJob(id) {

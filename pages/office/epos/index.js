@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import OfficeLayout from "../../../components/OfficeLayout";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -96,6 +97,8 @@ function useCart(initial = []) {
 }
 
 export default function EposPage() {
+  const router = useRouter();
+  
   // Data states
   const [categories, setCategories] = useState([]);
   const [products, setProducts]   = useState([]);
@@ -172,12 +175,24 @@ export default function EposPage() {
       .finally(()=>setLoading(false));
   }, []);
 
+  // Handle URL parameters for automatic invoice loading
+  useEffect(() => {
+    if (router.isReady && router.query.invoice_id) {
+      setInvoiceLookup(router.query.invoice_id);
+      loadInvoiceFromId(router.query.invoice_id);
+    }
+  }, [router.isReady, router.query.invoice_id]);
+
   // Invoice lookup
   const loadInvoice = async () => {
     if(!invoiceLookup) return;
+    await loadInvoiceFromId(invoiceLookup);
+  };
+
+  const loadInvoiceFromId = async (invoiceId) => {
     setError(null);
     try{
-      const res = await fetch(`/api/invoices/${invoiceLookup}`);
+      const res = await fetch(`/api/invoices/${invoiceId}`);
       if(!res.ok) throw new Error();
       const data = await res.json();
       data.customer_id && setCustomerId(data.customer_id);
