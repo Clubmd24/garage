@@ -25,7 +25,7 @@ export default function ApprenticesPage() {
   };
 
   const fetchStatus = () => {
-    fetch(`/api/standards/status?secret=${process.env.NEXT_PUBLIC_API_SECRET}`)
+    fetch('/api/standards/status')
       .then(r => (r.ok ? r.json() : { running: false }))
       .then(d => setIngestRunning(!!d.running))
       .catch(() => setIngestRunning(false));
@@ -34,10 +34,7 @@ export default function ApprenticesPage() {
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
-      const res = await fetch(
-        `/api/standards/ingest?secret=${process.env.NEXT_PUBLIC_API_SECRET}`,
-        { method: 'POST' }
-      );
+      const res = await fetch('/api/standards/ingest', { method: 'POST' });
       if (!res.ok) throw new Error('failed');
       setToast({ type: 'success', message: 'Curriculum refresh started' });
       setTab('Curriculum');

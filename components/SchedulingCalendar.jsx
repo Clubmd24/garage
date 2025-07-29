@@ -61,7 +61,7 @@ export default function SchedulingCalendar() {
             j.status
           )
         )
-      )
+      );
       setEvents(
         jobs
           .filter(
@@ -77,7 +77,7 @@ export default function SchedulingCalendar() {
             end: new Date(j.scheduled_end),
             engineer_id: j.assignments?.[0]?.user_id,
           }))
-      )
+      );
     })
       .catch(() => {
         setUnassigned([]);
@@ -87,7 +87,7 @@ export default function SchedulingCalendar() {
 
   useEffect(() => {
     load(range.start, range.end);
-  }, [filters, range]);
+  }, [filters, range, load]);
   useEffect(() => {
     fetchEngineers()
       .then(setEngineers)
@@ -238,8 +238,8 @@ export default function SchedulingCalendar() {
               <div
                 draggable
                 onDragStart={() => {
-                  setDragJob(j)
-                  window.__dragJob = j
+                  setDragJob(j);
+                  window.__dragJob = j;
                 }}
                 className="p-2 bg-gray-200 rounded cursor-move"
                 data-testid="unassigned-job"
@@ -273,5 +273,5 @@ export default function SchedulingCalendar() {
         </div>
       </div>
     </div>
-  )
+  );
 }

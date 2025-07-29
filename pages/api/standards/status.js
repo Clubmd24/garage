@@ -1,13 +1,15 @@
 import apiHandler from '../../../lib/apiHandler.js';
 import pool from '../../../lib/db.js';
 import { getIngestStatus } from '../../../services/standardIngestService.js';
+import { getTokenFromReq } from '../../../lib/auth.js';
 
 async function handler(req, res) {
-  // auth
-  const secret = req.query.secret || req.headers['x-api-secret'];
-  if (secret !== process.env.API_SECRET) {
-    return res.status(403).json({ error: 'Forbidden' });
+  // Check authentication
+  const token = getTokenFromReq(req);
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized' });
   }
+
   // method check
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET']);

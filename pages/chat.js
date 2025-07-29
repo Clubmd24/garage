@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from "react";
-import Script from "next/script";
-import Head from "next/head";
-import { Sidebar } from "../components/Sidebar";
-import { Header } from "../components/Header";
+import { useEffect, useRef, useState } from 'react';
+import Script from 'next/script';
+import Head from 'next/head';
+import { Sidebar } from '../components/Sidebar';
+import { Header } from '../components/Header';
 
-import { highlightMentions } from "../lib/highlightMentions.js";
+import { highlightMentions } from '../lib/highlightMentions.js';
 
 const S3_BASE_URL = `https://${process.env.NEXT_PUBLIC_S3_BUCKET}.s3.${process.env.NEXT_PUBLIC_AWS_REGION}.amazonaws.com`;
 
@@ -31,14 +31,14 @@ export default function Chat() {
   useEffect(() => {
     const init = async () => {
       try {
-        const r = await fetch("/api/auth/me", { credentials: "include" });
+        const r = await fetch('/api/auth/me', { credentials: 'include' });
         setUser(r.ok ? await r.json() : null);
       } catch (err) {
         setUser(null);
       }
 
       try {
-        const r = await fetch("/api/chat/topics");
+        const r = await fetch('/api/chat/topics');
         if (r.ok) {
           const ts = await r.json();
           setTopics(ts);
@@ -48,16 +48,16 @@ export default function Chat() {
         // ignore
       }
 
-      await fetch("/api/socket-io"); // start socket endpoint
-      const socket = window.io({ path: "/api/socket-io" });
+      await fetch('/api/socket-io'); // start socket endpoint
+      const socket = window.io({ path: '/api/socket-io' });
       socketRef.current = socket;
       setSocketReady(true);
 
-      socket.on("chat:recv", (msg) => {
+      socket.on('chat:recv', (msg) => {
         setMessages((m) => [...m, msg]);
       });
 
-      socket.on("chat:delete", (id) => {
+      socket.on('chat:delete', (id) => {
         setMessages((m) => m.filter((msg) => msg.id !== id));
       });
     };
@@ -83,7 +83,7 @@ export default function Chat() {
     if (!input && !file) return;
     if (!socketRef.current) return;
     if (!topicId) {
-      console.warn("topicId not set; refusing to send message");
+      console.warn('topicId not set; refusing to send message');
       return;
     }
     let s3Key = null;
@@ -122,11 +122,11 @@ export default function Chat() {
     setFile(null);
   };
 
-  const deleteMessage = (id) => {
-    if (socketRef.current) {
-      socketRef.current.emit("chat:delete", id);
-    }
-  };
+      const deleteMessage = (id) => {
+      if (socketRef.current) {
+        socketRef.current.emit('chat:delete', id);
+      }
+    };
 
   return (
     <div className="min-h-screen flex flex-col sm:flex-row">
@@ -134,8 +134,8 @@ export default function Chat() {
       <div className="flex-1 flex flex-col overflow-y-auto">
         <Header />
         <Script
-          src="/api/socket-io/socket.io.js"
-          strategy="beforeInteractive"
+          src='/api/socket-io/socket.io.js'
+          strategy='beforeInteractive'
         />
         <main className="p-8 space-y-4">
           <Head>
@@ -144,8 +144,8 @@ export default function Chat() {
           <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">Chat</h1>
           <div className="flex items-center space-x-2">
             <select
-              className="input"
-              value={topicId || ""}
+              className='input'
+              value={topicId || ''}
               onChange={(e) => setTopicId(parseInt(e.target.value, 10))}
             >
               {topics.map((t) => (
@@ -155,18 +155,18 @@ export default function Chat() {
               ))}
             </select>
             <input
-              className="input"
-              placeholder="New topic"
+              className='input'
+              placeholder='New topic'
               value={newTopic}
               onChange={(e) => setNewTopic(e.target.value)}
             />
             <button
-              className="button"
+              className='button'
               onClick={async () => {
                 if (!newTopic.trim()) return;
-                const r = await fetch("/api/chat/topics", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
+                const r = await fetch('/api/chat/topics', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ name: newTopic.trim() }),
                 });
                 if (r.ok) {
@@ -174,7 +174,7 @@ export default function Chat() {
                   const t = { id, name: newTopic.trim() };
                   setTopics((ts) => [...ts, t]);
                   setTopicId(id);
-                  setNewTopic("");
+                  setNewTopic('');
                 }
               }}
             >
@@ -185,11 +185,11 @@ export default function Chat() {
             {messages.map((m) => (
               <div
                 key={m.id}
-                className="p-2 bg-[var(--color-surface)] rounded-2xl shadow flex justify-between"
+                className='p-2 bg-[var(--color-surface)] rounded-2xl shadow flex justify-between'
               >
                 <div>
                   <span
-                    className="font-semibold mr-2"
+                    className='font-semibold mr-2'
                     style={{ color: userColor(m.user) }}
                   >
                     {m.user}:
@@ -199,15 +199,15 @@ export default function Chat() {
                     m.content_type && m.content_type.startsWith('image/') ? (
                       <img
                         src={`${S3_BASE_URL}/${m.s3_key}`}
-                        alt="uploaded"
-                        className="mt-2 max-w-xs"
+                        alt='uploaded'
+                        className='mt-2 max-w-xs'
                       />
                     ) : (
                       <a
                         href={`${S3_BASE_URL}/${m.s3_key}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block mt-2 text-blue-500 underline"
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        className='block mt-2 text-blue-500 underline'
                         download
                       >
                         {m.file_name || m.s3_key.split('/').pop()}
@@ -217,7 +217,7 @@ export default function Chat() {
                 </div>
                 {user?.username === m.user && (
                   <button
-                    className="text-red-500 ml-4"
+                    className='text-red-500 ml-4'
                     onClick={() => deleteMessage(m.id)}
                   >
                     Delete
@@ -226,22 +226,22 @@ export default function Chat() {
               </div>
             ))}
           </div>
-          <div className="flex mt-4 space-x-2">
+          <div className='flex mt-4 space-x-2'>
             <input
-              className="flex-1 input"
+              className='flex-1 input'
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter") sendMessage();
+                if (e.key === 'Enter') sendMessage();
               }}
-              placeholder="Type a message..."
+              placeholder='Type a message...'
             />
             <input
-              type="file"
-              className="input"
+              type='file'
+              className='input'
               onChange={(e) => setFile(e.target.files[0])}
             />
-            <button className="button" onClick={sendMessage}>
+            <button className='button' onClick={sendMessage}>
               Send
             </button>
           </div>

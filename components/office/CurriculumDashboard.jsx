@@ -15,9 +15,7 @@ export default function CurriculumDashboard({ active }) {
 
   const load = () => {
     setLoading(true);
-    fetchJSON(
-      `/api/standards/status?secret=${process.env.NEXT_PUBLIC_API_SECRET}`
-    )
+    fetchJSON('/api/standards/client-status')
       .then(d => {
         setStandards(d.standards || []);
         setLoading(false);
@@ -36,9 +34,7 @@ export default function CurriculumDashboard({ active }) {
     setSelected(std);
     setQuestions([]);
     setQuestionsLoading(true);
-    fetchJSON(
-      `/api/standards/${std.id}?secret=${process.env.NEXT_PUBLIC_API_SECRET}`
-    )
+    fetchJSON(`/api/standards/client-questions?id=${std.id}`)
       .then(d => {
         setQuestions(d.questions || []);
         setQuestionsLoading(false);

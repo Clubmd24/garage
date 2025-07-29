@@ -23,8 +23,8 @@ export default function MyApp({ Component, pageProps }) {
 
   // initialize dark/light theme from localStorage
   useEffect(() => {
-    const stored = localStorage.getItem('theme')
-    document.documentElement.classList.toggle('dark', stored === 'dark')
+    const stored = localStorage.getItem('theme');
+    document.documentElement.classList.toggle('dark', stored === 'dark');
   }, []);
 
   async function submitBug(data) {

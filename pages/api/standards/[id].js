@@ -1,12 +1,15 @@
 // pages/api/standards/[id].js
 import pool from '../../../lib/db.js';
 import apiHandler from '../../../lib/apiHandler.js';
+import { getTokenFromReq } from '../../../lib/auth.js';
 
 async function handler(req, res) {
   const { id } = req.query;
-  const secret = req.query.secret || req.headers['x-api-secret'];
-  if (secret !== process.env.API_SECRET) {
-    return res.status(403).json({ error: 'Forbidden' });
+  
+  // Check authentication
+  const token = getTokenFromReq(req);
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized' });
   }
 
   if (req.method !== 'GET') {
