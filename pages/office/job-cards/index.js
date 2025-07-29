@@ -16,7 +16,7 @@ const JobCardsPage = () => {
     setLoading(true);
     fetchQuotes()
       .then(q =>
-        setJobs(q.filter(j => j.status === 'job-card' || j.status === 'completed'))
+        setJobs(q.filter(j => j.status === 'job-card' || j.status === 'completed' || j.status === 'invoiced'))
       )
       .catch(() => setError('Failed to load job cards'))
       .finally(() => setLoading(false));
@@ -49,8 +49,7 @@ const JobCardsPage = () => {
 
   const invoice = async job => {
     await createInvoice({
-      job_id: job.job_id,
-      customer_id: job.customer_id,
+      quote_id: job.id, // Use quote_id to trigger createInvoiceFromQuote
       amount: job.total_amount,
       due_date: new Date().toISOString().substring(0, 10),
       status: 'issued',
