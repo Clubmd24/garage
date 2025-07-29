@@ -37,7 +37,7 @@ export async function getJobsByCustomer(customer_id, status) {
 
 export async function getJobById(id) {
   const [[row]] = await pool.query(
-    `SELECT id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay, created_at, quote_id
+    `SELECT id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay, created_at, notes
        FROM jobs WHERE id=?`,
     [id]
   );
@@ -113,11 +113,15 @@ export async function updateJob(id, data = {}) {
   }
 
   if (status === 'notified client for collection') {
-    // Get the job to find associated quote
-    const job = await getJobById(id);
-    if (job && job.quote_id) {
+    // Find quote associated with this job
+    const [[quote]] = await pool.query(
+      `SELECT id FROM quotes WHERE job_id = ? ORDER BY id DESC LIMIT 1`,
+      [id]
+    );
+    
+    if (quote) {
       // Create invoice from quote with all items
-      await createInvoiceFromQuote(job.quote_id, { 
+      await createInvoiceFromQuote(quote.id, { 
         status: 'awaiting collection',
         due_date: new Date().toISOString().split('T')[0] // Today's date
       });
