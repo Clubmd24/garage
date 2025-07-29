@@ -74,7 +74,7 @@ export async function createJob({ id, customer_id, vehicle_id, scheduled_start, 
 
 export async function updateJob(id, data = {}) {
   const { status } = data;
-  if (status && !(await jobStatusExists(status))) {
+  if (status && status !== 'completed' && !(await jobStatusExists(status))) {
     throw new Error('Invalid job status');
   }
 

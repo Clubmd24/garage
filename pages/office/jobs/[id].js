@@ -136,18 +136,7 @@ export default function JobViewPage() {
   };
 
   const completeJob = async () => {
-    const mileageStr = prompt('Current mileage');
-    const mileage = Number.parseInt(mileageStr, 10);
-    if (!Number.isFinite(mileage)) return;
-    
     try {
-      // Update vehicle mileage
-      await fetch('/api/vehicle-mileage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ vehicle_id: job.vehicle_id, mileage }),
-      });
-  
       // Update job status to completed (this will trigger invoice creation)
       const res = await fetch(`/api/jobs/${id}`, {
         method: 'PUT',
