@@ -1,18 +1,14 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import OfficeLayout from '../../../components/OfficeLayout';
 import { fetchQuotes, updateQuote } from '../../../lib/quotes';
 import { createInvoice } from '../../../lib/invoices';
-import { fetchClients } from '../../../lib/clients';
-import { fetchVehicles } from '../../../lib/vehicles';
 import { useCurrentUser } from '../../../components/useCurrentUser.js';
 
 const JobCardsPage = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [clients, setClients] = useState([]);
-  const [vehicles, setVehicles] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const { user } = useCurrentUser();
 
@@ -27,15 +23,6 @@ const JobCardsPage = () => {
   };
 
   useEffect(load, []);
-
-  useEffect(() => {
-    fetchClients()
-      .then(setClients)
-      .catch(() => setClients([]));
-    fetchVehicles()
-      .then(setVehicles)
-      .catch(() => setVehicles([]));
-  }, []);
 
   const completeJob = async job => {
     const mileageStr = prompt('Current mileage');
@@ -72,31 +59,29 @@ const JobCardsPage = () => {
     load();
   };
 
-  const clientMap = useMemo(() => {
-    const map = {};
-    clients.forEach(c => {
-      map[c.id] = `${c.first_name || ''} ${c.last_name || ''}`.trim();
-    });
-    return map;
-  }, [clients]);
+  const getClientName = (job) => {
+    if (job.first_name || job.last_name) {
+      return `${job.first_name || ''} ${job.last_name || ''}`.trim();
+    }
+    return 'Unknown Client';
+  };
 
-  const vehicleMap = useMemo(() => {
-    const map = {};
-    vehicles.forEach(v => {
-      map[v.id] = v;
-    });
-    return map;
-  }, [vehicles]);
+  const getVehicleInfo = (job) => {
+    const parts = [];
+    if (job.licence_plate) parts.push(job.licence_plate);
+    if (job.make) parts.push(job.make);
+    if (job.model) parts.push(job.model);
+    if (job.color) parts.push(job.color);
+    return parts.join(' - ') || 'No Vehicle Info';
+  };
 
   const filteredJobs = jobs.filter(j => {
     const q = searchQuery.toLowerCase();
-    const name = (clientMap[j.customer_id] || '').toLowerCase();
-    const licence = (vehicleMap[j.vehicle_id]?.licence_plate || '').toLowerCase();
-    const make = (vehicleMap[j.vehicle_id]?.make || '').toLowerCase();
+    const clientName = getClientName(j).toLowerCase();
+    const vehicleInfo = getVehicleInfo(j).toLowerCase();
     return (
-      name.includes(q) ||
-      licence.includes(q) ||
-      make.includes(q) ||
+      clientName.includes(q) ||
+      vehicleInfo.includes(q) ||
       String(j.id).includes(q) ||
       (j.status || '').toLowerCase().includes(q)
     );
@@ -129,9 +114,8 @@ const JobCardsPage = () => {
                   <span>Job not created</span>
                 )}
               </h2>
-              <p className="text-sm">{clientMap[j.customer_id] || ''}</p>
-              <p className="text-sm">{vehicleMap[j.vehicle_id]?.licence_plate || ''}</p>
-              <p className="text-sm">{vehicleMap[j.vehicle_id]?.make || ''}</p>
+              <p className="text-sm font-medium text-gray-700">{getClientName(j)}</p>
+              <p className="text-sm text-gray-600">{getVehicleInfo(j)}</p>
               {user?.role?.toLowerCase() !== 'engineer' && (
                 <p className="text-sm">Total: €{j.total_amount}</p>
               )}
