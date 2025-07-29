@@ -42,8 +42,16 @@ export default function InvoiceViewPage() {
           <h2 className="text-lg font-semibold mb-2">Client Information</h2>
           <p><strong>Name:</strong> {invoice.client.first_name} {invoice.client.last_name}</p>
           {invoice.client.email && <p><strong>Email:</strong> {invoice.client.email}</p>}
-          {invoice.client.phone && <p><strong>Phone:</strong> {invoice.client.phone}</p>}
-          {invoice.client.address && <p><strong>Address:</strong> {invoice.client.address}</p>}
+          {invoice.client.mobile && <p><strong>Mobile:</strong> {invoice.client.mobile}</p>}
+          {invoice.client.landline && <p><strong>Landline:</strong> {invoice.client.landline}</p>}
+          {(invoice.client.street_address || invoice.client.town || invoice.client.province || invoice.client.post_code) && (
+            <p><strong>Address:</strong> {[
+              invoice.client.street_address,
+              invoice.client.town,
+              invoice.client.province,
+              invoice.client.post_code
+            ].filter(Boolean).join(', ')}</p>
+          )}
         </div>
       )}
 

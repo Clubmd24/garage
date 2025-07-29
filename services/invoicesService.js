@@ -44,7 +44,8 @@ export async function getInvoiceById(id) {
   let client = null;
   if (invoice.customer_id) {
     const [[clientData]] = await pool.query(
-      `SELECT id, first_name, last_name, email, phone, address
+      `SELECT id, first_name, last_name, email, mobile, landline, 
+              street_address, town, province, post_code
        FROM clients WHERE id = ?`,
       [invoice.customer_id]
     );
