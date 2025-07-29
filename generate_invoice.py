@@ -9,11 +9,8 @@ except ImportError as e:
     sys.stderr.write("Missing dependency: docxtpl. Install with 'pip install docxtpl'.\n")
     sys.exit(1)
 
-try:
-    from docx2pdf import convert as docx2pdf_convert
-    DOCX2PDF_AVAILABLE = True
-except ImportError:
-    DOCX2PDF_AVAILABLE = False
+# PDF conversion skipped on Linux
+DOCX2PDF_AVAILABLE = False
 
 
 def load_data(path: str) -> Any:
@@ -55,13 +52,8 @@ def render_docx(data: dict) -> str:
 
 
 def convert_to_pdf(docx_path: str) -> str:
-    pdf_path = docx_path.replace('.docx', '.pdf')
-    if DOCX2PDF_AVAILABLE:
-        docx2pdf_convert(docx_path, pdf_path)
-    else:
-        # Fallback to unoconv or leave as DOCX
-        pdf_path = docx_path  # No PDF conversion
-    return pdf_path
+    print("⚠️ PDF conversion skipped: docx2pdf is not supported on Linux.")
+    return docx_path  # Return the .docx path for now
 
 
 def main():
@@ -70,8 +62,8 @@ def main():
     validate_data(data)
     calculate_totals(data)
     docx_file = render_docx(data)
-    pdf_file = convert_to_pdf(docx_file)
-    print(f"Invoice generated at: {pdf_file}")
+    final_file = convert_to_pdf(docx_file)
+    print(f"✅ Invoice generated at: {final_file}")
 
 
 if __name__ == "__main__":
