@@ -16,6 +16,7 @@ export default function JobManagementPage() {
   const [forms, setForms] = useState({});
   const [error, setError] = useState(null);
   const [partsModal, setPartsModal] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -25,13 +26,18 @@ export default function JobManagementPage() {
 
   useEffect(() => {
     async function load() {
+      setLoading(true);
       try {
         const params = {};
         if (statusFilter) params.status = statusFilter;
+        
+        console.log('Loading jobs with params:', params);
         const all = await fetchJobs(params);
-        const list = all.filter(j => j.status !== 'completed');
+        console.log('Fetched jobs:', all.length, all.map(j => ({ id: j.id, status: j.status })));
+        
+        // Don't filter out completed jobs - show all jobs based on filter
         const withDetails = await Promise.all(
-          list.map(async j => {
+          all.map(async j => {
             try {
               const full = await fetchJob(j.id);
               return { ...j, vehicle: full.vehicle, quote: full.quote };
@@ -40,22 +46,29 @@ export default function JobManagementPage() {
             }
           })
         );
+        
+        console.log('Jobs with details:', withDetails.length);
         setJobs(withDetails);
-      } catch {
+      } catch (err) {
+        console.error('Error loading jobs:', err);
         setJobs([]);
       }
+      
       try {
         const engs = await fetchEngineers();
         setEngineers(engs);
       } catch {
         setEngineers([]);
       }
+      
       try {
         const stats = await fetchJobStatuses();
         setStatuses(stats);
       } catch {
         setStatuses([]);
       }
+      
+      setLoading(false);
     }
     load();
   }, [statusFilter]);
@@ -127,6 +140,24 @@ export default function JobManagementPage() {
     setJobs(j => j.filter(job => job.id !== id));
   };
 
+  const handleStatusFilterChange = (e) => {
+    const newFilter = e.target.value;
+    console.log('Status filter changed to:', newFilter);
+    setStatusFilter(newFilter);
+    
+    // Update URL query parameter
+    const newQuery = { ...router.query };
+    if (newFilter) {
+      newQuery.status = newFilter;
+    } else {
+      delete newQuery.status;
+    }
+    router.push({
+      pathname: router.pathname,
+      query: newQuery
+    }, undefined, { shallow: true });
+  };
+
   return (
     <OfficeLayout>
       {partsModal && (
@@ -146,7 +177,7 @@ export default function JobManagementPage() {
         <label className="block text-white text-sm">Status</label>
         <select
           value={statusFilter}
-          onChange={e => setStatusFilter(e.target.value)}
+          onChange={handleStatusFilterChange}
           className="input"
           aria-label="Status Filter"
         >
@@ -157,10 +188,13 @@ export default function JobManagementPage() {
         </select>
       </div>
       {error && <p className="text-red-500">{error}</p>}
-      {jobs.length === 0 ? (
-        <p>No jobs found.</p>
+      {loading ? (
+        <p>Loading jobs...</p>
+      ) : jobs.length === 0 ? (
+        <p>No jobs found for status: {statusFilter || 'All'}</p>
       ) : (
         <div className="space-y-6">
+          <p className="text-sm text-gray-300">Showing {jobs.length} job(s)</p>
           {jobs.map(job => {
             return (
               <div key={job.id} className="space-y-2 bg-white text-black p-4 rounded">
