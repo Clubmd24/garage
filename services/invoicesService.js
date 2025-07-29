@@ -97,11 +97,10 @@ export async function createInvoiceFromQuote(quoteId, { amount, due_date, status
   for (const item of quoteItems) {
     await pool.query(
       `INSERT INTO invoice_items 
-        (invoice_id, part_id, description, qty, unit_price)
-       VALUES (?, ?, ?, ?, ?)`,
+        (invoice_id, description, qty, unit_price)
+       VALUES (?, ?, ?, ?)`,
       [
         invoice.id,
-        item.part_id,
         item.description,
         item.qty,
         item.unit_price,

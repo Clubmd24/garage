@@ -1,4 +1,4 @@
-import { assignUser, updateJob, getJobDetails } from '../../../../services/jobsService.js';
+import { assignUser, updateJob, getJobDetails, getJobFull } from '../../../../services/jobsService.js';
 import apiHandler from '../../../../lib/apiHandler.js';
 import { getTokenFromReq } from '../../../../lib/auth.js';
 import pool from '../../../../lib/db.js';
