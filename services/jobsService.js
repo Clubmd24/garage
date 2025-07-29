@@ -130,7 +130,7 @@ export async function updateJob(id, data = {}) {
     if (quote) {
       // Create invoice from quote with all items
       const invoice = await createInvoiceFromQuote(quote.id, { 
-        status: 'awaiting collection',
+        status: 'issued',
         due_date: new Date().toISOString().split('T')[0] // Today's date
       });
       invoice_id = invoice.id;
@@ -139,7 +139,7 @@ export async function updateJob(id, data = {}) {
       const invoice = await createInvoice({ 
         job_id: id, 
         customer_id: data.customer_id ?? null, 
-        status: 'awaiting collection' 
+        status: 'issued' 
       });
       invoice_id = invoice.id;
     }
@@ -155,7 +155,7 @@ export async function updateJob(id, data = {}) {
     if (quote) {
       // Create invoice from quote with all items
       const invoice = await createInvoiceFromQuote(quote.id, { 
-        status: 'awaiting collection',
+        status: 'issued',
         due_date: new Date().toISOString().split('T')[0] // Today's date
       });
       invoice_id = invoice.id;
@@ -164,7 +164,7 @@ export async function updateJob(id, data = {}) {
       const invoice = await createInvoice({ 
         job_id: id, 
         customer_id: data.customer_id ?? null, 
-        status: 'awaiting collection' 
+        status: 'issued' 
       });
       invoice_id = invoice.id;
     }

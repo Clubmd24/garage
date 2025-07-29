@@ -59,7 +59,7 @@ const JobCardsPage = () => {
           if (payNow) {
             window.location.href = `/office/epos?invoice_id=${updatedJob.invoice_id}&job_id=${job.job_id}`;
           } else {
-            window.location.href = '/office/invoices?status=awaiting collection';
+            window.location.href = '/office/invoices?status=issued';
           }
         }
       } else {

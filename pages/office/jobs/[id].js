@@ -133,7 +133,7 @@ export default function JobViewPage() {
   const handlePayLater = () => {
     setShowPaymentModal(false);
     // Redirect to unpaid invoices page
-    router.push('/office/invoices?status=awaiting collection');
+    router.push('/office/invoices?status=issued');
   };
 
   if (loading) return <OfficeLayout><p>Loading…</p></OfficeLayout>;
