@@ -16,7 +16,7 @@ const JobCardsPage = () => {
     setLoading(true);
     fetchQuotes()
       .then(q =>
-        setJobs(q.filter(j => j.status === 'job-card' || j.status === 'completed' || j.status === 'invoiced'))
+        setJobs(q.filter(j => j.status === 'job-card' || j.status === 'completed' || j.status === 'invoiced' || j.status === 'ready for completion'))
       )
       .catch(() => setError('Failed to load job cards'))
       .finally(() => setLoading(false));

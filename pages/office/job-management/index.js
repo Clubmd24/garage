@@ -225,12 +225,14 @@ export default function JobManagementPage() {
                   >
                     View Job
                   </Link>
-                  <Link
-                    href={`/office/jobs/${job.id}/purchase-orders`}
-                    className="button-secondary px-4"
-                  >
-                    Purchase Orders
-                  </Link>
+                  {(job.status === 'unassigned' || job.status === 'awaiting parts') && (
+                    <Link
+                      href={`/office/jobs/${job.id}/purchase-orders`}
+                      className="button-secondary px-4"
+                    >
+                      Purchase Orders
+                    </Link>
+                  )}
                   {job.status === 'awaiting parts' && (
                     <button
                       onClick={() => setPartsModal(job.id)}
