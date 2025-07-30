@@ -11,10 +11,15 @@ export default function JobHistory({ jobId }) {
     async function loadHistory() {
       try {
         const res = await fetch(`/api/jobs/${jobId}/history`);
-        if (!res.ok) throw new Error('Failed to load history');
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          console.error('Job history API error:', res.status, errorData);
+          throw new Error(`Failed to load history: ${errorData.error || res.statusText}`);
+        }
         const data = await res.json();
         setHistory(data);
       } catch (err) {
+        console.error('Job history error:', err);
         setError(err.message);
       } finally {
         setLoading(false);

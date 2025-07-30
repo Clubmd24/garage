@@ -13,14 +13,27 @@ async function handler(req, res) {
      WHERE ur.user_id = ?`,
     [t.sub]
   );
-  if (!roleRow || !['office', 'admin', 'developer'].includes(roleRow.name)) {
-    return res.status(403).json({ error: 'Forbidden' });
+  if (!roleRow) {
+    return res.status(403).json({ error: 'User has no role assigned' });
+  }
+  if (!['office', 'admin', 'developer'].includes(roleRow.name)) {
+    return res.status(403).json({ error: `Insufficient permissions. Required: office/admin/developer, User has: ${roleRow.name}` });
   }
 
   try {
     if (req.method !== 'GET') {
       res.setHeader('Allow', ['GET']);
       return res.status(405).end(`Method ${req.method} Not Allowed`);
+    }
+
+    // Check if job exists
+    const [[jobExists]] = await pool.query(
+      'SELECT id FROM jobs WHERE id = ?',
+      [id]
+    );
+    
+    if (!jobExists) {
+      return res.status(404).json({ error: 'Job not found' });
     }
 
     // Get job history including:
