@@ -1,10 +1,5 @@
 import { getSettings } from '../../../../services/companySettingsService.js';
 import { getInvoiceById } from '../../../../services/invoicesService.js';
-import { getClientById } from '../../../../services/clientsService.js';
-import { getInvoiceItems } from '../../../../services/invoiceItemsService.js';
-import * as jobService from '../../../../services/jobsService.js';
-import { getVehicleById } from '../../../../services/vehiclesService.js';
-import { getQuoteById } from '../../../../services/quotesService.js';
 import { buildInvoicePdf } from '../../../../lib/pdf/buildInvoicePdf.js';
 import apiHandler from '../../../../lib/apiHandler.js';
 
@@ -19,8 +14,6 @@ async function handler(req, res) {
     if (!invoice) return res.status(404).json({ error: 'Not Found' });
     
     const company = await getSettings();
-    const client = invoice.customer_id ? await getClientById(invoice.customer_id) : null;
-    const items = await getInvoiceItems(id);
     
     const garage = {
       name: company?.company_name,
@@ -30,48 +23,28 @@ async function handler(req, res) {
       email: company?.email,
     };
     
-    const clientInfo = client
+    const clientInfo = invoice.client
       ? {
-          name: `${client.first_name} ${client.last_name}`.trim(),
-          phone: client.mobile || client.landline,
-          email: client.email,
-          address: client.street_address,
-          city: client.town,
-          postcode: client.post_code,
+          name: `${invoice.client.first_name} ${invoice.client.last_name}`.trim(),
+          phone: invoice.client.mobile || invoice.client.landline,
+          email: invoice.client.email,
+          address: invoice.client.street_address,
+          city: invoice.client.town,
+          postcode: invoice.client.post_code,
         }
       : {};
     
-    const itemList = items.map(it => ({
+    const itemList = invoice.items?.map(it => ({
       partNumber: it.partNumber || '',
       description: it.description || '',
       qty: it.qty || 0,
       unit_price: it.unit_price || 0,
-    }));
+    })) || [];
     
-    // Get job and vehicle data
-    let vehicle = {};
-    let defect = '';
-    
-    if (invoice.job_id) {
-      try {
-        const job = await jobService.getJobById(invoice.job_id);
-        if (job) {
-          // Get vehicle data
-          if (job.vehicle_id) {
-            vehicle = await getVehicleById(job.vehicle_id) || {};
-          }
-          
-          // Get defect description from quote
-          if (job.quote_id) {
-            const quote = await getQuoteById(job.quote_id);
-            defect = quote?.defect_description || '';
-          }
-        }
-      } catch (error) {
-        console.error('Error retrieving job/vehicle data:', error);
-      }
-    }
+    const vehicle = invoice.vehicle || {};
+    const defect = invoice.defect_description || '';
 
+    // Use invoice terms from company settings, fallback to invoice terms, then general terms
     const baseTerms = invoice.terms || company.invoice_terms || company.terms || '';
     const bankDetails = [
       company.bank_name,
