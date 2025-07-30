@@ -13,6 +13,7 @@ test('unassigned jobs page links to purchase orders', async () => {
     fetchJob: jest.fn().mockResolvedValue({
       id: 9,
       vehicle: { licence_plate: 'XYZ' },
+      client: { first_name: 'John', last_name: 'Doe', company_name: 'Test Company' },
       quote: { defect_description: 'broken', items: [{ id: 1, description: 'part', qty: 1, partNumber: 'P1' }] }
     })
   }));
@@ -26,6 +27,8 @@ test('unassigned jobs page links to purchase orders', async () => {
   const link = await screen.findByRole('link', { name: 'Purchase Orders' });
   expect(link).toHaveAttribute('href', '/office/jobs/9/purchase-orders');
   expect(screen.getByText('part')).toBeInTheDocument();
+  expect(screen.getByText('John Doe (Test Company)')).toBeInTheDocument();
+  expect(screen.getByText('XYZ')).toBeInTheDocument();
 });
 
 test('unassigned jobs page links to job view page', async () => {
@@ -34,6 +37,7 @@ test('unassigned jobs page links to job view page', async () => {
     fetchJob: jest.fn().mockResolvedValue({
       id: 9,
       vehicle: { licence_plate: 'XYZ' },
+      client: { first_name: 'John', last_name: 'Doe', company_name: 'Test Company' },
       quote: { defect_description: 'broken', items: [{ id: 1, description: 'part', qty: 1 }] }
     })
   }));
@@ -47,4 +51,5 @@ test('unassigned jobs page links to job view page', async () => {
   const link = await screen.findByRole('link', { name: 'View Job' });
   expect(link).toHaveAttribute('href', '/office/jobs/9');
   expect(screen.getByText('XYZ')).toBeInTheDocument();
+  expect(screen.getByText('John Doe (Test Company)')).toBeInTheDocument();
 });

@@ -36,6 +36,12 @@ const LiveScreenPage = () => {
             >
               <h2 className="text-lg font-semibold mb-1">{j.licence_plate}</h2>
               <p className="text-sm mb-1">{j.make} {j.model}</p>
+              {(j.first_name || j.last_name) && (
+                <p className="text-sm mb-1 text-blue-600">
+                  {j.first_name} {j.last_name}
+                  {j.company_name && ` (${j.company_name})`}
+                </p>
+              )}
               <p className="text-sm mb-1">
                 {j.scheduled_start ? new Date(j.scheduled_start).toLocaleTimeString() : 'N/A'}
               </p>

@@ -244,9 +244,11 @@ export async function getJobsForDate(date) {
     `SELECT j.id, v.licence_plate, v.make, v.model,
             GROUP_CONCAT(u.username ORDER BY u.username SEPARATOR ', ') AS engineers,
             j.status, j.scheduled_start, j.scheduled_end,
-            q.defect_description
+            q.defect_description,
+            c.first_name, c.last_name, c.company_name
        FROM jobs j
        JOIN vehicles v ON j.vehicle_id = v.id
+  LEFT JOIN clients c ON j.customer_id = c.id
   LEFT JOIN job_assignments ja ON j.id = ja.job_id
   LEFT JOIN users u ON ja.user_id = u.id
   LEFT JOIN (
@@ -326,6 +328,13 @@ export async function getJobFull(id) {
   if (!job) return null;
   if (job.vehicle_id) {
     job.vehicle = await getVehicleById(job.vehicle_id);
+  }
+  if (job.customer_id) {
+    const [[clientRow]] = await pool.query(
+      `SELECT id, first_name, last_name, email, company_name FROM clients WHERE id=?`,
+      [job.customer_id]
+    );
+    job.client = clientRow || null;
   }
   const [[quoteRow]] = await pool.query(
     `SELECT id, defect_description, revision FROM quotes WHERE job_id=? ORDER BY revision DESC LIMIT 1`,

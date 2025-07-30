@@ -301,6 +301,17 @@ export default function JobManagementPage() {
                   <div>
                     <p className="font-semibold">Job #{job.id}</p>
                     <p className="text-sm">Status: {job.status}</p>
+                    {job.client && (
+                      <p className="text-sm font-medium text-blue-600">
+                        Client: {job.client.first_name} {job.client.last_name}
+                        {job.client.company_name && ` (${job.client.company_name})`}
+                      </p>
+                    )}
+                    {job.vehicle && (
+                      <p className="text-sm font-medium text-green-600">
+                        Vehicle: {job.vehicle.licence_plate}
+                      </p>
+                    )}
                     {job.partsHere && (
                       <p className="text-green-600 font-bold">PARTS HERE</p>
                     )}
@@ -339,13 +350,25 @@ export default function JobManagementPage() {
                   </div>
                 </div>
                 
-                {job.vehicle && (
+                {(job.vehicle || job.client) && (
                   <div className="bg-gray-50 p-3 rounded">
-                    <p className="text-sm font-medium">Vehicle Information</p>
-                    <p className="text-sm">{job.vehicle.licence_plate}</p>
-                    <p className="text-sm">
-                      {job.vehicle.make} {job.vehicle.model} {job.vehicle.color}
-                    </p>
+                    <p className="text-sm font-medium">Client & Vehicle Information</p>
+                    {job.client && (
+                      <p className="text-sm font-medium text-blue-600">
+                        {job.client.first_name} {job.client.last_name}
+                        {job.client.company_name && ` (${job.client.company_name})`}
+                      </p>
+                    )}
+                    {job.vehicle && (
+                      <>
+                        <p className="text-sm font-medium text-green-600">
+                          {job.vehicle.licence_plate}
+                        </p>
+                        <p className="text-sm">
+                          {job.vehicle.make} {job.vehicle.model} {job.vehicle.color}
+                        </p>
+                      </>
+                    )}
                   </div>
                 )}
                 
