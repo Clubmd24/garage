@@ -55,7 +55,7 @@ export default function OfficeDashboard() {
   const unpaidInvoices = useMemo(
     () =>
       invoices.filter(
-        (inv) => (inv.status || '').toLowerCase() === 'unpaid'
+        (inv) => ['unpaid', 'issued'].includes((inv.status || '').toLowerCase())
       ),
     [invoices]
   );
@@ -144,59 +144,24 @@ export default function OfficeDashboard() {
       </div>
 
       <div className="bg-white text-black rounded-2xl p-4 shadow mt-6">
-        <h2 className="text-lg font-semibold mb-2">
+        <h2 className="text-lg font-semibold mb-4">
           Jobs - showing oldest jobs
         </h2>
-        <table className="text-sm w-full table-fixed text-center">
-          <thead>
-            {/* 1) First-half headers */}
-            <tr>
-              {firstHalf.map((s) => (
-                <th key={s.id} className="capitalize">
-                  {s.name}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {/* 2) First-half counts */}
-            <tr className="divide-x divide-gray-200">
-              {firstHalf.map((s) => (
-                <td key={s.id} className="p-1 align-top">
-                  <Link
-                    href={`/office/job-management?status=${encodeURIComponent(s.name)}`}
-                    className="underline font-semibold capitalize"
-                  >
-                    {jobStatusCounts[s.name] || 0}
-                  </Link>
-                </td>
-              ))}
-            </tr>
-
-            {/* 3) Second-half headers */}
-            <tr>
-              {secondHalf.map((s) => (
-                <th key={s.id} className="capitalize">
-                  {s.name}
-                </th>
-              ))}
-            </tr>
-
-            {/* 4) Second-half counts */}
-            <tr className="divide-x divide-gray-200">
-              {secondHalf.map((s) => (
-                <td key={s.id} className="p-1 align-top">
-                  <Link
-                    href={`/office/job-management?status=${encodeURIComponent(s.name)}`}
-                    className="underline font-semibold capitalize"
-                  >
-                    {jobStatusCounts[s.name] || 0}
-                  </Link>
-                </td>
-              ))}
-            </tr>
-          </tbody>
-        </table>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          {statuses.map((s) => (
+            <div key={s.id} className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-3 shadow-md border border-blue-200">
+              <div className="text-xs font-medium text-blue-800 capitalize mb-1">
+                {s.name}
+              </div>
+              <Link
+                href={`/office/job-management?status=${encodeURIComponent(s.name)}`}
+                className="text-2xl font-bold text-blue-600 hover:text-blue-800 transition-colors"
+              >
+                {jobStatusCounts[s.name] || 0}
+              </Link>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">

@@ -44,10 +44,15 @@ const QuotationsPage = () => {
         body: JSON.stringify({ status: 'unassigned' }),
       });
     } else {
+      // Create job with the same ID as the quote for pipeline numbering
       const res = await fetch('/api/jobs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customer_id: quote.customer_id, vehicle_id: null }),
+        body: JSON.stringify({ 
+          id: quote.id, // Use quote ID as job ID
+          customer_id: quote.customer_id, 
+          vehicle_id: quote.vehicle_id 
+        }),
       });
       const job = res.ok ? await res.json() : null;
       jobId = job?.id;

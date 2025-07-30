@@ -138,8 +138,9 @@ export async function createInvoiceFromQuote(quoteId, { amount, due_date, status
     throw new Error('Quote not found');
   }
 
-  // Create invoice
+  // Create invoice with the same ID as the quote for pipeline numbering
   const invoice = await createInvoice({
+    id: quoteId, // Use quote ID as invoice ID
     job_id: quote.job_id,
     customer_id: quote.customer_id,
     amount: amount || quote.total_amount,

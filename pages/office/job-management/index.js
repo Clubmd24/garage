@@ -17,6 +17,7 @@ export default function JobManagementPage() {
   const [error, setError] = useState(null);
   const [partsModal, setPartsModal] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [assignmentHistory, setAssignmentHistory] = useState({});
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -53,6 +54,21 @@ export default function JobManagementPage() {
         
         console.log('Jobs with details:', withDetails.length);
         setJobs(withDetails);
+        
+        // Load assignment history for each job
+        const history = {};
+        for (const job of withDetails) {
+          try {
+            const res = await fetch(`/api/jobs/${job.id}/assignments`);
+            if (res.ok) {
+              history[job.id] = await res.json();
+            }
+          } catch (err) {
+            console.error(`Failed to load assignment history for job ${job.id}:`, err);
+            history[job.id] = [];
+          }
+        }
+        setAssignmentHistory(history);
       } catch (err) {
         console.error('Error loading jobs:', err);
         setJobs([]);
@@ -104,8 +120,46 @@ export default function JobManagementPage() {
       if (!res.ok) throw new Error();
       const updated = await fetchJob(id);
       setJobs(j => j.map(job => (job.id === id ? { ...job, ...updated } : job)));
+      
+      // Clear the form fields after successful assignment
+      setForms(f => ({ ...f, [id]: {} }));
+      
+      // Reload assignment history
+      try {
+        const historyRes = await fetch(`/api/jobs/${id}/assignments`);
+        if (historyRes.ok) {
+          const history = await historyRes.json();
+          setAssignmentHistory(h => ({ ...h, [id]: history }));
+        }
+      } catch (err) {
+        console.error('Failed to reload assignment history:', err);
+      }
     } catch {
       setError('Failed to assign job');
+    }
+  };
+
+  const deleteAssignment = async (jobId, assignmentId) => {
+    if (!confirm('Delete this assignment?')) return;
+    
+    try {
+      const res = await fetch(`/api/jobs/${jobId}/assignments`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assignment_id: assignmentId }),
+      });
+      
+      if (!res.ok) throw new Error('Failed to delete assignment');
+      
+      // Reload assignment history
+      const historyRes = await fetch(`/api/jobs/${jobId}/assignments`);
+      if (historyRes.ok) {
+        const history = await historyRes.json();
+        setAssignmentHistory(h => ({ ...h, [jobId]: history }));
+      }
+    } catch (err) {
+      console.error('Failed to delete assignment:', err);
+      setError('Failed to delete assignment');
     }
   };
 
@@ -190,6 +244,16 @@ export default function JobManagementPage() {
     }, undefined, { shallow: true });
   };
 
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   return (
     <OfficeLayout>
       {partsModal && (
@@ -228,54 +292,143 @@ export default function JobManagementPage() {
         <div className="space-y-6">
           <p className="text-sm text-gray-300">Showing {jobs.length} job(s)</p>
           {jobs.map(job => {
+            const history = assignmentHistory[job.id] || [];
+            const currentAssignment = history[0]; // Most recent assignment
+            
             return (
-              <div key={job.id} className="space-y-2 bg-white text-black p-4 rounded">
-                <p className="font-semibold">Job #{job.id}</p>
-                <p className="text-sm">Status: {job.status}</p>
-                {job.partsHere && (
-                  <p className="text-green-600 font-bold">PARTS HERE</p>
-                )}
-                {job.vehicle && (
-                  <>
-                    <p className="text-sm">{job.vehicle.licence_plate}</p>
-                    <p className="text-sm">
-                      {job.vehicle.make} {job.vehicle.model}
-                    </p>
-                  </>
-                )}
-                {job.quote?.defect_description && (
-                  <p className="text-sm">{job.quote.defect_description}</p>
-                )}
-                <div className="flex gap-2">
-                  <Link
-                    href={`/office/jobs/${job.id}`}
-                    className="button-secondary px-4"
-                  >
-                    View Job
-                  </Link>
-                  {(job.status === 'unassigned' || job.status === 'awaiting parts') && (
+              <div key={job.id} className="space-y-4 bg-white text-black p-4 rounded">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="font-semibold">Job #{job.id}</p>
+                    <p className="text-sm">Status: {job.status}</p>
+                    {job.partsHere && (
+                      <p className="text-green-600 font-bold">PARTS HERE</p>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
                     <Link
-                      href={`/office/jobs/${job.id}/purchase-orders`}
+                      href={`/office/jobs/${job.id}`}
                       className="button-secondary px-4"
                     >
-                      Purchase Orders
+                      View Job
                     </Link>
-                  )}
-                  {job.status === 'awaiting parts' && (
-                    <button
-                      onClick={() => setPartsModal(job.id)}
-                      className="button px-4"
+                    {(job.status === 'unassigned' || job.status === 'awaiting parts') && (
+                      <Link
+                        href={`/office/jobs/${job.id}/purchase-orders`}
+                        className="button-secondary px-4"
+                      >
+                        Purchase Orders
+                      </Link>
+                    )}
+                    {job.status === 'awaiting parts' && (
+                      <button
+                        onClick={() => setPartsModal(job.id)}
+                        className="button px-4"
+                      >
+                        Parts Arrived
+                      </button>
+                    )}
+                    {job.status === 'ready for completion' && (
+                      <button
+                        onClick={() => completeJob(job)}
+                        className="button px-4 bg-green-600 hover:bg-green-700"
+                      >
+                        ✅ Complete Job
+                      </button>
+                    )}
+                  </div>
+                </div>
+                
+                {job.vehicle && (
+                  <div className="bg-gray-50 p-3 rounded">
+                    <p className="text-sm font-medium">Vehicle Information</p>
+                    <p className="text-sm">{job.vehicle.licence_plate}</p>
+                    <p className="text-sm">
+                      {job.vehicle.make} {job.vehicle.model} {job.vehicle.color}
+                    </p>
+                  </div>
+                )}
+                
+                {job.quote?.defect_description && (
+                  <div className="bg-gray-50 p-3 rounded">
+                    <p className="text-sm font-medium">Reported Defect</p>
+                    <p className="text-sm">{job.quote.defect_description}</p>
+                  </div>
+                )}
+                
+                {/* Assigned Engineer Tile */}
+                <div className="bg-blue-50 p-3 rounded border border-blue-200">
+                  <p className="text-sm font-medium text-blue-800 mb-2">Assigned Engineer</p>
+                  
+                  {/* Current Assignment Form */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-3">
+                    <select
+                      value={forms[job.id]?.engineer_id || ''}
+                      onChange={e => change(job.id, 'engineer_id', e.target.value)}
+                      className="input text-sm"
                     >
-                      Parts Arrived
-                    </button>
-                  )}
-                  {job.status === 'ready for completion' && (
+                      <option value="">Select Engineer</option>
+                      {engineers.map(eng => (
+                        <option key={eng.id} value={eng.id}>
+                          {eng.first_name} {eng.last_name}
+                        </option>
+                      ))}
+                    </select>
+                    
+                    <input
+                      type="datetime-local"
+                      placeholder="Scheduled Start"
+                      value={forms[job.id]?.scheduled_start || ''}
+                      onChange={e => change(job.id, 'scheduled_start', e.target.value)}
+                      className="input text-sm"
+                    />
+                    
+                    <input
+                      type="number"
+                      placeholder="Duration (minutes)"
+                      value={forms[job.id]?.duration || ''}
+                      onChange={e => change(job.id, 'duration', e.target.value)}
+                      className="input text-sm"
+                    />
+                    
                     <button
-                      onClick={() => completeJob(job)}
-                      className="button px-4 bg-green-600 hover:bg-green-700"
+                      onClick={() => assign(job.id)}
+                      className="button px-3 text-sm"
+                      disabled={!forms[job.id]?.engineer_id}
                     >
-                      ✅ Complete Job
+                      Assign
                     </button>
+                  </div>
+                  
+                  {/* Assignment History */}
+                  {history.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-sm font-medium text-blue-800 mb-2">Assignment History</p>
+                      <div className="space-y-2">
+                        {history.map(assignment => (
+                          <div key={assignment.id} className="flex justify-between items-center bg-white p-2 rounded border">
+                            <div className="text-sm">
+                              <span className="font-medium">
+                                {assignment.first_name} {assignment.last_name}
+                              </span>
+                              <span className="text-gray-500 ml-2">
+                                ({assignment.username})
+                              </span>
+                              <br />
+                              <span className="text-xs text-gray-500">
+                                Assigned: {formatDate(assignment.assigned_at)}
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => deleteAssignment(job.id, assignment.id)}
+                              className="text-red-600 hover:text-red-800 text-sm px-2 py-1 rounded"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>
