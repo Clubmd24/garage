@@ -379,14 +379,16 @@ export default function NewQuotationPage() {
                   changeItem(i, 'unit_cost', p.unit_cost || 0);
                 }}
               />
-              <DescriptionAutocomplete
-                value={it.description}
-                onChange={v => changeItem(i, 'description', v)}
-                onSelect={p => {
-                  changeItem(i, 'description', p.description || '');
-                  changeItem(i, 'part_id', p.id);
-                }}
-              />
+              <div className="col-span-4">
+                <DescriptionAutocomplete
+                  value={it.description}
+                  onChange={v => changeItem(i, 'description', v)}
+                  onSelect={p => {
+                    changeItem(i, 'description', p.description || '');
+                    changeItem(i, 'part_id', p.id);
+                  }}
+                />
+              </div>
               <input
                 type="number"
                 className="input"
