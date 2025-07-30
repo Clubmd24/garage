@@ -9,11 +9,6 @@ const nextConfig = {
   trailingSlash: false,
   // Ensure proper build output
   output: 'standalone',
-  // Enable build optimizations
-  experimental: {
-    // Optimize CSS
-    optimizeCss: true,
-  },
   // Enable compression
   compress: true,
 };
