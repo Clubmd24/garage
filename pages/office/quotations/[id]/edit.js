@@ -187,6 +187,27 @@ useEffect(() => {
 
   const submit = async e => {
     e.preventDefault();
+    
+    // Validation
+    const errors = [];
+    
+    // Check if vehicle is selected
+    if (!form.vehicle_id) {
+      errors.push('Vehicle selection is required');
+    }
+    
+    // Check if either client or fleet is selected
+    if (mode === 'client' && !form.customer_id) {
+      errors.push('Client selection is required');
+    } else if (mode === 'fleet' && !form.fleet_id) {
+      errors.push('Fleet selection is required');
+    }
+    
+    if (errors.length > 0) {
+      setError(errors.join(', '));
+      return;
+    }
+    
     try {
       await updateQuote(id, {
         customer_id: mode === 'client' ? form.customer_id : null,
@@ -259,7 +280,7 @@ useEffect(() => {
         </div>
         {mode === 'client' ? (
           <div>
-            <label className="block mb-1">Client</label>
+            <label className="block mb-1">Client <span className="text-red-500">*</span></label>
             <ClientAutocomplete
               value={clientName}
               onChange={v => {
@@ -274,7 +295,7 @@ useEffect(() => {
           </div>
         ) : (
           <div>
-            <label className="block mb-1">Fleet</label>
+            <label className="block mb-1">Fleet <span className="text-red-500">*</span></label>
             <select
               className="input w-full"
               value={form.fleet_id}
@@ -292,7 +313,7 @@ useEffect(() => {
           </div>
         )}
         <div>
-          <label className="block mb-1">Vehicle</label>
+          <label className="block mb-1">Vehicle <span className="text-red-500">*</span></label>
           <select
             className="input w-full"
             value={form.vehicle_id}
