@@ -102,7 +102,7 @@ async function handler(req, res) {
           assigned_date: assignment.assigned_at
         }
       });
-    }
+    });
 
     // 4. Get job creation (if no quote exists)
     if (!quote) {
