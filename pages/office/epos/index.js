@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import OfficeLayout from "../../../components/OfficeLayout";
+import EposLayout from "../../../components/EposLayout";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -261,7 +261,7 @@ export default function EposPage() {
 
   return (
     <div className="bg-gray-100 bg-opacity-50 p-4 min-h-screen">
-      <OfficeLayout>
+      <EposLayout>
         {/* Top bar */}
         <div className="flex flex-col sm:flex-row items-center p-4 bg-blue-600 text-white gap-2">
           <label className="font-medium">Invoice:</label>
@@ -302,8 +302,8 @@ export default function EposPage() {
         </div>
 
         <div className="flex flex-col lg:flex-row flex-1 overflow-hidden mt-4">
-          {/* Left pane - Hidden for better screen fit */}
-          <div className="hidden w-full lg:w-2/3 overflow-y-auto lg:pr-4">
+          {/* Left pane - Categories and Products */}
+          <div className="w-full lg:w-2/3 overflow-y-auto lg:pr-4">
             <SectionCard title="Categories">
               <div className="flex flex-col sm:flex-row sm:overflow-x-auto space-y-2 sm:space-y-0 sm:space-x-2">
                 {categories.map(cat=>(
@@ -348,8 +348,8 @@ export default function EposPage() {
             </SectionCard>
           </div>
 
-          {/* Right pane - Now full width */}
-          <div className="w-full flex flex-col">
+          {/* Right pane - Cart and Payment */}
+          <div className="w-full lg:w-1/3 flex flex-col">
             <SectionCard title="Cart">
               {cartItems.length ? (
                 <div className="space-y-2 max-h-64 overflow-y-auto">
@@ -431,7 +431,7 @@ export default function EposPage() {
             </div>
           </Modal>
         )}
-      </OfficeLayout>
+      </EposLayout>
     </div>
   );
 }
