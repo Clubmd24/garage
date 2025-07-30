@@ -160,7 +160,7 @@ const QuotationsPage = () => {
                   Edit
                 </Link>
                 <a
-                  href={`/api/quotes/${q.id}/pdf`}
+                  href={`/api/quotes/${q.id}/pdf?t=${Date.now()}`}
                   className="button-secondary px-4 text-sm"
                 >
                   Download PDF

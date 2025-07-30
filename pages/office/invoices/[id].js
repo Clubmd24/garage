@@ -19,10 +19,13 @@ export default function InvoiceViewPage() {
   if (error) return <OfficeLayout><p className="text-red-500">{error}</p></OfficeLayout>;
   if (!invoice) return <OfficeLayout><p>Loading…</p></OfficeLayout>;
 
+  // Add timestamp to force fresh PDF generation
+  const pdfUrl = `/api/invoices/${id}/pdf?t=${Date.now()}`;
+
   return (
     <OfficeLayout>
       <div className="mb-6 flex flex-wrap gap-4">
-        <a href={`/api/invoices/${id}/pdf`} className="button px-4 text-sm">Download PDF</a>
+        <a href={pdfUrl} className="button px-4 text-sm">Download PDF</a>
         <button onClick={() => router.back()} className="button-secondary px-4 text-sm">Back</button>
       </div>
       
