@@ -125,37 +125,39 @@ export default function OfficeDashboard() {
 
   return (
     <>
-      <div className="flex flex-wrap justify-center gap-4">
-        <Link href="/office/quotations/new" className="button px-8 text-lg">
+      {/* Action buttons - responsive grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+        <Link href="/office/quotations/new" className="button px-4 lg:px-8 text-sm lg:text-lg text-center">
           Create Quote
         </Link>
-        <Link href="/office/jobs/new" className="button px-8 text-lg">
+        <Link href="/office/jobs/new" className="button px-4 lg:px-8 text-sm lg:text-lg text-center">
           New Job
         </Link>
-        <Link href="/office/invoices/new" className="button px-8 text-lg">
+        <Link href="/office/invoices/new" className="button px-4 lg:px-8 text-sm lg:text-lg text-center">
           Create Invoice
         </Link>
         <Link
           href="/office/epos"
-          className="button px-8 text-lg"
+          className="button px-4 lg:px-8 text-sm lg:text-lg text-center"
         >
           Till Mode
         </Link>
       </div>
 
-      <div className="bg-white text-black rounded-2xl p-4 shadow mt-6">
+      {/* Jobs section - responsive grid */}
+      <div className="bg-white text-black rounded-2xl p-4 lg:p-6 shadow mt-6">
         <h2 className="text-lg font-semibold mb-4">
           Jobs - showing oldest jobs
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 lg:gap-3">
           {statuses.map((s) => (
-            <div key={s.id} className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-3 shadow-md border border-blue-200">
-              <div className="text-xs font-medium text-blue-800 capitalize mb-1">
+            <div key={s.id} className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-2 lg:p-3 shadow-md border border-blue-200">
+              <div className="text-xs font-medium text-blue-800 capitalize mb-1 truncate">
                 {s.name}
               </div>
               <Link
                 href={`/office/job-management?status=${encodeURIComponent(s.name)}`}
-                className="text-2xl font-bold text-blue-600 hover:text-blue-800 transition-colors"
+                className="text-xl lg:text-2xl font-bold text-blue-600 hover:text-blue-800 transition-colors block"
               >
                 {jobStatusCounts[s.name] || 0}
               </Link>
@@ -164,70 +166,133 @@ export default function OfficeDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        <div className="bg-white text-black rounded-2xl p-4 shadow">
+      {/* Stats grid - responsive */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mt-6">
+        <div className="bg-white text-black rounded-2xl p-4 lg:p-6 shadow">
           <h2 className="text-lg font-semibold mb-2">Open Quotes</h2>
-          <p className="text-4xl font-bold text-blue-600">
+          <p className="text-3xl lg:text-4xl font-bold text-blue-600">
             <Link href="/office/quotations">{openQuotes.length}</Link>
           </p>
         </div>
-        <div className="bg-white text-black rounded-2xl p-4 shadow">
+        <div className="bg-white text-black rounded-2xl p-4 lg:p-6 shadow">
           <h2 className="text-lg font-semibold mb-2">Unpaid Invoices</h2>
-          <p className="text-4xl font-bold text-blue-600">
+          <p className="text-3xl lg:text-4xl font-bold text-blue-600">
             <Link href="/office/invoices?status=unpaid">
               {unpaidInvoices.length}
             </Link>
           </p>
         </div>
-        <div className="bg-white text-black rounded-2xl p-4 shadow">
+        <div className="bg-white text-black rounded-2xl p-4 lg:p-6 shadow sm:col-span-2 lg:col-span-1">
           <h2 className="text-lg font-semibold mb-2">
             Upcoming ITV &amp; Services
           </h2>
           {upcomingVehicles.length === 0 ? (
-            <p>No vehicles due in next 30 days.</p>
+            <p className="text-sm">No vehicles due in next 30 days.</p>
           ) : (
             <ul className="text-sm space-y-1">
-              {upcomingVehicles.map((v) => (
+              {upcomingVehicles.slice(0, 3).map((v) => (
                 <li key={v.id}>
                   <Link
                     href={`/office/vehicles/view/${v.id}`}
-                    className="underline"
+                    className="underline hover:text-blue-600"
                   >
                     {v.licence_plate} - {v.customer_name || 'N/A'}
                   </Link>
                 </li>
               ))}
+              {upcomingVehicles.length > 3 && (
+                <li className="text-gray-500">
+                  +{upcomingVehicles.length - 3} more...
+                </li>
+              )}
             </ul>
           )}
         </div>
-        <div className="bg-white text-black rounded-2xl p-4 shadow">
-          <h2 className="text-lg font-semibold mb-2">Today&apos;s Jobs</h2>
-          {todayJobs.length === 0 ? (
-            <p>No jobs today.</p>
-          ) : (
-            <ul className="text-sm space-y-1">
-              {todayJobs.map((j) => (
-                <li key={j.id}>
-                  <Link
-                    href={`/office/jobs/${j.id}`}
-                    className="underline"
-                  >
-                    {j.licence_plate} - {j.engineers || 'Unassigned'} -{' '}
-                    {j.status}
-                  </Link>
-                  <div className="text-xs">
-                    {j.scheduled_start
-                      ? new Date(j.scheduled_start).toLocaleString()
-                      : 'N/A'}{' '}
-                    -{' '}
-                    {j.scheduled_end
-                      ? new Date(j.scheduled_end).toLocaleString()
-                      : 'N/A'}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
+      </div>
+
+      {/* Jobs by status - responsive */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <div className="space-y-4">
+          {firstHalf.map((s) => (
+            <div key={s.id} className="bg-white text-black rounded-2xl p-4 lg:p-6 shadow">
+              <h3 className="text-lg font-semibold mb-3 capitalize">{s.name}</h3>
+              {jobsByStatus[s.name]?.length > 0 ? (
+                <div className="space-y-2">
+                  {jobsByStatus[s.name].slice(0, 3).map((j) => (
+                    <div key={j.id} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                      <span className="text-sm">
+                        <Link href={`/office/jobs/${j.id}`} className="font-medium hover:underline">
+                          Job #{j.id}
+                        </Link>
+                        {j.licence_plate && (
+                          <span className="text-gray-600 ml-2">({j.licence_plate})</span>
+                        )}
+                      </span>
+                      <Link
+                        href={`/office/job-management?status=${encodeURIComponent(s.name)}`}
+                        className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+                      >
+                        View All
+                      </Link>
+                    </div>
+                  ))}
+                  {jobsByStatus[s.name].length > 3 && (
+                    <div className="text-center">
+                      <Link
+                        href={`/office/job-management?status=${encodeURIComponent(s.name)}`}
+                        className="text-sm text-blue-600 hover:underline"
+                      >
+                        View all {jobsByStatus[s.name].length} jobs
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="text-gray-500 text-sm">No jobs in this status.</p>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="space-y-4">
+          {secondHalf.map((s) => (
+            <div key={s.id} className="bg-white text-black rounded-2xl p-4 lg:p-6 shadow">
+              <h3 className="text-lg font-semibold mb-3 capitalize">{s.name}</h3>
+              {jobsByStatus[s.name]?.length > 0 ? (
+                <div className="space-y-2">
+                  {jobsByStatus[s.name].slice(0, 3).map((j) => (
+                    <div key={j.id} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                      <span className="text-sm">
+                        <Link href={`/office/jobs/${j.id}`} className="font-medium hover:underline">
+                          Job #{j.id}
+                        </Link>
+                        {j.licence_plate && (
+                          <span className="text-gray-600 ml-2">({j.licence_plate})</span>
+                        )}
+                      </span>
+                      <Link
+                        href={`/office/job-management?status=${encodeURIComponent(s.name)}`}
+                        className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+                      >
+                        View All
+                      </Link>
+                    </div>
+                  ))}
+                  {jobsByStatus[s.name].length > 3 && (
+                    <div className="text-center">
+                      <Link
+                        href={`/office/job-management?status=${encodeURIComponent(s.name)}`}
+                        className="text-sm text-blue-600 hover:underline"
+                      >
+                        View all {jobsByStatus[s.name].length} jobs
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="text-gray-500 text-sm">No jobs in this status.</p>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </>

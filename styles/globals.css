@@ -32,23 +32,83 @@
 .input {
   @apply bg-white text-black rounded-2xl p-3 focus:outline-none focus:ring-4 focus:ring-blue-500 border border-gray-300;
 }
+
+/* Mobile-responsive button styles */
 .button {
-  /* Use inline-flex so anchor and button elements align consistently */
-  @apply inline-flex items-center bg-[var(--color-primary)] text-white rounded-full py-3 shadow-xl hover:bg-[var(--color-primary-light)] transition;
+  @apply inline-flex items-center justify-center bg-[var(--color-primary)] text-white rounded-full py-2 lg:py-3 px-4 lg:px-6 shadow-xl hover:bg-[var(--color-primary-light)] transition text-sm lg:text-base font-medium;
 }
+
 .button-accent {
-  @apply inline-flex items-center bg-[var(--color-accent)] text-white rounded-full py-3 shadow-xl hover:brightness-110 transition;
+  @apply inline-flex items-center justify-center bg-[var(--color-accent)] text-white rounded-full py-2 lg:py-3 px-4 lg:px-6 shadow-xl hover:brightness-110 transition text-sm lg:text-base font-medium;
 }
+
 .button-secondary {
-  @apply bg-gray-300 text-[var(--color-text-primary)] rounded-full py-3 shadow-xl hover:bg-gray-400 transition dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500;
+  @apply inline-flex items-center justify-center bg-gray-300 text-[var(--color-text-primary)] rounded-full py-2 lg:py-3 px-4 lg:px-6 shadow-xl hover:bg-gray-400 transition dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500 text-sm lg:text-base font-medium;
 }
 
 .item-card {
-  @apply bg-gray-100 dark:bg-gray-800 text-black dark:text-white rounded-2xl p-4 shadow;
+  @apply bg-gray-100 dark:bg-gray-800 text-black dark:text-white rounded-2xl p-4 lg:p-6 shadow;
 }
 
 .action-buttons button {
-  @apply bg-blue-600 text-white rounded-full shadow px-4 py-2 hover:bg-blue-700;
+  @apply bg-blue-600 text-white rounded-full shadow px-3 lg:px-4 py-2 hover:bg-blue-700 text-sm lg:text-base;
+}
+
+/* Mobile-responsive table styles */
+.responsive-table {
+  @apply w-full overflow-x-auto;
+}
+
+.responsive-table table {
+  @apply min-w-full;
+}
+
+.responsive-table th,
+.responsive-table td {
+  @apply px-2 lg:px-4 py-2 lg:py-3 text-sm lg:text-base;
+}
+
+/* Mobile-responsive form styles */
+.form-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6;
+}
+
+.form-group {
+  @apply space-y-2;
+}
+
+.form-label {
+  @apply block text-sm lg:text-base font-medium;
+}
+
+/* Mobile-responsive text sizes */
+.text-responsive-sm {
+  @apply text-xs sm:text-sm;
+}
+
+.text-responsive-base {
+  @apply text-sm lg:text-base;
+}
+
+.text-responsive-lg {
+  @apply text-base lg:text-lg;
+}
+
+.text-responsive-xl {
+  @apply text-lg lg:text-xl;
+}
+
+.text-responsive-2xl {
+  @apply text-xl lg:text-2xl;
+}
+
+/* Mobile-responsive spacing */
+.space-responsive {
+  @apply space-y-4 lg:space-y-6;
+}
+
+.gap-responsive {
+  @apply gap-3 lg:gap-4;
 }
 
 body {
@@ -57,6 +117,29 @@ body {
   /* Light text ensures readability on the dark gradient */
   color: #e2e8f0;
   font-family: 'Poppins', 'Inter', system-ui, sans-serif;
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 640px) {
+  .input {
+    @apply text-base; /* Prevent zoom on iOS */
+  }
+  
+  .button {
+    @apply w-full; /* Full width buttons on mobile */
+  }
+  
+  /* Improve touch targets */
+  button, a {
+    @apply min-h-[44px]; /* Minimum touch target size */
+  }
+}
+
+/* Tablet-specific improvements */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .button {
+    @apply px-6 py-3; /* Larger touch targets on tablets */
+  }
 }
 
 
