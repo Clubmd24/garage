@@ -292,13 +292,18 @@ export default function EposPage() {
             />
           )}
           <div className="flex-grow"/>
-          <Link href="/office" className="underline">Return to Office</Link>
-          <Link href={session?"/office/epos/end-day":"/office/epos/start-day"} className="ml-4 underline">Manager</Link>
+          {session && (
+            <Link href="/office/epos/end-day" className="button px-4 text-sm bg-red-600 hover:bg-red-700">
+              Close Session
+            </Link>
+          )}
+          <Link href="/office" className="button px-4 text-sm">Return to Office</Link>
+          <Link href={session?"/office/epos/end-day":"/office/epos/start-day"} className="button px-4 text-sm ml-2">Manager</Link>
         </div>
 
         <div className="flex flex-col lg:flex-row flex-1 overflow-hidden mt-4">
-          {/* Left pane */}
-          <div className="w-full lg:w-2/3 overflow-y-auto lg:pr-4">
+          {/* Left pane - Hidden for better screen fit */}
+          <div className="hidden w-full lg:w-2/3 overflow-y-auto lg:pr-4">
             <SectionCard title="Categories">
               <div className="flex flex-col sm:flex-row sm:overflow-x-auto space-y-2 sm:space-y-0 sm:space-x-2">
                 {categories.map(cat=>(
@@ -343,8 +348,8 @@ export default function EposPage() {
             </SectionCard>
           </div>
 
-          {/* Right pane */}
-          <div className="w-full lg:w-1/3 flex flex-col">
+          {/* Right pane - Now full width */}
+          <div className="w-full flex flex-col">
             <SectionCard title="Cart">
               {cartItems.length ? (
                 <div className="space-y-2 max-h-64 overflow-y-auto">

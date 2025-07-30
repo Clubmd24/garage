@@ -58,7 +58,8 @@ export default async function handler(req, res) {
       defect_description: quote.defect_description || '',
       quoteNumber: quote.id,
       title: 'QUOTE',
-      terms: quote.terms || settings.quote_terms || settings.terms
+      terms: quote.terms || settings.quote_terms || settings.terms,
+      generatedDate: quote.created_ts ? new Date(quote.created_ts).toLocaleDateString('en-GB') : null
     };
 
     // Generate PDF

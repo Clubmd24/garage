@@ -63,6 +63,7 @@ async function handler(req, res) {
       vehicle,
       defect_description: defect,
       terms: bankDetails ? `${baseTerms}\n\n${bankDetails}` : baseTerms,
+      generatedDate: invoice.created_ts ? new Date(invoice.created_ts).toLocaleDateString('en-GB') : null,
     });
     
     res.setHeader('Content-Type', 'application/pdf');

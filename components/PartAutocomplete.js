@@ -11,6 +11,7 @@ export default function PartAutocomplete({
   const [term, setTerm] = useState(value || '');
   const [results, setResults] = useState([]);
   const [showAdd, setShowAdd] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -18,7 +19,12 @@ export default function PartAutocomplete({
   }, [value]);
 
   useEffect(() => {
-    if (!term) return setResults([]);
+    if (!term) {
+      setResults([]);
+      setShowAdd(false);
+      setIsOpen(false);
+      return;
+    }
     let cancel = false;
     fetch(`/api/parts?q=${encodeURIComponent(term)}`)
       .then(r => (r.ok ? r.json() : []))
@@ -26,11 +32,13 @@ export default function PartAutocomplete({
         if (cancel) return;
         setResults(data);
         setShowAdd(data.length === 0);
+        setIsOpen(true);
       })
       .catch(() => {
         if (cancel) return;
         setResults([]);
         setShowAdd(true);
+        setIsOpen(true);
       });
     return () => {
       cancel = true;
@@ -47,6 +55,19 @@ export default function PartAutocomplete({
     router.push(`/office/parts/new?${params.toString()}`);
   };
 
+  const handleSelect = (part) => {
+    onSelect && onSelect(part);
+    if (value === undefined) {
+      setTerm('');
+    } else {
+      setTerm(part.part_number);
+      onChange && onChange(part.part_number);
+    }
+    setResults([]);
+    setShowAdd(false);
+    setIsOpen(false);
+  };
+
   return (
     <div className="relative">
       <input
@@ -58,22 +79,13 @@ export default function PartAutocomplete({
         }}
         placeholder="Part number or description"
       />
-      {term && (results.length > 0 || showAdd) && (
+      {isOpen && term && (results.length > 0 || showAdd) && (
         <div className="absolute z-10 bg-white shadow rounded w-full text-black">
           {results.map(p => (
             <div
               key={p.id}
               className="px-2 py-1 cursor-pointer hover:bg-gray-200"
-              onClick={() => {
-                onSelect && onSelect(p);
-                if (value === undefined) {
-                  setTerm('');
-                } else {
-                  setTerm(p.part_number);
-                  onChange && onChange(p.part_number);
-                }
-                setResults([]);
-              }}
+              onClick={() => handleSelect(p)}
             >
               {p.part_number} - {p.description}
             </div>

@@ -136,10 +136,10 @@ export default function OfficeDashboard() {
           Create Invoice
         </Link>
         <Link
-          href="/office/invoices?status=unpaid"
+          href="/office/epos"
           className="button px-8 text-lg"
         >
-          Pay Invoice
+          Till Mode
         </Link>
       </div>
 
