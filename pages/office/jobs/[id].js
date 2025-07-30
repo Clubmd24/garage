@@ -7,6 +7,7 @@ import OfficeLayout from '../../../components/OfficeLayout';
 import { Card } from '../../../components/Card';
 import SectionGrid from '../../../components/SectionGrid';
 import PaymentModal from '../../../components/office/PaymentModal.jsx';
+import JobHistory from '../../../components/office/JobHistory.jsx';
 import { fetchEngineers } from '../../../lib/engineers';
 import { fetchJobStatuses } from '../../../lib/jobStatuses';
 import { fetchJob, assignJob } from '../../../lib/jobs';
@@ -317,6 +318,13 @@ export default function JobViewPage() {
               </Card>
             </div>
           </SectionGrid>
+
+          {/* JOB HISTORY */}
+          <div className="max-w-5xl mx-auto mt-6">
+            <Card>
+              <JobHistory jobId={id} />
+            </Card>
+          </div>
 
           {/* GLOBAL SAVE */}
           <div className="max-w-5xl mx-auto mt-6 flex justify-end gap-4">
