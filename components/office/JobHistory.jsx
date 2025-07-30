@@ -1,25 +1,49 @@
 import { useState, useEffect } from 'react';
 
-export default function JobHistory({ jobId }) {
+export default function JobHistory({ jobId, quoteId, id }) {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!jobId) return;
+    if (!jobId && !quoteId && !id) return;
     
     async function loadHistory() {
       try {
-        const res = await fetch(`/api/jobs/${jobId}/history`);
+        let url;
+        if (jobId) {
+          url = `/api/jobs/${jobId}/history`;
+        } else if (quoteId) {
+          url = `/api/quotes/${quoteId}/history`;
+        } else if (id) {
+          // Try to determine if this is a job ID or quote ID
+          // First try job history, if that fails, try quote history
+          try {
+            const jobRes = await fetch(`/api/jobs/${id}/history`);
+            if (jobRes.ok) {
+              const data = await jobRes.json();
+              setHistory(data);
+              setLoading(false);
+              return;
+            }
+          } catch (jobErr) {
+            // Job history failed, try quote history
+          }
+          
+          // Try quote history
+          url = `/api/quotes/${id}/history`;
+        }
+        
+        const res = await fetch(url);
         if (!res.ok) {
           const errorData = await res.json().catch(() => ({}));
-          console.error('Job history API error:', res.status, errorData);
+          console.error('History API error:', res.status, errorData);
           throw new Error(`Failed to load history: ${errorData.error || res.statusText}`);
         }
         const data = await res.json();
         setHistory(data);
       } catch (err) {
-        console.error('Job history error:', err);
+        console.error('History error:', err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -27,7 +51,7 @@ export default function JobHistory({ jobId }) {
     }
 
     loadHistory();
-  }, [jobId]);
+  }, [jobId, quoteId, id]);
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString('en-GB', {
@@ -49,6 +73,8 @@ export default function JobHistory({ jobId }) {
         return '🔄';
       case 'engineer_assigned':
         return '👨‍🔧';
+      case 'quote_items_added':
+        return '📦';
       default:
         return '📝';
     }
@@ -135,6 +161,15 @@ export default function JobHistory({ jobId }) {
                         )}
                         {item.details.assigned_by && (
                           <p><strong>Assigned by:</strong> {item.details.assigned_by}</p>
+                        )}
+                      </div>
+                    )}
+                    
+                    {item.type === 'quote_items_added' && (
+                      <div>
+                        <p><strong>Items:</strong> {item.details.item_count}</p>
+                        {item.details.total_value && (
+                          <p><strong>Total Value:</strong> €{Number(item.details.total_value).toFixed(2)}</p>
                         )}
                       </div>
                     )}
