@@ -49,12 +49,6 @@ export default function MyApp({ Component, pageProps }) {
       {showBug && (
         <BugReportModal onSubmit={submitBug} onClose={() => setShowBug(false)} />
       )}
-      <button
-        onClick={() => setShowBug(true)}
-        className="fixed bottom-16 right-4 button px-4 z-40"
-      >
-        Report Bug
-      </button>
       {toast && (
         <Toast
           message={toast.message}

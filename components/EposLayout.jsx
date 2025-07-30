@@ -3,11 +3,15 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import logout from '../lib/logout.js';
 import { fetchSearch } from '../lib/search.js';
+import BugReportModal from './BugReportModal.jsx';
+import Toast from './Toast.jsx';
 
 export default function EposLayout({ children }) {
   const router = useRouter();
   const [term, setTerm] = useState('');
   const [results, setResults] = useState(null);
+  const [showBug, setShowBug] = useState(false);
+  const [toast, setToast] = useState(null);
 
   useEffect(() => {
     if (!term) return setResults(null);
@@ -29,6 +33,22 @@ export default function EposLayout({ children }) {
       await logout();
     } finally {
       router.push('/login');
+    }
+  }
+
+  async function submitBug(data) {
+    try {
+      const res = await fetch('/api/dev/report-bug', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error();
+      setToast({ type: 'success', message: 'Bug reported' });
+    } catch {
+      setToast({ type: 'error', message: 'Failed to send bug report' });
+    } finally {
+      setShowBug(false);
     }
   }
 
@@ -205,6 +225,11 @@ export default function EposLayout({ children }) {
                   User Roles
                 </Link>
               </li>
+              <li>
+                <button onClick={() => setShowBug(true)} className="flex items-center w-full text-left hover:underline">
+                  Report Bug
+                </button>
+              </li>
             </ul>
           </div>
         </nav>
@@ -253,6 +278,20 @@ export default function EposLayout({ children }) {
           {children}
         </div>
       </main>
+
+      {/* Bug Report Modal */}
+      {showBug && (
+        <BugReportModal onSubmit={submitBug} onClose={() => setShowBug(false)} />
+      )}
+
+      {/* Toast Notifications */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 } 

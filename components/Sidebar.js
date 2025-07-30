@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink } from "./NavLink.js";
+import BugReportModal from "./BugReportModal.jsx";
+import Toast from "./Toast.jsx";
 
 export function Sidebar() {
   const [userRole, setUserRole] = useState(null);
@@ -8,6 +10,8 @@ export function Sidebar() {
   const [selectedJob, setSelectedJob] = useState('');
   const [entry, setEntry] = useState(null);
   const [message, setMessage] = useState('');
+  const [showBug, setShowBug] = useState(false);
+  const [toast, setToast] = useState(null);
 
   useEffect(() => {
     fetch("/api/auth/me", { credentials: "include" })
@@ -84,6 +88,22 @@ export function Sidebar() {
       setMessage('Holiday request submitted');
     } catch {
       setMessage('Request failed');
+    }
+  }
+
+  async function submitBug(data) {
+    try {
+      const res = await fetch('/api/dev/report-bug', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error();
+      setToast({ type: 'success', message: 'Bug reported' });
+    } catch {
+      setToast({ type: 'error', message: 'Failed to send bug report' });
+    } finally {
+      setShowBug(false);
     }
   }
 
@@ -185,9 +205,26 @@ export function Sidebar() {
                 Error Log
               </NavLink>
             )}
+            <button onClick={() => setShowBug(true)} className="w-full bg-gray-200 text-black rounded-full px-4 py-2 shadow hover:bg-gray-300 block text-center">
+              Report Bug
+            </button>
           </>
         )}
       </nav>
+
+      {/* Bug Report Modal */}
+      {showBug && (
+        <BugReportModal onSubmit={submitBug} onClose={() => setShowBug(false)} />
+      )}
+
+      {/* Toast Notifications */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

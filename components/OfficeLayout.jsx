@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import logout from '../lib/logout.js';
 import { fetchSearch } from '../lib/search.js';
+import BugReportModal from './BugReportModal.jsx';
+import Toast from './Toast.jsx';
 
 function ArrowIcon() {
   return (
@@ -33,6 +35,8 @@ export default function OfficeLayout({ children }) {
   const [term, setTerm] = useState('');
   const [results, setResults] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showBug, setShowBug] = useState(false);
+  const [toast, setToast] = useState(null);
 
   useEffect(() => {
     if (!term) return setResults(null);
@@ -59,6 +63,22 @@ export default function OfficeLayout({ children }) {
       await logout();
     } finally {
       router.push('/login');
+    }
+  }
+
+  async function submitBug(data) {
+    try {
+      const res = await fetch('/api/dev/report-bug', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error();
+      setToast({ type: 'success', message: 'Bug reported' });
+    } catch {
+      setToast({ type: 'error', message: 'Failed to send bug report' });
+    } finally {
+      setShowBug(false);
     }
   }
 
@@ -291,6 +311,12 @@ export default function OfficeLayout({ children }) {
                 </Link>
               </li>
               <li>
+                <button onClick={() => setShowBug(true)} className="flex items-center w-full text-left hover:underline p-2 rounded hover:bg-blue-800">
+                  <ArrowIcon />
+                  Report Bug
+                </button>
+              </li>
+              <li>
                 <button onClick={handleLogout} className="flex items-center w-full text-left hover:underline p-2 rounded hover:bg-blue-800">
                   <ArrowIcon />
                   Logout
@@ -400,6 +426,20 @@ export default function OfficeLayout({ children }) {
           {children}
         </div>
       </div>
+
+      {/* Bug Report Modal */}
+      {showBug && (
+        <BugReportModal onSubmit={submitBug} onClose={() => setShowBug(false)} />
+      )}
+
+      {/* Toast Notifications */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }
