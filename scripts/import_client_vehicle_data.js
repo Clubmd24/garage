@@ -8,7 +8,7 @@ async function importClientVehicleData() {
     console.log('🚀 Starting client/vehicle data import...\n');
     
     const csvData = [];
-    const csvFilePath = './docs/MasterJobCards_Table eddited to remove nul.xlsx - Sheet1.csv';
+    const csvFilePath = './docs/client_vehicle_data.csv';
     
     // Read CSV file
     console.log('📖 Reading CSV file...');
