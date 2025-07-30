@@ -119,10 +119,6 @@ export default function OfficeDashboard() {
     return map;
   }, [jobs, vehicles, statuses]);
 
-  const mid = Math.ceil(statuses.length / 2);
-  const firstHalf = statuses.slice(0, mid);
-  const secondHalf = statuses.slice(mid);
-
   return (
     <>
       {/* Action buttons - responsive grid */}
@@ -182,7 +178,13 @@ export default function OfficeDashboard() {
             </Link>
           </p>
         </div>
-        <div className="bg-white text-black rounded-2xl p-4 lg:p-6 shadow sm:col-span-2 lg:col-span-1">
+        <div className="bg-white text-black rounded-2xl p-4 lg:p-6 shadow">
+          <h2 className="text-lg font-semibold mb-2">Today's Jobs</h2>
+          <p className="text-3xl lg:text-4xl font-bold text-blue-600">
+            <Link href="/office/job-management">{todayJobs.length}</Link>
+          </p>
+        </div>
+        <div className="bg-white text-black rounded-2xl p-4 lg:p-6 shadow sm:col-span-2 lg:col-span-3">
           <h2 className="text-lg font-semibold mb-2">
             Upcoming ITV &amp; Services
           </h2>
@@ -207,92 +209,6 @@ export default function OfficeDashboard() {
               )}
             </ul>
           )}
-        </div>
-      </div>
-
-      {/* Jobs by status - responsive */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        <div className="space-y-4">
-          {firstHalf.map((s) => (
-            <div key={s.id} className="bg-white text-black rounded-2xl p-4 lg:p-6 shadow">
-              <h3 className="text-lg font-semibold mb-3 capitalize">{s.name}</h3>
-              {jobsByStatus[s.name]?.length > 0 ? (
-                <div className="space-y-2">
-                  {jobsByStatus[s.name].slice(0, 3).map((j) => (
-                    <div key={j.id} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                      <span className="text-sm">
-                        <Link href={`/office/jobs/${j.id}`} className="font-medium hover:underline">
-                          Job #{j.id}
-                        </Link>
-                        {j.licence_plate && (
-                          <span className="text-gray-600 ml-2">({j.licence_plate})</span>
-                        )}
-                      </span>
-                      <Link
-                        href={`/office/job-management?status=${encodeURIComponent(s.name)}`}
-                        className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
-                      >
-                        View All
-                      </Link>
-                    </div>
-                  ))}
-                  {jobsByStatus[s.name].length > 3 && (
-                    <div className="text-center">
-                      <Link
-                        href={`/office/job-management?status=${encodeURIComponent(s.name)}`}
-                        className="text-sm text-blue-600 hover:underline"
-                      >
-                        View all {jobsByStatus[s.name].length} jobs
-                      </Link>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <p className="text-gray-500 text-sm">No jobs in this status.</p>
-              )}
-            </div>
-          ))}
-        </div>
-        <div className="space-y-4">
-          {secondHalf.map((s) => (
-            <div key={s.id} className="bg-white text-black rounded-2xl p-4 lg:p-6 shadow">
-              <h3 className="text-lg font-semibold mb-3 capitalize">{s.name}</h3>
-              {jobsByStatus[s.name]?.length > 0 ? (
-                <div className="space-y-2">
-                  {jobsByStatus[s.name].slice(0, 3).map((j) => (
-                    <div key={j.id} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                      <span className="text-sm">
-                        <Link href={`/office/jobs/${j.id}`} className="font-medium hover:underline">
-                          Job #{j.id}
-                        </Link>
-                        {j.licence_plate && (
-                          <span className="text-gray-600 ml-2">({j.licence_plate})</span>
-                        )}
-                      </span>
-                      <Link
-                        href={`/office/job-management?status=${encodeURIComponent(s.name)}`}
-                        className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
-                      >
-                        View All
-                      </Link>
-                    </div>
-                  ))}
-                  {jobsByStatus[s.name].length > 3 && (
-                    <div className="text-center">
-                      <Link
-                        href={`/office/job-management?status=${encodeURIComponent(s.name)}`}
-                        className="text-sm text-blue-600 hover:underline"
-                      >
-                        View all {jobsByStatus[s.name].length} jobs
-                      </Link>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <p className="text-gray-500 text-sm">No jobs in this status.</p>
-              )}
-            </div>
-          ))}
         </div>
       </div>
     </>
