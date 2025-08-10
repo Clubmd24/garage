@@ -17,36 +17,61 @@ export default function VehicleAutocomplete({
   }, [value]);
 
   useEffect(() => {
-    if (!term) {
-      setResults([]);
-      setIsOpen(false);
-      return;
-    }
-    
-    let cancel = false;
-    
-    // Build query parameters
-    const params = new URLSearchParams();
-    params.append('q', term);
-    if (customerId) params.append('customer_id', customerId);
-    if (fleetId) params.append('fleet_id', fleetId);
-    
-    fetch(`/api/vehicles?${params.toString()}`)
-      .then(r => (r.ok ? r.json() : []))
-      .then(data => {
-        if (cancel) return;
-        setResults(data);
-        setIsOpen(data.length > 0);
-      })
-      .catch(() => {
-        if (cancel) return;
+    // If we have a customerId or fleetId, always fetch vehicles
+    // This makes it "dumb proof" - shows options immediately when client is selected
+    if (customerId || fleetId) {
+      let cancel = false;
+      
+      // Build query parameters
+      const params = new URLSearchParams();
+      if (term) params.append('q', term);
+      params.append('customer_id', customerId || '');
+      params.append('fleet_id', fleetId || '');
+      
+      fetch(`/api/vehicles?${params.toString()}`)
+        .then(r => (r.ok ? r.json() : []))
+        .then(data => {
+          if (cancel) return;
+          setResults(data);
+          // Show dropdown if we have results, even without search term
+          setIsOpen(data.length > 0);
+        })
+        .catch(() => {
+          if (cancel) return;
+          setResults([]);
+          setIsOpen(false);
+        });
+      
+      return () => {
+        cancel = true;
+      };
+    } else {
+      // No client selected, only search if user types something
+      if (!term) {
         setResults([]);
         setIsOpen(false);
-      });
-    
-    return () => {
-      cancel = true;
-    };
+        return;
+      }
+      
+      let cancel = false;
+      
+      fetch(`/api/vehicles?q=${encodeURIComponent(term)}`)
+        .then(r => (r.ok ? r.json() : []))
+        .then(data => {
+          if (cancel) return;
+          setResults(data);
+          setIsOpen(data.length > 0);
+        })
+        .catch(() => {
+          if (cancel) return;
+          setResults([]);
+          setIsOpen(false);
+        });
+      
+      return () => {
+        cancel = true;
+      };
+    }
   }, [term, customerId, fleetId]);
 
   const handleSelect = (vehicle) => {
@@ -81,7 +106,7 @@ export default function VehicleAutocomplete({
         onBlur={handleBlur}
         placeholder={placeholder}
       />
-      {isOpen && term && results.length > 0 && (
+      {isOpen && results.length > 0 && (
         <div className="absolute z-10 bg-white shadow rounded w-full text-black border max-h-60 overflow-y-auto">
           {results.map(vehicle => (
             <div
