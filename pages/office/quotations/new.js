@@ -10,10 +10,10 @@ const emptyItem = {
   part_number: '',
   part_id: '',
   description: '',
-  qty: 1,
-  unit_cost: 0,
-  markup: 0,
-  price: 0,
+  qty: '',
+  unit_cost: '',
+  markup: '',
+  price: '',
 };
 import PartAutocomplete from '../../../components/PartAutocomplete';
 import DescriptionAutocomplete from '../../../components/DescriptionAutocomplete';
@@ -49,11 +49,14 @@ export default function NewQuotationPage() {
         if (data.mode) setMode(data.mode);
         if (data.clientName) setClientName(data.clientName);
         if (data.form) setForm(f => ({ ...f, ...data.form }));
-        if (data.items && data.items.length) setItems(data.items);
+        // Don't load items from draft for new quotes - start with empty item
+        // if (data.items && data.items.length) setItems(data.items);
       } catch {
         /* ignore parse errors */
       }
     }
+    // Always start with empty items for new quotes
+    setItems([emptyItem]);
   }, [router.isReady]);
 
   useEffect(() => {
@@ -149,13 +152,35 @@ export default function NewQuotationPage() {
 
   const addItem = () => setItems(items => [...items, emptyItem]);
 
+  const removeItem = (index) => {
+    if (items.length > 1) {
+      setItems(items => items.filter((_, i) => i !== index));
+    }
+  };
+
+  const clearDraft = () => {
+    localStorage.removeItem(SAVE_KEY);
+    setItems([emptyItem]);
+    setForm({
+      customer_id: '',
+      fleet_id: '',
+      vehicle_id: '',
+      job_id: '',
+      customer_ref: '',
+      po_number: '',
+      defect_description: '',
+    });
+    setClientName('');
+    setMode('client');
+  };
+
   const changeItem = (i, field, value) => {
     setItems(itms => {
       const copy = [...itms];
       const it = { ...copy[i], [field]: value };
       if (field === 'unit_cost' || field === 'markup') {
-        const cost = Number(field === 'unit_cost' ? value : it.unit_cost);
-        const markup = Number(field === 'markup' ? value : it.markup);
+        const cost = Number(field === 'unit_cost' ? value : it.unit_cost) || 0;
+        const markup = Number(field === 'markup' ? value : it.markup) || 0;
         it.price = cost * (1 + markup / 100);
       }
       copy[i] = it;
@@ -164,11 +189,11 @@ export default function NewQuotationPage() {
   };
 
   const totalCost = items.reduce(
-    (sum, it) => sum + Number(it.qty) * Number(it.unit_cost),
+    (sum, it) => sum + (Number(it.qty) || 0) * (Number(it.unit_cost) || 0),
     0
   );
   const total = items.reduce(
-    (sum, it) => sum + Number(it.qty) * Number(it.price),
+    (sum, it) => sum + (Number(it.qty) || 0) * (Number(it.price) || 0),
     0
   );
   const markupPercent = totalCost ? ((total - totalCost) / totalCost) * 100 : 0;
@@ -192,6 +217,28 @@ export default function NewQuotationPage() {
 
   const submit = async e => {
     e.preventDefault();
+    
+    // Basic validation
+    if (!form.customer_id && !form.fleet_id) {
+      setError('Please select either a client or fleet');
+      return;
+    }
+    
+    if (!form.vehicle_id) {
+      setError('Please select a vehicle');
+      return;
+    }
+    
+    // Check if items have required fields
+    const validItems = items.filter(item => 
+      item.description && item.qty && item.unit_cost
+    );
+    
+    if (validItems.length === 0) {
+      setError('Please add at least one item with description, quantity, and unit cost');
+      return;
+    }
+    
     try {
       const quote = await createQuote({
         customer_id: mode === 'client' ? form.customer_id : null,
@@ -204,18 +251,18 @@ export default function NewQuotationPage() {
         total_amount: total,
         status: 'new',
       });
-      for (const it of items) {
+      for (const it of validItems) {
         await fetch('/api/quote-items', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             quote_id: quote.id,
             part_id: it.part_id || null,
-            description: it.description,
-            qty: it.qty,
-            unit_cost: it.unit_cost,
-            markup_percent: it.markup,
-            unit_price: it.price,
+            description: it.description || '',
+            qty: Number(it.qty) || 0,
+            unit_cost: Number(it.unit_cost) || 0,
+            markup_percent: Number(it.markup) || 0,
+            unit_price: Number(it.price) || 0,
           }),
         });
       }
@@ -230,6 +277,11 @@ export default function NewQuotationPage() {
     <OfficeLayout>
       <h1 className="text-2xl font-semibold mb-4">New Quote</h1>
       {error && <p className="text-red-500">{error}</p>}
+      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+        <p className="text-sm text-blue-800">
+          <strong>Note:</strong> Fields marked with * are required. You must add at least one item with description, quantity, and unit cost.
+        </p>
+      </div>
       <form onSubmit={submit} className="space-y-4 mb-8 max-w-4xl">
         <div className="mb-2 flex gap-2">
           <button
@@ -249,7 +301,7 @@ export default function NewQuotationPage() {
         </div>
         {mode === 'client' ? (
           <div>
-            <label className="block mb-1">Client</label>
+            <label className="block mb-1">Client *</label>
             <ClientAutocomplete
               value={clientName}
               onChange={v => {
@@ -264,7 +316,7 @@ export default function NewQuotationPage() {
           </div>
         ) : (
           <div>
-            <label className="block mb-1">Fleet</label>
+            <label className="block mb-1">Fleet *</label>
             <select
               className="input w-full"
               value={form.fleet_id}
@@ -282,7 +334,7 @@ export default function NewQuotationPage() {
           </div>
         )}
         <div>
-          <label className="block mb-1">Vehicle</label>
+          <label className="block mb-1">Vehicle *</label>
           <select
             className="input w-full"
             value={form.vehicle_id}
@@ -335,7 +387,7 @@ export default function NewQuotationPage() {
         </div>
         <div>
           <h2 className="font-semibold mb-2">Item Details</h2>
-          <div className="grid grid-cols-10 gap-2 mb-2 font-semibold text-sm">
+          <div className="grid grid-cols-11 gap-2 mb-2 font-semibold text-sm">
             <div>Part #</div>
             <div className="col-span-4">Description</div>
             <div>Qty</div>
@@ -343,9 +395,10 @@ export default function NewQuotationPage() {
             <div>Markup %</div>
             <div>Unit Price</div>
             <div>Line Price</div>
+            <div>Action</div>
           </div>
           {items.map((it, i) => (
-            <div key={i} className="grid grid-cols-10 gap-2 mb-2">
+            <div key={i} className="grid grid-cols-11 gap-2 mb-2">
               <PartAutocomplete
                 value={it.part_number}
                 description={it.description}
@@ -358,14 +411,16 @@ export default function NewQuotationPage() {
                   changeItem(i, 'unit_cost', p.unit_cost || 0);
                 }}
               />
-              <DescriptionAutocomplete
-                value={it.description}
-                onChange={v => changeItem(i, 'description', v)}
-                onSelect={p => {
-                  changeItem(i, 'description', p.description || '');
-                  changeItem(i, 'part_id', p.id);
-                }}
-              />
+              <div className="col-span-4">
+                <DescriptionAutocomplete
+                  value={it.description}
+                  onChange={v => changeItem(i, 'description', v)}
+                  onSelect={p => {
+                    changeItem(i, 'description', p.description || '');
+                    changeItem(i, 'part_id', p.id);
+                  }}
+                />
+              </div>
               <input
                 type="number"
                 className="input"
@@ -387,14 +442,35 @@ export default function NewQuotationPage() {
                 value={it.markup}
                 onChange={e => changeItem(i, 'markup', e.target.value)}
               />
-              <div className="flex items-center px-2 border rounded bg-gray-50 justify-end">
-                {formatEuro(it.price)}
-              </div>
-              <div className="flex items-center px-2 border rounded bg-gray-50">
-                {formatEuro(Number(it.qty) * Number(it.price))}
-              </div>
+              <input
+                type="text"
+                className="input-readonly"
+                placeholder="Unit Price"
+                value={formatEuro(it.price)}
+                readOnly
+              />
+              <input
+                type="text"
+                className="input-readonly"
+                placeholder="Line Price"
+                value={formatEuro((Number(it.qty) || 0) * (Number(it.price) || 0))}
+                readOnly
+              />
+              <button
+                type="button"
+                onClick={() => removeItem(i)}
+                className="button-secondary px-2"
+                disabled={items.length === 1}
+              >
+                Remove
+              </button>
             </div>
           ))}
+          {items.length === 0 && (
+            <div className="text-center py-4 text-gray-500">
+              No items added yet. Click "Add Item" to get started.
+            </div>
+          )}
           <button type="button" onClick={addItem} className="button-secondary px-4">
             Add Item
           </button>
@@ -410,6 +486,13 @@ export default function NewQuotationPage() {
         </div>
         <div className="flex gap-2">
           <button type="submit" className="button">Create Quote</button>
+          <button
+            type="button"
+            onClick={clearDraft}
+            className="button-secondary"
+          >
+            Clear Form
+          </button>
           <button
             type="button"
             onClick={() => router.back()}

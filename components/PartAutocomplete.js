@@ -32,7 +32,7 @@ export default function PartAutocomplete({
         if (cancel) return;
         setResults(data);
         setShowAdd(data.length === 0);
-        setIsOpen(true);
+        setIsOpen(data.length > 0 || data.length === 0);
       })
       .catch(() => {
         if (cancel) return;
@@ -68,6 +68,15 @@ export default function PartAutocomplete({
     setIsOpen(false);
   };
 
+  const handleBlur = () => {
+    // Close dropdown when input loses focus
+    setTimeout(() => {
+      setIsOpen(false);
+      setResults([]);
+      setShowAdd(false);
+    }, 150);
+  };
+
   return (
     <div className="relative">
       <input
@@ -77,10 +86,11 @@ export default function PartAutocomplete({
           setTerm(e.target.value);
           onChange && onChange(e.target.value);
         }}
+        onBlur={handleBlur}
         placeholder="Part number or description"
       />
       {isOpen && term && (results.length > 0 || showAdd) && (
-        <div className="absolute z-10 bg-white shadow rounded w-full text-black">
+        <div className="absolute z-10 bg-white shadow rounded w-full text-black border">
           {results.map(p => (
             <div
               key={p.id}

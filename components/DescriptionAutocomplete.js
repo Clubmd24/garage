@@ -21,7 +21,7 @@ export default function DescriptionAutocomplete({ value, onChange, onSelect }) {
       .then(data => {
         if (cancel) return;
         setResults(data);
-        setIsOpen(true);
+        setIsOpen(data.length > 0);
       })
       .catch(() => {
         if (cancel) return;
@@ -46,6 +46,14 @@ export default function DescriptionAutocomplete({ value, onChange, onSelect }) {
     setIsOpen(false);
   };
 
+  const handleBlur = () => {
+    // Close dropdown when input loses focus
+    setTimeout(() => {
+      setIsOpen(false);
+      setResults([]);
+    }, 150);
+  };
+
   return (
     <div className="relative">
       <input
@@ -55,10 +63,11 @@ export default function DescriptionAutocomplete({ value, onChange, onSelect }) {
           setTerm(e.target.value);
           onChange && onChange(e.target.value);
         }}
+        onBlur={handleBlur}
         placeholder="Description"
       />
       {isOpen && term && results.length > 0 && (
-        <div className="absolute z-10 bg-white shadow rounded w-full text-black">
+        <div className="absolute z-10 bg-white shadow rounded w-full text-black border">
           {results.map(p => (
             <div
               key={p.id}
