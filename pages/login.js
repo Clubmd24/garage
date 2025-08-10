@@ -66,11 +66,19 @@ export default function Login() {
   };
 
   return (
-    <>
-      <Head>
-        <title>Login - Garage Vision</title>
-      </Head>
-      <div className="min-h-screen flex flex-col items-center justify-center">
+    <div className={`min-h-screen flex items-center justify-center p-4 transition-colors duration-300 ${
+      theme === 'dark' 
+        ? 'bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900' 
+        : 'bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200'
+    }`}>
+      <div className={`w-full max-w-md p-8 rounded-2xl shadow-2xl transition-all duration-300 ${
+        theme === 'dark'
+          ? 'bg-slate-800/80 backdrop-blur-xl border border-blue-500/20'
+          : 'bg-white/90 backdrop-blur-xl border border-blue-200/50'
+      }`}>
+        <Head>
+          <title>Login - Garage Vision</title>
+        </Head>
         <img src="/logo.png" alt="Garage Vision Logo" width={120} height={120} className="mb-6 rounded-full shadow-lg" />
         <div className="absolute top-4 right-4">
           <button
@@ -81,36 +89,34 @@ export default function Login() {
             {theme === 'light' ? '🌙' : '☀️'}
           </button>
         </div>
-        <div className="max-w-md w-full bg-[var(--color-surface)] bg-opacity-80 backdrop-blur-lg rounded-2xl shadow-xl p-8">
-          <h1 className="text-3xl font-bold text-[var(--color-text-primary)] mb-4">Garage Vision</h1>
-          {error && <div className="text-red-500 mb-4">{error}</div>}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="text"
-              placeholder="Email or Username"
-              className="input w-full"
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
-              required
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              className="input w-full"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <button
-              type="submit"
-              className="button w-full"
-              disabled={loading}
-            >
-              {loading ? 'Signing in...' : 'Sign In'}
-            </button>
-          </form>
-        </div>
+        <h1 className="text-3xl font-bold text-[var(--color-text-primary)] mb-4">Garage Vision</h1>
+        {error && <div className="text-red-500 mb-4">{error}</div>}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="text"
+            placeholder="Email or Username"
+            className="input w-full"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            className="input w-full"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button
+            type="submit"
+            className="button w-full"
+            disabled={loading}
+          >
+            {loading ? 'Signing in...' : 'Sign In'}
+          </button>
+        </form>
       </div>
-    </>
+    </div>
   );
 }

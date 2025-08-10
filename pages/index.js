@@ -6,7 +6,7 @@ export default function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-900 via-blue-800 to-blue-700">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-blue-900 to-blue-800">
       <Head>
         <title>Garage-Vision | Revolutionize Your Garage</title>
         <meta name="description" content="Revolutionize your garage operations with Garage-Vision. Streamline jobs, manage parts, and boost profitability." />

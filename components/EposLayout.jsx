@@ -53,9 +53,9 @@ export default function EposLayout({ children }) {
   }
 
   return (
-    <div className="min-h-screen flex text-white bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700">
+    <div className="min-h-screen flex text-white bg-gradient-to-br from-slate-900 via-blue-900 to-blue-800">
       {/* Hidden sidebar for EPOS - better screen fit */}
-      <aside className="hidden w-64 bg-blue-900 p-6 space-y-6">
+      <aside className="hidden w-64 bg-slate-900 p-6 space-y-6">
         <nav className="space-y-4">
           <div>
             <h3 className="uppercase text-sm font-semibold mb-2 text-cyan-400">Main</h3>
