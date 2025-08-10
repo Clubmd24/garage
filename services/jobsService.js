@@ -245,7 +245,7 @@ export async function getJobsForDate(date) {
             GROUP_CONCAT(u.username ORDER BY u.username SEPARATOR ', ') AS engineers,
             j.status, j.scheduled_start, j.scheduled_end,
             q.defect_description,
-            c.first_name, c.last_name, c.company_name
+            c.first_name, c.last_name, c.garage_name
        FROM jobs j
        JOIN vehicles v ON j.vehicle_id = v.id
   LEFT JOIN clients c ON j.customer_id = c.id
@@ -263,7 +263,12 @@ export async function getJobsForDate(date) {
    ORDER BY j.id`,
     [date]
   );
-  return rows;
+  
+  // Map garage_name to company_name for backward compatibility
+  return rows.map(row => ({
+    ...row,
+    company_name: row.garage_name
+  }));
 }
 
 export async function getJobsInRange(start, end, engineer_id, status) {
@@ -331,10 +336,18 @@ export async function getJobFull(id) {
   }
   if (job.customer_id) {
     const [[clientRow]] = await pool.query(
-      `SELECT id, first_name, last_name, email, company_name FROM clients WHERE id=?`,
+      `SELECT id, first_name, last_name, email, garage_name FROM clients WHERE id=?`,
       [job.customer_id]
     );
-    job.client = clientRow || null;
+    if (clientRow) {
+      // Map garage_name to company_name for backward compatibility
+      job.client = {
+        ...clientRow,
+        company_name: clientRow.garage_name
+      };
+    } else {
+      job.client = null;
+    }
   }
   const [[quoteRow]] = await pool.query(
     `SELECT id, defect_description, revision FROM quotes WHERE job_id=? ORDER BY revision DESC LIMIT 1`,
