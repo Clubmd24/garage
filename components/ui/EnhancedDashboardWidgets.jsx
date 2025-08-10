@@ -159,7 +159,7 @@ export function JobStatusWidget({ jobs = [], loading = false }) {
           <h3 className="text-lg font-semibold text-text-primary">Job Status</h3>
         </div>
         <Link 
-          href="/office/jobs" 
+          href="/office/job-management" 
           className="text-sm text-info hover:text-info/80 transition-colors duration-200 font-medium"
         >
           View All
@@ -168,7 +168,7 @@ export function JobStatusWidget({ jobs = [], loading = false }) {
 
       <div className="space-y-4">
         {Object.entries(statusCounts).map(([status, count]) => (
-          <Link key={status} href={`/office/jobs?status=${status}`}>
+          <Link key={status} href={`/office/job-management?status=${status}`}>
             <div className="flex items-center justify-between p-2 rounded-lg hover:bg-surface-secondary transition-colors duration-200 cursor-pointer">
               <div className="flex items-center space-x-3">
                 <div className={`w-3 h-3 rounded-full bg-current ${statusColors[status] || 'text-text-tertiary'}`}></div>
