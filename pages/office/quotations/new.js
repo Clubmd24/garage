@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import OfficeLayout from '../../../components/OfficeLayout';
 import { fetchFleets } from '../../../lib/fleets';
-import { fetchVehicles, fetchVehicle } from '../../../lib/vehicles';
+import { fetchVehicle } from '../../../lib/vehicles';
 import { fetchClient } from '../../../lib/clients';
 import { createQuote } from '../../../lib/quotes';
 
@@ -18,10 +18,10 @@ const emptyItem = {
 import PartAutocomplete from '../../../components/PartAutocomplete';
 import DescriptionAutocomplete from '../../../components/DescriptionAutocomplete';
 import ClientAutocomplete from '../../../components/ClientAutocomplete';
+import VehicleAutocomplete from '../../../components/VehicleAutocomplete';
 
 export default function NewQuotationPage() {
   const router = useRouter();
-  const [vehicles, setVehicles] = useState([]);
   const [fleets, setFleets] = useState([]);
   const [mode, setMode] = useState('client');
   const [clientName, setClientName] = useState('');
@@ -114,41 +114,8 @@ export default function NewQuotationPage() {
       .catch(() => setError('Failed to load fleets'));
   }, []);
 
-  useEffect(() => {
-    if (mode === 'client') {
-      if (!form.customer_id) {
-        setVehicles([]);
-        setVehicleError(null);
-        return;
-      }
-      fetchVehicles(form.customer_id, null)
-        .then(vs => {
-          setVehicleError(null);
-          setVehicles(vs);
-        })
-        .catch(() => {
-          setVehicles([]);
-          setVehicleError('Failed to load vehicles');
-          setError(e => e || 'Failed to load vehicles');
-        });
-    } else {
-      if (!form.fleet_id) {
-        setVehicles([]);
-        setVehicleError(null);
-        return;
-      }
-      fetchVehicles(null, form.fleet_id)
-        .then(vs => {
-          setVehicleError(null);
-          setVehicles(vs);
-        })
-        .catch(() => {
-          setVehicles([]);
-          setVehicleError('Failed to load vehicles');
-          setError(e => e || 'Failed to load vehicles');
-        });
-    }
-  }, [mode, form.customer_id, form.fleet_id, router.isReady]);
+  // Vehicles are now loaded dynamically via VehicleAutocomplete
+  // No need to pre-load all vehicles
 
   const addItem = () => setItems(items => [...items, emptyItem]);
 
@@ -335,20 +302,31 @@ export default function NewQuotationPage() {
         )}
         <div>
           <label className="block mb-1">Vehicle *</label>
-          <select
-            className="input w-full"
-            value={form.vehicle_id}
-            onChange={e =>
-              setForm(f => ({ ...f, vehicle_id: e.target.value }))
-            }
-          >
-            <option value="">Select vehicle</option>
-            {vehicles.map(v => (
-              <option key={v.id} value={v.id}>
-                {v.licence_plate}
-              </option>
-            ))}
-          </select>
+          <VehicleAutocomplete
+            value=""
+            onChange={v => {
+              // Clear vehicle selection when typing
+              setForm(f => ({ ...f, vehicle_id: '' }));
+            }}
+            onSelect={v => {
+              setForm(f => ({ ...f, vehicle_id: v.id }));
+              // Auto-populate client if vehicle has one
+              if (v.customer_id && !form.customer_id) {
+                setMode('client');
+                setForm(f => ({ ...f, customer_id: v.customer_id, fleet_id: '' }));
+                // Fetch and set client name
+                fetchClient(v.customer_id).then(c => {
+                  setClientName(`${c.first_name || ''} ${c.last_name || ''}`.trim());
+                }).catch(() => {});
+              } else if (v.fleet_id && !form.fleet_id) {
+                setMode('fleet');
+                setForm(f => ({ ...f, fleet_id: v.fleet_id, customer_id: '' }));
+              }
+            }}
+            customerId={mode === 'client' ? form.customer_id : null}
+            fleetId={mode === 'fleet' ? form.fleet_id : null}
+            placeholder="Search vehicles by license plate or description"
+          />
           {vehicleError && (
             <p className="text-red-500 mt-1" data-testid="vehicle-error">
               {vehicleError}
@@ -405,10 +383,14 @@ export default function NewQuotationPage() {
                 unit_cost={it.unit_cost}
                 onChange={v => changeItem(i, 'part_number', v)}
                 onSelect={p => {
-                  changeItem(i, 'part_number', p.part_number);
-                  changeItem(i, 'part_id', p.id);
+                  changeItem(i, 'part_number', p.part_number || '');
+                  changeItem(i, 'part_id', p.id || '');
                   changeItem(i, 'description', p.description || '');
                   changeItem(i, 'unit_cost', p.unit_cost || 0);
+                  // Set default quantity to 1 if not already set
+                  if (!it.qty) changeItem(i, 'qty', '1');
+                  // Set default markup to 0 if not already set
+                  if (!it.markup) changeItem(i, 'markup', '0');
                 }}
               />
               <div className="col-span-4">
@@ -416,8 +398,14 @@ export default function NewQuotationPage() {
                   value={it.description}
                   onChange={v => changeItem(i, 'description', v)}
                   onSelect={p => {
+                    changeItem(i, 'part_number', p.part_number || '');
+                    changeItem(i, 'part_id', p.id || '');
                     changeItem(i, 'description', p.description || '');
-                    changeItem(i, 'part_id', p.id);
+                    changeItem(i, 'unit_cost', p.unit_cost || 0);
+                    // Set default quantity to 1 if not already set
+                    if (!it.qty) changeItem(i, 'qty', '1');
+                    // Set default markup to 0 if not already set
+                    if (!it.markup) changeItem(i, 'markup', '0');
                   }}
                 />
               </div>

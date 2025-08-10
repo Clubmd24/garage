@@ -1,10 +1,16 @@
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 
-export default function VehicleAutocomplete({ value, onChange, onSelect }) {
+export default function VehicleAutocomplete({ 
+  value, 
+  onChange, 
+  onSelect, 
+  customerId, 
+  fleetId,
+  placeholder = "Search vehicles by license plate or description"
+}) {
   const [term, setTerm] = useState(value || '');
   const [results, setResults] = useState([]);
-  const [showAdd, setShowAdd] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     if (value !== undefined) setTerm(value);
@@ -13,33 +19,55 @@ export default function VehicleAutocomplete({ value, onChange, onSelect }) {
   useEffect(() => {
     if (!term) {
       setResults([]);
-      setShowAdd(false);
+      setIsOpen(false);
       return;
     }
+    
     let cancel = false;
-    fetch('/api/vehicles')
+    
+    // Build query parameters
+    const params = new URLSearchParams();
+    params.append('q', term);
+    if (customerId) params.append('customer_id', customerId);
+    if (fleetId) params.append('fleet_id', fleetId);
+    
+    fetch(`/api/vehicles?${params.toString()}`)
       .then(r => (r.ok ? r.json() : []))
       .then(data => {
         if (cancel) return;
-        const q = term.toLowerCase();
-        const filtered = data.filter(
-          v =>
-            (v.licence_plate || '').toLowerCase().includes(q) ||
-            (v.make || '').toLowerCase().includes(q) ||
-            (v.model || '').toLowerCase().includes(q)
-        );
-        setResults(filtered);
-        setShowAdd(filtered.length === 0);
+        setResults(data);
+        setIsOpen(data.length > 0);
       })
       .catch(() => {
         if (cancel) return;
         setResults([]);
-        setShowAdd(true);
+        setIsOpen(false);
       });
+    
     return () => {
       cancel = true;
     };
-  }, [term]);
+  }, [term, customerId, fleetId]);
+
+  const handleSelect = (vehicle) => {
+    onSelect && onSelect(vehicle);
+    const displayValue = vehicle.licence_plate || vehicle.description || '';
+    if (value === undefined) {
+      setTerm('');
+    } else {
+      setTerm(displayValue);
+      onChange && onChange(displayValue);
+    }
+    setResults([]);
+    setIsOpen(false);
+  };
+
+  const handleBlur = () => {
+    setTimeout(() => {
+      setIsOpen(false);
+      setResults([]);
+    }, 150);
+  };
 
   return (
     <div className="relative">
@@ -50,32 +78,24 @@ export default function VehicleAutocomplete({ value, onChange, onSelect }) {
           setTerm(e.target.value);
           onChange && onChange(e.target.value);
         }}
-        placeholder="Vehicle search"
+        onBlur={handleBlur}
+        placeholder={placeholder}
       />
-      {term && (results.length > 0 || showAdd) && (
-        <div className="absolute z-10 bg-white shadow rounded w-full text-black">
-          {results.map(v => (
+      {isOpen && term && results.length > 0 && (
+        <div className="absolute z-10 bg-white shadow rounded w-full text-black border max-h-60 overflow-y-auto">
+          {results.map(vehicle => (
             <div
-              key={v.id}
-              className="px-2 py-1 cursor-pointer hover:bg-gray-200"
-              onClick={() => {
-                onSelect && onSelect(v);
-                if (value === undefined) {
-                  setTerm('');
-                } else {
-                  setTerm(v.licence_plate);
-                }
-                setResults([]);
-              }}
+              key={vehicle.id}
+              className="px-3 py-2 cursor-pointer hover:bg-gray-100 border-b border-gray-100 last:border-b-0"
+              onClick={() => handleSelect(vehicle)}
             >
-              {v.licence_plate} {v.make} {v.model}
+              <div className="font-medium">{vehicle.licence_plate || 'No Plate'}</div>
+              <div className="text-sm text-gray-600">
+                {vehicle.make} {vehicle.model} {vehicle.year}
+                {vehicle.description && ` - ${vehicle.description}`}
+              </div>
             </div>
           ))}
-          {showAdd && (
-            <Link href="/office/vehicles/new" className="block px-2 py-1 hover:bg-gray-200">
-              Add Vehicle
-            </Link>
-          )}
         </div>
       )}
     </div>
