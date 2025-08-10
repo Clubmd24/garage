@@ -68,7 +68,7 @@ const VehiclesPage = () => {
             className="input mb-4 w-full"
           >
             <option value="">All Fleets</option>
-            {fleets.map(f => (
+            {fleets.filter(f => f.id !== 2).map(f => (
               <option key={f.id} value={f.id}>
                 {f.company_name}
               </option>

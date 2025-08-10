@@ -87,6 +87,7 @@ export default function NewQuotationPage() {
         try {
           const v = await fetchVehicle(vehicle_id);
           setForm(f => ({ ...f, vehicle_id: v.id }));
+          setSelectedVehicleDisplay(`${v.licence_plate || 'No Plate'} - ${v.make} ${v.model} ${v.year}`);
           if (v.customer_id) {
             setMode('client');
             setForm(f => ({ ...f, customer_id: v.customer_id }));
@@ -96,7 +97,8 @@ export default function NewQuotationPage() {
             } catch {
               setError(e => e || 'Failed to load client');
             }
-          } else if (v.fleet_id) {
+          } else if (v.fleet_id && v.fleet_id !== 2) {
+            // Treat fleet_id = 2 (LOCAL) as direct clients, not fleet vehicles
             setMode('fleet');
             setForm(f => ({ ...f, fleet_id: v.fleet_id }));
           }
@@ -294,7 +296,7 @@ export default function NewQuotationPage() {
               }
             >
               <option value="">Select fleet</option>
-              {fleets.map(f => (
+              {fleets.filter(f => f.id !== 2).map(f => (
                 <option key={f.id} value={f.id}>
                   {f.company_name}
                 </option>
@@ -335,7 +337,8 @@ export default function NewQuotationPage() {
                   fetchClient(v.customer_id).then(c => {
                     setClientName(`${c.first_name || ''} ${c.last_name || ''}`.trim());
                   }).catch(() => {});
-                } else if (v.fleet_id && !form.fleet_id) {
+                } else if (v.fleet_id && !form.fleet_id && v.fleet_id !== 2) {
+                  // Treat fleet_id = 2 (LOCAL) as direct clients, not fleet vehicles
                   setMode('fleet');
                   setForm(f => ({ ...f, fleet_id: v.fleet_id, customer_id: '' }));
                 }

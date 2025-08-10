@@ -96,7 +96,7 @@ useEffect(() => {
       }
 
       if (quote) {
-        setMode(quote.fleet_id ? 'fleet' : 'client');
+        setMode(quote.fleet_id && quote.fleet_id !== 2 ? 'fleet' : 'client');
         setForm({
           customer_id: quote.customer_id || '',
           fleet_id: quote.fleet_id || '',
@@ -283,7 +283,7 @@ useEffect(() => {
               }
             >
               <option value="">Select fleet</option>
-              {fleets.map(f => (
+              {fleets.filter(f => f.id !== 2).map(f => (
                 <option key={f.id} value={f.id}>
                   {f.company_name}
                 </option>
