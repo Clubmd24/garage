@@ -19,6 +19,8 @@ import PartAutocomplete from '../../../components/PartAutocomplete';
 import DescriptionAutocomplete from '../../../components/DescriptionAutocomplete';
 import ClientAutocomplete from '../../../components/ClientAutocomplete';
 import VehicleAutocomplete from '../../../components/VehicleAutocomplete';
+import FromAD360Button from '../../../components/quotes/FromAD360Button';
+import AD360Autocomplete from '../../../components/quotes/AD360Autocomplete';
 
 export default function NewQuotationPage() {
   const router = useRouter();
@@ -38,6 +40,8 @@ export default function NewQuotationPage() {
   const [items, setItems] = useState([emptyItem]);
   const [error, setError] = useState(null);
   const [vehicleError, setVehicleError] = useState(null);
+  const [ad360Items, setAd360Items] = useState([]);
+  const [ad360Mode, setAd360Mode] = useState(false);
   const SAVE_KEY = 'quote_draft';
 
   // load draft from localStorage
@@ -386,6 +390,54 @@ export default function NewQuotationPage() {
         </div>
         <div>
           <h2 className="font-semibold mb-2">Item Details</h2>
+          
+          {/* AD360 Integration */}
+          {form.vehicle_id && (
+            <div className="mb-4">
+              <FromAD360Button
+                vehicleId={form.vehicle_id}
+                tenantId={1}
+                onItemsLoaded={(ad360Items) => {
+                  // Store AD360 items in state for use in autocomplete
+                  setAd360Items(ad360Items);
+                  setAd360Mode(true);
+                }}
+                onError={(error) => {
+                  setError(`AD360 Error: ${error}`);
+                }}
+              />
+              
+              {/* Mode Toggle */}
+              {ad360Items.length > 0 && (
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-sm text-gray-600">Parts Source:</span>
+                  <button
+                    type="button"
+                    onClick={() => setAd360Mode(false)}
+                    className={`px-3 py-1 text-sm rounded border ${
+                      !ad360Mode 
+                        ? 'bg-blue-100 text-blue-700 border-blue-300' 
+                        : 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200'
+                    }`}
+                  >
+                    Internal Parts
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAd360Mode(true)}
+                    className={`px-3 py-1 text-sm rounded border ${
+                      ad360Mode 
+                        ? 'bg-green-100 text-green-700 border-green-300' 
+                        : 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200'
+                    }`}
+                  >
+                    AD360 Parts
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+          
           <div className="grid grid-cols-11 gap-2 mb-2 font-semibold text-sm">
             <div>Part #</div>
             <div className="col-span-4">Description</div>
@@ -398,22 +450,42 @@ export default function NewQuotationPage() {
           </div>
           {items.map((it, i) => (
             <div key={i} className="grid grid-cols-11 gap-2 mb-2">
-              <PartAutocomplete
-                value={it.part_number}
-                description={it.description}
-                unit_cost={it.unit_cost}
-                onChange={v => changeItem(i, 'part_number', v)}
-                onSelect={p => {
-                  changeItem(i, 'part_number', p.part_number || '');
-                  changeItem(i, 'part_id', p.id || '');
-                  changeItem(i, 'description', p.description || '');
-                  changeItem(i, 'unit_cost', p.unit_cost || 0);
-                  // Set default quantity to 1 if not already set
-                  if (!it.qty) changeItem(i, 'qty', '1');
-                  // Set default markup to 0 if not already set
-                  if (!it.markup) changeItem(i, 'markup', '0');
-                }}
-              />
+              {ad360Mode && ad360Items.length > 0 ? (
+                <AD360Autocomplete
+                  value={it.part_number}
+                  onChange={v => changeItem(i, 'part_number', v)}
+                  onSelect={item => {
+                    changeItem(i, 'part_number', item.partNumber || '');
+                    changeItem(i, 'part_id', ''); // No internal part ID for AD360 items
+                    changeItem(i, 'description', item.description || '');
+                    changeItem(i, 'unit_cost', item.price?.amount || 0);
+                    // Set default quantity to 1 if not already set
+                    if (!it.qty) changeItem(i, 'qty', '1');
+                    // Set default markup to 0 if not already set
+                    if (!it.markup) changeItem(i, 'markup', '0');
+                  }}
+                  vehicleId={form.vehicle_id}
+                  tenantId={1}
+                  placeholder="Search AD360 parts..."
+                />
+              ) : (
+                <PartAutocomplete
+                  value={it.part_number}
+                  description={it.description}
+                  unit_cost={it.unit_cost}
+                  onChange={v => changeItem(i, 'part_number', v)}
+                  onSelect={p => {
+                    changeItem(i, 'part_number', p.part_number || '');
+                    changeItem(i, 'part_id', p.id || '');
+                    changeItem(i, 'description', p.description || '');
+                    changeItem(i, 'unit_cost', p.unit_cost || 0);
+                    // Set default quantity to 1 if not already set
+                    if (!it.qty) changeItem(i, 'qty', '1');
+                    // Set default markup to 0 if not already set
+                    if (!it.markup) changeItem(i, 'markup', '0');
+                  }}
+                />
+              )}
               <div className="col-span-4">
                 <DescriptionAutocomplete
                   value={it.description}

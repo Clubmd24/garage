@@ -37,6 +37,7 @@
     "pdfjs-dist": "^4.10.38",
     "pdfkit": "^0.13.0",
     "pino": "^8.17.0",
+    "playwright": "^1.50.0",
     "react": "18.x",
     "react-big-calendar": "^1.19.4",
     "react-dnd": "^16.0.1",
