@@ -1,49 +1,20 @@
 import { useState, useEffect } from 'react';
 
-export default function JobHistory({ jobId, quoteId, id }) {
+export default function JobHistory({ jobId }) {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!jobId && !quoteId && !id) return;
+    if (!jobId) return;
     
     async function loadHistory() {
       try {
-        let url;
-        if (jobId) {
-          url = `/api/jobs/${jobId}/history`;
-        } else if (quoteId) {
-          url = `/api/quotes/${quoteId}/history`;
-        } else if (id) {
-          // Try to determine if this is a job ID or quote ID
-          // First try job history, if that fails, try quote history
-          try {
-            const jobRes = await fetch(`/api/jobs/${id}/history`);
-            if (jobRes.ok) {
-              const data = await jobRes.json();
-              setHistory(data);
-              setLoading(false);
-              return;
-            }
-          } catch (jobErr) {
-            // Job history failed, try quote history
-          }
-          
-          // Try quote history
-          url = `/api/quotes/${id}/history`;
-        }
-        
-        const res = await fetch(url);
-        if (!res.ok) {
-          const errorData = await res.json().catch(() => ({}));
-          console.error('History API error:', res.status, errorData);
-          throw new Error(`Failed to load history: ${errorData.error || res.statusText}`);
-        }
+        const res = await fetch(`/api/jobs/${jobId}/history`);
+        if (!res.ok) throw new Error('Failed to load history');
         const data = await res.json();
         setHistory(data);
       } catch (err) {
-        console.error('History error:', err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -51,7 +22,7 @@ export default function JobHistory({ jobId, quoteId, id }) {
     }
 
     loadHistory();
-  }, [jobId, quoteId, id]);
+  }, [jobId]);
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString('en-GB', {
@@ -73,8 +44,6 @@ export default function JobHistory({ jobId, quoteId, id }) {
         return '🔄';
       case 'engineer_assigned':
         return '👨‍🔧';
-      case 'quote_items_added':
-        return '📦';
       default:
         return '📝';
     }
@@ -161,15 +130,6 @@ export default function JobHistory({ jobId, quoteId, id }) {
                         )}
                         {item.details.assigned_by && (
                           <p><strong>Assigned by:</strong> {item.details.assigned_by}</p>
-                        )}
-                      </div>
-                    )}
-                    
-                    {item.type === 'quote_items_added' && (
-                      <div>
-                        <p><strong>Items:</strong> {item.details.item_count}</p>
-                        {item.details.total_value && (
-                          <p><strong>Total Value:</strong> €{Number(item.details.total_value).toFixed(2)}</p>
                         )}
                       </div>
                     )}

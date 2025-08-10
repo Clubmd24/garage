@@ -192,27 +192,6 @@ export default function NewQuotationPage() {
 
   const submit = async e => {
     e.preventDefault();
-    
-    // Validation
-    const errors = [];
-    
-    // Check if vehicle is selected
-    if (!form.vehicle_id) {
-      errors.push('Vehicle selection is required');
-    }
-    
-    // Check if either client or fleet is selected
-    if (mode === 'client' && !form.customer_id) {
-      errors.push('Client selection is required');
-    } else if (mode === 'fleet' && !form.fleet_id) {
-      errors.push('Fleet selection is required');
-    }
-    
-    if (errors.length > 0) {
-      setError(errors.join(', '));
-      return;
-    }
-    
     try {
       const quote = await createQuote({
         customer_id: mode === 'client' ? form.customer_id : null,
@@ -270,7 +249,7 @@ export default function NewQuotationPage() {
         </div>
         {mode === 'client' ? (
           <div>
-            <label className="block mb-1">Client <span className="text-red-500">*</span></label>
+            <label className="block mb-1">Client</label>
             <ClientAutocomplete
               value={clientName}
               onChange={v => {
@@ -285,7 +264,7 @@ export default function NewQuotationPage() {
           </div>
         ) : (
           <div>
-            <label className="block mb-1">Fleet <span className="text-red-500">*</span></label>
+            <label className="block mb-1">Fleet</label>
             <select
               className="input w-full"
               value={form.fleet_id}
@@ -303,7 +282,7 @@ export default function NewQuotationPage() {
           </div>
         )}
         <div>
-          <label className="block mb-1">Vehicle <span className="text-red-500">*</span></label>
+          <label className="block mb-1">Vehicle</label>
           <select
             className="input w-full"
             value={form.vehicle_id}
@@ -379,16 +358,14 @@ export default function NewQuotationPage() {
                   changeItem(i, 'unit_cost', p.unit_cost || 0);
                 }}
               />
-              <div className="col-span-4">
-                <DescriptionAutocomplete
-                  value={it.description}
-                  onChange={v => changeItem(i, 'description', v)}
-                  onSelect={p => {
-                    changeItem(i, 'description', p.description || '');
-                    changeItem(i, 'part_id', p.id);
-                  }}
-                />
-              </div>
+              <DescriptionAutocomplete
+                value={it.description}
+                onChange={v => changeItem(i, 'description', v)}
+                onSelect={p => {
+                  changeItem(i, 'description', p.description || '');
+                  changeItem(i, 'part_id', p.id);
+                }}
+              />
               <input
                 type="number"
                 className="input"

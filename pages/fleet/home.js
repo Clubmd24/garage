@@ -1,202 +1,370 @@
-import { useEffect, useState, useMemo } from 'react';
-import Head from 'next/head';
-import { DashboardCard } from '../../components/DashboardCard.js';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
-import logout from '../../lib/logout.js';
-import { fetchQuotes } from '../../lib/quotes';
-import { fetchJobs } from '../../lib/jobs';
-import { fetchInvoices } from '../../lib/invoices';
-import { fetchJobStatuses } from '../../lib/jobStatuses';
+import { useEffect, useState } from 'react';
+import { Layout } from '../../components/Layout';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/ui/card';
+import { Button } from '../../components/ui/Button';
+import { Badge } from '../../components/ui/StatusIndicators';
+import { fetchFleetDashboardData } from '../../lib/fleets';
 
-function VehiclesIcon() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" className="mb-2">
-      <path d="M3 13l2-3h14l2 3v5H3z" />
-      <circle cx="7" cy="18" r="2" />
-      <circle cx="17" cy="18" r="2" />
-    </svg>
-  );
-}
-
-function InvoicesIcon() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" className="mb-2">
-      <path d="M6 2h12v20H6z" />
-      <path d="M9 6h6M9 10h6M9 14h3" />
-    </svg>
-  );
-}
-
-function QuotationsIcon() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" className="mb-2">
-      <path d="M6 6h12v12H6z" />
-      <path d="M9 9h6M9 13h4" />
-    </svg>
-  );
-}
-
-function JobManagementIcon() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" className="mb-2">
-      <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" />
-    </svg>
-  );
-}
-
-function RequestIcon() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" className="mb-2">
-      <path d="M12 5v14M5 12h14" />
-    </svg>
-  );
-}
-
-
-
-function useCurrentFleet() {
-  const [fleet, setFleet] = useState(null);
+export default function FleetDashboard() {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch('/api/portal/fleet/me');
-        if (!res.ok) throw new Error('Auth failed');
-        setFleet(await res.json());
-      } catch {
-        setFleet(null);
-      } finally {
-        setLoading(false);
-      }
-    })();
+    setLoading(true);
+    fetchFleetDashboardData()
+      .then(setData)
+      .catch(() => setError('Failed to load dashboard'))
+      .finally(() => setLoading(false));
   }, []);
-
-  return { fleet, loading };
-}
-
-export default function FleetHome() {
-  const router = useRouter();
-  const { fleet, loading } = useCurrentFleet();
-  const [quotes, setQuotes] = useState([]);
-  const [jobs, setJobs] = useState([]);
-  const [invoices, setInvoices] = useState([]);
-  const [statuses, setStatuses] = useState([]);
-
-  const openQuotes = useMemo(
-    () =>
-      quotes.filter(
-        q => !['job-card', 'completed', 'invoiced'].includes(q.status)
-      ),
-    [quotes]
-  );
-
-  const unpaidInvoices = useMemo(
-    () =>
-      invoices.filter(
-        inv => (inv.status || '').toLowerCase() === 'unpaid'
-      ),
-    [invoices]
-  );
-
-  const jobStatusCounts = useMemo(() => {
-    const counts = {};
-    statuses.forEach(s => {
-      counts[s.name] = 0;
-    });
-    jobs.forEach(j => {
-      if (counts[j.status] !== undefined) counts[j.status] += 1;
-    });
-    return counts;
-  }, [jobs, statuses]);
-
-  useEffect(() => {
-    if (!loading && !fleet) router.replace('/fleet/login');
-  }, [loading, fleet, router]);
-
-  useEffect(() => {
-    if (!fleet) return;
-    Promise.all([
-      fetch(`/api/quotes?fleet_id=${fleet.id}`).then(r => r.json()),
-      fetchJobs({ fleet_id: fleet.id }),
-      fetch(`/api/invoices?fleet_id=${fleet.id}`).then(r => r.json()),
-      fetchJobStatuses(),
-    ])
-      .then(([q, j, i, s]) => {
-        setQuotes(q);
-        setJobs(j);
-        setInvoices(i);
-        setStatuses(s);
-      })
-      .catch(() => null);
-  }, [fleet]);
-
-  async function handleLogout() {
-    try {
-      await logout();
-    } finally {
-      router.push('/fleet/login');
-    }
-  }
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white">
-        <p className="text-xl">Loading...</p>
-      </div>
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center bg-bg-primary">
+          <div className="text-center">
+            <div className="spinner w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-text-secondary text-lg">Loading fleet dashboard...</p>
+          </div>
+        </div>
+      </Layout>
     );
   }
 
+  if (error) {
+    return (
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center bg-bg-primary">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-error/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold text-text-primary mb-2">Failed to load dashboard</h3>
+            <p className="text-text-secondary">{error}</p>
+            <Button 
+              variant="primary" 
+              className="mt-4"
+              onClick={() => window.location.reload()}
+            >
+              Try Again
+            </Button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!data) return null;
+
+  const activeVehicles = data.vehicles.filter(v => v.status === 'active');
+  const maintenanceDue = data.vehicles.filter(v => v.next_service_date && new Date(v.next_service_date) <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
+  const recentJobs = data.jobs.slice(0, 5);
+  const pendingQuotes = data.quotes.filter(q => q.status === 'pending');
+  const overdueInvoices = data.invoices.filter(i => i.due_date && new Date(i.due_date) < new Date() && i.status !== 'paid');
+
   return (
-    <>
-      <Head>
-        <title>Fleet Portal</title>
-      </Head>
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white space-y-8 p-6">
-        <img src="/logo.png" alt="Garage Vision Logo" width={120} height={120} className="mb-4 rounded-full shadow-lg" />
-        <h1 className="text-6xl font-bold tracking-tight">Fleet Portal</h1>
-        <p className="text-xl opacity-90">Welcome, {fleet.company_name}!</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-xl">
-          <DashboardCard href="/fleet/vehicles" title="Vehicles" Icon={VehiclesIcon} />
-          <DashboardCard href="/fleet/invoices" title="Invoices" Icon={InvoicesIcon} />
-          <DashboardCard href="/fleet/quotes" title="Quotes" Icon={QuotationsIcon} />
-          <DashboardCard href="/fleet/jobs" title="Jobs in progress" Icon={JobManagementIcon} />
-          <DashboardCard href="/fleet/request-quotation" title="Request new quotation" Icon={RequestIcon} />
-          <DashboardCard href="/fleet/request-job" title="Book a job" Icon={JobManagementIcon} />
+    <Layout>
+      <div className="page-transition p-6 space-y-8">
+        {/* Enhanced Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-h1 text-text-primary mb-4">Fleet Dashboard</h1>
+          <p className="text-text-secondary text-xl max-w-2xl mx-auto">
+            Welcome to your fleet management center. Monitor vehicles, track jobs, and manage operations efficiently.
+          </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-xl">
-          <div className="bg-white text-black rounded-2xl p-4 shadow text-center">
-            <h2 className="text-lg font-semibold mb-2">Open Quotes</h2>
-            <p className="text-4xl font-bold text-blue-600">
-              <Link href="/fleet/quotes">{openQuotes.length}</Link>
-            </p>
-          </div>
-          <div className="bg-white text-black rounded-2xl p-4 shadow text-center">
-            <h2 className="text-lg font-semibold mb-2">Jobs</h2>
-            <ul className="text-sm space-y-1">
-              {statuses.map(s => (
-                <li key={s.id} className="capitalize">
-                  {s.name}:{' '}
-                  <Link href={`/fleet/jobs?status=${encodeURIComponent(s.name)}`}>{jobStatusCounts[s.name] || 0}</Link>
-                </li>
+
+        {/* Enhanced Stats Overview */}
+        <div className="dashboard-grid">
+          <Card variant="stats" className="job-card-mechanic">
+            <CardHeader>
+              <CardTitle className="text-3xl font-bold text-success">
+                {activeVehicles.length}
+              </CardTitle>
+              <CardDescription>Active Vehicles</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <span className="text-text-secondary text-sm">Fleet size</span>
+                <Badge variant="success" className="text-xs">Operational</Badge>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card variant="warning" className="job-card-mechanic">
+            <CardHeader>
+              <CardTitle className="text-3xl font-bold text-warning">
+                {maintenanceDue.length}
+              </CardTitle>
+              <CardDescription>Maintenance Due</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <span className="text-text-secondary text-sm">Next 7 days</span>
+                <Badge variant="warning" className="text-xs">Schedule</Badge>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card variant="info" className="job-card-mechanic">
+            <CardHeader>
+              <CardTitle className="text-3xl font-bold text-info">
+                {recentJobs.length}
+              </CardTitle>
+              <CardDescription>Recent Jobs</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <span className="text-text-secondary text-sm">Last 5 jobs</span>
+                <Badge variant="info" className="text-xs">Active</Badge>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card variant="accent" className="job-card-mechanic">
+            <CardHeader>
+              <CardTitle className="text-3xl font-bold text-accent">
+                {pendingQuotes.length}
+              </CardTitle>
+              <CardDescription>Pending Quotes</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <span className="text-text-secondary text-sm">Awaiting approval</span>
+                <Badge variant="accent" className="text-xs">Review</Badge>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Enhanced Vehicle Overview */}
+        <Card className="job-card-mechanic">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Vehicle Fleet Overview</CardTitle>
+                <CardDescription>Monitor your vehicle fleet status and maintenance</CardDescription>
+              </div>
+              <Badge variant="primary" className="text-sm">
+                {data.vehicles.length} Total
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {data.vehicles.slice(0, 6).map(vehicle => (
+                <div key={vehicle.id} className="p-4 bg-surface-secondary rounded-xl border border-border-primary/50 hover:border-border-accent transition-all duration-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-semibold text-text-primary">{vehicle.registration}</h4>
+                    <Badge variant={vehicle.status === 'active' ? 'success' : 'warning'}>
+                      {vehicle.status}
+                    </Badge>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-text-secondary">Make:</span>
+                      <span className="text-text-primary">{vehicle.make}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-text-secondary">Model:</span>
+                      <span className="text-text-primary">{vehicle.model}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-text-secondary">Year:</span>
+                      <span className="text-text-primary">{vehicle.year}</span>
+                    </div>
+                    {vehicle.next_service_date && (
+                      <div className="flex justify-between">
+                        <span className="text-text-secondary">Next Service:</span>
+                        <span className={`text-sm ${new Date(vehicle.next_service_date) <= new Date() ? 'text-error' : 'text-text-primary'}`}>
+                          {new Date(vehicle.next_service_date).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
               ))}
-            </ul>
-          </div>
-          <div className="bg-white text-black rounded-2xl p-4 shadow text-center">
-            <h2 className="text-lg font-semibold mb-2">Unpaid Invoices</h2>
-            <p className="text-4xl font-bold text-blue-600">
-              <Link href="/fleet/invoices">{unpaidInvoices.length}</Link>
-            </p>
-          </div>
+            </div>
+            
+            {data.vehicles.length > 6 && (
+              <div className="text-center pt-4">
+                <Button variant="secondary">
+                  View All Vehicles ({data.vehicles.length})
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Enhanced Recent Jobs */}
+        <Card className="job-card-mechanic">
+          <CardHeader>
+            <CardTitle>Recent Jobs</CardTitle>
+            <CardDescription>Latest job activities and status updates</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {recentJobs.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="w-20 h-20 bg-surface-secondary rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-10 h-10 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-text-primary mb-2">No recent jobs</h3>
+                <p className="text-text-secondary">Jobs will appear here as they are created</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {recentJobs.map(job => (
+                  <div key={job.id} className="flex items-center justify-between p-4 bg-surface-secondary rounded-xl border border-border-primary/50 hover:border-border-accent transition-all duration-200">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-3 h-3 bg-primary rounded-full"></div>
+                      <div>
+                        <div className="font-medium text-text-primary">Job #{job.id}</div>
+                        <div className="text-sm text-text-secondary">
+                          {job.vehicle_registration} • {job.description || 'No description'}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <Badge variant="info" className="mb-2">
+                        {job.status || 'Pending'}
+                      </Badge>
+                      <div className="text-xs text-text-muted">
+                        {job.created_at ? new Date(job.created_at).toLocaleDateString() : 'No date'}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Enhanced Financial Overview */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Pending Quotes */}
+          <Card className="job-card-mechanic">
+            <CardHeader>
+              <CardTitle>Pending Quotes</CardTitle>
+              <CardDescription>Quotes awaiting your approval</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {pendingQuotes.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-text-secondary">No pending quotes</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {pendingQuotes.slice(0, 3).map(quote => (
+                    <div key={quote.id} className="flex items-center justify-between p-3 bg-surface-secondary rounded-lg">
+                      <div>
+                        <div className="font-medium text-text-primary">Quote #{quote.id}</div>
+                        <div className="text-sm text-text-secondary">
+                          {quote.vehicle_registration} • £{quote.total_amount || '0.00'}
+                        </div>
+                      </div>
+                      <Badge variant="warning">Pending</Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {pendingQuotes.length > 3 && (
+                <div className="text-center pt-4">
+                  <Button variant="secondary" className="w-full">
+                    View All ({pendingQuotes.length})
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Overdue Invoices */}
+          <Card className="job-card-mechanic">
+            <CardHeader>
+              <CardTitle>Overdue Invoices</CardTitle>
+              <CardDescription>Invoices requiring immediate attention</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {overdueInvoices.length === 0 ? (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-success/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-text-primary mb-2">All caught up!</h3>
+                  <p className="text-text-secondary">No overdue invoices</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {overdueInvoices.slice(0, 3).map(invoice => (
+                    <div key={invoice.id} className="flex items-center justify-between p-3 bg-surface-secondary rounded-lg">
+                      <div>
+                        <div className="font-medium text-text-primary">Invoice #{invoice.id}</div>
+                        <div className="text-sm text-text-secondary">
+                          Due: {invoice.due_date ? new Date(invoice.due_date).toLocaleDateString() : 'No date'} • £{invoice.total_amount || '0.00'}
+                        </div>
+                      </div>
+                      <Badge variant="error">Overdue</Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {overdueInvoices.length > 3 && (
+                <div className="text-center pt-4">
+                  <Button variant="error" className="w-full">
+                    View All ({overdueInvoices.length})
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
-        <button
-          onClick={handleLogout}
-          className="mt-6 bg-gray-200 text-red-600 rounded-full px-4 py-2 shadow hover:bg-gray-300"
-        >
-          Logout
-        </button>
+
+        {/* Enhanced Quick Actions */}
+        <Card className="job-card-mechanic">
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+            <CardDescription>Common fleet management tasks</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Button variant="primary" className="h-16 flex flex-col items-center justify-center space-y-2">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                <span className="text-sm">New Job</span>
+              </Button>
+              
+              <Button variant="secondary" className="h-16 flex flex-col items-center justify-center space-y-2">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span className="text-sm">Schedule</span>
+              </Button>
+              
+              <Button variant="accent" className="h-16 flex flex-col items-center justify-center space-y-2">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span className="text-sm">Reports</span>
+              </Button>
+              
+              <Button variant="info" className="h-16 flex flex-col items-center justify-center space-y-2">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span className="text-sm">Settings</span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-    </>
+    </Layout>
   );
 }

@@ -83,356 +83,312 @@ export default function OfficeLayout({ children }) {
   }
 
   return (
-    <div className="min-h-screen flex text-white bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700">
+    <div className="min-h-screen flex text-white bg-pattern">
       {/* Mobile menu overlay */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-bg-overlay backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar */}
+      {/* Enhanced Sidebar */}
       <aside className={`
-        fixed lg:static inset-y-0 left-0 z-50 w-64 bg-blue-900 p-6 space-y-6 transform transition-transform duration-300 ease-in-out
+        fixed lg:static inset-y-0 left-0 z-50 w-64 sidebar-glass transform transition-transform duration-300 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         {/* Mobile close button */}
-        <div className="flex justify-between items-center lg:hidden">
-          <h1 className="text-xl font-bold">Garage Vision</h1>
+        <div className="flex justify-between items-center lg:hidden p-6 border-b border-border-primary/20">
+          <h1 className="text-xl font-bold text-gradient">Garage Vision</h1>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="p-2 hover:bg-blue-800 rounded"
+            className="p-2 hover:bg-surface-secondary rounded-xl transition-all duration-200"
           >
             <CloseIcon />
           </button>
         </div>
 
-        <nav className="space-y-4">
+        {/* Logo Section */}
+        <div className="hidden lg:block p-6 border-b border-border-primary/20">
+          <h1 className="text-2xl font-bold text-gradient">Garage Vision</h1>
+          <p className="text-sm text-text-secondary mt-1">Professional Management System</p>
+        </div>
+
+        {/* Enhanced Navigation */}
+        <nav className="flex-1 p-6 space-y-8">
           <div>
-            <h3 className="uppercase text-sm font-semibold mb-2 text-cyan-400">Main</h3>
-            <ul className="space-y-1">
+            <h3 className="uppercase text-xs font-bold mb-4 text-primary/70 tracking-wider">Main</h3>
+            <ul className="space-y-2">
               <li>
-                <Link href="/dashboard" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
+                <Link href="/dashboard" className="nav-link">
                   <ArrowIcon />
                   Dashboard
                 </Link>
               </li>
               <li>
-                <Link href="/office" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
+                <Link href="/office" className="nav-link">
                   <ArrowIcon />
                   Office Home
                 </Link>
               </li>
             </ul>
           </div>
+          
           <div>
-            <h3 className="uppercase text-sm font-semibold mb-2 text-cyan-400">Sales</h3>
-            <ul className="space-y-1">
+            <h3 className="uppercase text-xs font-bold mb-4 text-accent/70 tracking-wider">Sales</h3>
+            <ul className="space-y-2">
               <li>
-                <Link href="/office/quotations/new" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
+                <Link href="/office/quotations/new" className="nav-link">
                   <ArrowIcon />
                   New Quotation
                 </Link>
               </li>
               <li>
-                <Link href="/office/invoices/new" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
+                <Link href="/office/invoices/new" className="nav-link">
                   <ArrowIcon />
                   New Invoice
                 </Link>
               </li>
               <li>
-                <Link href="/office/invoices" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
+                <Link href="/office/invoices" className="nav-link">
                   <ArrowIcon />
                   Invoices
                 </Link>
               </li>
               <li>
-                <Link href="/office/invoices?status=unpaid" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
+                <Link href="/office/invoices?status=unpaid" className="nav-link">
                   <ArrowIcon />
                   Pay Invoice
                 </Link>
               </li>
               <li>
-                <Link href="/office/epos" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
+                <Link href="/office/epos" className="nav-link">
                   <ArrowIcon />
                   EPOS
                 </Link>
               </li>
             </ul>
           </div>
+          
           <div>
-            <h3 className="uppercase text-sm font-semibold mb-2 text-cyan-400">Operations</h3>
-            <ul className="space-y-1">
+            <h3 className="uppercase text-xs font-bold mb-4 text-success/70 tracking-wider">Operations</h3>
+            <ul className="space-y-2">
               <li>
-                <Link href="/office/jobs/new" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
+                <Link href="/office/jobs/new" className="nav-link">
                   <ArrowIcon />
                   New Job
                 </Link>
               </li>
               <li>
-                <Link href="/office/job-requests" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
+                <Link href="/office/job-requests" className="nav-link">
                   <ArrowIcon />
                   Job Requests
                 </Link>
               </li>
               <li>
-                <Link href="/office/job-management" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
+                <Link href="/office/job-management" className="nav-link">
                   <ArrowIcon />
                   Job Management
                 </Link>
               </li>
               <li>
-                <Link href="/office/quotations" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
+                <Link href="/office/quotations" className="nav-link">
                   <ArrowIcon />
                   Open Quotes
                 </Link>
               </li>
               <li>
-                <Link href="/office/scheduling" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
+                <Link href="/office/scheduling" className="nav-link">
                   <ArrowIcon />
                   Scheduling
                 </Link>
               </li>
               <li>
-                <Link href="/office/live-screen" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
+                <Link href="/office/live-screen" className="nav-link">
                   <ArrowIcon />
                   Workshop Live
                 </Link>
               </li>
             </ul>
           </div>
+          
           <div>
-            <h3 className="uppercase text-sm font-semibold mb-2 text-cyan-400">CRM</h3>
-            <ul className="space-y-1">
+            <h3 className="uppercase text-xs font-bold mb-4 text-warning/70 tracking-wider">Management</h3>
+            <ul className="space-y-2">
               <li>
-                <Link href="/office/clients" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
+                <Link href="/office/clients" className="nav-link">
                   <ArrowIcon />
                   Clients
                 </Link>
               </li>
               <li>
-                <Link href="/office/engineers" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
-                  <ArrowIcon />
-                  Engineers
-                </Link>
-              </li>
-              <li>
-                <Link href="/office/apprentices" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
-                  <ArrowIcon />
-                  Apprentices
-                </Link>
-              </li>
-              <li>
-                <Link href="/office/crm" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
-                  <ArrowIcon />
-                  CRM
-                </Link>
-              </li>
-              <li>
-                <Link href="/office/reporting" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
-                  <ArrowIcon />
-                  Reporting
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="uppercase text-sm font-semibold mb-2 text-cyan-400">HR</h3>
-            <ul className="space-y-1">
-              <li>
-                <Link href="/office/hr" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
-                  <ArrowIcon />
-                  HR Home
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="uppercase text-sm font-semibold mb-2 text-cyan-400">Assets</h3>
-            <ul className="space-y-1">
-              <li>
-                <Link
-                  href="/office/parts"
-                  className={`flex items-center hover:underline p-2 rounded hover:bg-blue-800 ${router.pathname.startsWith('/office/parts') && !router.pathname.startsWith('/office/parts/categories') ? 'text-yellow-300 font-semibold' : ''}`}
-                >
-                  <ArrowIcon />
-                  Parts
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/office/parts/categories"
-                  className={`flex items-center hover:underline p-2 rounded hover:bg-blue-800 ${router.pathname.startsWith('/office/parts/categories') ? 'text-yellow-300 font-semibold' : ''}`}
-                >
-                  <ArrowIcon />
-                  Part Categories
-                </Link>
-              </li>
-              <li>
-                <Link href="/office/fleets" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
-                  <ArrowIcon />
-                  Fleets
-                </Link>
-              </li>
-              <li>
-                <Link href="/office/vehicles" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
+                <Link href="/office/vehicles" className="nav-link">
                   <ArrowIcon />
                   Vehicles
                 </Link>
               </li>
               <li>
-                <Link href="/office/suppliers" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
+                <Link href="/office/engineers" className="nav-link">
+                  <ArrowIcon />
+                  Engineers
+                </Link>
+              </li>
+              <li>
+                <Link href="/office/parts" className="nav-link">
+                  <ArrowIcon />
+                  Parts
+                </Link>
+              </li>
+              <li>
+                <Link href="/office/suppliers" className="nav-link">
                   <ArrowIcon />
                   Suppliers
                 </Link>
               </li>
             </ul>
           </div>
+          
           <div>
-            <h3 className="uppercase text-sm font-semibold mb-2 text-cyan-400">Settings</h3>
-            <ul className="space-y-1">
+            <h3 className="uppercase text-xs font-bold mb-4 text-info/70 tracking-wider">Reports</h3>
+            <ul className="space-y-2">
               <li>
-                <Link href="/office/company-settings" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
+                <Link href="/office/reporting" className="nav-link">
                   <ArrowIcon />
-                  Company Settings
+                  Business Reports
                 </Link>
               </li>
               <li>
-                <Link href="/office/smtp-settings" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
+                <Link href="/office/reporting/engineer-performance" className="nav-link">
                   <ArrowIcon />
-                  SMTP Settings
+                  Engineer Performance
                 </Link>
               </li>
               <li>
-                <Link href="/office/email-templates" className="flex items-center hover:underline p-2 rounded hover:bg-blue-800">
+                <Link href="/office/reporting/epos" className="nav-link">
                   <ArrowIcon />
-                  Email Templates
+                  EPOS Reports
                 </Link>
-              </li>
-              <li>
-                <button onClick={() => setShowBug(true)} className="flex items-center w-full text-left hover:underline p-2 rounded hover:bg-blue-800">
-                  <ArrowIcon />
-                  Report Bug
-                </button>
-              </li>
-              <li>
-                <button onClick={handleLogout} className="flex items-center w-full text-left hover:underline p-2 rounded hover:bg-blue-800">
-                  <ArrowIcon />
-                  Logout
-                </button>
               </li>
             </ul>
           </div>
         </nav>
+
+        {/* Enhanced Footer */}
+        <div className="p-6 border-t border-border-primary/20 space-y-4">
+          <button
+            onClick={() => setShowBug(true)}
+            className="w-full p-3 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-secondary rounded-xl transition-all duration-200 text-center"
+          >
+            Report Bug
+          </button>
+          <button
+            onClick={handleLogout}
+            className="w-full p-3 text-sm text-error hover:text-white hover:bg-error/20 rounded-xl transition-all duration-200 text-center border border-error/20 hover:border-error/40"
+          >
+            Logout
+          </button>
+        </div>
       </aside>
 
-      {/* Main content */}
+      {/* Enhanced Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Header */}
-        <header className="bg-blue-700 p-4 lg:p-6 space-y-4 relative">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              {/* Mobile menu button */}
+        {/* Enhanced Header */}
+        <header className="header-glass border-b border-border-primary/20">
+          <div className="flex items-center justify-between px-6 py-4">
+            <div className="flex items-center gap-4">
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="lg:hidden p-2 hover:bg-blue-600 rounded"
+                className="lg:hidden p-2 hover:bg-surface-secondary rounded-xl transition-all duration-200"
               >
                 <MenuIcon />
               </button>
               
-              <img src="/logo.png" alt="Garage Vision" className="w-8 h-8 lg:w-10 lg:h-10 rounded-full" />
-              <h1 className="text-xl lg:text-2xl font-bold">Garage Vision</h1>
+              {/* Enhanced Search */}
+              <div className="relative hidden md:block">
+                <input
+                  type="text"
+                  placeholder="Search jobs, clients, vehicles..."
+                  value={term}
+                  onChange={(e) => setTerm(e.target.value)}
+                  className="input w-80 pl-10 pr-4 py-2"
+                />
+                <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Enhanced User Actions */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowBug(true)}
+                className="p-2 text-text-secondary hover:text-text-primary hover:bg-surface-secondary rounded-xl transition-all duration-200"
+                title="Report Bug"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </button>
+              
+              <div className="w-px h-6 bg-border-primary/30"></div>
+              
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 text-sm text-text-secondary hover:text-error hover:bg-error/10 rounded-xl transition-all duration-200 border border-transparent hover:border-error/20"
+              >
+                Logout
+              </button>
             </div>
           </div>
-          
-          {/* Search bar */}
-          <div className="relative">
-            <input
-              className="input w-full text-black"
-              placeholder="Search"
-              value={term}
-              onChange={e => setTerm(e.target.value)}
-            />
-            {term && results && (
-              <div className="absolute bg-white text-black shadow rounded w-full mt-1 z-10 p-2 space-y-1 max-h-64 overflow-y-auto">
-                {results.clients?.length > 0 && (
-                  <div>
-                    <div className="font-semibold">Clients</div>
-                    {results.clients.map(c => (
-                      <Link key={`c${c.id}`} href={`/office/clients/view/${c.id}`} className="block hover:underline p-1 rounded">
-                        {(c.first_name || '') + ' ' + (c.last_name || '')}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-                {results.vehicles?.length > 0 && (
-                  <div>
-                    <div className="font-semibold mt-2">Vehicles</div>
-                    {results.vehicles.map(v => (
-                      <Link key={`v${v.id}`} href={`/office/vehicles/view/${v.id}`} className="block hover:underline p-1 rounded">
-                        {v.licence_plate}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-                {results.parts?.length > 0 && (
-                  <div>
-                    <div className="font-semibold mt-2">Parts</div>
-                    {results.parts.map(p => (
-                      <Link key={`p${p.id}`} href={`/office/parts`} className="block hover:underline p-1 rounded">
-                        {p.part_number} - {p.description}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-                {results.quotes?.length > 0 && (
-                  <div>
-                    <div className="font-semibold mt-2">Quotes</div>
-                    {results.quotes.map(q => (
-                      <Link key={`q${q.id}`} href={`/office/quotations/${q.id}/edit`} className="block hover:underline p-1 rounded">
-                        Quote #{q.id}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-                {results.jobs?.length > 0 && (
-                  <div>
-                    <div className="font-semibold mt-2">Jobs</div>
-                    {results.jobs.map(j => (
-                      <Link key={`j${j.id}`} href={`/office/jobs/${j.id}`} className="block hover:underline p-1 rounded">
-                        Job #{j.id}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-                {results.invoices?.length > 0 && (
-                  <div>
-                    <div className="font-semibold mt-2">Invoices</div>
-                    {results.invoices.map(i => (
-                      <Link key={`i${i.id}`} href="/office/invoices" className="block hover:underline p-1 rounded">
-                        Invoice #{i.id}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
         </header>
-        
-        {/* Page content */}
-        <div className="p-4 lg:p-6 space-y-6 flex-1 overflow-y-auto">
-          {children}
-        </div>
+
+        {/* Enhanced Main Content Area */}
+        <main className="flex-1 p-6 overflow-auto">
+          <div className="animate-fade-in">
+            {children}
+          </div>
+        </main>
       </div>
 
-      {/* Bug Report Modal */}
+      {/* Enhanced Search Results Modal */}
+      {results && (
+        <div className="fixed inset-0 bg-bg-overlay backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="modal-content max-w-2xl max-h-[80vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Search Results</h3>
+                <button
+                  onClick={() => setResults(null)}
+                  className="p-2 hover:bg-surface-secondary rounded-xl transition-all duration-200"
+                >
+                  <CloseIcon />
+                </button>
+              </div>
+              
+              <div className="space-y-3">
+                {results.map((result, index) => (
+                  <div key={index} className="p-4 bg-surface-secondary rounded-xl border border-border-primary/20 hover:border-border-accent/50 transition-all duration-200">
+                    <h4 className="font-medium text-text-primary mb-1">{result.title}</h4>
+                    <p className="text-sm text-text-secondary">{result.description}</p>
+                    {result.link && (
+                      <Link href={result.link} className="text-primary hover:text-primary-light text-sm mt-2 inline-block">
+                        View Details →
+                      </Link>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Enhanced Bug Report Modal */}
       {showBug && (
         <BugReportModal onSubmit={submitBug} onClose={() => setShowBug(false)} />
       )}
 
-      {/* Toast Notifications */}
+      {/* Enhanced Toast Notifications */}
       {toast && (
         <Toast
           message={toast.message}
