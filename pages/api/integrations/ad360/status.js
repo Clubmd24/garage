@@ -21,7 +21,12 @@ export default async function handler(req, res) {
     );
 
     if (!accountRows.length) {
-      return res.status(404).json({ error: 'AD360 account not linked' });
+      return res.status(200).json({
+        linked: false,
+        lastSessionAt: null,
+        consentAutomatedFetch: false,
+        status: 'not_linked'
+      });
     }
 
     const account = accountRows[0];
