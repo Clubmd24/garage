@@ -62,7 +62,6 @@ export default function NewQuotationPage() {
   useEffect(() => {
     setForm(f => ({ ...f, customer_id: '', fleet_id: '', vehicle_id: '' }));
     setClientName('');
-    setVehicles([]);
   }, [mode]);
 
 
