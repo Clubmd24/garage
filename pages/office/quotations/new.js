@@ -25,6 +25,7 @@ export default function NewQuotationPage() {
   const [fleets, setFleets] = useState([]);
   const [mode, setMode] = useState('client');
   const [clientName, setClientName] = useState('');
+  const [selectedVehicleDisplay, setSelectedVehicleDisplay] = useState('');
   const [form, setForm] = useState({
     customer_id: '',
     fleet_id: '',
@@ -62,6 +63,7 @@ export default function NewQuotationPage() {
   useEffect(() => {
     setForm(f => ({ ...f, customer_id: '', fleet_id: '', vehicle_id: '' }));
     setClientName('');
+    setSelectedVehicleDisplay('');
   }, [mode]);
 
 
@@ -137,6 +139,7 @@ export default function NewQuotationPage() {
       defect_description: '',
     });
     setClientName('');
+    setSelectedVehicleDisplay('');
     setMode('client');
   };
 
@@ -301,31 +304,47 @@ export default function NewQuotationPage() {
         )}
         <div>
           <label className="block mb-1">Vehicle *</label>
-          <VehicleAutocomplete
-            value=""
-            onChange={v => {
-              // Clear vehicle selection when typing
-              setForm(f => ({ ...f, vehicle_id: '' }));
-            }}
-            onSelect={v => {
-              setForm(f => ({ ...f, vehicle_id: v.id }));
-              // Auto-populate client if vehicle has one
-              if (v.customer_id && !form.customer_id) {
-                setMode('client');
-                setForm(f => ({ ...f, customer_id: v.customer_id, fleet_id: '' }));
-                // Fetch and set client name
-                fetchClient(v.customer_id).then(c => {
-                  setClientName(`${c.first_name || ''} ${c.last_name || ''}`.trim());
-                }).catch(() => {});
-              } else if (v.fleet_id && !form.fleet_id) {
-                setMode('fleet');
-                setForm(f => ({ ...f, fleet_id: v.fleet_id, customer_id: '' }));
-              }
-            }}
-            customerId={mode === 'client' ? form.customer_id : null}
-            fleetId={mode === 'fleet' ? form.fleet_id : null}
-            placeholder="Search vehicles by license plate or description"
-          />
+          {form.vehicle_id && selectedVehicleDisplay ? (
+            <div className="flex items-center gap-2">
+              <div className="input-readonly flex-1">{selectedVehicleDisplay}</div>
+              <button
+                type="button"
+                onClick={() => {
+                  setForm(f => ({ ...f, vehicle_id: '' }));
+                  setSelectedVehicleDisplay('');
+                }}
+                className="button-secondary px-2"
+              >
+                Clear
+              </button>
+            </div>
+          ) : (
+            <VehicleAutocomplete
+              value=""
+              onChange={v => {
+                // Allow typing for search - don't clear vehicle selection here
+              }}
+              onSelect={v => {
+                setForm(f => ({ ...f, vehicle_id: v.id }));
+                setSelectedVehicleDisplay(`${v.licence_plate || 'No Plate'} - ${v.make} ${v.model} ${v.year}`);
+                // Auto-populate client if vehicle has one
+                if (v.customer_id && !form.customer_id) {
+                  setMode('client');
+                  setForm(f => ({ ...f, customer_id: v.customer_id, fleet_id: '' }));
+                  // Fetch and set client name
+                  fetchClient(v.customer_id).then(c => {
+                    setClientName(`${c.first_name || ''} ${c.last_name || ''}`.trim());
+                  }).catch(() => {});
+                } else if (v.fleet_id && !form.fleet_id) {
+                  setMode('fleet');
+                  setForm(f => ({ ...f, fleet_id: v.fleet_id, customer_id: '' }));
+                }
+              }}
+              customerId={mode === 'client' ? form.customer_id : null}
+              fleetId={mode === 'fleet' ? form.fleet_id : null}
+              placeholder="Search vehicles by license plate or description"
+            />
+          )}
           {vehicleError && (
             <p className="text-red-500 mt-1" data-testid="vehicle-error">
               {vehicleError}
