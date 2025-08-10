@@ -7,10 +7,10 @@ const nextConfig = {
   },
   // Disable static generation for problematic pages
   trailingSlash: false,
-  // Ensure proper build output
-  output: 'standalone',
   // Enable compression
   compress: true,
+  // Ensure proper asset handling
+  assetPrefix: '',
 };
 
 export default nextConfig;
