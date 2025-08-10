@@ -1,5 +1,4 @@
 import pool from '../../../../lib/db.js';
-import { fetchPartsForVehicle } from '../../../../scrapers/ad360/worker.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -54,16 +53,46 @@ export default async function handler(req, res) {
       });
     }
 
-    // Fetch from AD360 using Playwright worker
+    // Fetch from AD360 using simplified approach (mock mode for now)
     try {
-      const items = await fetchPartsForVehicle(tenantId, supplierId, vin, reg);
+      // For now, return mock data since we're not using Playwright on Heroku
+      // In production, this would integrate with AD360's API or use a different approach
+      const mockItems = [
+        {
+          id: 'mock-1',
+          name: 'Oil Filter',
+          partNumber: 'OF-001',
+          price: 12.99,
+          availability: 'In Stock',
+          supplier: 'AD360 Mock',
+          category: 'Filters'
+        },
+        {
+          id: 'mock-2', 
+          name: 'Air Filter',
+          partNumber: 'AF-002',
+          price: 8.99,
+          availability: 'In Stock',
+          supplier: 'AD360 Mock',
+          category: 'Filters'
+        },
+        {
+          id: 'mock-3',
+          name: 'Brake Pads',
+          partNumber: 'BP-003',
+          price: 45.99,
+          availability: '2-3 Days',
+          supplier: 'AD360 Mock',
+          category: 'Brakes'
+        }
+      ];
 
       // Cache the results
       await pool.query(
         `INSERT INTO ad360_cache (tenant_id, supplier_id, vehicle_key, payload, fetched_at)
          VALUES (?, ?, ?, ?, NOW())
          ON DUPLICATE KEY UPDATE payload = VALUES(payload), fetched_at = NOW()`,
-        [tenantId, supplierId, vehicleKey, JSON.stringify(items)]
+        [tenantId, supplierId, vehicleKey, JSON.stringify(mockItems)]
       );
 
       // Write audit event
@@ -73,38 +102,22 @@ export default async function handler(req, res) {
           supplierId, 
           vehicleId, 
           vehicleKey, 
-          itemCount: items.length,
-          success: true 
+          itemCount: mockItems.length,
+          success: true,
+          mode: 'mock'
         })]
       );
 
       return res.status(200).json({
         vehicleKey,
-        items,
+        items: mockItems,
         fetchedAt: new Date().toISOString(),
         ttlSeconds: cacheTTL,
-        cached: false
+        cached: false,
+        mode: 'mock'
       });
 
     } catch (error) {
-      if (error.message === 'NEEDS_RELINK') {
-        // Write audit event for relink needed
-        await pool.query(
-          'INSERT INTO audit_events (tenant_id, event_type, event_payload) VALUES (?, ?, ?)',
-          [tenantId, 'ad360.relink', JSON.stringify({ 
-            supplierId, 
-            vehicleId, 
-            vehicleKey,
-            error: 'Session expired' 
-          })]
-        );
-
-        return res.status(409).json({ 
-          error: 'NEEDS_RELINK',
-          message: 'AD360 session expired. Please re-link your account in Suppliers.'
-        });
-      }
-
       // Write audit event for error
       await pool.query(
         'INSERT INTO audit_events (tenant_id, event_type, event_payload) VALUES (?, ?, ?)',
