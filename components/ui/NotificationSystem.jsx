@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
-import { Button } from './Button';
+import Button from './Button';
 
 // Toast Notification Component
 const Toast = React.forwardRef(({

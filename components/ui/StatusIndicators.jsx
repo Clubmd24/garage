@@ -248,13 +248,4 @@ export function BatteryIndicator({
   );
 }
 
-// Export all components
-export {
-  Badge,
-  StatusIndicator,
-  PriorityIndicator,
-  HealthIndicator,
-  ProgressIndicator,
-  ConnectionIndicator,
-  BatteryIndicator,
-}; 
+// All components are already exported above 

@@ -4,7 +4,7 @@ import Spinner from '../../../components/Spinner.jsx';
 import Toast from '../../../components/Toast.jsx';
 import { fetchApprentices } from '../../../lib/apprentices';
 import Tabs from '../../../components/ui/Tabs.jsx';
-import { Button } from '../../../components/ui/Button.jsx';
+import Button from '../../../components/ui/Button.jsx';
 import CurriculumDashboard from '../../../components/office/CurriculumDashboard.jsx';
 
 export default function ApprenticesPage() {

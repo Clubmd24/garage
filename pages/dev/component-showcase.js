@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import Button from '../ui/design-system/Button';
-import Card from '../ui/design-system/Card';
+import Button from '../../components/ui/design-system/Button';
+import Card from '../../components/ui/design-system/Card';
 
 export default function ComponentShowcase() {
   const [activeTab, setActiveTab] = useState('buttons');

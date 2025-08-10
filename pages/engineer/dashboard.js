@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Layout } from '../../components/Layout';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/ui/card';
-import { Button } from '../../components/ui/Button';
+import Button from '../../components/ui/Button';
 import { Badge } from '../../components/ui/StatusIndicators';
 import { fetchDashboardData } from '../../lib/engineerDashboard.js';
 import { 
