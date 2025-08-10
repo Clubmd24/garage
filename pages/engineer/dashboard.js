@@ -4,6 +4,14 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../..
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/StatusIndicators';
 import { fetchDashboardData } from '../../lib/engineerDashboard.js';
+import { 
+  StatsWidget, 
+  JobStatusWidget, 
+  QuickActionsWidget,
+  TeamStatusWidget 
+} from '../../components/ui/EnhancedDashboardWidgets';
+import { ProgressBar, CircularProgress } from '../../components/ui/DataVisualization';
+import { showToast } from '../../components/ui/NotificationSystem';
 
 export default function EngineerDashboard() {
   const [data, setData] = useState(null);
@@ -14,7 +22,23 @@ export default function EngineerDashboard() {
     setLoading(true);
     fetchDashboardData()
       .then(setData)
-      .catch(() => setError('Failed to load dashboard'))
+      .then(() => {
+        showToast({
+          type: 'success',
+          title: 'Dashboard Loaded',
+          message: 'Welcome back to your workspace!',
+          duration: 3000
+        });
+      })
+      .catch(() => {
+        setError('Failed to load dashboard');
+        showToast({
+          type: 'error',
+          title: 'Error',
+          message: 'Failed to load dashboard data',
+          duration: 5000
+        });
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -67,6 +91,21 @@ export default function EngineerDashboard() {
     .slice(0,5);
   const myAttendance = data.attendance.filter(a => String(a.employee_id) === String(data.user.id));
 
+  // Calculate performance metrics
+  const completedJobs = data.jobs.filter(j => j.status === 'completed').length;
+  const totalJobs = data.jobs.length;
+  const completionRate = totalJobs > 0 ? Math.round((completedJobs / totalJobs) * 100) : 0;
+  
+  const thisMonthAttendance = myAttendance.filter(a => {
+    const attendanceDate = new Date(a.date);
+    const now = new Date();
+    return attendanceDate.getMonth() === now.getMonth() && 
+           attendanceDate.getFullYear() === now.getFullYear();
+  }).length;
+  
+  const workingDaysThisMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+  const attendanceRate = Math.round((thisMonthAttendance / workingDaysThisMonth) * 100);
+
   return (
     <Layout>
       <div className="page-transition p-6 space-y-8">
@@ -78,64 +117,125 @@ export default function EngineerDashboard() {
           </p>
         </div>
 
-        {/* Enhanced Stats Overview */}
+        {/* Enhanced Stats Overview with New Widgets */}
         <div className="dashboard-grid">
-          <Card variant="stats" className="job-card-mechanic">
+          <StatsWidget
+            title="Today's Jobs"
+            value={todaysJobs.length}
+            change={`${todaysJobs.length > 0 ? 'Active' : 'No jobs'}`}
+            changeType={todaysJobs.length > 0 ? 'info' : 'neutral'}
+            icon={({ className }) => (
+              <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+            )}
+            trend={todaysJobs.length > 0 ? 'up' : 'down'}
+          />
+          
+          <StatsWidget
+            title="Holiday Days Left"
+            value={data.remainingDays}
+            change="Plan your time off"
+            changeType="warning"
+            icon={({ className }) => (
+              <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            )}
+            trend="down"
+          />
+          
+          <StatsWidget
+            title="Upcoming Shifts"
+            value={upcomingShifts.length}
+            change="Next 5 shifts"
+            changeType="info"
+            icon={({ className }) => (
+              <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            )}
+            trend="up"
+          />
+          
+          <StatsWidget
+            title="Attendance Records"
+            value={myAttendance.length}
+            change="This month"
+            changeType="success"
+            icon={({ className }) => (
+              <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            )}
+            trend="up"
+          />
+        </div>
+
+        {/* Enhanced Performance Metrics */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card className="job-card-mechanic">
             <CardHeader>
-              <CardTitle className="text-3xl font-bold text-success">
-                {todaysJobs.length}
-              </CardTitle>
-              <CardDescription>Today's Jobs</CardDescription>
+              <CardTitle>Performance Metrics</CardTitle>
+              <CardDescription>Your work performance indicators</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <span className="text-text-secondary text-sm">Active assignments</span>
-                <Badge variant="success" className="text-xs">Active</Badge>
+            <CardContent className="space-y-6">
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium text-text-secondary">Job Completion Rate</span>
+                  <span className="text-sm text-text-primary">{completionRate}%</span>
+                </div>
+                <ProgressBar 
+                  value={completionRate} 
+                  max={100} 
+                  variant="success" 
+                  size="md"
+                  showLabel={false}
+                />
+              </div>
+              
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium text-text-secondary">Monthly Attendance</span>
+                  <span className="text-sm text-text-primary">{attendanceRate}%</span>
+                </div>
+                <ProgressBar 
+                  value={attendanceRate} 
+                  max={100} 
+                  variant="primary" 
+                  size="md"
+                  showLabel={false}
+                />
               </div>
             </CardContent>
           </Card>
           
-          <Card variant="warning" className="job-card-mechanic">
+          <Card className="job-card-mechanic">
             <CardHeader>
-              <CardTitle className="text-3xl font-bold text-warning">
-                {data.remainingDays}
-              </CardTitle>
-              <CardDescription>Holiday Days Left</CardDescription>
+              <CardTitle>Work Summary</CardTitle>
+              <CardDescription>This month's overview</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <span className="text-text-secondary text-sm">Plan your time off</span>
-                <Badge variant="warning" className="text-xs">Plan</Badge>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center p-4 bg-surface-secondary rounded-lg">
+                  <div className="text-2xl font-bold text-success mb-1">{completedJobs}</div>
+                  <div className="text-sm text-text-secondary">Jobs Completed</div>
+                </div>
+                <div className="text-center p-4 bg-surface-secondary rounded-lg">
+                  <div className="text-2xl font-bold text-primary mb-1">{thisMonthAttendance}</div>
+                  <div className="text-sm text-text-secondary">Days Worked</div>
+                </div>
               </div>
-            </CardContent>
-          </Card>
-          
-          <Card variant="info" className="job-card-mechanic">
-            <CardHeader>
-              <CardTitle className="text-3xl font-bold text-info">
-                {upcomingShifts.length}
-              </CardTitle>
-              <CardDescription>Upcoming Shifts</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <span className="text-text-secondary text-sm">Next 5 shifts</span>
-                <Badge variant="info" className="text-xs">Scheduled</Badge>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card variant="success" className="job-card-mechanic">
-            <CardHeader>
-              <CardTitle className="text-3xl font-bold text-success">
-                {myAttendance.length}
-              </CardTitle>
-              <CardDescription>Attendance Records</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <span className="text-text-secondary text-sm">This month</span>
-                <Badge variant="success" className="text-xs">Good</Badge>
+              
+              <div className="text-center">
+                <CircularProgress 
+                  value={completionRate} 
+                  max={100}
+                  variant="success"
+                  size="md"
+                  showLabel={false}
+                />
+                <p className="text-sm text-text-secondary mt-2">Overall Performance</p>
               </div>
             </CardContent>
           </Card>
@@ -271,36 +371,39 @@ export default function EngineerDashboard() {
         </Card>
 
         {/* Enhanced Quick Actions */}
-        <Card className="job-card-mechanic">
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Common tasks and shortcuts</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <Button variant="primary" className="h-16 flex flex-col items-center justify-center space-y-2">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span className="text-sm">Clock In/Out</span>
-              </Button>
-              
-              <Button variant="secondary" className="h-16 flex flex-col items-center justify-center space-y-2">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span className="text-sm">View Jobs</span>
-              </Button>
-              
-              <Button variant="accent" className="h-16 flex flex-col items-center justify-center space-y-2">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span className="text-sm">Holiday</span>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <QuickActionsWidget 
+          actions={[
+            {
+              title: 'Clock In/Out',
+              icon: 'clock',
+              onClick: () => showToast({
+                type: 'info',
+                title: 'Clock In/Out',
+                message: 'Time tracking feature coming soon!',
+                duration: 3000
+              }),
+              variant: 'primary'
+            },
+            {
+              title: 'View Jobs',
+              icon: 'briefcase',
+              href: '/engineer/jobs',
+              variant: 'secondary'
+            },
+            {
+              title: 'Holiday',
+              icon: 'calendar',
+              onClick: () => showToast({
+                type: 'info',
+                title: 'Holiday Request',
+                message: 'Holiday request feature coming soon!',
+                duration: 3000
+              }),
+              variant: 'accent'
+            }
+          ]}
+          loading={loading}
+        />
       </div>
     </Layout>
   );
