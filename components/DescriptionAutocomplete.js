@@ -34,6 +34,11 @@ export default function DescriptionAutocomplete({ value, onChange, onSelect }) {
   }, [term]);
 
   const handleSelect = (part) => {
+    // First, close the dropdown immediately
+    setResults([]);
+    setIsOpen(false);
+    
+    // Then handle the selection
     onSelect && onSelect(part);
     const desc = part.description || '';
     if (value === undefined) {
@@ -42,8 +47,6 @@ export default function DescriptionAutocomplete({ value, onChange, onSelect }) {
       setTerm(desc);
       onChange && onChange(desc);
     }
-    setResults([]);
-    setIsOpen(false);
   };
 
   const handleBlur = () => {
