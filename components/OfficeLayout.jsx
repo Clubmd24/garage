@@ -117,16 +117,16 @@ export default function OfficeLayout({ children }) {
         {/* Enhanced Navigation */}
         <nav className="flex-1 p-6 space-y-8">
           <div>
-            <h3 className="uppercase text-xs font-bold mb-4 text-primary/70 tracking-wider">Main</h3>
-            <ul className="space-y-2">
+            <h3 className="uppercase text-sm font-bold mb-6 text-primary/70 tracking-wider text-center">Main</h3>
+            <ul className="space-y-3">
               <li>
-                <Link href="/dashboard" className="nav-link">
+                <Link href="/dashboard" className="nav-link-bubble">
                   <ArrowIcon />
                   Dashboard
                 </Link>
               </li>
               <li>
-                <Link href="/office" className="nav-link">
+                <Link href="/office" className="nav-link-bubble">
                   <ArrowIcon />
                   Office Home
                 </Link>
@@ -135,34 +135,34 @@ export default function OfficeLayout({ children }) {
           </div>
           
           <div>
-            <h3 className="uppercase text-xs font-bold mb-4 text-accent/70 tracking-wider">Sales</h3>
-            <ul className="space-y-2">
+            <h3 className="uppercase text-sm font-bold mb-6 text-accent/70 tracking-wider text-center">Sales</h3>
+            <ul className="space-y-3">
               <li>
-                <Link href="/office/quotations/new" className="nav-link">
+                <Link href="/office/quotations/new" className="nav-link-bubble">
                   <ArrowIcon />
                   New Quotation
                 </Link>
               </li>
               <li>
-                <Link href="/office/invoices/new" className="nav-link">
+                <Link href="/office/invoices/new" className="nav-link-bubble">
                   <ArrowIcon />
                   New Invoice
                 </Link>
               </li>
               <li>
-                <Link href="/office/invoices" className="nav-link">
+                <Link href="/office/invoices" className="nav-link-bubble">
                   <ArrowIcon />
                   Invoices
                 </Link>
               </li>
               <li>
-                <Link href="/office/invoices?status=unpaid" className="nav-link">
+                <Link href="/office/invoices?status=unpaid" className="nav-link-bubble">
                   <ArrowIcon />
                   Pay Invoice
                 </Link>
               </li>
               <li>
-                <Link href="/office/epos" className="nav-link">
+                <Link href="/office/epos" className="nav-link-bubble">
                   <ArrowIcon />
                   EPOS
                 </Link>
@@ -171,40 +171,40 @@ export default function OfficeLayout({ children }) {
           </div>
           
           <div>
-            <h3 className="uppercase text-xs font-bold mb-4 text-success/70 tracking-wider">Operations</h3>
-            <ul className="space-y-2">
+            <h3 className="uppercase text-sm font-bold mb-6 text-success/70 tracking-wider text-center">Operations</h3>
+            <ul className="space-y-3">
               <li>
-                <Link href="/office/jobs/new" className="nav-link">
+                <Link href="/office/jobs/new" className="nav-link-bubble">
                   <ArrowIcon />
                   New Job
                 </Link>
               </li>
               <li>
-                <Link href="/office/job-requests" className="nav-link">
+                <Link href="/office/job-requests" className="nav-link-bubble">
                   <ArrowIcon />
                   Job Requests
                 </Link>
               </li>
               <li>
-                <Link href="/office/job-management" className="nav-link">
+                <Link href="/office/job-management" className="nav-link-bubble">
                   <ArrowIcon />
                   Job Management
                 </Link>
               </li>
               <li>
-                <Link href="/office/quotations" className="nav-link">
+                <Link href="/office/quotations" className="nav-link-bubble">
                   <ArrowIcon />
                   Open Quotes
                 </Link>
               </li>
               <li>
-                <Link href="/office/scheduling" className="nav-link">
+                <Link href="/office/scheduling" className="nav-link-bubble">
                   <ArrowIcon />
                   Scheduling
                 </Link>
               </li>
               <li>
-                <Link href="/office/live-screen" className="nav-link">
+                <Link href="/office/live-screen" className="nav-link-bubble">
                   <ArrowIcon />
                   Workshop Live
                 </Link>
@@ -213,34 +213,34 @@ export default function OfficeLayout({ children }) {
           </div>
           
           <div>
-            <h3 className="uppercase text-xs font-bold mb-4 text-warning/70 tracking-wider">Management</h3>
-            <ul className="space-y-2">
+            <h3 className="uppercase text-sm font-bold mb-6 text-warning/70 tracking-wider text-center">Management</h3>
+            <ul className="space-y-3">
               <li>
-                <Link href="/office/clients" className="nav-link">
+                <Link href="/office/clients" className="nav-link-bubble">
                   <ArrowIcon />
                   Clients
                 </Link>
               </li>
               <li>
-                <Link href="/office/vehicles" className="nav-link">
+                <Link href="/office/vehicles" className="nav-link-bubble">
                   <ArrowIcon />
                   Vehicles
                 </Link>
               </li>
               <li>
-                <Link href="/office/engineers" className="nav-link">
+                <Link href="/office/engineers" className="nav-link-bubble">
                   <ArrowIcon />
                   Engineers
                 </Link>
               </li>
               <li>
-                <Link href="/office/parts" className="nav-link">
+                <Link href="/office/parts" className="nav-link-bubble">
                   <ArrowIcon />
                   Parts
                 </Link>
               </li>
               <li>
-                <Link href="/office/suppliers" className="nav-link">
+                <Link href="/office/suppliers" className="nav-link-bubble">
                   <ArrowIcon />
                   Suppliers
                 </Link>
@@ -249,22 +249,22 @@ export default function OfficeLayout({ children }) {
           </div>
           
           <div>
-            <h3 className="uppercase text-xs font-bold mb-4 text-info/70 tracking-wider">Reports</h3>
-            <ul className="space-y-2">
+            <h3 className="uppercase text-sm font-bold mb-6 text-info/70 tracking-wider text-center">Reports</h3>
+            <ul className="space-y-3">
               <li>
-                <Link href="/office/reporting" className="nav-link">
+                <Link href="/office/reporting" className="nav-link-bubble">
                   <ArrowIcon />
                   Business Reports
                 </Link>
               </li>
               <li>
-                <Link href="/office/reporting/engineer-performance" className="nav-link">
+                <Link href="/office/reporting/engineer-performance" className="nav-link-bubble">
                   <ArrowIcon />
                   Engineer Performance
                 </Link>
               </li>
               <li>
-                <Link href="/office/reporting/epos" className="nav-link">
+                <Link href="/office/reporting/epos" className="nav-link-bubble">
                   <ArrowIcon />
                   EPOS Reports
                 </Link>

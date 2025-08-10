@@ -449,6 +449,35 @@ h6, .text-h6 {
   width: 100%;
 }
 
+.nav-link-bubble {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  border-radius: 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  background: rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.nav-link-bubble:hover {
+  color: #ffffff;
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
+  transform: translateY(-2px);
+}
+
+.nav-link-bubble:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+}
+
 /* Header Glass Effect */
 .header-glass {
   background: linear-gradient(135deg, 

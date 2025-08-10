@@ -12,6 +12,7 @@ import {
   Users,
   Calendar
 } from 'lucide-react';
+import Link from 'next/link';
 
 // Enhanced Stats Widget
 export function StatsWidget({ 
@@ -150,24 +151,34 @@ export function JobStatusWidget({ jobs = [], loading = false }) {
       transition={{ duration: 0.3, ease: "easeOut" }}
       className="card-modern p-6"
     >
-      <div className="flex items-center space-x-3 mb-6">
-        <div className="p-2 rounded-lg bg-gradient-to-br from-info/20 to-info/30 border border-info/20">
-          <Wrench className="w-5 h-5 text-info" />
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-3">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-info/20 to-info/30 border border-info/20">
+            <Wrench className="w-5 h-5 text-info" />
+          </div>
+          <h3 className="text-lg font-semibold text-text-primary">Job Status</h3>
         </div>
-        <h3 className="text-lg font-semibold text-text-primary">Job Status</h3>
+        <Link 
+          href="/office/jobs" 
+          className="text-sm text-info hover:text-info/80 transition-colors duration-200 font-medium"
+        >
+          View All
+        </Link>
       </div>
 
       <div className="space-y-4">
         {Object.entries(statusCounts).map(([status, count]) => (
-          <div key={status} className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className={`w-3 h-3 rounded-full bg-current ${statusColors[status] || 'text-text-tertiary'}`}></div>
-              <span className="text-sm font-medium text-text-secondary capitalize">
-                {status.replace('-', ' ')}
-              </span>
+          <Link key={status} href={`/office/jobs?status=${status}`}>
+            <div className="flex items-center justify-between p-2 rounded-lg hover:bg-surface-secondary transition-colors duration-200 cursor-pointer">
+              <div className="flex items-center space-x-3">
+                <div className={`w-3 h-3 rounded-full bg-current ${statusColors[status] || 'text-text-tertiary'}`}></div>
+                <span className="text-sm font-medium text-text-secondary capitalize">
+                  {status.replace('-', ' ')}
+                </span>
+              </div>
+              <span className="text-lg font-bold text-text-primary">{count}</span>
             </div>
-            <span className="text-lg font-bold text-text-primary">{count}</span>
-          </div>
+          </Link>
         ))}
       </div>
 
@@ -184,6 +195,17 @@ export function JobStatusWidget({ jobs = [], loading = false }) {
           ></div>
         </div>
       </div>
+
+      {jobs.length === 0 && (
+        <div className="text-center py-6">
+          <Link 
+            href="/office/jobs/new" 
+            className="inline-block text-sm text-info hover:text-info/80 transition-colors duration-200 font-medium"
+          >
+            Create First Job
+          </Link>
+        </div>
+      )}
     </motion.div>
   );
 }
@@ -404,11 +426,19 @@ export function VehicleOverviewWidget({ vehicles = [], loading = false }) {
       transition={{ duration: 0.3, ease: "easeOut" }}
       className="card-modern p-6"
     >
-      <div className="flex items-center space-x-3 mb-6">
-        <div className="p-2 rounded-lg bg-gradient-to-br from-accent/20 to-accent/30 border border-accent/20">
-          <Car className="w-5 h-5 text-accent" />
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-3">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-accent/20 to-accent/30 border border-accent/20">
+            <Car className="w-5 h-5 text-accent" />
+          </div>
+          <h3 className="text-lg font-semibold text-text-primary">Vehicle Overview</h3>
         </div>
-        <h3 className="text-lg font-semibold text-text-primary">Vehicle Overview</h3>
+        <Link 
+          href="/office/vehicles" 
+          className="text-sm text-accent hover:text-accent/80 transition-colors duration-200 font-medium"
+        >
+          View All
+        </Link>
       </div>
 
       <div className="space-y-4">
@@ -419,30 +449,31 @@ export function VehicleOverviewWidget({ vehicles = [], loading = false }) {
           const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
           
           return (
-            <motion.div
-              key={vehicle.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1, duration: 0.3 }}
-              className="flex items-center space-x-3 p-3 rounded-lg bg-gradient-to-br from-surface-secondary to-surface-tertiary border border-border-primary hover:border-accent/30 transition-all duration-200"
-            >
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-accent/20 to-accent/30 border border-accent/20 flex items-center justify-center">
-                <Car className="w-6 h-6 text-accent" />
-              </div>
-              <div className="flex-1">
-                <div className="font-medium text-text-primary">{vehicle.registration}</div>
-                <div className="text-sm text-text-tertiary">
-                  Service due in {diffDays} day{diffDays !== 1 ? 's' : ''}
+            <Link key={vehicle.id} href={`/office/vehicles/${vehicle.id}`}>
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1, duration: 0.3 }}
+                className="flex items-center space-x-3 p-3 rounded-lg bg-gradient-to-br from-surface-secondary to-surface-tertiary border border-border-primary hover:border-accent/30 hover:bg-surface-tertiary transition-all duration-200 cursor-pointer"
+              >
+                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-accent/20 to-accent/30 border border-accent/20 flex items-center justify-center">
+                  <Car className="w-6 h-6 text-accent" />
                 </div>
-              </div>
-              <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                diffDays <= 7 ? 'bg-error/20 text-error border border-error/30' :
-                diffDays <= 14 ? 'bg-warning/20 text-warning border border-warning/30' :
-                'bg-success/20 text-success border border-success/30'
-              }`}>
-                {diffDays <= 7 ? 'Urgent' : diffDays <= 14 ? 'Soon' : 'Upcoming'}
-              </div>
-            </motion.div>
+                <div className="flex-1">
+                  <div className="font-medium text-text-primary">{vehicle.registration}</div>
+                  <div className="text-sm text-text-tertiary">
+                    Service due in {diffDays} day{diffDays !== 1 ? 's' : ''}
+                  </div>
+                </div>
+                <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  diffDays <= 7 ? 'bg-error/20 text-error border border-error/30' :
+                  diffDays <= 14 ? 'bg-warning/20 text-warning border border-warning/30' :
+                  'bg-success/20 text-success border border-success/30'
+                }`}>
+                  {diffDays <= 7 ? 'Urgent' : diffDays <= 14 ? 'Soon' : 'Upcoming'}
+                </div>
+              </motion.div>
+            </Link>
           );
         })}
       </div>
@@ -451,6 +482,12 @@ export function VehicleOverviewWidget({ vehicles = [], loading = false }) {
         <div className="text-center py-8 text-text-tertiary">
           <Car className="w-12 h-12 mx-auto mb-3 opacity-50" />
           <p className="text-sm">No upcoming services</p>
+          <Link 
+            href="/office/vehicles/new" 
+            className="inline-block mt-3 text-sm text-accent hover:text-accent/80 transition-colors duration-200 font-medium"
+          >
+            Add Vehicle
+          </Link>
         </div>
       )}
     </motion.div>
