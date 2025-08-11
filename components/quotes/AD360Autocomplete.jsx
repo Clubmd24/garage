@@ -7,7 +7,8 @@ export default function AD360Autocomplete({
   vehicleId, 
   tenantId = 1,
   placeholder = "Search AD360 parts...",
-  disabled = false 
+  disabled = false,
+  preloadedParts = [] // New prop for pre-loaded parts
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -15,6 +16,9 @@ export default function AD360Autocomplete({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const dropdownRef = useRef(null);
+
+  // Use pre-loaded parts if available, otherwise search dynamically
+  const hasPreloadedParts = preloadedParts && preloadedParts.length > 0;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -34,6 +38,20 @@ export default function AD360Autocomplete({
       return;
     }
 
+    // If we have pre-loaded parts, filter them locally
+    if (hasPreloadedParts) {
+      const searchTerm = query.toLowerCase().trim();
+      const filtered = preloadedParts.filter(item => 
+        (item.partNumber && item.partNumber.toLowerCase().includes(searchTerm)) ||
+        (item.brand && item.brand.toLowerCase().includes(searchTerm)) ||
+        (item.description && item.description.toLowerCase().includes(searchTerm))
+      );
+      setItems(filtered);
+      setIsOpen(true);
+      return;
+    }
+
+    // Otherwise, search via API
     setIsLoading(true);
     setError(null);
 

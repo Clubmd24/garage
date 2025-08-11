@@ -334,7 +334,7 @@ export default function NewQuotationPage() {
                 setForm(f => ({ ...f, vehicle_id: v.id }));
                 setSelectedVehicleDisplay(`${v.licence_plate || 'No Plate'} - ${v.make} ${v.model} ${v.year}`);
                 // Auto-populate client if vehicle has one
-                if (v.customer_id && !form.customer_id) {
+                if (v.customer_id) {
                   setMode('client');
                   setForm(f => ({ ...f, customer_id: v.customer_id, fleet_id: '' }));
                   // Fetch and set client name
@@ -398,9 +398,25 @@ export default function NewQuotationPage() {
                 vehicleId={form.vehicle_id}
                 tenantId={1}
                 onItemsLoaded={(ad360Items) => {
+                  console.log('AD360 items loaded:', ad360Items);
                   // Store AD360 items in state for use in autocomplete
                   setAd360Items(ad360Items);
                   setAd360Mode(true);
+                  
+                  // If we have items and the first row is empty, pre-populate it with the first AD360 item
+                  if (ad360Items.length > 0 && items.length > 0 && !items[0].part_number) {
+                    const firstItem = ad360Items[0];
+                    const updatedItems = [...items];
+                    updatedItems[0] = {
+                      ...updatedItems[0],
+                      part_number: firstItem.partNumber || '',
+                      description: firstItem.description || '',
+                      unit_cost: firstItem.price?.amount || 0,
+                      qty: '1',
+                      markup: '0'
+                    };
+                    setItems(updatedItems);
+                  }
                 }}
                 onError={(error) => {
                   setError(`AD360 Error: ${error}`);
@@ -467,6 +483,7 @@ export default function NewQuotationPage() {
                   vehicleId={form.vehicle_id}
                   tenantId={1}
                   placeholder="Search AD360 parts..."
+                  preloadedParts={ad360Items} // Pass the pre-loaded parts
                 />
               ) : (
                 <PartAutocomplete

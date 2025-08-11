@@ -144,9 +144,16 @@ export default function FromAD360Button({
       setSelectedDepartment(department);
       setWorkflowStep(`Loaded ${data.parts.length} parts from ${department} department`);
       
-      // Notify parent component
+      // Notify parent component with the loaded parts
       if (onItemsLoaded) {
         onItemsLoaded(data.parts);
+      }
+
+      // If we have parts, show a success message
+      if (data.parts.length > 0) {
+        setWorkflowStep(`Successfully loaded ${data.parts.length} parts from ${department} department. Parts are now available in the dropdown below.`);
+      } else {
+        setWorkflowStep(`No parts found in ${department} department. Try selecting a different department.`);
       }
 
     } catch (error) {
@@ -210,6 +217,20 @@ export default function FromAD360Button({
             </p>
             <div className="text-xs text-gray-500">
               Parts are now loaded. Use the dropdown below to select items.
+            </div>
+            {/* Show first few parts as examples */}
+            <div className="mt-2 space-y-1">
+              {items.slice(0, 3).map((item, index) => (
+                <div key={index} className="text-xs text-gray-700 p-1 bg-gray-50 rounded">
+                  <strong>{item.partNumber}</strong> - {item.description} 
+                  {item.price && <span className="text-green-600 ml-2">€{item.price.amount}</span>}
+                </div>
+              ))}
+              {items.length > 3 && (
+                <div className="text-xs text-gray-500 italic">
+                  ... and {items.length - 3} more parts
+                </div>
+              )}
             </div>
           </div>
         )}
