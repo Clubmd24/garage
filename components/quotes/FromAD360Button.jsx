@@ -231,8 +231,24 @@ export default function FromAD360Button({
             <div className="mt-2 space-y-1">
               {items.slice(0, 3).map((item, index) => (
                 <div key={index} className="text-xs text-gray-700 p-1 bg-gray-50 rounded">
-                  <strong>{item.partNumber}</strong> - {item.description} 
-                  {item.price && <span className="text-green-600 ml-2">€{item.price.amount}</span>}
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <strong>{item.partNumber}</strong> - {item.description}
+                      {item.brand && <span className="text-gray-500 ml-2">({item.brand})</span>}
+                    </div>
+                    <div className="text-right">
+                      {item.price && (
+                        <span className="text-green-600 font-semibold">
+                          €{typeof item.price === 'object' ? item.price.amount : item.price}
+                        </span>
+                      )}
+                      {item.stock && (
+                        <div className="text-xs text-gray-500 mt-1">
+                          {item.stock}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               ))}
               {items.length > 3 && (
