@@ -23,8 +23,6 @@ export default function FromAD360Button({
   const [manufacturers, setManufacturers] = useState([]);
   const [selectedManufacturers, setSelectedManufacturers] = useState([]);
   const [showManufacturerFilter, setShowManufacturerFilter] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
 
   const executeAD360Workflow = async () => {
     if (!vehicleId) {
@@ -267,14 +265,6 @@ export default function FromAD360Button({
           ))}
         </div>
 
-        {/* Filtered Items Logic */}
-        {(() => {
-          // Reset pagination when filters change
-          if (currentPage > 1) {
-            setCurrentPage(1);
-          }
-        })()}
-
         {/* Manufacturer Filter */}
         {showManufacturerFilter && manufacturers.length > 0 && (
           <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -350,81 +340,43 @@ export default function FromAD360Button({
               Parts are now loaded. Use the dropdown below to select items.
             </div>
             
-            {/* Parts Display with Pagination */}
+            {/* Parts Display - Simplified */}
             <div className="mt-2">
-              {(() => {
-                const filtered = items.filter(item => 
-                  selectedManufacturers.length === 0 || selectedManufacturers.includes(item.brand)
-                );
-                return (
-                  <>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs text-gray-600">
-                        Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filtered.length)} - {Math.min(currentPage * itemsPerPage, filtered.length)} of {filtered.length} parts
-                      </span>
-                      {filtered.length > itemsPerPage && (
-                        <div className="flex gap-1">
-                          <button
-                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                            disabled={currentPage === 1}
-                            className="px-2 py-1 text-xs bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed rounded"
-                          >
-                            ←
-                          </button>
-                          <span className="text-xs text-gray-600 px-2 py-1">
-                            {currentPage} / {Math.ceil(filtered.length / itemsPerPage)}
-                          </span>
-                          <button
-                            onClick={() => setCurrentPage(prev => Math.min(Math.ceil(filtered.length / itemsPerPage), prev + 1))}
-                            disabled={currentPage >= Math.ceil(filtered.length / itemsPerPage)}
-                            className="px-2 py-1 text-xs bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed rounded"
-                          >
-                            →
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="space-y-1 max-h-60 overflow-y-auto">
-                      {filtered
-                        .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
-                        .map((item, index) => (
-                        <div key={index} className="text-xs text-gray-700 p-1 bg-gray-50 rounded">
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                              <strong>{item.partNumber}</strong> - {item.description}
-                              {item.brand && <span className="text-gray-500 ml-2">({item.brand})</span>}
-                            </div>
-                            <div className="text-right">
-                              {item.price && (
-                                <span className="text-green-600 font-semibold">
-                                  €{typeof item.price === 'object' ? item.price.amount : item.price}
-                                </span>
-                              )}
-                              {item.stock && (
-                                <div className="text-xs text-gray-500 mt-1">
-                                  {item.stock}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    {filtered.length > itemsPerPage && (
-                      <div className="mt-2 text-center">
-                        <button
-                          onClick={() => setCurrentPage(1)}
-                          className="text-xs text-blue-600 hover:text-blue-800 underline"
-                        >
-                          View All Parts
-                        </button>
+              <div className="space-y-1 max-h-60 overflow-y-auto">
+                {items
+                  .filter(item => selectedManufacturers.length === 0 || selectedManufacturers.includes(item.brand))
+                  .slice(0, 20) // Show first 20 parts instead of complex pagination
+                  .map((item, index) => (
+                  <div key={index} className="text-xs text-gray-700 p-1 bg-gray-50 rounded">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <strong>{item.partNumber}</strong> - {item.description}
+                        {item.brand && <span className="text-gray-500 ml-2">({item.brand})</span>}
                       </div>
-                    )}
-                  </>
-                );
-              })()}
+                      <div className="text-right">
+                        {item.price && (
+                          <span className="text-green-600 font-semibold">
+                            €{typeof item.price === 'object' ? item.price.amount : item.price}
+                          </span>
+                        )}
+                        {item.stock && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            {item.stock}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              {items.filter(item => selectedManufacturers.length === 0 || selectedManufacturers.includes(item.brand)).length > 20 && (
+                <div className="mt-2 text-center">
+                  <span className="text-xs text-gray-500">
+                    Showing first 20 of {items.filter(item => selectedManufacturers.length === 0 || selectedManufacturers.includes(item.brand)).length} parts
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         )}
