@@ -14,7 +14,8 @@ export async function searchClients(query) {
                 GROUP_CONCAT(DISTINCT v.make ORDER BY v.make SEPARATOR ', ') as makes,
                 GROUP_CONCAT(DISTINCT v.model ORDER BY v.model SEPARATOR ', ') as models,
                 MAX(CASE WHEN v.fleet_id IS NOT NULL AND v.fleet_id != 2 THEN 1 ELSE 0 END) as has_fleet_vehicles,
-                MAX(CASE WHEN v.fleet_id = 2 THEN 1 ELSE 0 END) as has_local_vehicles
+                MAX(CASE WHEN v.fleet_id = 2 THEN 1 ELSE 0 END) as has_local_vehicles,
+                MAX(CASE WHEN v.id IS NULL THEN 1 ELSE 0 END) as has_no_vehicles
            FROM clients c
       LEFT JOIN vehicles v ON v.customer_id = c.id
           WHERE c.first_name LIKE ? OR c.last_name LIKE ? OR c.email LIKE ?
@@ -31,7 +32,8 @@ export async function searchClients(query) {
                 GROUP_CONCAT(DISTINCT v.make ORDER BY v.make SEPARATOR ', ') as makes,
                 GROUP_CONCAT(DISTINCT v.model ORDER BY v.model SEPARATOR ', ') as models,
                 MAX(CASE WHEN v.fleet_id IS NOT NULL AND v.fleet_id != 2 THEN 1 ELSE 0 END) as has_fleet_vehicles,
-                MAX(CASE WHEN v.fleet_id = 2 THEN 1 ELSE 0 END) as has_local_vehicles
+                MAX(CASE WHEN v.fleet_id = 2 THEN 1 ELSE 0 END) as has_local_vehicles,
+                MAX(CASE WHEN v.id IS NULL THEN 1 ELSE 0 END) as has_no_vehicles
            FROM clients c
       LEFT JOIN vehicles v ON v.customer_id = c.id
           GROUP BY c.id
@@ -231,7 +233,8 @@ export async function getClientsWithVehicleDetails() {
             GROUP_CONCAT(DISTINCT v.make ORDER BY v.make SEPARATOR ', ') as makes,
             GROUP_CONCAT(DISTINCT v.model ORDER BY v.model SEPARATOR ', ') as models,
             MAX(CASE WHEN v.fleet_id IS NOT NULL AND v.fleet_id != 2 THEN 1 ELSE 0 END) as has_fleet_vehicles,
-            MAX(CASE WHEN v.fleet_id = 2 THEN 1 ELSE 0 END) as has_local_vehicles
+            MAX(CASE WHEN v.fleet_id = 2 THEN 1 ELSE 0 END) as has_local_vehicles,
+            MAX(CASE WHEN v.id IS NULL THEN 1 ELSE 0 END) as has_no_vehicles
        FROM clients c
   LEFT JOIN vehicles v ON v.customer_id = c.id
    GROUP BY c.id

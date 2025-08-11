@@ -40,6 +40,7 @@ const ClientsPage = () => {
     // Apply tab filtering
     if (activeTab === 'fleet' && !c.has_fleet_vehicles) return false;
     if (activeTab === 'local' && !c.has_local_vehicles) return false;
+    if (activeTab === 'no-vehicles' && !c.has_no_vehicles) return false;
     
     // Apply fleet filtering
     if (
@@ -63,7 +64,8 @@ const ClientsPage = () => {
   const getClientType = (client) => {
     if (client.has_fleet_vehicles) return 'fleet';
     if (client.has_local_vehicles) return 'local';
-    return 'no-vehicles';
+    if (client.has_no_vehicles) return 'no-vehicles';
+    return 'unknown';
   };
 
   const getClientTypeLabel = (client) => {
@@ -71,7 +73,8 @@ const ClientsPage = () => {
     switch (type) {
       case 'fleet': return 'Fleet Client';
       case 'local': return 'Local Client (Individual)';
-      default: return 'No Vehicles';
+      case 'no-vehicles': return 'No Vehicles - Orphaned';
+      default: return 'Unknown';
     }
   };
 
@@ -80,6 +83,7 @@ const ClientsPage = () => {
     switch (type) {
       case 'fleet': return 'bg-blue-100 border-blue-300 dark:bg-blue-900/20 dark:border-blue-700';
       case 'local': return 'bg-green-100 border-green-300 dark:bg-green-900/20 dark:border-green-700';
+      case 'no-vehicles': return 'bg-red-100 border-red-300 dark:bg-red-900/20 dark:border-red-700';
       default: return 'bg-gray-100 border-gray-300 dark:bg-gray-900/20 dark:border-gray-700';
     }
   };
@@ -155,8 +159,75 @@ const ClientsPage = () => {
               >
                 Local/Individual Clients ({clients.filter(c => c.has_local_vehicles).length})
               </button>
+              <button
+                onClick={() => setActiveTab('no-vehicles')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'no-vehicles'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                }`}
+              >
+                No Vehicles - Cleanup ({clients.filter(c => c.has_no_vehicles).length})
+              </button>
             </nav>
           </div>
+
+          {/* Warning for No Vehicles tab */}
+          {activeTab === 'no-vehicles' && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg dark:bg-red-900/20 dark:border-red-800">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
+                    Data Cleanup Required
+                  </h3>
+                  <div className="mt-2 text-sm text-red-700 dark:text-red-300">
+                    <p>
+                      These clients have no vehicles associated with them and may be orphaned records. 
+                      Review each one carefully before deletion. Consider if they need to be:
+                    </p>
+                    <ul className="list-disc list-inside mt-2 ml-4">
+                      <li>Merged with existing clients</li>
+                      <li>Updated with vehicle information</li>
+                      <li>Deleted if confirmed to be duplicate/orphaned</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Bulk Delete Button for No Vehicles */}
+          {activeTab === 'no-vehicles' && filteredClients.length > 0 && (
+            <div className="mb-6 flex justify-between items-center">
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                {filteredClients.length} client{filteredClients.length !== 1 ? 's' : ''} with no vehicles found
+              </div>
+              <button
+                onClick={() => {
+                  if (confirm(`Are you sure you want to delete ALL ${filteredClients.length} clients with no vehicles? This action cannot be undone.`)) {
+                    // Bulk delete all clients with no vehicles
+                    Promise.all(filteredClients.map(c => fetch(`/api/clients/${c.id}`, { method: 'DELETE' })))
+                      .then(() => {
+                        alert(`Successfully deleted ${filteredClients.length} clients with no vehicles`);
+                        load(); // Reload the data
+                      })
+                      .catch(error => {
+                        console.error('Error during bulk delete:', error);
+                        alert('Error during bulk delete. Please check the console for details.');
+                      });
+                  }
+                }}
+                className="button bg-red-600 hover:bg-red-700 text-white px-6 py-2"
+              >
+                🗑️ Bulk Delete All ({filteredClients.length})
+              </button>
+            </div>
+          )}
 
           {/* Client Grid */}
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -172,6 +243,8 @@ const ClientsPage = () => {
                       ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
                       : getClientType(c) === 'local'
                       ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                      : getClientType(c) === 'no-vehicles'
+                      ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                       : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
                   }`}>
                     {getClientTypeLabel(c)}
