@@ -454,9 +454,10 @@ h6, .text-h6 {
   background: rgba(15, 23, 42, 0.3);
   border: 1px solid rgba(59, 130, 246, 0.2);
   border-radius: 1rem;
-  padding: 1.5rem;
+  padding: 1.25rem;
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
+  overflow: hidden;
 }
 
 .nav-section:hover {
@@ -469,7 +470,7 @@ h6, .text-h6 {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
   padding-bottom: 0.75rem;
   border-bottom: 2px solid rgba(59, 130, 246, 0.3);
 }
@@ -481,13 +482,13 @@ h6, .text-h6 {
   letter-spacing: 0.05em;
   color: #60a5fa;
   margin: 0;
+  white-space: nowrap;
 }
 
 .nav-section-links {
   list-style: none;
   padding: 0;
   margin: 0;
-  space-y: 0.5rem;
 }
 
 .nav-section-links li {
@@ -498,7 +499,7 @@ h6, .text-h6 {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.875rem 1.25rem;
+  padding: 0.75rem 1rem;
   color: rgba(255, 255, 255, 0.9);
   text-decoration: none;
   border-radius: 0.75rem;
@@ -509,6 +510,9 @@ h6, .text-h6 {
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
   backdrop-filter: blur(10px);
   font-weight: 500;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  min-height: 2.5rem;
 }
 
 .nav-link-modern:hover {
@@ -522,6 +526,27 @@ h6, .text-h6 {
 .nav-link-modern:active {
   transform: translateY(0);
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+}
+
+/* Ensure text doesn't overflow in navigation */
+.nav-link-modern span,
+.nav-link-modern div {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 1280px) {
+  .nav-section {
+    padding: 1rem;
+  }
+  
+  .nav-link-modern {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+  }
 }
 
 /* Legacy nav-link-bubble styles for backward compatibility */

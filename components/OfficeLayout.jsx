@@ -135,7 +135,7 @@ export default function OfficeLayout({ children }) {
 
       {/* Enhanced Sidebar */}
       <aside className={`
-        fixed lg:static inset-y-0 left-0 z-50 w-72 sidebar-glass transform transition-transform duration-300 ease-in-out
+        fixed lg:static inset-y-0 left-0 z-50 w-80 sidebar-glass transform transition-transform duration-300 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         {/* Mobile close button */}
