@@ -145,8 +145,8 @@ export default function FromAD360Button({
       setDepartments(departmentsData.departments);
       setWorkflowStep('Parts departments loaded. Select a department to view parts.');
       setTimeout(() => {
-      setAd360Mode(true);
-    }, 500);
+        setAd360Mode(true);
+      }, 500);
 
     } catch (error) {
       console.error('Continue workflow error:', error);
