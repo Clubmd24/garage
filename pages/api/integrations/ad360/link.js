@@ -23,12 +23,18 @@ export default async function handler(req, res) {
     // This allows us to test the integration flow while we work on the browser automation
     // In production, this would be replaced with actual AD360 authentication
     
-    // Create a mock session object
+    // Create a mock session object that includes the complete workflow steps
     const sessionObj = { 
       username,
       linkedAt: new Date().toISOString(),
       status: 'active',
-      mock: true // Flag to indicate this is a test session
+      mock: true, // Flag to indicate this is a test session
+      workflow: {
+        distributor: 'AD Vicente', // Default distributor selection
+        defaultTab: 'REPLACEMENT', // Default tab to navigate to
+        sessionCookies: [], // Will store actual cookies in production
+        localStorage: {} // Will store relevant localStorage in production
+      }
     };
     
     // Save encrypted session
@@ -45,13 +51,19 @@ export default async function handler(req, res) {
     // Write audit event
     await pool.query(
       'INSERT INTO audit_events (tenant_id, event_type, event_payload) VALUES (?, ?, ?)',
-      [tenantId, 'ad360.link', JSON.stringify({ supplierId, success: true, mock: true })]
+      [tenantId, 'ad360.link', JSON.stringify({ 
+        supplierId, 
+        success: true, 
+        mock: true,
+        workflow: sessionObj.workflow
+      })]
     );
     
     return res.status(200).json({ 
       status: 'linked',
       message: 'AD360 account linked successfully (test mode)',
-      mock: true
+      mock: true,
+      workflow: sessionObj.workflow
     });
 
   } catch (error) {

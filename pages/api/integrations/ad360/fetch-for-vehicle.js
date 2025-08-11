@@ -53,46 +53,20 @@ export default async function handler(req, res) {
       });
     }
 
-    // Fetch from AD360 using simplified approach (mock mode for now)
+    // Fetch from AD360 using the updated worker with complete workflow
     try {
-      // For now, return mock data since we're not using Playwright on Heroku
-      // In production, this would integrate with AD360's API or use a different approach
-      const mockItems = [
-        {
-          id: 'mock-1',
-          name: 'Oil Filter',
-          partNumber: 'OF-001',
-          price: 12.99,
-          availability: 'In Stock',
-          supplier: 'AD360 Mock',
-          category: 'Filters'
-        },
-        {
-          id: 'mock-2', 
-          name: 'Air Filter',
-          partNumber: 'AF-002',
-          price: 8.99,
-          availability: 'In Stock',
-          supplier: 'AD360 Mock',
-          category: 'Filters'
-        },
-        {
-          id: 'mock-3',
-          name: 'Brake Pads',
-          partNumber: 'BP-003',
-          price: 45.99,
-          availability: '2-3 Days',
-          supplier: 'AD360 Mock',
-          category: 'Brakes'
-        }
-      ];
-
+      // Import the updated worker
+      const { fetchPartsForVehicle } = await import('../../../../scrapers/ad360/worker.js');
+      
+      // Fetch parts using the complete AD360 workflow
+      const items = await fetchPartsForVehicle(tenantId, supplierId, vin, reg);
+      
       // Cache the results
       await pool.query(
         `INSERT INTO ad360_cache (tenant_id, supplier_id, vehicle_key, payload, fetched_at)
          VALUES (?, ?, ?, ?, NOW())
          ON DUPLICATE KEY UPDATE payload = VALUES(payload), fetched_at = NOW()`,
-        [tenantId, supplierId, vehicleKey, JSON.stringify(mockItems)]
+        [tenantId, supplierId, vehicleKey, JSON.stringify(items)]
       );
 
       // Write audit event
@@ -102,19 +76,21 @@ export default async function handler(req, res) {
           supplierId, 
           vehicleId, 
           vehicleKey, 
-          itemCount: mockItems.length,
+          itemCount: items.length,
           success: true,
-          mode: 'mock'
+          mode: 'live',
+          workflow: 'complete' // Indicates we used the full workflow
         })]
       );
 
       return res.status(200).json({
         vehicleKey,
-        items: mockItems,
+        items: items,
         fetchedAt: new Date().toISOString(),
         ttlSeconds: cacheTTL,
         cached: false,
-        mode: 'mock'
+        mode: 'live',
+        workflow: 'complete'
       });
 
     } catch (error) {
@@ -126,9 +102,18 @@ export default async function handler(req, res) {
           vehicleId, 
           vehicleKey,
           error: error.message,
-          success: false 
+          success: false,
+          workflow: 'complete'
         })]
       );
+
+      // If it's a session expiry error, return specific status
+      if (error.message === 'NEEDS_RELINK') {
+        return res.status(409).json({ 
+          error: 'NEEDS_RELINK',
+          message: 'AD360 session expired. Please re-link your account in Suppliers.'
+        });
+      }
 
       throw error;
     }
