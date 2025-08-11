@@ -234,6 +234,7 @@ export default function NewQuotationPage() {
           body: JSON.stringify({
             quote_id: quote.id,
             part_id: it.part_id || null,
+            part_number: it.part_number || null,
             description: it.description || '',
             qty: Number(it.qty) || 0,
             unit_cost: Number(it.unit_cost) || 0,

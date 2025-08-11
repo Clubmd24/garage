@@ -6,6 +6,7 @@ export async function getQuoteItems(quote_id) {
        qi.id,
        qi.quote_id,
        qi.part_id,
+       qi.part_number,
        qi.description,
        qi.qty,
        -- ensure unit_cost is never NULL, default to 0 if missing
@@ -13,7 +14,8 @@ export async function getQuoteItems(quote_id) {
        qi.markup_percent,
        qi.unit_price,
        p.supplier_id,
-       p.part_number AS partNumber
+       -- Use stored part_number if available, otherwise fall back to parts table
+       COALESCE(qi.part_number, p.part_number) AS partNumber
      FROM quote_items qi
      LEFT JOIN parts p ON qi.part_id = p.id
      WHERE qi.quote_id = ?
@@ -33,6 +35,7 @@ export async function getQuoteItems(quote_id) {
 export async function createQuoteItem({
   quote_id,
   part_id,
+  part_number,
   description,
   qty,
   unit_cost,
@@ -40,11 +43,12 @@ export async function createQuoteItem({
   unit_price,
 }) {
   const [{ insertId }] = await pool.query(
-    `INSERT INTO quote_items (quote_id, part_id, description, qty, unit_cost, markup_percent, unit_price)
-     VALUES (?,?,?,?,?,?,?)`,
+    `INSERT INTO quote_items (quote_id, part_id, part_number, description, qty, unit_cost, markup_percent, unit_price)
+     VALUES (?,?,?,?,?,?,?,?)`,
     [
       quote_id,
       part_id || null,
+      part_number || null,
       description || null,
       qty || null,
       unit_cost || null,
@@ -73,10 +77,10 @@ export async function getQuoteItemById(id) {
   return row || null;
 }
 
-export async function updateQuoteItem(id, { description, qty, unit_cost, markup_percent, unit_price }) {
+export async function updateQuoteItem(id, { part_number, description, qty, unit_cost, markup_percent, unit_price }) {
   await pool.query(
-    `UPDATE quote_items SET description=?, qty=?, unit_cost=?, markup_percent=?, unit_price=? WHERE id=?`,
-    [description || null, qty || null, unit_cost || null, markup_percent || null, unit_price || null, id]
+    `UPDATE quote_items SET part_number=?, description=?, qty=?, unit_cost=?, markup_percent=?, unit_price=? WHERE id=?`,
+    [part_number || null, description || null, qty || null, unit_cost || null, markup_percent || null, unit_price || null, id]
   );
   return { ok: true };
 }
