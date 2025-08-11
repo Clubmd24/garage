@@ -196,15 +196,24 @@ export default function FromAD360Button({
               key={dept.id}
               onClick={() => loadDepartmentParts(dept.name)}
               disabled={isLoading}
-              className={`p-2 text-xs rounded border transition-colors ${
+              style={{
+                color: selectedDepartment === dept.name ? '#1e40af' : '#1f2937',
+                backgroundColor: selectedDepartment === dept.name ? '#dbeafe' : '#ffffff',
+                borderColor: selectedDepartment === dept.name ? '#60a5fa' : '#d1d5db'
+              }}
+              className={`p-3 text-sm rounded-lg border-2 transition-all duration-200 font-medium ${
                 selectedDepartment === dept.name
-                  ? 'bg-blue-100 border-blue-300 text-blue-800'
-                  : 'bg-white border-gray-200 hover:bg-gray-50'
-              } ${dept.highlighted ? 'ring-2 ring-yellow-400' : ''}`}
+                  ? 'shadow-md'
+                  : 'hover:bg-gray-50 hover:border-gray-400 hover:shadow-sm'
+              } ${dept.highlighted ? 'ring-2 ring-yellow-400 ring-offset-1' : ''} ${
+                isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+              }`}
             >
-              <div className="font-medium">{dept.name}</div>
+              <div className="font-semibold text-center" style={{ color: 'inherit' }}>
+                {dept.name}
+              </div>
               {dept.highlighted && (
-                <div className="text-xs text-yellow-600">Featured</div>
+                <div className="text-xs text-yellow-700 mt-1 font-medium">Featured</div>
               )}
             </button>
           ))}
