@@ -17,8 +17,7 @@ const emptyItem = {
 };
 import PartAutocomplete from '../../../components/PartAutocomplete';
 import DescriptionAutocomplete from '../../../components/DescriptionAutocomplete';
-import ClientAutocomplete from '../../../components/ClientAutocomplete';
-import VehicleAutocomplete from '../../../components/VehicleAutocomplete';
+import ClientVehicleAutocomplete from '../../../components/ClientVehicleAutocomplete';
 import FromAD360Button from '../../../components/quotes/FromAD360Button';
 import AD360Autocomplete from '../../../components/quotes/AD360Autocomplete';
 
@@ -64,11 +63,7 @@ export default function NewQuotationPage() {
     setItems([emptyItem]);
   }, [router.isReady]);
 
-  useEffect(() => {
-    setForm(f => ({ ...f, customer_id: '', fleet_id: '', vehicle_id: '' }));
-    setClientName('');
-    setSelectedVehicleDisplay('');
-  }, [mode]);
+
 
 
   useEffect(() => {
@@ -258,98 +253,62 @@ export default function NewQuotationPage() {
         </p>
       </div>
       <form onSubmit={submit} className="space-y-4 mb-8 max-w-4xl">
-        <div className="mb-2 flex gap-2">
-          <button
-            type="button"
-            className={(mode === 'client' ? 'button' : 'button-secondary') + ' px-4'}
-            onClick={() => setMode('client')}
-          >
-            Client
-          </button>
-          <button
-            type="button"
-            className={(mode === 'fleet' ? 'button' : 'button-secondary') + ' px-4'}
-            onClick={() => setMode('fleet')}
-          >
-            Fleet
-          </button>
-        </div>
-        {mode === 'client' ? (
-          <div>
-            <label className="block mb-1">Client *</label>
-            <ClientAutocomplete
-              value={clientName}
-              onChange={v => {
-                setClientName(v);
-                setForm(f => ({ ...f, customer_id: '' }));
-              }}
-              onSelect={c => {
-                setClientName(`${c.first_name || ''} ${c.last_name || ''}`.trim());
-                setForm(f => ({ ...f, customer_id: c.id, fleet_id: '' }));
-              }}
-            />
-          </div>
-        ) : (
-          <div>
-            <label className="block mb-1">Fleet *</label>
-            <select
-              className="input w-full"
-              value={form.fleet_id}
-              onChange={e =>
-                setForm(f => ({ ...f, fleet_id: e.target.value, customer_id: '' }))
-              }
-            >
-              <option value="">Select fleet</option>
-              {fleets.filter(f => f.id !== 2).map(f => (
-                <option key={f.id} value={f.id}>
-                  {f.company_name}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
+
         <div>
-          <label className="block mb-1">Vehicle *</label>
+          <label className="block mb-1">Client & Vehicle *</label>
           {form.vehicle_id && selectedVehicleDisplay ? (
-            <div className="flex items-center gap-2">
-              <div className="input-readonly flex-1">{selectedVehicleDisplay}</div>
-              <button
-                type="button"
-                onClick={() => {
-                  setForm(f => ({ ...f, vehicle_id: '' }));
-                  setSelectedVehicleDisplay('');
-                }}
-                className="button-secondary px-2"
-              >
-                Clear
-              </button>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <div className="input-readonly flex-1">{selectedVehicleDisplay}</div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setForm(f => ({ ...f, vehicle_id: '' }));
+                    setSelectedVehicleDisplay('');
+                  }}
+                  className="button-secondary px-2"
+                >
+                  Clear
+                </button>
+              </div>
+              {clientName && (
+                <div className="text-sm text-gray-600">
+                  Client: {clientName}
+                </div>
+              )}
             </div>
           ) : (
-            <VehicleAutocomplete
+            <ClientVehicleAutocomplete
               value=""
               onChange={v => {
-                // Allow typing for search - don't clear vehicle selection here
+                // Allow typing for search
               }}
-              onSelect={v => {
-                setForm(f => ({ ...f, vehicle_id: v.id }));
-                setSelectedVehicleDisplay(`${v.licence_plate || 'No Plate'} - ${v.make} ${v.model} ${v.year}`);
-                // Auto-populate client if vehicle has one
-                if (v.customer_id && !form.customer_id) {
+              onSelect={result => {
+                if (result.type === 'client') {
+                  // Client selected
+                  const client = result.data;
+                  setClientName(result.displayName);
+                  setForm(f => ({ ...f, customer_id: client.id, fleet_id: '' }));
                   setMode('client');
-                  setForm(f => ({ ...f, customer_id: v.customer_id, fleet_id: '' }));
-                  // Fetch and set client name
-                  fetchClient(v.customer_id).then(c => {
-                    setClientName(`${c.first_name || ''} ${c.last_name || ''}`.trim());
-                  }).catch(() => {});
-                } else if (v.fleet_id && !form.fleet_id && v.fleet_id !== 2) {
-                  // Treat fleet_id = 2 (LOCAL) as direct clients, not fleet vehicles
-                  setMode('fleet');
-                  setForm(f => ({ ...f, fleet_id: v.fleet_id, customer_id: '' }));
+                } else {
+                  // Vehicle selected
+                  const vehicle = result.data;
+                  setForm(f => ({ ...f, vehicle_id: vehicle.id }));
+                  setSelectedVehicleDisplay(result.displayName);
+                  
+                  // Auto-populate client if vehicle has one
+                  if (vehicle.customer_id) {
+                    setClientName(result.clientName || '');
+                    setForm(f => ({ ...f, customer_id: vehicle.customer_id, fleet_id: '' }));
+                    setMode('client');
+                  } else if (vehicle.fleet_id && vehicle.fleet_id !== 2) {
+                    // Treat fleet_id = 2 (LOCAL) as direct clients, not fleet vehicles
+                    setMode('fleet');
+                    setForm(f => ({ ...f, fleet_id: vehicle.fleet_id, customer_id: '' }));
+                  }
                 }
               }}
-              customerId={mode === 'client' ? form.customer_id : null}
-              fleetId={mode === 'fleet' ? form.fleet_id : null}
-              placeholder="Search vehicles by license plate or description"
+              placeholder="Search by client name or vehicle license plate"
             />
           )}
           {vehicleError && (
