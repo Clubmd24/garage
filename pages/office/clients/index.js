@@ -14,6 +14,7 @@ const ClientsPage = () => {
   const [vehicles, setVehicles] = useState([]);
   const [fleets, setFleets] = useState([]);
   const [selectedFleet, setSelectedFleet] = useState('');
+  const [activeTab, setActiveTab] = useState('all'); // 'all', 'fleet', 'local'
 
   const load = () => {
     setLoading(true);
@@ -36,6 +37,11 @@ const ClientsPage = () => {
   };
 
   const filteredClients = clients.filter(c => {
+    // Apply tab filtering
+    if (activeTab === 'fleet' && !c.has_fleet_vehicles) return false;
+    if (activeTab === 'local' && !c.has_local_vehicles) return false;
+    
+    // Apply fleet filtering
     if (
       selectedFleet &&
       !vehicles.some(
@@ -43,6 +49,8 @@ const ClientsPage = () => {
       )
     )
       return false;
+    
+    // Apply search filtering
     const q = searchQuery.toLowerCase();
     const name = `${c.first_name || ''} ${c.last_name || ''}`.toLowerCase();
     return (
@@ -52,62 +60,204 @@ const ClientsPage = () => {
     );
   });
 
+  const getClientType = (client) => {
+    if (client.has_fleet_vehicles) return 'fleet';
+    if (client.has_local_vehicles) return 'local';
+    return 'no-vehicles';
+  };
+
+  const getClientTypeLabel = (client) => {
+    const type = getClientType(client);
+    switch (type) {
+      case 'fleet': return 'Fleet Client';
+      case 'local': return 'Local Client';
+      default: return 'No Vehicles';
+    }
+  };
+
+  const getClientTypeColor = (client) => {
+    const type = getClientType(client);
+    switch (type) {
+      case 'fleet': return 'bg-blue-100 border-blue-300 dark:bg-blue-900/20 dark:border-blue-700';
+      case 'local': return 'bg-green-100 border-green-300 dark:bg-green-900/20 dark:border-green-700';
+      default: return 'bg-gray-100 border-gray-300 dark:bg-gray-900/20 dark:border-gray-700';
+    }
+  };
+
   return (
     <OfficeLayout>
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">Clients</h1>
         <Link href="/office/clients/new" className="button">
           + New Client
         </Link>
       </div>
+      
       {loading && <p>Loading…</p>}
       {error && <p className="text-red-500">{error}</p>}
+      
       {!loading && !error && (
         <>
-        <input
-          type="text"
-          placeholder="Search…"
-          value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
-          className="input mb-4 w-full"
-        />
-        <select
-          value={selectedFleet}
-          onChange={e => setSelectedFleet(e.target.value)}
-          className="input mb-4 w-full"
-        >
-          <option value="">All Fleets</option>
-          {fleets.filter(f => f.id !== 2).map(f => (
-            <option key={f.id} value={f.id}>
-              {f.company_name}
-            </option>
-          ))}
-        </select>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {filteredClients.map(c => (
-            <div key={c.id} className="item-card">
-              <h2 className="font-semibold text-black dark:text-white text-lg mb-1">
-                {`${c.first_name || ''} ${c.last_name || ''}`.trim() || 'Unnamed'}
-              </h2>
-              <p className="text-sm text-black dark:text-white">{c.email}</p>
-              <p className="text-sm text-black dark:text-white">{c.mobile}</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Link href={`/office/clients/view/${c.id}`} className="button px-4 text-sm">
-                  View
-                </Link>
-                <Link href={`/office/clients/${c.id}`} className="button px-4 text-sm">
-                  Edit
-                </Link>
-                <button
-                  onClick={() => handleDelete(c.id)}
-                  className="button px-4 text-sm bg-red-600 hover:bg-red-700"
-                >
-                  Delete
-                </button>
+          {/* Search and Fleet Filter */}
+          <div className="mb-6 space-y-4">
+            <input
+              type="text"
+              placeholder="Search clients by name, email, or NIE number…"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="input w-full max-w-md"
+            />
+            
+            <select
+              value={selectedFleet}
+              onChange={e => setSelectedFleet(e.target.value)}
+              className="input w-full max-w-md"
+            >
+              <option value="">All Fleets</option>
+              {fleets.filter(f => f.id !== 2).map(f => (
+                <option key={f.id} value={f.id}>
+                  {f.company_name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Tabs */}
+          <div className="mb-6 border-b border-gray-200 dark:border-gray-700">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab('all')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'all'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                }`}
+              >
+                All Clients ({clients.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('fleet')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'fleet'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                }`}
+              >
+                Fleet Clients ({clients.filter(c => c.has_fleet_vehicles).length})
+              </button>
+              <button
+                onClick={() => setActiveTab('local')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'local'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                }`}
+              >
+                Local Clients ({clients.filter(c => c.has_local_vehicles).length})
+              </button>
+            </nav>
+          </div>
+
+          {/* Client Grid */}
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredClients.map(c => (
+              <div 
+                key={c.id} 
+                className={`item-card border-2 ${getClientTypeColor(c)} hover:shadow-lg transition-shadow duration-200`}
+              >
+                {/* Client Type Badge */}
+                <div className="mb-3">
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    getClientType(c) === 'fleet' 
+                      ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                      : getClientType(c) === 'local'
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                      : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                  }`}>
+                    {getClientTypeLabel(c)}
+                  </span>
+                </div>
+
+                {/* Client Name */}
+                <h2 className="font-semibold text-black dark:text-white text-lg mb-2">
+                  {`${c.first_name || ''} ${c.last_name || ''}`.trim() || 'Unnamed'}
+                </h2>
+                
+                {/* Contact Info */}
+                <div className="space-y-1 mb-3">
+                  {c.email && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
+                      <span className="mr-2">📧</span>
+                      {c.email}
+                    </p>
+                  )}
+                  {c.mobile && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
+                      <span className="mr-2">📱</span>
+                      {c.mobile}
+                    </p>
+                  )}
+                  {c.nie_number && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
+                      <span className="mr-2">🆔</span>
+                      {c.nie_number}
+                    </p>
+                  )}
+                </div>
+
+                {/* Vehicle Information */}
+                {c.licence_plates && (
+                  <div className="mb-4 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <h3 className="font-medium text-sm text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                      <span className="mr-2">🚗</span>
+                      Vehicles
+                    </h3>
+                    <div className="space-y-1">
+                      {c.licence_plates.split(', ').map((plate, index) => (
+                        <div key={index} className="flex items-center justify-between text-sm">
+                          <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+                            {plate}
+                          </span>
+                          {c.makes && c.makes.split(', ')[index] && (
+                            <span className="text-gray-500 dark:text-gray-400 text-xs">
+                              {c.makes.split(', ')[index]} {c.models && c.models.split(', ')[index]}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex flex-wrap gap-2">
+                  <Link href={`/office/clients/view/${c.id}`} className="button px-4 text-sm flex-1 text-center">
+                    View
+                  </Link>
+                  <Link href={`/office/clients/${c.id}`} className="button px-4 text-sm flex-1 text-center">
+                    Edit
+                  </Link>
+                  <button
+                    onClick={() => handleDelete(c.id)}
+                    className="button px-4 text-sm bg-red-600 hover:bg-red-700 flex-1"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
+            ))}
+          </div>
+
+          {filteredClients.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-gray-500 dark:text-gray-400 text-lg">
+                {searchQuery || selectedFleet || activeTab !== 'all' 
+                  ? 'No clients found matching your criteria.'
+                  : 'No clients found.'
+                }
+              </p>
             </div>
-          ))}
-        </div>
+          )}
         </>
       )}
     </OfficeLayout>

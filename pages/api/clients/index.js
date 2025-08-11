@@ -4,13 +4,14 @@ import {
   getAllClients,
   createClient,
   searchClients,
+  getClientsWithVehicleDetails,
 } from '../../../services/clientsService';
 import { CreateClientSchema } from '../../../lib/schemas.js';
 
 async function handler(req, res) {
     if (req.method === 'GET') {
       const { q } = req.query || {};
-      const clients = q ? await searchClients(q) : await getAllClients();
+      const clients = q ? await searchClients(q) : await getClientsWithVehicleDetails();
       return res.status(200).json(clients);
     }
     if (req.method === 'POST') {
