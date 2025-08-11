@@ -30,6 +30,47 @@ function CloseIcon() {
   );
 }
 
+// Navigation section icons
+function DashboardIcon() {
+  return (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+    </svg>
+  );
+}
+
+function SalesIcon() {
+  return (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+    </svg>
+  );
+}
+
+function OperationsIcon() {
+  return (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+    </svg>
+  );
+}
+
+function ManagementIcon() {
+  return (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+    </svg>
+  );
+}
+
+function ReportsIcon() {
+  return (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+  );
+}
+
 export default function OfficeLayout({ children }) {
   const router = useRouter();
   const [term, setTerm] = useState('');
@@ -94,7 +135,7 @@ export default function OfficeLayout({ children }) {
 
       {/* Enhanced Sidebar */}
       <aside className={`
-        fixed lg:static inset-y-0 left-0 z-50 w-64 sidebar-glass transform transition-transform duration-300 ease-in-out
+        fixed lg:static inset-y-0 left-0 z-50 w-72 sidebar-glass transform transition-transform duration-300 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         {/* Mobile close button */}
@@ -115,18 +156,22 @@ export default function OfficeLayout({ children }) {
         </div>
 
         {/* Enhanced Navigation */}
-        <nav className="flex-1 p-6 space-y-8">
-          <div>
-            <h3 className="uppercase text-sm font-bold mb-6 text-primary/70 tracking-wider text-center">Main</h3>
-            <ul className="space-y-3">
+        <nav className="flex-1 p-6 space-y-8 overflow-y-auto">
+          {/* Main Section */}
+          <div className="nav-section">
+            <div className="nav-section-header">
+              <DashboardIcon />
+              <h3 className="nav-section-title">Main</h3>
+            </div>
+            <ul className="nav-section-links">
               <li>
-                <Link href="/dashboard" className="nav-link-bubble">
+                <Link href="/dashboard" className="nav-link-modern">
                   <ArrowIcon />
                   Dashboard
                 </Link>
               </li>
               <li>
-                <Link href="/office" className="nav-link-bubble">
+                <Link href="/office" className="nav-link-modern">
                   <ArrowIcon />
                   Office Home
                 </Link>
@@ -134,35 +179,39 @@ export default function OfficeLayout({ children }) {
             </ul>
           </div>
           
-          <div>
-            <h3 className="uppercase text-sm font-bold mb-6 text-accent/70 tracking-wider text-center">Sales</h3>
-            <ul className="space-y-3">
+          {/* Sales Section */}
+          <div className="nav-section">
+            <div className="nav-section-header">
+              <SalesIcon />
+              <h3 className="nav-section-title">Sales</h3>
+            </div>
+            <ul className="nav-section-links">
               <li>
-                <Link href="/office/quotations/new" className="nav-link-bubble">
+                <Link href="/office/quotations/new" className="nav-link-modern">
                   <ArrowIcon />
                   New Quotation
                 </Link>
               </li>
               <li>
-                <Link href="/office/invoices/new" className="nav-link-bubble">
+                <Link href="/office/invoices/new" className="nav-link-modern">
                   <ArrowIcon />
                   New Invoice
                 </Link>
               </li>
               <li>
-                <Link href="/office/invoices" className="nav-link-bubble">
+                <Link href="/office/invoices" className="nav-link-modern">
                   <ArrowIcon />
                   Invoices
                 </Link>
               </li>
               <li>
-                <Link href="/office/invoices?status=unpaid" className="nav-link-bubble">
+                <Link href="/office/invoices?status=unpaid" className="nav-link-modern">
                   <ArrowIcon />
                   Pay Invoice
                 </Link>
               </li>
               <li>
-                <Link href="/office/epos" className="nav-link-bubble">
+                <Link href="/office/epos" className="nav-link-modern">
                   <ArrowIcon />
                   EPOS
                 </Link>
@@ -170,41 +219,45 @@ export default function OfficeLayout({ children }) {
             </ul>
           </div>
           
-          <div>
-            <h3 className="uppercase text-sm font-bold mb-6 text-success/70 tracking-wider text-center">Operations</h3>
-            <ul className="space-y-3">
+          {/* Operations Section */}
+          <div className="nav-section">
+            <div className="nav-section-header">
+              <OperationsIcon />
+              <h3 className="nav-section-title">Operations</h3>
+            </div>
+            <ul className="nav-section-links">
               <li>
-                <Link href="/office/jobs/new" className="nav-link-bubble">
+                <Link href="/office/jobs/new" className="nav-link-modern">
                   <ArrowIcon />
                   New Job
                 </Link>
               </li>
               <li>
-                <Link href="/office/job-requests" className="nav-link-bubble">
+                <Link href="/office/job-requests" className="nav-link-modern">
                   <ArrowIcon />
                   Job Requests
                 </Link>
               </li>
               <li>
-                <Link href="/office/job-management" className="nav-link-bubble">
+                <Link href="/office/job-management" className="nav-link-modern">
                   <ArrowIcon />
                   Job Management
                 </Link>
               </li>
               <li>
-                <Link href="/office/quotations" className="nav-link-bubble">
+                <Link href="/office/quotations" className="nav-link-modern">
                   <ArrowIcon />
                   Open Quotes
                 </Link>
               </li>
               <li>
-                <Link href="/office/scheduling" className="nav-link-bubble">
+                <Link href="/office/scheduling" className="nav-link-modern">
                   <ArrowIcon />
                   Scheduling
                 </Link>
               </li>
               <li>
-                <Link href="/office/live-screen" className="nav-link-bubble">
+                <Link href="/office/live-screen" className="nav-link-modern">
                   <ArrowIcon />
                   Workshop Live
                 </Link>
@@ -212,35 +265,39 @@ export default function OfficeLayout({ children }) {
             </ul>
           </div>
           
-          <div>
-            <h3 className="uppercase text-sm font-bold mb-6 text-warning/70 tracking-wider text-center">Management</h3>
-            <ul className="space-y-3">
+          {/* Management Section */}
+          <div className="nav-section">
+            <div className="nav-section-header">
+              <ManagementIcon />
+              <h3 className="nav-section-title">Management</h3>
+            </div>
+            <ul className="nav-section-links">
               <li>
-                <Link href="/office/clients" className="nav-link-bubble">
+                <Link href="/office/clients" className="nav-link-modern">
                   <ArrowIcon />
                   Clients
                 </Link>
               </li>
               <li>
-                <Link href="/office/vehicles" className="nav-link-bubble">
+                <Link href="/office/vehicles" className="nav-link-modern">
                   <ArrowIcon />
                   Vehicles
                 </Link>
               </li>
               <li>
-                <Link href="/office/engineers" className="nav-link-bubble">
+                <Link href="/office/engineers" className="nav-link-modern">
                   <ArrowIcon />
                   Engineers
                 </Link>
               </li>
               <li>
-                <Link href="/office/parts" className="nav-link-bubble">
+                <Link href="/office/parts" className="nav-link-modern">
                   <ArrowIcon />
                   Parts
                 </Link>
               </li>
               <li>
-                <Link href="/office/suppliers" className="nav-link-bubble">
+                <Link href="/office/suppliers" className="nav-link-modern">
                   <ArrowIcon />
                   Suppliers
                 </Link>
@@ -248,23 +305,27 @@ export default function OfficeLayout({ children }) {
             </ul>
           </div>
           
-          <div>
-            <h3 className="uppercase text-sm font-bold mb-6 text-info/70 tracking-wider text-center">Reports</h3>
-            <ul className="space-y-3">
+          {/* Reports Section */}
+          <div className="nav-section">
+            <div className="nav-section-header">
+              <ReportsIcon />
+              <h3 className="nav-section-title">Reports</h3>
+            </div>
+            <ul className="nav-section-links">
               <li>
-                <Link href="/office/reporting" className="nav-link-bubble">
+                <Link href="/office/reporting" className="nav-link-modern">
                   <ArrowIcon />
                   Business Reports
                 </Link>
               </li>
               <li>
-                <Link href="/office/reporting/engineer-performance" className="nav-link-bubble">
+                <Link href="/office/reporting/engineer-performance" className="nav-link-modern">
                   <ArrowIcon />
                   Engineer Performance
                 </Link>
               </li>
               <li>
-                <Link href="/office/reporting/epos" className="nav-link-bubble">
+                <Link href="/office/reporting/epos" className="nav-link-modern">
                   <ArrowIcon />
                   EPOS Reports
                 </Link>
@@ -354,30 +415,28 @@ export default function OfficeLayout({ children }) {
       {results && (
         <div className="fixed inset-0 bg-bg-overlay backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="modal-content max-w-2xl max-h-[80vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Search Results</h3>
-                <button
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Search Results</h3>
+              <button
+                onClick={() => setResults(null)}
+                className="p-2 hover:bg-surface-secondary rounded-xl transition-all duration-200"
+              >
+                <CloseIcon />
+              </button>
+            </div>
+            
+            <div className="space-y-2">
+              {results.map((result) => (
+                <Link
+                  key={result.id}
+                  href={result.url}
+                  className="block p-3 hover:bg-surface-secondary rounded-xl transition-all duration-200"
                   onClick={() => setResults(null)}
-                  className="p-2 hover:bg-surface-secondary rounded-xl transition-all duration-200"
                 >
-                  <CloseIcon />
-                </button>
-              </div>
-              
-              <div className="space-y-3">
-                {results.map((result, index) => (
-                  <div key={index} className="p-4 bg-surface-secondary rounded-xl border border-border-primary/20 hover:border-border-accent/50 transition-all duration-200">
-                    <h4 className="font-medium text-text-primary mb-1">{result.title}</h4>
-                    <p className="text-sm text-text-secondary">{result.description}</p>
-                    {result.link && (
-                      <Link href={result.link} className="text-primary hover:text-primary-light text-sm mt-2 inline-block">
-                        View Details →
-                      </Link>
-                    )}
-                  </div>
-                ))}
-              </div>
+                  <div className="font-medium">{result.title}</div>
+                  <div className="text-sm text-text-secondary">{result.url}</div>
+                </Link>
+              ))}
             </div>
           </div>
         </div>
