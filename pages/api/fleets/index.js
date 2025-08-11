@@ -1,8 +1,13 @@
-import { getAllFleets } from '../../../services/fleetsService.js';
+import { getAllFleets, searchFleets } from '../../../services/fleetsService.js';
 import apiHandler from '../../../lib/apiHandler.js';
 
 async function handler(req, res) {
     if (req.method === 'GET') {
+      const { q } = req.query;
+      if (q) {
+        const fleets = await searchFleets(q);
+        return res.status(200).json(fleets);
+      }
       const fleets = await getAllFleets();
       return res.status(200).json(fleets);
     }

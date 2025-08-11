@@ -5,6 +5,7 @@ export default function ClientVehicleAutocomplete({
   value, 
   onChange, 
   onSelect,
+  mode = 'client', // 'client' or 'fleet'
   placeholder = "Search by client name or vehicle license plate"
 }) {
   const [term, setTerm] = useState(value || '');
@@ -26,30 +27,57 @@ export default function ClientVehicleAutocomplete({
     setIsLoading(true);
     let cancel = false;
 
-    // Search for both clients and vehicles
-    Promise.all([
-      fetch(`/api/clients?q=${encodeURIComponent(term)}`).then(r => r.ok ? r.json() : []),
-      fetch(`/api/vehicles?q=${encodeURIComponent(term)}`).then(r => r.ok ? r.json() : [])
-    ])
-      .then(([clients, vehicles]) => {
+    // Search based on mode
+    let searchPromises = [];
+    
+    if (mode === 'client') {
+      // In client mode, search for clients and vehicles
+      searchPromises = [
+        fetch(`/api/clients?q=${encodeURIComponent(term)}`).then(r => r.ok ? r.json() : []),
+        fetch(`/api/vehicles?q=${encodeURIComponent(term)}`).then(r => r.ok ? r.json() : [])
+      ];
+    } else {
+      // In fleet mode, search for fleets and vehicles
+      searchPromises = [
+        fetch(`/api/fleets?q=${encodeURIComponent(term)}`).then(r => r.ok ? r.json() : []),
+        fetch(`/api/vehicles?q=${encodeURIComponent(term)}`).then(r => r.ok ? r.json() : [])
+      ];
+    }
+    
+    Promise.all(searchPromises)
+      .then(([entities, vehicles]) => {
         if (cancel) return;
         
         // Combine and format results
         const combinedResults = [];
         
-        // Add client results
-        clients.forEach(client => {
-          combinedResults.push({
-            type: 'client',
-            id: client.id,
-            displayName: `${client.first_name || ''} ${client.last_name || ''}`.trim(),
-            email: client.email,
-            phone: client.phone,
-            data: client
+        if (mode === 'client') {
+          // Add client results
+          entities.forEach(client => {
+            combinedResults.push({
+              type: 'client',
+              id: client.id,
+              displayName: `${client.first_name || ''} ${client.last_name || ''}`.trim(),
+              email: client.email,
+              phone: client.phone,
+              data: client
+            });
           });
-        });
+        } else {
+          // Add fleet results
+          entities.forEach(fleet => {
+            combinedResults.push({
+              type: 'fleet',
+              id: fleet.id,
+              displayName: fleet.company_name,
+              email: fleet.email,
+              phone: fleet.phone,
+              data: fleet
+            });
+          });
+        }
         
-        // Add vehicle results with client info
+        // Add vehicle results with client/fleet info
         vehicles.forEach(vehicle => {
           const clientName = vehicle.customer_name || 
             (vehicle.customer_id ? `${vehicle.customer_first_name || ''} ${vehicle.customer_last_name || ''}`.trim() : '');
@@ -161,9 +189,11 @@ export default function ClientVehicleAutocomplete({
                   <span className={`px-2 py-1 text-xs rounded-full ${
                     result.type === 'client' 
                       ? 'bg-blue-100 text-blue-800' 
+                      : result.type === 'fleet'
+                      ? 'bg-purple-100 text-purple-800'
                       : 'bg-green-100 text-green-800'
                   }`}>
-                    {result.type === 'client' ? 'Client' : 'Vehicle'}
+                    {result.type === 'client' ? 'Client' : result.type === 'fleet' ? 'Fleet' : 'Vehicle'}
                   </span>
                 </div>
               </div>

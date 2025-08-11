@@ -111,6 +111,12 @@ export default function NewQuotationPage() {
 
 
   useEffect(() => {
+    setForm(f => ({ ...f, customer_id: '', fleet_id: '', vehicle_id: '' }));
+    setClientName('');
+    setSelectedVehicleDisplay('');
+  }, [mode]);
+
+  useEffect(() => {
     fetchFleets()
       .then(setFleets)
       .catch(() => setError('Failed to load fleets'));
@@ -253,9 +259,27 @@ export default function NewQuotationPage() {
         </p>
       </div>
       <form onSubmit={submit} className="space-y-4 mb-8 max-w-4xl">
-
+        <div className="mb-2 flex gap-2">
+          <button
+            type="button"
+            className={(mode === 'client' ? 'button' : 'button-secondary') + ' px-4'}
+            onClick={() => setMode('client')}
+          >
+            Client
+          </button>
+          <button
+            type="button"
+            className={(mode === 'fleet' ? 'button' : 'button-secondary') + ' px-4'}
+            onClick={() => setMode('fleet')}
+          >
+            Fleet
+          </button>
+        </div>
+        
         <div>
-          <label className="block mb-1">Client & Vehicle *</label>
+          <label className="block mb-1">
+            {mode === 'client' ? 'Client & Vehicle *' : 'Fleet & Vehicle *'}
+          </label>
           {form.vehicle_id && selectedVehicleDisplay ? (
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -279,6 +303,7 @@ export default function NewQuotationPage() {
             </div>
           ) : (
             <ClientVehicleAutocomplete
+              mode={mode}
               value=""
               onChange={v => {
                 // Allow typing for search
@@ -290,25 +315,37 @@ export default function NewQuotationPage() {
                   setClientName(result.displayName);
                   setForm(f => ({ ...f, customer_id: client.id, fleet_id: '' }));
                   setMode('client');
+                } else if (result.type === 'fleet') {
+                  // Fleet selected
+                  const fleet = result.data;
+                  setClientName(result.displayName);
+                  setForm(f => ({ ...f, fleet_id: fleet.id, customer_id: '' }));
+                  setMode('fleet');
                 } else {
                   // Vehicle selected
                   const vehicle = result.data;
                   setForm(f => ({ ...f, vehicle_id: vehicle.id }));
                   setSelectedVehicleDisplay(result.displayName);
                   
-                  // Auto-populate client if vehicle has one
+                  // Auto-populate based on vehicle's association
                   if (vehicle.customer_id) {
+                    // Vehicle belongs to individual client
                     setClientName(result.clientName || '');
                     setForm(f => ({ ...f, customer_id: vehicle.customer_id, fleet_id: '' }));
                     setMode('client');
                   } else if (vehicle.fleet_id && vehicle.fleet_id !== 2) {
-                    // Treat fleet_id = 2 (LOCAL) as direct clients, not fleet vehicles
+                    // Vehicle belongs to fleet (not LOCAL)
                     setMode('fleet');
                     setForm(f => ({ ...f, fleet_id: vehicle.fleet_id, customer_id: '' }));
+                    // Fetch fleet name for display
+                    const fleet = fleets.find(f => f.id === vehicle.fleet_id);
+                    if (fleet) {
+                      setClientName(fleet.company_name);
+                    }
                   }
                 }
               }}
-              placeholder="Search by client name or vehicle license plate"
+              placeholder={mode === 'client' ? "Search by client name or vehicle license plate" : "Search by fleet company or vehicle license plate"}
             />
           )}
           {vehicleError && (
@@ -317,6 +354,36 @@ export default function NewQuotationPage() {
             </p>
           )}
         </div>
+        
+        {/* Fleet Selection Dropdown - Only show in fleet mode when no vehicle selected */}
+        {mode === 'fleet' && !form.vehicle_id && (
+          <div>
+            <label className="block mb-1">Fleet Company *</label>
+            <select
+              className="input w-full"
+              value={form.fleet_id}
+              onChange={e => {
+                const fleetId = e.target.value;
+                setForm(f => ({ ...f, fleet_id: fleetId, customer_id: '' }));
+                if (fleetId) {
+                  const fleet = fleets.find(f => f.id === parseInt(fleetId));
+                  if (fleet) {
+                    setClientName(fleet.company_name);
+                  }
+                } else {
+                  setClientName('');
+                }
+              }}
+            >
+              <option value="">Select fleet company</option>
+              {fleets.filter(f => f.id !== 2).map(f => (
+                <option key={f.id} value={f.id}>
+                  {f.company_name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <div>
           <label className="block mb-1">Customer Ref #</label>
           <input
