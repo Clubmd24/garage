@@ -493,64 +493,66 @@ export default function NewQuotationPage() {
           )}
           
           <div className="grid grid-cols-11 gap-2 mb-2 font-semibold text-sm">
-            <div>Part #</div>
+            <div className="col-span-3">Part #</div>
             <div className="col-span-4">Description</div>
             <div>Qty</div>
-            <div>Unit Cost</div>
-            <div>Markup %</div>
-            <div>Unit Price</div>
-            <div>Line Price</div>
+            <div className="col-span-2">Unit Cost</div>
+            <div className="col-span-2">Markup %</div>
+            <div className="col-span-2">Unit Price</div>
+            <div className="col-span-2">Line Price</div>
             <div>Action</div>
           </div>
           {items.map((it, i) => (
             <div key={i} className="grid grid-cols-11 gap-2 mb-2">
-              {ad360Mode && ad360Items.length > 0 ? (
-                <AD360Autocomplete
-                  value={it.part_number}
-                  onChange={v => changeItem(i, 'part_number', v)}
-                  onSelect={item => {
-                    console.log('AD360 item selected:', item); // Debug log
-                    const unitCost = typeof item.price === 'object' ? item.price.amount : item.price;
-                    console.log('Unit cost from AD360:', unitCost); // Debug log
-                    
-                    changeItem(i, 'part_number', item.partNumber || '');
-                    changeItem(i, 'part_id', ''); // No internal part ID for AD360 items
-                    changeItem(i, 'description', item.description || '');
-                    changeItem(i, 'unit_cost', unitCost || 0);
-                    
-                    // Set default quantity to 1 if not already set
-                    if (!it.qty) changeItem(i, 'qty', '1');
-                    // Set default markup to 0 if not already set
-                    if (!it.markup) changeItem(i, 'markup', '0');
-                    
-                    // Force price recalculation after setting unit_cost
-                    setTimeout(() => {
+              <div className="col-span-3">
+                {ad360Mode && ad360Items.length > 0 ? (
+                  <AD360Autocomplete
+                    value={it.part_number}
+                    onChange={v => changeItem(i, 'part_number', v)}
+                    onSelect={item => {
+                      console.log('AD360 item selected:', item); // Debug log
+                      const unitCost = typeof item.price === 'object' ? item.price.amount : item.price;
+                      console.log('Unit cost from AD360:', unitCost); // Debug log
+                      
+                      changeItem(i, 'part_number', item.partNumber || '');
+                      changeItem(i, 'part_id', ''); // No internal part ID for AD360 items
+                      changeItem(i, 'description', item.description || '');
                       changeItem(i, 'unit_cost', unitCost || 0);
-                    }, 100);
-                  }}
-                  vehicleId={form.vehicle_id}
-                  tenantId={1}
-                  placeholder="Search AD360 parts..."
-                  preloadedParts={ad360Items} // Pass the pre-loaded parts
-                />
-              ) : (
-                <PartAutocomplete
-                  value={it.part_number}
-                  description={it.description}
-                  unit_cost={it.unit_cost}
-                  onChange={v => changeItem(i, 'part_number', v)}
-                  onSelect={p => {
-                    changeItem(i, 'part_number', p.part_number || '');
-                    changeItem(i, 'part_id', p.id || '');
-                    changeItem(i, 'description', p.description || '');
-                    changeItem(i, 'unit_cost', p.unit_cost || 0);
-                    // Set default quantity to 1 if not already set
-                    if (!it.qty) changeItem(i, 'qty', '1');
-                    // Set default markup to 0 if not already set
-                    if (!it.markup) changeItem(i, 'markup', '0');
-                  }}
-                />
-              )}
+                      
+                      // Set default quantity to 1 if not already set
+                      if (!it.qty) changeItem(i, 'qty', '1');
+                      // Set default markup to 0 if not already set
+                      if (!it.markup) changeItem(i, 'markup', '0');
+                      
+                      // Force price recalculation after setting unit_cost
+                      setTimeout(() => {
+                        changeItem(i, 'unit_cost', unitCost || 0);
+                      }, 100);
+                    }}
+                    vehicleId={form.vehicle_id}
+                    tenantId={1}
+                    placeholder="Search AD360 parts..."
+                    preloadedParts={ad360Items} // Pass the pre-loaded parts
+                  />
+                ) : (
+                  <PartAutocomplete
+                    value={it.part_number}
+                    description={it.description}
+                    unit_cost={it.unit_cost}
+                    onChange={v => changeItem(i, 'part_number', v)}
+                    onSelect={p => {
+                      changeItem(i, 'part_number', p.part_number || '');
+                      changeItem(i, 'part_id', p.id || '');
+                      changeItem(i, 'description', p.description || '');
+                      changeItem(i, 'unit_cost', p.unit_cost || 0);
+                      // Set default quantity to 1 if not already set
+                      if (!it.qty) changeItem(i, 'qty', '1');
+                      // Set default markup to 0 if not already set
+                      if (!it.markup) changeItem(i, 'markup', '0');
+                    }}
+                  />
+                )}
+              </div>
               <div className="col-span-4">
                 <DescriptionAutocomplete
                   value={it.description}
@@ -574,34 +576,42 @@ export default function NewQuotationPage() {
                 value={it.qty}
                 onChange={e => changeItem(i, 'qty', e.target.value)}
               />
-              <input
-                type="number"
-                className="input"
-                placeholder="Unit cost"
-                value={it.unit_cost}
-                onChange={e => changeItem(i, 'unit_cost', e.target.value)}
-              />
-              <input
-                type="number"
-                className="input"
-                placeholder="Markup %"
-                value={it.markup}
-                onChange={e => changeItem(i, 'markup', e.target.value)}
-              />
-              <input
-                type="text"
-                className="input-readonly"
-                placeholder="Unit Price"
-                value={formatEuro(it.price)}
-                readOnly
-              />
-              <input
-                type="text"
-                className="input-readonly"
-                placeholder="Line Price"
-                value={formatEuro((Number(it.qty) || 0) * (Number(it.price) || 0))}
-                readOnly
-              />
+              <div className="col-span-2">
+                <input
+                  type="number"
+                  className="input w-full"
+                  placeholder="Unit cost"
+                  value={it.unit_cost}
+                  onChange={e => changeItem(i, 'unit_cost', e.target.value)}
+                />
+              </div>
+              <div className="col-span-2">
+                <input
+                  type="number"
+                  className="input w-full"
+                  placeholder="Markup %"
+                  value={it.markup}
+                  onChange={e => changeItem(i, 'markup', e.target.value)}
+                />
+              </div>
+              <div className="col-span-2">
+                <input
+                  type="text"
+                  className="input-readonly w-full"
+                  placeholder="Unit Price"
+                  value={formatEuro(it.price)}
+                  readOnly
+                />
+              </div>
+              <div className="col-span-2">
+                <input
+                  type="text"
+                  className="input-readonly w-full"
+                  placeholder="Line Price"
+                  value={formatEuro((Number(it.qty) || 0) * (Number(it.price) || 0))}
+                  readOnly
+                />
+              </div>
               <button
                 type="button"
                 onClick={() => removeItem(i)}
