@@ -492,19 +492,19 @@ export default function NewQuotationPage() {
             </div>
           )}
           
-          <div className="grid grid-cols-24 gap-2 mb-2 font-semibold text-sm">
-            <div className="col-span-6">Part #</div>
-            <div className="col-span-8">Description</div>
-            <div className="col-span-2">Qty</div>
-            <div className="col-span-3">Unit Cost</div>
-            <div className="col-span-3">Markup %</div>
-            <div className="col-span-3">Unit Price</div>
-            <div className="col-span-3">Line Price</div>
-            <div className="col-span-2">Action</div>
+          <div className="flex gap-2 mb-2 font-semibold text-sm">
+            <div className="flex-1 min-w-0">Part #</div>
+            <div className="flex-2 min-w-0">Description</div>
+            <div className="w-16 text-center">Qty</div>
+            <div className="w-24 text-center">Unit Cost</div>
+            <div className="w-24 text-center">Markup %</div>
+            <div className="w-24 text-center">Unit Price</div>
+            <div className="w-24 text-center">Line Price</div>
+            <div className="w-20 text-center">Action</div>
           </div>
           {items.map((it, i) => (
-            <div key={i} className="grid grid-cols-24 gap-2 mb-2">
-              <div className="col-span-6">
+            <div key={i} className="flex gap-2 mb-2">
+              <div className="flex-1 min-w-0">
                 {ad360Mode && ad360Items.length > 0 ? (
                   <AD360Autocomplete
                     value={it.part_number}
@@ -553,7 +553,7 @@ export default function NewQuotationPage() {
                   />
                 )}
               </div>
-              <div className="col-span-8">
+              <div className="flex-2 min-w-0">
                 <DescriptionAutocomplete
                   value={it.description}
                   onChange={v => changeItem(i, 'description', v)}
@@ -569,7 +569,7 @@ export default function NewQuotationPage() {
                   }}
                 />
               </div>
-              <div className="col-span-2">
+              <div className="w-16">
                 <input
                   type="number"
                   className="input w-full"
@@ -578,7 +578,7 @@ export default function NewQuotationPage() {
                   onChange={e => changeItem(i, 'qty', e.target.value)}
                 />
               </div>
-              <div className="col-span-3">
+              <div className="w-24">
                 <input
                   type="number"
                   className="input w-full"
@@ -587,7 +587,7 @@ export default function NewQuotationPage() {
                   onChange={e => changeItem(i, 'unit_cost', e.target.value)}
                 />
               </div>
-              <div className="col-span-3">
+              <div className="w-24">
                 <input
                   type="number"
                   className="input w-full"
@@ -596,7 +596,7 @@ export default function NewQuotationPage() {
                   onChange={e => changeItem(i, 'markup', e.target.value)}
                 />
               </div>
-              <div className="col-span-3">
+              <div className="w-24">
                 <input
                   type="text"
                   className="input-readonly w-full"
@@ -605,7 +605,7 @@ export default function NewQuotationPage() {
                   readOnly
                 />
               </div>
-              <div className="col-span-3">
+              <div className="w-24">
                 <input
                   type="text"
                   className="input-readonly w-full"
