@@ -120,8 +120,8 @@ export default function FromAD360Button({
     }
   };
 
-  const continueWithSelectedVariant = async () => {
-    if (!selectedVariant) return;
+  const continueWithSelectedVariant = async (variant) => {
+    if (!variant) return;
 
     try {
       // Step 5: Get parts departments
@@ -133,7 +133,7 @@ export default function FromAD360Button({
           tenantId,
           supplierId: 7,
           action: 'get_parts_departments',
-          variantId: selectedVariant.id
+          variantId: variant.id
         })
       });
 
@@ -403,8 +403,8 @@ export default function FromAD360Button({
                 setSelectedVariant(variant);
                 setShowVariantSelection(false);
                 setTimeout(() => {
-                continueWithSelectedVariant();
-              }, 100);
+                  continueWithSelectedVariant(variant);
+                }, 100);
               }}
               className="w-full p-3 text-left bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-blue-300 transition-colors"
             >
