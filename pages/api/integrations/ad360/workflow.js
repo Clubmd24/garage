@@ -53,7 +53,8 @@ export default async function handler(req, res) {
         return await handleVehicleSearch(res, session, tenantId, supplierId, vin, reg);
       
       case 'get_parts_departments':
-        return await handlePartsDepartments(res, session, tenantId, supplierId);
+        const { variantId } = req.body;
+        return await handlePartsDepartments(res, session, tenantId, supplierId, variantId);
       
       case 'get_department_parts':
         const { department } = req.body;
@@ -137,7 +138,33 @@ async function handleTabNavigation(res, session, tenantId, supplierId) {
 async function handleVehicleSearch(res, session, tenantId, supplierId, vin, reg) {
   try {
     // In production, this would use Playwright to search for vehicle
-    // For now, return success with workflow step info
+    // For now, return mock vehicle variants based on the AD360 screenshot
+    
+    // Mock vehicle variants based on the BMW 1 series example from AD360
+    const variants = [
+      {
+        id: 'bmw-1-f20-116d-1',
+        make: 'BMW',
+        model: '1 (F20)',
+        version: '116 d',
+        power: '116cv',
+        displacement: '85kw',
+        engine: '1995cc N47 D20 C',
+        years: '07/2011 a 02/2015',
+        description: 'First generation BMW 1 Series (F20) with 116d diesel engine'
+      },
+      {
+        id: 'bmw-1-f21-116d-2',
+        make: 'BMW',
+        model: '1 (F21)',
+        version: '116 d',
+        power: '116cv',
+        displacement: '85kw',
+        engine: '1995cc N47 D20 C',
+        years: '07/2012 a 02/2015',
+        description: 'First generation BMW 1 Series (F21) with 116d diesel engine'
+      }
+    ];
     
     // Write audit event
     await pool.query(
@@ -147,7 +174,8 @@ async function handleVehicleSearch(res, session, tenantId, supplierId, vin, reg)
         supplierId,
         success: true,
         vin,
-        reg
+        reg,
+        variantCount: variants.length
       })]
     );
 
@@ -156,14 +184,15 @@ async function handleVehicleSearch(res, session, tenantId, supplierId, vin, reg)
       action: 'search_vehicle',
       vin,
       reg,
-      message: 'Vehicle search completed successfully'
+      variants,
+      message: `Found ${variants.length} vehicle variant(s)`
     });
   } catch (error) {
     throw error;
   }
 }
 
-async function handlePartsDepartments(res, session, tenantId, supplierId) {
+async function handlePartsDepartments(res, session, tenantId, supplierId, variantId) {
   try {
     // In production, this would use Playwright to get parts departments
     // For now, return mock departments based on the screenshot
@@ -195,6 +224,7 @@ async function handlePartsDepartments(res, session, tenantId, supplierId) {
       [tenantId, 'ad360.workflow', JSON.stringify({ 
         action: 'get_parts_departments',
         supplierId,
+        variantId,
         success: true,
         departmentCount: departments.length
       })]
@@ -203,6 +233,7 @@ async function handlePartsDepartments(res, session, tenantId, supplierId) {
     return res.status(200).json({
       status: 'success',
       action: 'get_parts_departments',
+      variantId,
       departments,
       message: 'Parts departments retrieved successfully'
     });

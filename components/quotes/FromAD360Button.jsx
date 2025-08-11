@@ -7,12 +7,17 @@ export default function FromAD360Button({
   onError 
 }) {
   const [isLoading, setIsLoading] = useState(false);
-  const [ad360Mode, setAd360Mode] = useState(false);
-  const [items, setItems] = useState([]);
   const [error, setError] = useState(null);
   const [workflowStep, setWorkflowStep] = useState('');
   const [departments, setDepartments] = useState([]);
+  const [items, setItems] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState('');
+  const [ad360Mode, setAd360Mode] = useState(false);
+  
+  // New state for vehicle variant selection
+  const [vehicleVariants, setVehicleVariants] = useState([]);
+  const [showVariantSelection, setShowVariantSelection] = useState(false);
+  const [selectedVariant, setSelectedVariant] = useState(null);
 
   const executeAD360Workflow = async () => {
     if (!vehicleId) {
@@ -77,11 +82,41 @@ export default function FromAD360Button({
           reg: vehicle.licence_plate
         })
       });
+      if (!searchResponse.ok) { throw new Error('Failed to search for vehicle'); }
 
-      if (!searchResponse.ok) {
-        throw new Error('Failed to search for vehicle');
+      const searchData = await searchResponse.json();
+      
+      // Check if we have multiple vehicle variants
+      if (searchData.variants && searchData.variants.length > 1) {
+        setVehicleVariants(searchData.variants);
+        setShowVariantSelection(true);
+        setWorkflowStep('Multiple vehicle variants found. Please select the correct one.');
+        return; // Stop here until user selects variant
+      } else if (searchData.variants && searchData.variants.length === 1) {
+        // Only one variant, auto-select it
+        setSelectedVariant(searchData.variants[0]);
+      } else {
+        throw new Error('No vehicle variants found');
       }
 
+      // Continue with the selected variant
+      await continueWithSelectedVariant();
+
+    } catch (error) {
+      console.error('AD360 workflow error:', error);
+      setError('Failed to execute AD360 workflow. Please try again.');
+      if (onError) {
+        onError(error.message);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const continueWithSelectedVariant = async () => {
+    if (!selectedVariant) return;
+
+    try {
       // Step 5: Get parts departments
       setWorkflowStep('Loading parts departments...');
       const departmentsResponse = await fetch('/api/integrations/ad360/workflow', {
@@ -90,7 +125,8 @@ export default function FromAD360Button({
         body: JSON.stringify({
           tenantId,
           supplierId: 7,
-          action: 'get_parts_departments'
+          action: 'get_parts_departments',
+          variantId: selectedVariant.id
         })
       });
 
@@ -101,18 +137,11 @@ export default function FromAD360Button({
       const departmentsData = await departmentsResponse.json();
       setDepartments(departmentsData.departments);
       setWorkflowStep('Parts departments loaded. Select a department to view parts.');
-
-      // Set AD360 mode to show department selection
       setAd360Mode(true);
 
     } catch (error) {
-      console.error('AD360 workflow error:', error);
-      setError('Failed to execute AD360 workflow. Please try again.');
-      if (onError) {
-        onError(error.message);
-      }
-    } finally {
-      setIsLoading(false);
+      console.error('Continue workflow error:', error);
+      setError('Failed to continue AD360 workflow. Please try again.');
     }
   };
 
@@ -259,6 +288,68 @@ export default function FromAD360Button({
             </div>
           </div>
         )}
+      </div>
+    );
+  }
+
+  // Vehicle variant selection UI
+  if (showVariantSelection && vehicleVariants.length > 0) {
+    return (
+      <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-sm font-medium text-blue-800">
+            AD360 - Select Vehicle Variant
+          </span>
+          <button
+            onClick={() => {
+              setShowVariantSelection(false);
+              setVehicleVariants([]);
+              setWorkflowStep('');
+            }}
+            className="text-blue-600 hover:text-blue-800 text-sm"
+            title="Cancel variant selection"
+          >
+            ✕ Cancel
+          </button>
+        </div>
+        
+        <p className="text-xs text-blue-600 mb-3">
+          Multiple vehicle variants found. Please select the correct one to continue.
+        </p>
+
+        <div className="space-y-2">
+          {vehicleVariants.map((variant, index) => (
+            <button
+              key={index}
+              onClick={() => {
+                setSelectedVariant(variant);
+                setShowVariantSelection(false);
+                continueWithSelectedVariant();
+              }}
+              className="w-full p-3 text-left bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-blue-300 transition-colors"
+            >
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <div className="font-semibold text-gray-900">
+                    {variant.make} {variant.model}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {variant.version} • {variant.engine} • {variant.years}
+                  </div>
+                  {variant.description && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      {variant.description}
+                    </div>
+                  )}
+                </div>
+                <div className="text-right text-sm text-gray-600">
+                  <div>{variant.power}</div>
+                  <div>{variant.displacement}</div>
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
     );
   }
