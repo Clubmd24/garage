@@ -18,7 +18,7 @@ export default function ClientVehicleAutocomplete({
   }, [value]);
 
   useEffect(() => {
-    if (!term || term.length < 2) {
+    if (!term || term.length < 1) {
       setResults([]);
       setIsOpen(false);
       return;
@@ -48,49 +48,132 @@ export default function ClientVehicleAutocomplete({
       .then(([entities, vehicles]) => {
         if (cancel) return;
         
-        // Combine and format results
+        // Combine and format results with smart grouping
         const combinedResults = [];
+        const processedClients = new Set();
+        const processedVehicles = new Set();
         
         if (mode === 'client') {
-          // Add client results
+          // Process clients first and find their vehicles
           entities.forEach(client => {
-            combinedResults.push({
-              type: 'client',
-              id: client.id,
-              displayName: `${client.first_name || ''} ${client.last_name || ''}`.trim(),
-              email: client.email,
-              phone: client.phone,
-              data: client
-            });
+            const clientId = client.id;
+            const clientName = `${client.first_name || ''} ${client.last_name || ''}`.trim();
+            processedClients.add(clientId);
+            
+            // Find vehicles for this client
+            const clientVehicles = vehicles.filter(v => v.customer_id === clientId);
+            
+            if (clientVehicles.length > 0) {
+              // Create combined client+vehicle results
+              clientVehicles.forEach(vehicle => {
+                processedVehicles.add(vehicle.id);
+                combinedResults.push({
+                  type: 'client_vehicle',
+                  id: `client_${clientId}_vehicle_${vehicle.id}`,
+                  displayName: `${clientName} - ${vehicle.licence_plate || 'No Plate'} ${vehicle.make} ${vehicle.model}`,
+                  clientName: clientName,
+                  clientId: clientId,
+                  vehicleId: vehicle.id,
+                  vehicleDisplay: `${vehicle.licence_plate || 'No Plate'} - ${vehicle.make} ${vehicle.model} ${vehicle.year}`,
+                  email: client.email,
+                  phone: client.phone,
+                  clientData: client,
+                  vehicleData: vehicle
+                });
+              });
+            } else {
+              // Client with no vehicles - add as standalone client
+              combinedResults.push({
+                type: 'client',
+                id: clientId,
+                displayName: clientName,
+                email: client.email,
+                phone: client.phone,
+                data: client
+              });
+            }
+          });
+          
+          // Add remaining vehicles that don't belong to processed clients
+          vehicles.forEach(vehicle => {
+            if (!processedVehicles.has(vehicle.id)) {
+              const clientName = vehicle.customer_name || 
+                (vehicle.customer_id ? `${vehicle.customer_first_name || ''} ${vehicle.customer_last_name || ''}`.trim() : '');
+              
+              combinedResults.push({
+                type: 'vehicle',
+                id: vehicle.id,
+                displayName: `${vehicle.licence_plate || 'No Plate'} - ${vehicle.make} ${vehicle.model} ${vehicle.year}`,
+                clientName: clientName,
+                clientId: vehicle.customer_id,
+                fleetId: vehicle.fleet_id,
+                data: vehicle
+              });
+            }
           });
         } else {
-          // Add fleet results
+          // Fleet mode - similar logic but for fleets
           entities.forEach(fleet => {
-            combinedResults.push({
-              type: 'fleet',
-              id: fleet.id,
-              displayName: fleet.company_name,
-              email: fleet.email,
-              phone: fleet.phone,
-              data: fleet
-            });
+            const fleetId = fleet.id;
+            const fleetName = fleet.company_name;
+            processedClients.add(fleetId);
+            
+            // Find vehicles for this fleet
+            const fleetVehicles = vehicles.filter(v => v.fleet_id === fleetId);
+            
+            if (fleetVehicles.length > 0) {
+              // Create combined fleet+vehicle results
+              fleetVehicles.forEach(vehicle => {
+                processedVehicles.add(vehicle.id);
+                combinedResults.push({
+                  type: 'fleet_vehicle',
+                  id: `fleet_${fleetId}_vehicle_${vehicle.id}`,
+                  displayName: `${fleetName} - ${vehicle.licence_plate || 'No Plate'} ${vehicle.make} ${vehicle.model}`,
+                  fleetName: fleetName,
+                  fleetId: fleetId,
+                  vehicleId: vehicle.id,
+                  vehicleDisplay: `${vehicle.licence_plate || 'No Plate'} - ${vehicle.make} ${vehicle.model} ${vehicle.year}`,
+                  email: fleet.email_1 || fleet.email_2,
+                  phone: fleet.contact_number_1 || fleet.contact_number_2,
+                  fleetData: fleet,
+                  vehicleData: vehicle
+                });
+              });
+            } else {
+              // Fleet with no vehicles - add as standalone fleet
+              combinedResults.push({
+                type: 'fleet',
+                id: fleetId,
+                displayName: fleetName,
+                email: fleet.email_1 || fleet.email_2,
+                phone: fleet.contact_number_1 || fleet.contact_number_2,
+                data: fleet
+              });
+            }
+          });
+          
+          // Add remaining vehicles that don't belong to processed fleets
+          vehicles.forEach(vehicle => {
+            if (!processedVehicles.has(vehicle.id)) {
+              combinedResults.push({
+                type: 'vehicle',
+                id: vehicle.id,
+                displayName: `${vehicle.licence_plate || 'No Plate'} - ${vehicle.make} ${vehicle.model} ${vehicle.year}`,
+                clientId: vehicle.customer_id,
+                fleetId: vehicle.fleet_id,
+                data: vehicle
+              });
+            }
           });
         }
         
-        // Add vehicle results with client/fleet info
-        vehicles.forEach(vehicle => {
-          const clientName = vehicle.customer_name || 
-            (vehicle.customer_id ? `${vehicle.customer_first_name || ''} ${vehicle.customer_last_name || ''}`.trim() : '');
-          
-          combinedResults.push({
-            type: 'vehicle',
-            id: vehicle.id,
-            displayName: `${vehicle.licence_plate || 'No Plate'} - ${vehicle.make} ${vehicle.model} ${vehicle.year}`,
-            clientName: clientName,
-            clientId: vehicle.customer_id,
-            fleetId: vehicle.fleet_id,
-            data: vehicle
-          });
+        // Sort results by relevance (exact matches first, then partial matches)
+        combinedResults.sort((a, b) => {
+          const aExact = a.displayName.toLowerCase().includes(term.toLowerCase());
+          const bExact = b.displayName.toLowerCase().includes(term.toLowerCase());
+          if (aExact && !bExact) return -1;
+          if (!aExact && bExact) return 1;
+          return a.displayName.localeCompare(b.displayName);
         });
         
         setResults(combinedResults);
@@ -108,7 +191,7 @@ export default function ClientVehicleAutocomplete({
     return () => {
       cancel = true;
     };
-  }, [term]);
+  }, [term, mode]);
 
   const handleSelect = (result) => {
     onSelect && onSelect(result);
@@ -189,11 +272,18 @@ export default function ClientVehicleAutocomplete({
                   <span className={`px-2 py-1 text-xs rounded-full ${
                     result.type === 'client' 
                       ? 'bg-blue-100 text-blue-800' 
+                      : result.type === 'client_vehicle'
+                      ? 'bg-indigo-100 text-indigo-800'
                       : result.type === 'fleet'
                       ? 'bg-purple-100 text-purple-800'
+                      : result.type === 'fleet_vehicle'
+                      ? 'bg-violet-100 text-violet-800'
                       : 'bg-green-100 text-green-800'
                   }`}>
-                    {result.type === 'client' ? 'Client' : result.type === 'fleet' ? 'Fleet' : 'Vehicle'}
+                    {result.type === 'client' ? 'Client' : 
+                     result.type === 'client_vehicle' ? 'Client+Vehicle' :
+                     result.type === 'fleet' ? 'Fleet' : 
+                     result.type === 'fleet_vehicle' ? 'Fleet+Vehicle' : 'Vehicle'}
                   </span>
                 </div>
               </div>

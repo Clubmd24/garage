@@ -310,19 +310,31 @@ export default function NewQuotationPage() {
               }}
               onSelect={result => {
                 if (result.type === 'client') {
-                  // Client selected
+                  // Client selected (no vehicles)
                   const client = result.data;
                   setClientName(result.displayName);
                   setForm(f => ({ ...f, customer_id: client.id, fleet_id: '' }));
                   setMode('client');
+                } else if (result.type === 'client_vehicle') {
+                  // Combined client + vehicle selected
+                  setClientName(result.clientName);
+                  setForm(f => ({ ...f, customer_id: result.clientId, vehicle_id: result.vehicleId, fleet_id: '' }));
+                  setMode('client');
+                  setSelectedVehicleDisplay(result.vehicleDisplay);
                 } else if (result.type === 'fleet') {
-                  // Fleet selected
+                  // Fleet selected (no vehicles)
                   const fleet = result.data;
                   setClientName(result.displayName);
                   setForm(f => ({ ...f, fleet_id: fleet.id, customer_id: '' }));
                   setMode('fleet');
+                } else if (result.type === 'fleet_vehicle') {
+                  // Combined fleet + vehicle selected
+                  setClientName(result.fleetName);
+                  setForm(f => ({ ...f, fleet_id: result.fleetId, vehicle_id: result.vehicleId, customer_id: '' }));
+                  setMode('fleet');
+                  setSelectedVehicleDisplay(result.vehicleDisplay);
                 } else {
-                  // Vehicle selected
+                  // Standalone vehicle selected
                   const vehicle = result.data;
                   setForm(f => ({ ...f, vehicle_id: vehicle.id }));
                   setSelectedVehicleDisplay(result.displayName);
