@@ -318,13 +318,7 @@ export default function FromAD360Button({
           </div>
         )}
 
-        {/* Calculate filtered items */}
-        {(() => {
-          const filtered = items.filter(item => 
-            selectedManufacturers.length === 0 || selectedManufacturers.includes(item.brand)
-          );
-          return filtered;
-        })()}
+
 
         {items.length > 0 && (
           <div className="mt-3 p-2 bg-white border border-gray-200 rounded">
