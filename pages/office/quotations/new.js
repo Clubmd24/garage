@@ -509,14 +509,24 @@ export default function NewQuotationPage() {
                   value={it.part_number}
                   onChange={v => changeItem(i, 'part_number', v)}
                   onSelect={item => {
+                    console.log('AD360 item selected:', item); // Debug log
+                    const unitCost = typeof item.price === 'object' ? item.price.amount : item.price;
+                    console.log('Unit cost from AD360:', unitCost); // Debug log
+                    
                     changeItem(i, 'part_number', item.partNumber || '');
                     changeItem(i, 'part_id', ''); // No internal part ID for AD360 items
                     changeItem(i, 'description', item.description || '');
-                    changeItem(i, 'unit_cost', item.price?.amount || 0);
+                    changeItem(i, 'unit_cost', unitCost || 0);
+                    
                     // Set default quantity to 1 if not already set
                     if (!it.qty) changeItem(i, 'qty', '1');
                     // Set default markup to 0 if not already set
                     if (!it.markup) changeItem(i, 'markup', '0');
+                    
+                    // Force price recalculation after setting unit_cost
+                    setTimeout(() => {
+                      changeItem(i, 'unit_cost', unitCost || 0);
+                    }, 100);
                   }}
                   vehicleId={form.vehicle_id}
                   tenantId={1}
