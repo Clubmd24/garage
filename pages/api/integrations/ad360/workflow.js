@@ -245,22 +245,82 @@ async function handlePartsDepartments(res, session, tenantId, supplierId, varian
 async function handleDepartmentParts(res, session, tenantId, supplierId, department) {
   try {
     // In production, this would use Playwright to get parts from specific department
-    // For now, return mock parts based on department
+    // For now, return mock parts based on department with multiple manufacturers
     
     const mockParts = {
-      brakes: [
-        { partNumber: 'BP-001', description: 'Front Brake Pads', brand: 'Brembo', price: 45.99, stock: 'In Stock' },
-        { partNumber: 'BP-002', description: 'Rear Brake Pads', brand: 'Brembo', price: 38.99, stock: 'In Stock' },
-        { partNumber: 'BD-001', description: 'Brake Discs Front', brand: 'Brembo', price: 89.99, stock: '2-3 Days' }
-      ],
-      filters: [
-        { partNumber: 'OF-001', description: 'Oil Filter', brand: 'Mann', price: 12.99, stock: 'In Stock' },
-        { partNumber: 'AF-001', description: 'Air Filter', brand: 'Mann', price: 8.99, stock: 'In Stock' },
-        { partNumber: 'FF-001', description: 'Fuel Filter', brand: 'Mann', price: 15.99, stock: 'In Stock' }
-      ],
       motor: [
+        // NGK Parts
         { partNumber: 'SP-001', description: 'Spark Plugs Set', brand: 'NGK', price: 24.99, stock: 'In Stock' },
-        { partNumber: 'TB-001', description: 'Timing Belt Kit', brand: 'Gates', price: 67.99, stock: '1-2 Days' }
+        { partNumber: 'SP-002', description: 'Spark Plug Cable Set', brand: 'NGK', price: 18.50, stock: 'In Stock' },
+        { partNumber: 'SP-003', description: 'Ignition Coil', brand: 'NGK', price: 32.75, stock: '2-3 Days' },
+        
+        // Bosch Parts
+        { partNumber: 'BOS-001', description: 'Fuel Injector', brand: 'BOSCH', price: 89.99, stock: 'In Stock' },
+        { partNumber: 'BOS-002', description: 'Mass Air Flow Sensor', brand: 'BOSCH', price: 156.25, stock: 'In Stock' },
+        { partNumber: 'BOS-003', description: 'Oxygen Sensor', brand: 'BOSCH', price: 67.80, stock: '1-2 Days' },
+        { partNumber: 'BOS-004', description: 'Engine Control Unit', brand: 'BOSCH', price: 299.99, stock: '3-5 Days' },
+        
+        // Gates Parts
+        { partNumber: 'TB-001', description: 'Timing Belt Kit', brand: 'Gates', price: 67.99, stock: '1-2 Days' },
+        { partNumber: 'TB-002', description: 'Serpentine Belt', brand: 'Gates', price: 23.45, stock: 'In Stock' },
+        { partNumber: 'TB-003', description: 'Tensioner Assembly', brand: 'Gates', price: 45.60, stock: 'In Stock' },
+        
+        // Hella Parts
+        { partNumber: '6NU 014 864-681', description: 'Válvula EGR', brand: 'HELLA', price: 78.90, stock: 'In Stock' },
+        { partNumber: '6PT 009 109-341', description: 'Sensor, temperatura del aire de admisión', brand: 'HELLA', price: 45.20, stock: 'In Stock' },
+        { partNumber: '6PT 009 109-342', description: 'Sensor, temperatura del refrigerante', brand: 'HELLA', price: 38.75, stock: 'In Stock' },
+        { partNumber: '6PT 009 109-343', description: 'Sensor, posición arbol de levas', brand: 'HELLA', price: 52.30, stock: 'In Stock' },
+        { partNumber: '6PT 009 109-344', description: 'Generador de impulsos, cigüeñal', brand: 'HELLA', price: 67.45, stock: 'In Stock' },
+        
+        // Blue Print Parts
+        { partNumber: 'BP-001', description: 'Camshaft Position Sensor', brand: 'BLUE PRINT', price: 41.99, stock: 'In Stock' },
+        { partNumber: 'BP-002', description: 'Crankshaft Position Sensor', brand: 'BLUE PRINT', price: 39.50, stock: '2-3 Days' },
+        { partNumber: 'BP-003', description: 'Throttle Position Sensor', brand: 'BLUE PRINT', price: 28.75, stock: 'In Stock' },
+        
+        // Febi Bilstein Parts
+        { partNumber: 'FB-001', description: 'Engine Mount', brand: 'FEBI BILSTEIN', price: 89.99, stock: 'In Stock' },
+        { partNumber: 'FB-002', description: 'Transmission Mount', brand: 'FEBI BILSTEIN', price: 67.50, stock: '1-2 Days' },
+        { partNumber: 'FB-003', description: 'Stabilizer Bar Link', brand: 'FEBI BILSTEIN', price: 23.80, stock: 'In Stock' },
+        
+        // Castrol Parts
+        { partNumber: 'CAST-001', description: 'Engine Oil 5W-30', brand: 'Castrol', price: 34.99, stock: 'In Stock' },
+        { partNumber: 'CAST-002', description: 'Engine Oil 10W-40', brand: 'Castrol', price: 29.99, stock: 'In Stock' },
+        { partNumber: 'CAST-003', description: 'Oil Filter', brand: 'Castrol', price: 12.50, stock: 'In Stock' },
+        
+        // Delphi Parts
+        { partNumber: 'DEL-001', description: 'Fuel Pump', brand: 'DELPHI', price: 189.99, stock: '3-5 Days' },
+        { partNumber: 'DEL-002', description: 'Fuel Filter', brand: 'DELPHI', price: 18.75, stock: 'In Stock' },
+        { partNumber: 'DEL-003', description: 'Fuel Pressure Regulator', brand: 'DELPHI', price: 45.60, stock: '1-2 Days' },
+        
+        // AJUSA Parts
+        { partNumber: 'AJU-001', description: 'Cylinder Head Gasket', brand: 'AJUSA', price: 156.99, stock: '2-3 Days' },
+        { partNumber: 'AJU-002', description: 'Valve Cover Gasket', brand: 'AJUSA', price: 23.45, stock: 'In Stock' },
+        { partNumber: 'AJU-003', description: 'Intake Manifold Gasket', brand: 'AJUSA', price: 34.80, stock: 'In Stock' },
+        
+        // FAE Parts
+        { partNumber: 'FAE-001', description: 'Clutch Kit', brand: 'FAE', price: 234.99, stock: '3-5 Days' },
+        { partNumber: 'FAE-002', description: 'Clutch Cable', brand: 'FAE', price: 28.50, stock: 'In Stock' },
+        { partNumber: 'FAE-003', description: 'Clutch Master Cylinder', brand: 'FAE', price: 67.25, stock: '1-2 Days' }
+      ],
+      
+      brakes: [
+        { partNumber: 'BRK-001', description: 'Front Brake Pads', brand: 'BOSCH', price: 45.99, stock: 'In Stock' },
+        { partNumber: 'BRK-002', description: 'Rear Brake Pads', brand: 'BOSCH', price: 38.50, stock: 'In Stock' },
+        { partNumber: 'BRK-003', description: 'Brake Disc Front', brand: 'BOSCH', price: 67.80, stock: 'In Stock' },
+        { partNumber: 'BRK-004', description: 'Brake Disc Rear', brand: 'BOSCH', price: 54.20, stock: 'In Stock' },
+        { partNumber: 'BRK-005', description: 'Brake Caliper', brand: 'FEBI BILSTEIN', price: 89.99, stock: '2-3 Days' },
+        { partNumber: 'BRK-006', description: 'Brake Hose', brand: 'FEBI BILSTEIN', price: 23.45, stock: 'In Stock' },
+        { partNumber: 'BRK-007', description: 'Brake Fluid DOT4', brand: 'Castrol', price: 8.99, stock: 'In Stock' },
+        { partNumber: 'BRK-008', description: 'Handbrake Cable', brand: 'AJUSA', price: 34.50, stock: 'In Stock' }
+      ],
+      
+      filters: [
+        { partNumber: 'FIL-001', description: 'Air Filter', brand: 'BOSCH', price: 15.99, stock: 'In Stock' },
+        { partNumber: 'FIL-002', description: 'Oil Filter', brand: 'BOSCH', price: 12.50, stock: 'In Stock' },
+        { partNumber: 'FIL-003', description: 'Fuel Filter', brand: 'BOSCH', price: 18.75, stock: 'In Stock' },
+        { partNumber: 'FIL-004', description: 'Cabin Air Filter', brand: 'BOSCH', price: 22.99, stock: 'In Stock' },
+        { partNumber: 'FIL-005', description: 'Air Filter', brand: 'MANN', price: 19.99, stock: 'In Stock' },
+        { partNumber: 'FIL-006', description: 'Oil Filter', brand: 'MANN', price: 14.50, stock: 'In Stock' }
       ]
     };
     
@@ -274,7 +334,8 @@ async function handleDepartmentParts(res, session, tenantId, supplierId, departm
         supplierId,
         department,
         success: true,
-        partCount: parts.length
+        partCount: parts.length,
+        manufacturers: [...new Set(parts.map(p => p.brand))]
       })]
     );
 
@@ -283,7 +344,9 @@ async function handleDepartmentParts(res, session, tenantId, supplierId, departm
       action: 'get_department_parts',
       department,
       parts,
-      message: `Parts from ${department} department retrieved successfully`
+      partCount: parts.length,
+      manufacturers: [...new Set(parts.map(p => p.brand))],
+      message: `${parts.length} parts from ${department} department retrieved successfully`
     });
   } catch (error) {
     throw error;

@@ -18,6 +18,11 @@ export default function FromAD360Button({
   const [vehicleVariants, setVehicleVariants] = useState([]);
   const [showVariantSelection, setShowVariantSelection] = useState(false);
   const [selectedVariant, setSelectedVariant] = useState(null);
+  
+  // New state for manufacturer filtering
+  const [manufacturers, setManufacturers] = useState([]);
+  const [selectedManufacturers, setSelectedManufacturers] = useState([]);
+  const [showManufacturerFilter, setShowManufacturerFilter] = useState(false);
 
   const executeAD360Workflow = async () => {
     if (!vehicleId) {
@@ -171,13 +176,21 @@ export default function FromAD360Button({
       const data = await response.json();
       setItems(data.parts);
       setSelectedDepartment(department);
+      
+      // Extract manufacturers from the loaded parts
+      if (data.manufacturers && data.manufacturers.length > 0) {
+        setManufacturers(data.manufacturers);
+        setSelectedManufacturers(data.manufacturers); // Start with all manufacturers selected
+        setShowManufacturerFilter(true);
+      }
+      
       setWorkflowStep(`Loaded ${data.parts.length} parts from ${department} department`);
       
       // Notify parent component with the loaded parts
       if (onItemsLoaded) {
         onItemsLoaded(data.parts);
       }
-
+      
       // If we have parts, show a success message
       if (data.parts.length > 0) {
         setWorkflowStep(`Successfully loaded ${data.parts.length} parts from ${department} department. Parts are now available in the dropdown below.`);
@@ -248,17 +261,78 @@ export default function FromAD360Button({
           ))}
         </div>
 
+        {/* Manufacturer Filter */}
+        {showManufacturerFilter && manufacturers.length > 0 && (
+          <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-blue-800">
+                Filter by Manufacturer ({selectedManufacturers.length} of {manufacturers.length})
+              </span>
+              <button
+                onClick={() => setShowManufacturerFilter(false)}
+                className="text-blue-600 hover:text-blue-800 text-sm"
+                title="Hide manufacturer filter"
+              >
+                ✕ Hide
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-4 gap-2 max-h-32 overflow-y-auto">
+              {manufacturers.map((manufacturer) => (
+                <label key={manufacturer} className="flex items-center space-x-2 text-xs">
+                  <input
+                    type="checkbox"
+                    checked={selectedManufacturers.includes(manufacturer)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedManufacturers([...selectedManufacturers, manufacturer]);
+                      } else {
+                        setSelectedManufacturers(selectedManufacturers.filter(m => m !== manufacturer));
+                      }
+                    }}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-gray-700">{manufacturer}</span>
+                </label>
+              ))}
+            </div>
+            
+            <div className="mt-2 flex gap-2">
+              <button
+                onClick={() => setSelectedManufacturers(manufacturers)}
+                className="text-xs text-blue-600 hover:text-blue-800 underline"
+              >
+                Select All
+              </button>
+              <button
+                onClick={() => setSelectedManufacturers([])}
+                className="text-xs text-blue-600 hover:text-blue-800 underline"
+              >
+                Clear All
+              </button>
+            </div>
+          </div>
+        )}
+
         {items.length > 0 && (
           <div className="mt-3 p-2 bg-white border border-gray-200 rounded">
             <p className="text-xs text-gray-600 mb-2">
               {items.length} parts available from {selectedDepartment}
+              {selectedManufacturers.length > 0 && (
+                <span className="ml-2 text-blue-600">
+                  (Filtered by {selectedManufacturers.length} manufacturers)
+                </span>
+              )}
             </p>
             <div className="text-xs text-gray-500">
               Parts are now loaded. Use the dropdown below to select items.
             </div>
             {/* Show first few parts as examples */}
             <div className="mt-2 space-y-1">
-              {items.slice(0, 3).map((item, index) => (
+              {items
+                .filter(item => selectedManufacturers.length === 0 || selectedManufacturers.includes(item.brand))
+                .slice(0, 5)
+                .map((item, index) => (
                 <div key={index} className="text-xs text-gray-700 p-1 bg-gray-50 rounded">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
@@ -280,9 +354,9 @@ export default function FromAD360Button({
                   </div>
                 </div>
               ))}
-              {items.length > 3 && (
+              {items.filter(item => selectedManufacturers.length === 0 || selectedManufacturers.includes(item.brand)).length > 5 && (
                 <div className="text-xs text-gray-500 italic">
-                  ... and {items.length - 3} more parts
+                  ... and {items.filter(item => selectedManufacturers.length === 0 || selectedManufacturers.includes(item.brand)).length - 5} more parts
                 </div>
               )}
             </div>
