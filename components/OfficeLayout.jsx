@@ -82,15 +82,22 @@ export default function OfficeLayout({ children }) {
   useEffect(() => {
     if (!term) return setResults(null);
     let cancel = false;
-    fetchSearch(term)
-      .then(r => {
-        if (!cancel) setResults(r);
-      })
-      .catch(() => {
-        if (!cancel) setResults(null);
-      });
+    
+    // Add debouncing to prevent too many API calls
+    const timeoutId = setTimeout(() => {
+      fetchSearch(term)
+        .then(r => {
+          if (!cancel && r) setResults(r);
+        })
+        .catch((error) => {
+          console.error('Search error:', error);
+          if (!cancel) setResults(null);
+        });
+    }, 300); // 300ms delay
+
     return () => {
       cancel = true;
+      clearTimeout(timeoutId);
     };
   }, [term]);
 
@@ -425,18 +432,139 @@ export default function OfficeLayout({ children }) {
               </button>
             </div>
             
-            <div className="space-y-2">
-              {results.map((result) => (
-                <Link
-                  key={result.id}
-                  href={result.url}
-                  className="block p-3 hover:bg-surface-secondary rounded-xl transition-all duration-200"
-                  onClick={() => setResults(null)}
-                >
-                  <div className="font-medium">{result.title}</div>
-                  <div className="text-sm text-text-secondary">{result.url}</div>
-                </Link>
-              ))}
+            <div className="space-y-4">
+              {/* Clients */}
+              {results.clients && results.clients.length > 0 && (
+                <div>
+                  <h4 className="font-semibold text-primary mb-2">Clients</h4>
+                  <div className="space-y-2">
+                    {results.clients.map((client) => (
+                      <Link
+                        key={`client-${client.id}`}
+                        href={`/office/clients/${client.id}`}
+                        className="block p-3 hover:bg-surface-secondary rounded-xl transition-all duration-200"
+                        onClick={() => setResults(null)}
+                      >
+                        <div className="font-medium">{client.first_name} {client.last_name}</div>
+                        <div className="text-sm text-text-secondary">{client.email || client.mobile || client.garage_name}</div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Vehicles */}
+              {results.vehicles && results.vehicles.length > 0 && (
+                <div>
+                  <h4 className="font-semibold text-primary mb-2">Vehicles</h4>
+                  <div className="space-y-2">
+                    {results.vehicles.map((vehicle) => (
+                      <Link
+                        key={`vehicle-${vehicle.id}`}
+                        href={`/office/vehicles/${vehicle.id}`}
+                        className="block p-3 hover:bg-surface-secondary rounded-xl transition-all duration-200"
+                        onClick={() => setResults(null)}
+                      >
+                        <div className="font-medium">{vehicle.licence_plate}</div>
+                        <div className="text-sm text-text-secondary">{vehicle.make} {vehicle.model}</div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Quotes */}
+              {results.quotes && results.quotes.length > 0 && (
+                <div>
+                  <h4 className="font-semibold text-primary mb-2">Quotes</h4>
+                  <div className="space-y-2">
+                    {results.quotes.map((quote) => (
+                      <Link
+                        key={`quote-${quote.id}`}
+                        href={`/office/quotations/${quote.id}`}
+                        className="block p-3 hover:bg-surface-secondary rounded-xl transition-all duration-200"
+                        onClick={() => setResults(null)}
+                      >
+                        <div className="font-medium">Quote #{quote.id}</div>
+                        <div className="text-sm text-text-secondary">View quote details</div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Jobs */}
+              {results.jobs && results.jobs.length > 0 && (
+                <div>
+                  <h4 className="font-semibold text-primary mb-2">Jobs</h4>
+                  <div className="space-y-2">
+                    {results.jobs.map((job) => (
+                      <Link
+                        key={`job-${job.id}`}
+                        href={`/office/jobs/${job.id}`}
+                        className="block p-3 hover:bg-surface-secondary rounded-xl transition-all duration-200"
+                        onClick={() => setResults(null)}
+                      >
+                        <div className="font-medium">Job #{job.id}</div>
+                        <div className="text-sm text-text-secondary">View job details</div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Invoices */}
+              {results.invoices && results.invoices.length > 0 && (
+                <div>
+                  <h4 className="font-semibold text-primary mb-2">Invoices</h4>
+                  <div className="space-y-2">
+                    {results.invoices.map((invoice) => (
+                      <Link
+                        key={`invoice-${invoice.id}`}
+                        href={`/office/invoices/${invoice.id}`}
+                        className="block p-3 hover:bg-surface-secondary rounded-xl transition-all duration-200"
+                        onClick={() => setResults(null)}
+                      >
+                        <div className="font-medium">Invoice #{invoice.id}</div>
+                        <div className="text-sm text-text-secondary">View invoice details</div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Parts */}
+              {results.parts && results.parts.length > 0 && (
+                <div>
+                  <h4 className="font-semibold text-primary mb-2">Parts</h4>
+                  <div className="space-y-2">
+                    {results.parts.map((part) => (
+                      <Link
+                        key={`part-${part.id}`}
+                        href={`/office/parts/${part.id}`}
+                        className="block p-3 hover:bg-surface-secondary rounded-xl transition-all duration-200"
+                        onClick={() => setResults(null)}
+                      >
+                        <div className="font-medium">{part.part_number}</div>
+                        <div className="text-sm text-text-secondary">{part.description}</div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* No Results */}
+              {(!results.clients || results.clients.length === 0) &&
+               (!results.vehicles || results.vehicles.length === 0) &&
+               (!results.quotes || results.quotes.length === 0) &&
+               (!results.jobs || results.jobs.length === 0) &&
+               (!results.invoices || results.invoices.length === 0) &&
+               (!results.parts || results.parts.length === 0) && (
+                <div className="text-center py-8 text-text-secondary">
+                  <div className="text-lg font-medium mb-2">No results found</div>
+                  <div className="text-sm">Try searching with different terms</div>
+                </div>
+              )}
             </div>
           </div>
         </div>
