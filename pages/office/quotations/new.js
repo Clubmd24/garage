@@ -92,7 +92,7 @@ export default function NewQuotationPage() {
           const v = await fetchVehicle(vehicle_id);
           setForm(f => ({ ...f, vehicle_id: v.id }));
           setSelectedVehicleDisplay(`${v.licence_plate || 'No Plate'} - ${v.make} ${v.model} ${v.year}`);
-          if (v.customer_id) {
+          if (v.customer_id && !form.customer_id) {
             setMode('client');
             setForm(f => ({ ...f, customer_id: v.customer_id }));
             try {
@@ -334,7 +334,7 @@ export default function NewQuotationPage() {
                 setForm(f => ({ ...f, vehicle_id: v.id }));
                 setSelectedVehicleDisplay(`${v.licence_plate || 'No Plate'} - ${v.make} ${v.model} ${v.year}`);
                 // Auto-populate client if vehicle has one
-                if (v.customer_id) {
+                if (v.customer_id && !form.customer_id) {
                   setMode('client');
                   setForm(f => ({ ...f, customer_id: v.customer_id, fleet_id: '' }));
                   // Fetch and set client name

@@ -105,7 +105,9 @@ export default function FromAD360Button({
       }
 
       // Continue with the selected variant
-      await continueWithSelectedVariant();
+      await setTimeout(() => {
+                continueWithSelectedVariant();
+              }, 100);
 
     } catch (error) {
       console.error('AD360 workflow error:', error);
@@ -142,7 +144,9 @@ export default function FromAD360Button({
       const departmentsData = await departmentsResponse.json();
       setDepartments(departmentsData.departments);
       setWorkflowStep('Parts departments loaded. Select a department to view parts.');
+      setTimeout(() => {
       setAd360Mode(true);
+    }, 500);
 
     } catch (error) {
       console.error('Continue workflow error:', error);
@@ -398,7 +402,9 @@ export default function FromAD360Button({
               onClick={() => {
                 setSelectedVariant(variant);
                 setShowVariantSelection(false);
+                setTimeout(() => {
                 continueWithSelectedVariant();
+              }, 100);
               }}
               className="w-full p-3 text-left bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-blue-300 transition-colors"
             >
