@@ -43,6 +43,7 @@ export default function NewQuotationPage() {
   const [vehicleError, setVehicleError] = useState(null);
   const [ad360Items, setAd360Items] = useState([]);
   const [ad360Mode, setAd360Mode] = useState(false);
+  const [clientVehicles, setClientVehicles] = useState([]); // Add this state
   const SAVE_KEY = 'quote_draft';
 
   // Load fleets
@@ -133,6 +134,7 @@ export default function NewQuotationPage() {
     setItems([emptyItem]);
     setAd360Items([]);
     setAd360Mode(false);
+    setClientVehicles([]); // Clear client vehicles
     setError(null);
     setVehicleError(null);
   };
@@ -143,14 +145,30 @@ export default function NewQuotationPage() {
     setForm(f => ({ ...f, customer_id: client.id, fleet_id: '' }));
     setMode('client');
     
-    // Clear vehicle if it doesn't belong to this client
-    if (form.vehicle_id) {
-      // Check if current vehicle belongs to this client
-      // If not, clear the vehicle selection
-      // This would require an API call to check vehicle ownership
-      // For now, we'll clear it and let user reselect
+    // Set client vehicles for potential dropdown
+    setClientVehicles(client.vehicles || []);
+    
+    // Handle vehicle auto-population based on client's vehicles
+    if (client.vehicles && client.vehicles.length > 0) {
+      if (client.vehicles.length === 1) {
+        // Auto-populate if client has only one vehicle
+        const vehicle = client.vehicles[0];
+        setSelectedVehicleDisplay(`${vehicle.licence_plate || 'No Plate'} - ${vehicle.make} ${vehicle.model}`);
+        setForm(f => ({ ...f, vehicle_id: vehicle.id }));
+        console.log('Auto-populated vehicle:', vehicle);
+      } else {
+        // Clear vehicle selection if client has multiple vehicles
+        // User will need to choose from dropdown
+        setForm(f => ({ ...f, vehicle_id: '' }));
+        setSelectedVehicleDisplay('');
+        console.log('Client has multiple vehicles, cleared selection');
+      }
+    } else {
+      // Clear vehicle if client has no vehicles
       setForm(f => ({ ...f, vehicle_id: '' }));
       setSelectedVehicleDisplay('');
+      setClientVehicles([]);
+      console.log('Client has no vehicles, cleared selection');
     }
   };
 
@@ -315,7 +333,12 @@ export default function NewQuotationPage() {
               <div className="flex space-x-4 mb-4">
                 <button
                   type="button"
-                  onClick={() => setMode('client')}
+                  onClick={() => {
+                    setMode('client');
+                    // Clear fleet-related state
+                    setForm(f => ({ ...f, fleet_id: '' }));
+                    setClientVehicles([]);
+                  }}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                     mode === 'client'
                       ? 'bg-blue-100 text-blue-700 border-2 border-blue-300'
@@ -326,7 +349,13 @@ export default function NewQuotationPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setMode('fleet')}
+                  onClick={() => {
+                    setMode('fleet');
+                    // Clear client-related state
+                    setForm(f => ({ ...f, customer_id: '' }));
+                    setClientName('');
+                    setClientVehicles([]);
+                  }}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                     mode === 'fleet'
                       ? 'bg-blue-100 text-blue-700 border-2 border-blue-300'
@@ -392,6 +421,40 @@ export default function NewQuotationPage() {
                   />
                 </div>
               </div>
+
+              {/* Vehicle Dropdown for Multiple Client Vehicles */}
+              {mode === 'client' && clientVehicles.length > 1 && (
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Select Client Vehicle
+                  </label>
+                  <select
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+                    value={form.vehicle_id || ''}
+                    onChange={(e) => {
+                      const vehicleId = e.target.value;
+                      if (vehicleId) {
+                        const vehicle = clientVehicles.find(v => v.id === parseInt(vehicleId));
+                        if (vehicle) {
+                          setSelectedVehicleDisplay(`${vehicle.licence_plate || 'No Plate'} - ${vehicle.make} ${vehicle.model}`);
+                          setForm(f => ({ ...f, vehicle_id: vehicle.id }));
+                          console.log('Selected vehicle from dropdown:', vehicle);
+                        }
+                      } else {
+                        setSelectedVehicleDisplay('');
+                        setForm(f => ({ ...f, vehicle_id: '' }));
+                      }
+                    }}
+                  >
+                    <option value="">Choose a vehicle...</option>
+                    {clientVehicles.map((vehicle) => (
+                      <option key={vehicle.id} value={vehicle.id}>
+                        {vehicle.licence_plate || 'No Plate'} - {vehicle.make} {vehicle.model}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               {/* Selected Client & Vehicle Display */}
               {(clientName || selectedVehicleDisplay) && (
