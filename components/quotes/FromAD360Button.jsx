@@ -49,15 +49,15 @@ export default function FromAD360Button({
       
       console.log('Vehicle data for AD360:', vehicle);
 
-      // Execute complete AD360 workflow in one call
-      setWorkflowStep('Executing AD360 workflow...');
+      // Start with vehicle search to get variants
+      setWorkflowStep('Searching for vehicle variants...');
       const response = await fetch('/api/integrations/ad360/workflow', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          action: 'complete_workflow',
+          action: 'search_vehicle',
           vehicleId: vehicleId,
           tenantId: tenantId,
           supplierId: 7, // AD360 supplier ID
@@ -90,31 +90,17 @@ export default function FromAD360Button({
 
       // Handle the workflow result
       if (data.status === 'success') {
-        if (data.action === 'complete_workflow') {
-          // Workflow completed, now show department selection
-          setWorkflowStep('AD360 workflow completed! Select a department to view parts...');
-          
-          if (data.departments && data.departments.length > 0) {
-            setDepartments(data.departments);
-            setAd360Mode(true); // Set ad360Mode to true to show department selection
-            setWorkflowStep(`Found ${data.departments.length} departments. Please select one to view parts.`);
+        if (data.action === 'search_vehicle') {
+          // Vehicle search completed, show variant selection
+          if (data.variants && data.variants.length > 0) {
+            setVehicleVariants(data.variants);
+            setShowVariantSelection(true);
+            setWorkflowStep(`Found ${data.variants.length} vehicle variants. Please select the correct one.`);
           } else {
-            // Fallback to mock departments if none provided
-            const mockDepartments = [
-              { id: 'motor', name: 'Motor', description: 'Engine and motor components', partCount: 108 },
-              { id: 'brakes', name: 'Brakes', description: 'Brake system components', partCount: 85 },
-              { id: 'engine', name: 'Engine', description: 'Engine parts and accessories', partCount: 156 },
-              { id: 'electrical', name: 'Electrical', description: 'Electrical system components', partCount: 92 },
-              { id: 'suspension', name: 'Suspension', description: 'Suspension and steering parts', partCount: 78 },
-              { id: 'transmission', name: 'Transmission', description: 'Gearbox and transmission parts', partCount: 64 },
-              { id: 'cooling', name: 'Cooling', description: 'Cooling system components', partCount: 53 },
-              { id: 'fuel', name: 'Fuel System', description: 'Fuel system components', partCount: 47 }
-            ];
-            setDepartments(mockDepartments);
-            setAd360Mode(true); // Set ad360Mode to true to show department selection
-            setWorkflowStep(`Found ${mockDepartments.length} departments. Please select one to view parts.`);
+            // No variants found, continue with workflow
+            setWorkflowStep('No variants found, continuing with workflow...');
+            await continueWorkflow(vehicle);
           }
-          
           setIsLoading(false);
         } else if (data.action === 'select_distributor') {
           // Continue with next steps
