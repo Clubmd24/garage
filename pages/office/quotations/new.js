@@ -119,6 +119,31 @@ export default function NewQuotationPage() {
     load();
   }, [router.isReady, router.query, fleets]);
 
+  // Debug logging for vehicle data changes
+  useEffect(() => {
+    console.log('Vehicle data changed:', {
+      vehicle_id: form.vehicle_id,
+      selectedVehicleDisplay,
+      clientVehicles: clientVehicles.length
+    });
+  }, [form.vehicle_id, selectedVehicleDisplay, clientVehicles]);
+
+  // Helper function to get consistent vehicle display text
+  const getVehicleDisplayText = () => {
+    if (!form.vehicle_id) return '';
+    
+    // First check if we have the vehicle in clientVehicles
+    if (clientVehicles.length > 0) {
+      const vehicle = clientVehicles.find(v => v.id === form.vehicle_id);
+      if (vehicle) {
+        return `${vehicle.licence_plate || 'No Plate'} - ${vehicle.make} ${vehicle.model}`;
+      }
+    }
+    
+    // Fallback to selectedVehicleDisplay
+    return selectedVehicleDisplay;
+  };
+
   const clearForm = () => {
     setForm({
       customer_id: '',
@@ -464,9 +489,9 @@ export default function NewQuotationPage() {
                       <span className="font-medium">Selected {mode === 'client' ? 'Client' : 'Fleet'}:</span> {clientName}
                     </div>
                   )}
-                  {selectedVehicleDisplay && (
+                  {getVehicleDisplayText() && (
                     <div className="text-sm text-gray-700">
-                      <span className="font-medium">Selected Vehicle:</span> {selectedVehicleDisplay}
+                      <span className="font-medium">Selected Vehicle:</span> {getVehicleDisplayText()}
                     </div>
                   )}
                 </div>

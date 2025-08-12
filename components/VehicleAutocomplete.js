@@ -14,8 +14,12 @@ export default function VehicleAutocomplete({
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (value !== undefined) setTerm(value);
-  }, [value]);
+    if (value !== undefined && value !== term) {
+      setTerm(value);
+      // Close dropdown when value is set externally
+      setIsOpen(false);
+    }
+  }, [value, term]);
 
   useEffect(() => {
     if (!term || term.length < 1) {
@@ -91,6 +95,19 @@ export default function VehicleAutocomplete({
     setIsOpen(false);
   };
 
+  const handleInputFocus = () => {
+    if (results.length > 0) {
+      setIsOpen(true);
+    }
+  };
+
+  const handleInputBlur = () => {
+    // Small delay to allow click events to fire first
+    setTimeout(() => {
+      setIsOpen(false);
+    }, 150);
+  };
+
   return (
     <div className="relative">
       <input
@@ -101,9 +118,8 @@ export default function VehicleAutocomplete({
           setTerm(e.target.value);
           onChange && onChange(e.target.value);
         }}
-        onFocus={() => {
-          if (results.length > 0) setIsOpen(true);
-        }}
+        onFocus={handleInputFocus}
+        onBlur={handleInputBlur}
         placeholder={placeholder}
       />
       
