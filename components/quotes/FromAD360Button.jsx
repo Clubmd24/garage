@@ -471,12 +471,12 @@ export default function FromAD360Button({
         </div>
 
         <div className="mt-3 p-2 bg-white border border-gray-200 rounded">
-          <p className="text-xs text-gray-600 mb-2">
+          <p className="text-xs !text-gray-600 mb-2" style={{color: '#4B5563'}}>
             Parts are now loaded and filtered. Use the dropdown below to select items.
           </p>
-          <div className="text-xs text-gray-500">
+          <div className="text-xs !text-gray-500" style={{color: '#6B7280'}}>
             {selectedManufacturers.length > 0 && (
-              <span className="text-blue-600">
+              <span className="!text-blue-600" style={{color: '#2563EB'}}>
                 Showing parts from {selectedManufacturers.length} manufacturers
               </span>
             )}
@@ -485,7 +485,7 @@ export default function FromAD360Button({
         
         {/* Parts List Display */}
         <div className="mt-4">
-          <h4 className="text-sm font-medium text-gray-800 mb-3">
+          <h4 className="text-sm font-medium !text-gray-800 mb-3" style={{color: '#1F2937'}}>
             Available Parts ({items.length})
           </h4>
           <div className="grid grid-cols-1 gap-2 max-h-96 overflow-y-auto">
@@ -504,30 +504,30 @@ export default function FromAD360Button({
                   <div className="flex-1">
                     <div className="flex items-center space-x-3">
                       <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center">
-                        <span className="text-xs text-gray-500 font-mono">
+                        <span className="text-xs !text-gray-500 font-mono" style={{color: '#6B7280'}}>
                           {item.manufacturer?.substring(0, 2) || 'AD'}
                         </span>
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center space-x-2">
-                          <span className="text-sm font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                          <span className="text-sm font-mono !text-blue-600 bg-blue-50 px-2 py-1 rounded" style={{color: '#2563EB'}}>
                             {item.partNumber}
                           </span>
-                                                   <span className="text-xs text-gray-500">
-                           {item.brand || item.manufacturer}
-                         </span>
+                          <span className="text-xs !text-gray-500" style={{color: '#6B7280'}}>
+                            {item.brand || item.manufacturer}
+                          </span>
                         </div>
-                        <p className="text-sm text-gray-800 mt-1">
+                        <p className="text-sm !text-gray-800 mt-1" style={{color: '#1F2937'}}>
                           {item.description}
                         </p>
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-lg font-semibold text-green-600">
+                    <div className="text-lg font-semibold !text-green-600" style={{color: '#059669'}}>
                       €{item.price?.amount || item.price || '0.00'}
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs !text-gray-500" style={{color: '#6B7280'}}>
                       {item.category}
                     </div>
                   </div>
