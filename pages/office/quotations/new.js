@@ -15,9 +15,11 @@ const emptyItem = {
   markup: '',
   price: '',
 };
+
 import PartAutocomplete from '../../../components/PartAutocomplete';
 import DescriptionAutocomplete from '../../../components/DescriptionAutocomplete';
-import ClientVehicleAutocomplete from '../../../components/ClientVehicleAutocomplete';
+import ClientAutocomplete from '../../../components/ClientAutocomplete';
+import VehicleAutocomplete from '../../../components/VehicleAutocomplete';
 import FromAD360Button from '../../../components/quotes/FromAD360Button';
 import AD360Autocomplete from '../../../components/quotes/AD360Autocomplete';
 
@@ -43,6 +45,11 @@ export default function NewQuotationPage() {
   const [ad360Mode, setAd360Mode] = useState(false);
   const SAVE_KEY = 'quote_draft';
 
+  // Load fleets
+  useEffect(() => {
+    fetchFleets().then(setFleets);
+  }, []);
+
   // load draft from localStorage
   useEffect(() => {
     if (!router.isReady) return;
@@ -62,9 +69,6 @@ export default function NewQuotationPage() {
     // Always start with empty items for new quotes
     setItems([emptyItem]);
   }, [router.isReady]);
-
-
-
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -86,7 +90,7 @@ export default function NewQuotationPage() {
         try {
           const v = await fetchVehicle(vehicle_id);
           setForm(f => ({ ...f, vehicle_id: v.id }));
-          setSelectedVehicleDisplay(`${v.licence_plate || 'No Plate'} - ${v.make} ${v.model} ${v.year}`);
+          setSelectedVehicleDisplay(`${v.licence_plate || 'No Plate'} - ${v.make} ${v.model}`);
           if (v.customer_id && !form.customer_id) {
             setMode('client');
             setForm(f => ({ ...f, customer_id: v.customer_id }));
@@ -99,43 +103,22 @@ export default function NewQuotationPage() {
           } else if (v.fleet_id && v.fleet_id !== 2) {
             // Treat fleet_id = 2 (LOCAL) as direct clients, not fleet vehicles
             setMode('fleet');
-            setForm(f => ({ ...f, fleet_id: v.fleet_id }));
+            setForm(f => ({ ...f, fleet_id: v.fleet_id, customer_id: '' }));
+            // Fetch fleet name for display
+            const fleet = fleets.find(f => f.id === v.fleet_id);
+            if (fleet) {
+              setClientName(fleet.company_name);
+            }
           }
         } catch {
-          setError(e => e || 'Failed to load vehicle');
+          setVehicleError('Failed to load vehicle');
         }
       }
     }
     load();
-  }, [router.isReady]);
+  }, [router.isReady, router.query, fleets]);
 
-
-  useEffect(() => {
-    setForm(f => ({ ...f, customer_id: '', fleet_id: '', vehicle_id: '' }));
-    setClientName('');
-    setSelectedVehicleDisplay('');
-  }, [mode]);
-
-  useEffect(() => {
-    fetchFleets()
-      .then(setFleets)
-      .catch(() => setError('Failed to load fleets'));
-  }, []);
-
-  // Vehicles are now loaded dynamically via VehicleAutocomplete
-  // No need to pre-load all vehicles
-
-  const addItem = () => setItems(items => [...items, emptyItem]);
-
-  const removeItem = (index) => {
-    if (items.length > 1) {
-      setItems(items => items.filter((_, i) => i !== index));
-    }
-  };
-
-  const clearDraft = () => {
-    localStorage.removeItem(SAVE_KEY);
-    setItems([emptyItem]);
+  const clearForm = () => {
     setForm({
       customer_id: '',
       fleet_id: '',
@@ -147,7 +130,51 @@ export default function NewQuotationPage() {
     });
     setClientName('');
     setSelectedVehicleDisplay('');
+    setItems([emptyItem]);
+    setAd360Items([]);
+    setAd360Mode(false);
+    setError(null);
+    setVehicleError(null);
+  };
+
+  const handleClientSelect = (client) => {
+    setClientName(`${client.first_name || ''} ${client.last_name || ''}`.trim());
+    setForm(f => ({ ...f, customer_id: client.id, fleet_id: '' }));
     setMode('client');
+    
+    // Clear vehicle if it doesn't belong to this client
+    if (form.vehicle_id) {
+      // Check if current vehicle belongs to this client
+      // If not, clear the vehicle selection
+      // This would require an API call to check vehicle ownership
+      // For now, we'll clear it and let user reselect
+      setForm(f => ({ ...f, vehicle_id: '' }));
+      setSelectedVehicleDisplay('');
+    }
+  };
+
+  const handleVehicleSelect = (vehicle) => {
+    setSelectedVehicleDisplay(`${vehicle.licence_plate || 'No Plate'} - ${vehicle.make} ${vehicle.model}`);
+    setForm(f => ({ ...f, vehicle_id: vehicle.id }));
+    
+    // Auto-populate client if vehicle has one
+    if (vehicle.customer_id && !form.customer_id) {
+      setMode('client');
+      setForm(f => ({ ...f, customer_id: vehicle.customer_id }));
+      // Fetch and set client name
+      fetchClient(vehicle.customer_id).then(client => {
+        setClientName(`${client.first_name || ''} ${client.last_name || ''}`.trim());
+      }).catch(() => {
+        // Ignore errors, client might not exist
+      });
+    } else if (vehicle.fleet_id && vehicle.fleet_id !== 2) {
+      setMode('fleet');
+      setForm(f => ({ ...f, fleet_id: vehicle.fleet_id, customer_id: '' }));
+      const fleet = fleets.find(f => f.id === vehicle.fleet_id);
+      if (fleet) {
+        setClientName(fleet.company_name);
+      }
+    }
   };
 
   const changeItem = (i, field, value) => {
@@ -250,417 +277,434 @@ export default function NewQuotationPage() {
     }
   };
 
+  const addItem = () => {
+    setItems([...items, emptyItem]);
+  };
+
+  const removeItem = (i) => {
+    setItems(items.filter((_, index) => index !== i));
+  };
+
   return (
     <OfficeLayout>
-      <h1 className="text-2xl font-semibold mb-4">New Quote</h1>
-      {error && <p className="text-red-500">{error}</p>}
-      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-        <p className="text-sm text-blue-800">
-          <strong>Note:</strong> Fields marked with * are required. You must add at least one item with description, quantity, and unit cost.
-        </p>
-      </div>
-      <form onSubmit={submit} className="space-y-4 mb-8 max-w-4xl">
-        <div className="mb-2 flex gap-2">
-          <button
-            type="button"
-            className={(mode === 'client' ? 'button' : 'button-secondary') + ' px-4'}
-            onClick={() => setMode('client')}
-          >
-            Client
-          </button>
-          <button
-            type="button"
-            className={(mode === 'fleet' ? 'button' : 'button-secondary') + ' px-4'}
-            onClick={() => setMode('fleet')}
-          >
-            Fleet
-          </button>
-        </div>
-        
-        <div>
-          <label className="block mb-1">
-            {mode === 'client' ? 'Client & Vehicle *' : 'Fleet & Vehicle *'}
-          </label>
-          {form.vehicle_id && selectedVehicleDisplay ? (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <div className="input-readonly flex-1">{selectedVehicleDisplay}</div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setForm(f => ({ ...f, vehicle_id: '' }));
-                    setSelectedVehicleDisplay('');
-                  }}
-                  className="button-secondary px-2"
-                >
-                  Clear
-                </button>
-              </div>
-              {clientName && (
-                <div className="text-sm text-gray-600">
-                  Client: {clientName}
-                </div>
-              )}
-            </div>
-          ) : (
-            <ClientVehicleAutocomplete
-              mode={mode}
-              value=""
-              onChange={v => {
-                // Allow typing for search
-              }}
-              onSelect={result => {
-                if (result.type === 'client') {
-                  // Client selected (no vehicles)
-                  const client = result.data;
-                  setClientName(result.displayName);
-                  setForm(f => ({ ...f, customer_id: client.id, fleet_id: '' }));
-                  setMode('client');
-                } else if (result.type === 'client_vehicle') {
-                  // Combined client + vehicle selected
-                  setClientName(result.clientName);
-                  setForm(f => ({ ...f, customer_id: result.clientId, vehicle_id: result.vehicleId, fleet_id: '' }));
-                  setMode('client');
-                  setSelectedVehicleDisplay(result.vehicleDisplay);
-                } else if (result.type === 'fleet') {
-                  // Fleet selected (no vehicles)
-                  const fleet = result.data;
-                  setClientName(result.displayName);
-                  setForm(f => ({ ...f, fleet_id: fleet.id, customer_id: '' }));
-                  setMode('fleet');
-                } else if (result.type === 'fleet_vehicle') {
-                  // Combined fleet + vehicle selected
-                  setClientName(result.fleetName);
-                  setForm(f => ({ ...f, fleet_id: result.fleetId, vehicle_id: result.vehicleId, customer_id: '' }));
-                  setMode('fleet');
-                  setSelectedVehicleDisplay(result.vehicleDisplay);
-                } else {
-                  // Standalone vehicle selected
-                  const vehicle = result.data;
-                  setForm(f => ({ ...f, vehicle_id: vehicle.id }));
-                  setSelectedVehicleDisplay(result.displayName);
-                  
-                  // Auto-populate based on vehicle's association
-                  if (vehicle.customer_id) {
-                    // Vehicle belongs to individual client
-                    setClientName(result.clientName || '');
-                    setForm(f => ({ ...f, customer_id: vehicle.customer_id, fleet_id: '' }));
-                    setMode('client');
-                  } else if (vehicle.fleet_id && vehicle.fleet_id !== 2) {
-                    // Vehicle belongs to fleet (not LOCAL)
-                    setMode('fleet');
-                    setForm(f => ({ ...f, fleet_id: vehicle.fleet_id, customer_id: '' }));
-                    // Fetch fleet name for display
-                    const fleet = fleets.find(f => f.id === vehicle.fleet_id);
-                    if (fleet) {
-                      setClientName(fleet.company_name);
-                    }
-                  }
-                }
-              }}
-              placeholder={mode === 'client' ? "Search by client name or vehicle license plate" : "Search by fleet company or vehicle license plate"}
-            />
-          )}
-          {vehicleError && (
-            <p className="text-red-500 mt-1" data-testid="vehicle-error">
-              {vehicleError}
-            </p>
-          )}
-        </div>
-        
-        {/* Fleet Selection Dropdown - Only show in fleet mode when no vehicle selected */}
-        {mode === 'fleet' && !form.vehicle_id && (
-          <div>
-            <label className="block mb-1">Fleet Company *</label>
-            <select
-              className="input w-full"
-              value={form.fleet_id}
-              onChange={e => {
-                const fleetId = e.target.value;
-                setForm(f => ({ ...f, fleet_id: fleetId, customer_id: '' }));
-                if (fleetId) {
-                  const fleet = fleets.find(f => f.id === parseInt(fleetId));
-                  if (fleet) {
-                    setClientName(fleet.company_name);
-                  }
-                } else {
-                  setClientName('');
-                }
-              }}
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold text-gray-900">New Quotation</h1>
+            <button
+              onClick={() => router.push('/office/quotations')}
+              className="px-4 py-2 text-gray-600 hover:text-gray-800"
             >
-              <option value="">Select fleet company</option>
-              {fleets.filter(f => f.id !== 2).map(f => (
-                <option key={f.id} value={f.id}>
-                  {f.company_name}
-                </option>
-              ))}
-            </select>
+              ← Back to Quotes
+            </button>
           </div>
-        )}
-        <div>
-          <label className="block mb-1">Customer Ref #</label>
-          <input
-            className="input w-full"
-            value={form.customer_ref}
-            onChange={e =>
-              setForm(f => ({ ...f, customer_ref: e.target.value }))
-            }
-          />
-        </div>
-        <div>
-          <label className="block mb-1">PO Number</label>
-          <input
-            className="input w-full"
-            value={form.po_number}
-            onChange={e =>
-              setForm(f => ({ ...f, po_number: e.target.value }))
-            }
-          />
-        </div>
-        <div>
-          <label className="block mb-1">Defect Description</label>
-          <textarea
-            className="input w-full"
-            value={form.defect_description}
-            onChange={e =>
-              setForm(f => ({ ...f, defect_description: e.target.value }))
-            }
-          />
-        </div>
-        <div>
-          <h2 className="font-semibold mb-2">Item Details</h2>
-          
-          {/* AD360 Integration */}
-          {form.vehicle_id && (
-            <div className="mb-4">
-              <FromAD360Button
-                vehicleId={form.vehicle_id}
-                tenantId={1}
-                onItemsLoaded={(ad360Items) => {
-                  console.log('AD360 items loaded:', ad360Items);
-                  // Store AD360 items in state for use in autocomplete
-                  setAd360Items(ad360Items);
-                  setAd360Mode(true);
-                  
-                  // If we have items and the first row is empty, pre-populate it with the first AD360 item
-                  if (ad360Items.length > 0 && items.length > 0 && !items[0].part_number) {
-                    const firstItem = ad360Items[0];
-                    const updatedItems = [...items];
-                    updatedItems[0] = {
-                      ...updatedItems[0],
-                      part_number: firstItem.partNumber || '',
-                      description: firstItem.description || '',
-                      unit_cost: firstItem.price?.amount || 0,
-                      qty: '1',
-                      markup: '0'
-                    };
-                    setItems(updatedItems);
-                  }
-                }}
-                onError={(error) => {
-                  setError(`AD360 Error: ${error}`);
-                }}
-              />
+
+          {error && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={submit} className="space-y-6">
+            {/* Client & Vehicle Section */}
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <h2 className="text-xl font-semibold mb-4">Client & Vehicle</h2>
               
               {/* Mode Toggle */}
-              {ad360Items.length > 0 && (
-                <div className="mt-2 flex items-center gap-2">
-                  <span className="text-sm text-gray-600">Parts Source:</span>
-                  <button
-                    type="button"
-                    onClick={() => setAd360Mode(false)}
-                    className={`px-3 py-1 text-sm rounded border ${
-                      !ad360Mode 
-                        ? 'bg-blue-100 text-blue-700 border-blue-300' 
-                        : 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200'
-                    }`}
-                  >
-                    Internal Parts
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setAd360Mode(true)}
-                    className={`px-3 py-1 text-sm rounded border ${
-                      ad360Mode 
-                        ? 'bg-green-100 text-green-700 border-green-300' 
-                        : 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200'
-                    }`}
-                  >
-                    AD360 Parts
-                  </button>
+              <div className="flex space-x-4 mb-4">
+                <button
+                  type="button"
+                  onClick={() => setMode('client')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    mode === 'client'
+                      ? 'bg-blue-100 text-blue-700 border-2 border-blue-300'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  Individual Client
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMode('fleet')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    mode === 'fleet'
+                      ? 'bg-blue-100 text-blue-700 border-2 border-blue-300'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  Fleet Company
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Client/Fleet Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {mode === 'client' ? 'Client' : 'Fleet Company'} *
+                  </label>
+                  {mode === 'client' ? (
+                    <ClientAutocomplete
+                      value={clientName}
+                      onChange={setClientName}
+                      onSelect={handleClientSelect}
+                      placeholder={`Search by ${mode === 'client' ? 'client name or email' : 'fleet company name'}`}
+                    />
+                  ) : (
+                    <select
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      value={form.fleet_id}
+                      onChange={e => {
+                        const fleetId = e.target.value;
+                        setForm(f => ({ ...f, fleet_id: fleetId, customer_id: '' }));
+                        if (fleetId) {
+                          const fleet = fleets.find(f => f.id === parseInt(fleetId));
+                          if (fleet) {
+                            setClientName(fleet.company_name);
+                          }
+                        } else {
+                          setClientName('');
+                        }
+                      }}
+                    >
+                      <option value="">Select fleet company</option>
+                      {fleets.filter(f => f.id !== 2).map(f => (
+                        <option key={f.id} value={f.id}>
+                          {f.company_name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+
+                {/* Vehicle Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Vehicle *
+                  </label>
+                  <VehicleAutocomplete
+                    value={selectedVehicleDisplay}
+                    onChange={setSelectedVehicleDisplay}
+                    onSelect={handleVehicleSelect}
+                    customerId={form.customer_id}
+                    fleetId={form.fleet_id}
+                    placeholder="Search by license plate or VIN"
+                  />
+                </div>
+              </div>
+
+              {/* Selected Client & Vehicle Display */}
+              {(clientName || selectedVehicleDisplay) && (
+                <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                  {clientName && (
+                    <div className="text-sm text-gray-700 mb-2">
+                      <span className="font-medium">Selected {mode === 'client' ? 'Client' : 'Fleet'}:</span> {clientName}
+                    </div>
+                  )}
+                  {selectedVehicleDisplay && (
+                    <div className="text-sm text-gray-700">
+                      <span className="font-medium">Selected Vehicle:</span> {selectedVehicleDisplay}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-          )}
-          
-          <div className="flex gap-2 mb-2 font-semibold text-sm">
-            <div className="flex-1 min-w-0">Part #</div>
-            <div className="flex-2 min-w-0">Description</div>
-            <div className="w-16 text-center">Qty</div>
-            <div className="w-24 text-center">Unit Cost</div>
-            <div className="w-24 text-center">Markup %</div>
-            <div className="w-24 text-center">Unit Price</div>
-            <div className="w-24 text-center">Line Price</div>
-            <div className="w-20 text-center">Action</div>
-          </div>
-          {items.map((it, i) => (
-            <div key={i} className="flex gap-2 mb-2">
-              <div className="flex-1 min-w-0">
-                {ad360Mode && ad360Items.length > 0 ? (
-                  <AD360Autocomplete
-                    value={it.part_number}
-                    onChange={v => changeItem(i, 'part_number', v)}
-                    onSelect={item => {
-                      console.log('AD360 item selected:', item); // Debug log
-                      const unitCost = typeof item.price === 'object' ? item.price.amount : item.price;
-                      console.log('Unit cost from AD360:', unitCost); // Debug log
-                      
-                      changeItem(i, 'part_number', item.partNumber || '');
-                      changeItem(i, 'part_id', ''); // No internal part ID for AD360 items
-                      changeItem(i, 'description', item.description || '');
-                      changeItem(i, 'unit_cost', unitCost || 0);
-                      
-                      // Set default quantity to 1 if not already set
-                      if (!it.qty) changeItem(i, 'qty', '1');
-                      // Set default markup to 0 if not already set
-                      if (!it.markup) changeItem(i, 'markup', '0');
-                      
-                      // Force price recalculation after setting unit_cost
-                      setTimeout(() => {
-                        changeItem(i, 'unit_cost', unitCost || 0);
-                      }, 100);
-                    }}
+
+            {/* Customer Reference & PO Number */}
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <h2 className="text-xl font-semibold mb-4">Reference Information</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Customer Ref #
+                  </label>
+                  <input
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    value={form.customer_ref}
+                    onChange={e =>
+                      setForm(f => ({ ...f, customer_ref: e.target.value }))
+                    }
+                    placeholder="Optional customer reference"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    PO Number
+                  </label>
+                  <input
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    value={form.po_number}
+                    onChange={e =>
+                      setForm(f => ({ ...f, po_number: e.target.value }))
+                    }
+                    placeholder="Optional purchase order number"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Defect Description */}
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <h2 className="text-xl font-semibold mb-4">Work Description</h2>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Defect Description
+                </label>
+                <textarea
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  rows={4}
+                  value={form.defect_description}
+                  onChange={e =>
+                    setForm(f => ({ ...f, defect_description: e.target.value }))
+                  }
+                  placeholder="Describe the work to be done..."
+                />
+              </div>
+            </div>
+
+            {/* Item Details */}
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold">Item Details</h2>
+                <button
+                  type="button"
+                  onClick={addItem}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  + Add Item
+                </button>
+              </div>
+              
+              {/* AD360 Integration */}
+              {form.vehicle_id && (
+                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <h3 className="text-lg font-semibold text-blue-800 mb-3">AD360 Parts Integration</h3>
+                  <FromAD360Button
                     vehicleId={form.vehicle_id}
                     tenantId={1}
-                    placeholder="Search AD360 parts..."
-                    preloadedParts={ad360Items} // Pass the pre-loaded parts
-                  />
-                ) : (
-                  <PartAutocomplete
-                    value={it.part_number}
-                    description={it.description}
-                    unit_cost={it.unit_cost}
-                    onChange={v => changeItem(i, 'part_number', v)}
-                    onSelect={p => {
-                      changeItem(i, 'part_number', p.part_number || '');
-                      changeItem(i, 'part_id', p.id || '');
-                      changeItem(i, 'description', p.description || '');
-                      changeItem(i, 'unit_cost', p.unit_cost || 0);
-                      // Set default quantity to 1 if not already set
-                      if (!it.qty) changeItem(i, 'qty', '1');
-                      // Set default markup to 0 if not already set
-                      if (!it.markup) changeItem(i, 'markup', '0');
+                    onItemsLoaded={(ad360Items) => {
+                      console.log('AD360 items loaded:', ad360Items);
+                      setAd360Items(ad360Items);
+                      setAd360Mode(true);
+                    }}
+                    onError={(error) => {
+                      setError(`AD360 Error: ${error}`);
                     }}
                   />
-                )}
+                  
+                  {/* Mode Toggle */}
+                  {ad360Items.length > 0 && (
+                    <div className="mt-3 flex items-center gap-2">
+                      <span className="text-sm text-gray-600">Parts Source:</span>
+                      <button
+                        type="button"
+                        onClick={() => setAd360Mode(false)}
+                        className={`px-3 py-1 text-sm rounded border ${
+                          !ad360Mode 
+                            ? 'bg-blue-100 text-blue-700 border-blue-300' 
+                            : 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200'
+                        }`}
+                      >
+                        Internal Parts
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAd360Mode(true)}
+                        className={`px-3 py-1 text-sm rounded border ${
+                          ad360Mode 
+                            ? 'bg-green-100 text-green-700 border-green-300' 
+                            : 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200'
+                        }`}
+                      >
+                        AD360 Parts
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {/* Item Headers */}
+              <div className="flex gap-2 mb-2 font-semibold text-sm">
+                <div className="flex-1 min-w-0">Part #</div>
+                <div className="flex-2 min-w-0">Description</div>
+                <div className="w-16 text-center">Qty</div>
+                <div className="w-24 text-center">Unit Cost</div>
+                <div className="w-24 text-center">Markup %</div>
+                <div className="w-24 text-center">Unit Price</div>
+                <div className="w-24 text-center">Line Price</div>
+                <div className="w-20 text-center">Action</div>
               </div>
-              <div className="flex-2 min-w-0">
-                <DescriptionAutocomplete
-                  value={it.description}
-                  onChange={v => changeItem(i, 'description', v)}
-                  onSelect={p => {
-                    changeItem(i, 'part_number', p.part_number || '');
-                    changeItem(i, 'part_id', p.id || '');
-                    changeItem(i, 'description', p.description || '');
-                    changeItem(i, 'unit_cost', p.unit_cost || 0);
-                    // Set default quantity to 1 if not already set
-                    if (!it.qty) changeItem(i, 'qty', '1');
-                    // Set default markup to 0 if not already set
-                    if (!it.markup) changeItem(i, 'markup', '0');
-                  }}
-                />
+
+              {/* Item Rows */}
+              {items.map((it, i) => (
+                <div key={i} className="flex gap-2 mb-2">
+                  <div className="flex-1 min-w-0">
+                    {ad360Mode && ad360Items.length > 0 ? (
+                                             <AD360Autocomplete
+                         value={it.part_number}
+                         onChange={v => changeItem(i, 'part_number', v)}
+                         onSelect={item => {
+                           console.log('AD360 item selected:', item);
+                           // AD360 internal reference number maps to our part_number field
+                           const partNumber = item.partNumber || item.internalReference || '';
+                           const unitCost = typeof item.price === 'object' ? item.price.amount : item.price;
+                           console.log('Unit cost from AD360:', unitCost);
+                           
+                           changeItem(i, 'part_number', partNumber);
+                           changeItem(i, 'part_id', '');
+                           changeItem(i, 'description', item.description || '');
+                           changeItem(i, 'unit_cost', unitCost || 0);
+                           
+                           if (!it.qty) changeItem(i, 'qty', '1');
+                           if (!it.markup) changeItem(i, 'markup', '0');
+                           
+                           setTimeout(() => {
+                             changeItem(i, 'unit_cost', unitCost || 0);
+                           }, 100);
+                         }}
+                         items={ad360Items}
+                         placeholder="Search AD360 parts..."
+                       />
+                    ) : (
+                      <PartAutocomplete
+                        value={it.part_number}
+                        onChange={v => changeItem(i, 'part_number', v)}
+                        onSelect={part => {
+                          changeItem(i, 'part_id', part.id);
+                          changeItem(i, 'part_number', part.part_number);
+                          changeItem(i, 'description', part.description);
+                          changeItem(i, 'unit_cost', part.unit_cost || 0);
+                          if (!it.qty) changeItem(i, 'qty', '1');
+                          if (!it.markup) changeItem(i, 'markup', '0');
+                        }}
+                        placeholder="Search parts..."
+                      />
+                    )}
+                  </div>
+                  <div className="flex-2 min-w-0">
+                    <DescriptionAutocomplete
+                      value={it.description}
+                      onChange={v => changeItem(i, 'description', v)}
+                      onSelect={desc => {
+                        changeItem(i, 'description', desc.description);
+                        changeItem(i, 'unit_cost', desc.unit_cost || 0);
+                        if (!it.qty) changeItem(i, 'qty', '1');
+                        if (!it.markup) changeItem(i, 'markup', '0');
+                      }}
+                      placeholder="Description"
+                    />
+                  </div>
+                  <div className="w-16">
+                    <input
+                      type="number"
+                      className="w-full px-2 py-1 text-center border border-gray-300 rounded text-sm"
+                      value={it.qty}
+                      onChange={e => changeItem(i, 'qty', e.target.value)}
+                      placeholder="1"
+                      min="0"
+                      step="1"
+                    />
+                  </div>
+                  <div className="w-24">
+                    <input
+                      type="number"
+                      className="w-full px-2 py-1 text-center border border-gray-300 rounded text-sm"
+                      value={it.unit_cost}
+                      onChange={e => changeItem(i, 'unit_cost', e.target.value)}
+                      placeholder="0.00"
+                      min="0"
+                      step="0.01"
+                    />
+                  </div>
+                  <div className="w-24">
+                    <input
+                      type="number"
+                      className="w-full px-2 py-1 text-center border border-gray-300 rounded text-sm"
+                      value={it.markup}
+                      onChange={e => changeItem(i, 'markup', e.target.value)}
+                      placeholder="0"
+                      min="0"
+                      step="0.1"
+                    />
+                  </div>
+                  <div className="w-24">
+                    <input
+                      type="number"
+                      className="w-full px-2 py-1 text-center border border-gray-300 rounded text-sm bg-gray-50"
+                      value={it.price ? formatEuro(it.price) : '€0.00'}
+                      readOnly
+                    />
+                  </div>
+                  <div className="w-24">
+                    <input
+                      type="number"
+                      className="w-full px-2 py-1 text-center border border-gray-300 rounded text-sm bg-gray-50"
+                      value={it.price && it.qty ? formatEuro(it.price * it.qty) : '€0.00'}
+                      readOnly
+                    />
+                  </div>
+                  <div className="w-20 flex justify-center">
+                    <button
+                      type="button"
+                      onClick={() => removeItem(i)}
+                      className="px-2 py-1 text-red-600 hover:text-red-800 text-sm"
+                      disabled={items.length === 1}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Summary */}
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <h2 className="text-xl font-semibold mb-4">Summary</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Total Cost</label>
+                  <div className="text-lg font-semibold text-gray-900">{formatEuro(totalCost)}</div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Total Price</label>
+                  <div className="text-lg font-semibold text-gray-900">{formatEuro(total)}</div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Global Markup</label>
+                  <div className="text-lg font-semibold text-gray-900">{markupPercent.toFixed(2)}%</div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Expected Profit</label>
+                  <div className="text-lg font-semibold text-green-600">{formatEuro(profit)}</div>
+                </div>
               </div>
-              <div className="w-16">
-                <input
-                  type="number"
-                  className="input w-full"
-                  placeholder="Qty"
-                  value={it.qty}
-                  onChange={e => changeItem(i, 'qty', e.target.value)}
-                />
-              </div>
-              <div className="w-24">
-                <input
-                  type="number"
-                  className="input w-full"
-                  placeholder="Unit cost"
-                  value={it.unit_cost}
-                  onChange={e => changeItem(i, 'unit_cost', e.target.value)}
-                />
-              </div>
-              <div className="w-24">
-                <input
-                  type="number"
-                  className="input w-full"
-                  placeholder="Markup %"
-                  value={it.markup}
-                  onChange={e => changeItem(i, 'markup', e.target.value)}
-                />
-              </div>
-              <div className="w-24">
-                <input
-                  type="text"
-                  className="input-readonly w-full"
-                  placeholder="Unit Price"
-                  value={formatEuro(it.price)}
-                  readOnly
-                />
-              </div>
-              <div className="w-24">
-                <input
-                  type="text"
-                  className="input-readonly w-full"
-                  placeholder="Line Price"
-                  value={formatEuro((Number(it.qty) || 0) * (Number(it.price) || 0))}
-                  readOnly
-                />
-              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end space-x-4">
               <button
                 type="button"
-                onClick={() => removeItem(i)}
-                className="button-secondary px-2"
-                disabled={items.length === 1}
+                onClick={clearForm}
+                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                Remove
+                Clear Form
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push('/office/quotations')}
+                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Create Quote
               </button>
             </div>
-          ))}
-          {items.length === 0 && (
-            <div className="text-center py-4 text-gray-500">
-              No items added yet. Click "Add Item" to get started.
-            </div>
-          )}
-          <button type="button" onClick={addItem} className="button-secondary px-4">
-            Add Item
-          </button>
+          </form>
         </div>
-        <div>
-          <h2 className="font-semibold mb-2">Summary</h2>
-          <p className="font-semibold">Total Cost: {formatEuro(totalCost)}</p>
-          <p className="font-semibold">Total Price: {formatEuro(total)}</p>
-          <p className="font-semibold">
-            Global Markup: {markupPercent.toFixed(2)}%
-          </p>
-          <p className="font-semibold">Expected Profit: {formatEuro(profit)}</p>
-        </div>
-        <div className="flex gap-2">
-          <button type="submit" className="button">Create Quote</button>
-          <button
-            type="button"
-            onClick={clearDraft}
-            className="button-secondary"
-          >
-            Clear Form
-          </button>
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="button-secondary"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
+      </div>
     </OfficeLayout>
   );
 }

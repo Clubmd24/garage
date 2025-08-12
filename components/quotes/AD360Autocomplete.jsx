@@ -4,21 +4,16 @@ export default function AD360Autocomplete({
   value, 
   onChange, 
   onSelect, 
-  vehicleId, 
-  tenantId = 1,
+  items = [], // Changed from preloadedParts to items for consistency
   placeholder = "Search AD360 parts...",
-  disabled = false,
-  preloadedParts = [] // New prop for pre-loaded parts
+  disabled = false
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [items, setItems] = useState([]);
+  const [filteredItems, setFilteredItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const dropdownRef = useRef(null);
-
-  // Use pre-loaded parts if available, otherwise search dynamically
-  const hasPreloadedParts = preloadedParts && preloadedParts.length > 0;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -32,79 +27,52 @@ export default function AD360Autocomplete({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSearch = async (query) => {
-    if (!vehicleId || !query.trim()) {
-      setItems([]);
+  // Filter items based on search query
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredItems(items);
       return;
     }
 
-    // If we have pre-loaded parts, filter them locally
-    if (hasPreloadedParts) {
-      const searchTerm = query.toLowerCase().trim();
-      const filtered = preloadedParts.filter(item => 
-        (item.partNumber && item.partNumber.toLowerCase().includes(searchTerm)) ||
-        (item.brand && item.brand.toLowerCase().includes(searchTerm)) ||
-        (item.description && item.description.toLowerCase().includes(searchTerm))
-      );
-      setItems(filtered);
-      setIsOpen(true);
-      return;
-    }
-
-    // Otherwise, search via API
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch(
-        `/api/integrations/ad360/search?tenantId=${tenantId}&supplierId=7&vehicleId=${vehicleId}&q=${encodeURIComponent(query)}`
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to search AD360');
-      }
-
-      const data = await response.json();
-      setItems(data.items || []);
-      setIsOpen(true);
-
-    } catch (error) {
-      console.error('AD360 search error:', error);
-      setError('Failed to search AD360');
-      setItems([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    const searchTerm = searchQuery.toLowerCase().trim();
+    const filtered = items.filter(item => 
+      (item.partNumber && item.partNumber.toLowerCase().includes(searchTerm)) ||
+      (item.brand && item.brand.toLowerCase().includes(searchTerm)) ||
+      (item.description && item.description.toLowerCase().includes(searchTerm))
+    );
+    setFilteredItems(filtered);
+  }, [searchQuery, items]);
 
   const handleInputChange = (e) => {
     const newValue = e.target.value;
     setSearchQuery(newValue);
     onChange(newValue);
-    
-    // Debounce search
-    clearTimeout(searchQuery.timeout);
-    searchQuery.timeout = setTimeout(() => {
-      handleSearch(newValue);
-    }, 300);
   };
 
   const handleItemSelect = (item) => {
-    setSearchQuery(item.partNumber || '');
-    onChange(item.partNumber || '');
+    // AD360 internal reference number maps to our part_number field
+    const partNumber = item.partNumber || item.internalReference || '';
+    setSearchQuery(partNumber);
+    onChange(partNumber);
     onSelect(item);
     setIsOpen(false);
   };
 
   const handleInputFocus = () => {
-    if (searchQuery.trim() && items.length > 0) {
+    if (items.length > 0) {
       setIsOpen(true);
     }
   };
 
   const formatPrice = (price) => {
-    if (!price || !price.amount) return 'N/A';
-    return `${price.amount.toFixed(2)} ${price.currency || 'EUR'}`;
+    if (!price) return 'N/A';
+    if (typeof price === 'object' && price.amount) {
+      return `€${price.amount.toFixed(2)}`;
+    }
+    if (typeof price === 'number') {
+      return `€${price.toFixed(2)}`;
+    }
+    return 'N/A';
   };
 
   return (
@@ -116,15 +84,12 @@ export default function AD360Autocomplete({
         onFocus={handleInputFocus}
         placeholder={placeholder}
         disabled={disabled}
-        className="input w-full"
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
       />
       
       {isLoading && (
         <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-          <svg className="animate-spin h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
         </div>
       )}
 
@@ -134,9 +99,9 @@ export default function AD360Autocomplete({
         </div>
       )}
 
-      {isOpen && items.length > 0 && (
+      {isOpen && filteredItems.length > 0 && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto z-20">
-          {items.map((item, index) => (
+          {filteredItems.map((item, index) => (
             <div
               key={index}
               onClick={() => handleItemSelect(item)}
@@ -145,7 +110,7 @@ export default function AD360Autocomplete({
               <div className="flex justify-between items-start">
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-gray-900 truncate">
-                    {item.partNumber || 'No Part Number'}
+                    {item.partNumber || item.internalReference || 'No Part Number'}
                   </div>
                   <div className="text-sm text-gray-600 truncate">
                     {item.brand || 'Unknown Brand'}
@@ -170,9 +135,15 @@ export default function AD360Autocomplete({
         </div>
       )}
 
-      {isOpen && items.length === 0 && !isLoading && searchQuery.trim() && (
+      {isOpen && filteredItems.length === 0 && searchQuery.trim() && (
         <div className="absolute top-full left-0 right-0 mt-1 p-3 bg-gray-50 border border-gray-200 rounded text-sm text-gray-500 z-10">
           No parts found matching "{searchQuery}"
+        </div>
+      )}
+
+      {isOpen && items.length === 0 && !searchQuery.trim() && (
+        <div className="absolute top-full left-0 right-0 mt-1 p-3 bg-gray-50 border border-gray-200 rounded text-sm text-gray-500 z-10">
+          No AD360 parts loaded. Please use the "From AD360" button first.
         </div>
       )}
     </div>

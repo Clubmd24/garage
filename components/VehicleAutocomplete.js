@@ -3,122 +3,131 @@ import { useState, useEffect } from 'react';
 export default function VehicleAutocomplete({ 
   value, 
   onChange, 
-  onSelect, 
-  customerId, 
+  onSelect,
+  customerId,
   fleetId,
-  placeholder = "Search vehicles by license plate or description"
+  placeholder = "Search by license plate or VIN"
 }) {
   const [term, setTerm] = useState(value || '');
   const [results, setResults] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (value !== undefined) setTerm(value);
   }, [value]);
 
   useEffect(() => {
-    // If we have a customerId or fleetId, always fetch vehicles
-    // This makes it "dumb proof" - shows options immediately when client is selected
-    if (customerId || fleetId) {
-      let cancel = false;
-      
-      // Build query parameters
-      const params = new URLSearchParams();
-      if (term) params.append('q', term);
-      params.append('customer_id', customerId || '');
-      params.append('fleet_id', fleetId || '');
-      
-      fetch(`/api/vehicles?${params.toString()}`)
-        .then(r => (r.ok ? r.json() : []))
-        .then(data => {
-          if (cancel) return;
-          setResults(data);
-          // Show dropdown if we have results, even without search term
-          setIsOpen(data.length > 0);
-        })
-        .catch(() => {
-          if (cancel) return;
-          setResults([]);
-          setIsOpen(false);
+    if (!term || term.length < 1) {
+      setResults([]);
+      setIsOpen(false);
+      return;
+    }
+
+    setIsLoading(true);
+    let cancel = false;
+
+    // Build search query
+    let searchUrl = `/api/vehicles?q=${encodeURIComponent(term)}`;
+    if (customerId) {
+      searchUrl += `&customer_id=${customerId}`;
+    } else if (fleetId) {
+      searchUrl += `&fleet_id=${fleetId}`;
+    }
+
+    // Search for vehicles
+    fetch(searchUrl)
+      .then(r => r.ok ? r.json() : [])
+      .then(vehicles => {
+        if (cancel) return;
+        
+        // Format results to show vehicle info and associated client/fleet
+        const formattedResults = vehicles.map(vehicle => {
+          const vehicleDisplay = `${vehicle.licence_plate || 'No Plate'} - ${vehicle.make} ${vehicle.model}`;
+          
+          // Get associated client/fleet name
+          let associatedName = '';
+          if (vehicle.customer_name) {
+            associatedName = vehicle.customer_name;
+          } else if (vehicle.fleet_id && vehicle.fleet_id !== 2) {
+            // This would need to be fetched separately or included in the API response
+            associatedName = `Fleet Vehicle`;
+          }
+          
+          return {
+            id: vehicle.id,
+            displayName: vehicleDisplay,
+            licensePlate: vehicle.licence_plate,
+            make: vehicle.make,
+            model: vehicle.model,
+            vin: vehicle.vin_number,
+            customerId: vehicle.customer_id,
+            fleetId: vehicle.fleet_id,
+            associatedName: associatedName,
+            data: vehicle
+          };
         });
-      
-      return () => {
-        cancel = true;
-      };
-    } else {
-      // No client selected, only search if user types something
-      if (!term) {
+        
+        setResults(formattedResults);
+        setIsOpen(formattedResults.length > 0);
+      })
+      .catch(() => {
+        if (cancel) return;
         setResults([]);
         setIsOpen(false);
-        return;
-      }
-      
-      let cancel = false;
-      
-      fetch(`/api/vehicles?q=${encodeURIComponent(term)}`)
-        .then(r => (r.ok ? r.json() : []))
-        .then(data => {
-          if (cancel) return;
-          setResults(data);
-          setIsOpen(data.length > 0);
-        })
-        .catch(() => {
-          if (cancel) return;
-          setResults([]);
-          setIsOpen(false);
-        });
-      
-      return () => {
-        cancel = true;
-      };
-    }
+      })
+      .finally(() => {
+        if (!cancel) setIsLoading(false);
+      });
+
+    return () => {
+      cancel = true;
+    };
   }, [term, customerId, fleetId]);
 
   const handleSelect = (vehicle) => {
     onSelect && onSelect(vehicle);
-    const displayValue = vehicle.licence_plate || vehicle.description || '';
-    if (value === undefined) {
-      setTerm('');
-    } else {
-      setTerm(displayValue);
-      onChange && onChange(displayValue);
-    }
-    setResults([]);
+    setTerm(vehicle.displayName);
     setIsOpen(false);
-  };
-
-  const handleBlur = () => {
-    setTimeout(() => {
-      setIsOpen(false);
-      setResults([]);
-    }, 150);
   };
 
   return (
     <div className="relative">
       <input
-        className="input w-full"
+        type="text"
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         value={term}
-        onChange={e => {
+        onChange={(e) => {
           setTerm(e.target.value);
           onChange && onChange(e.target.value);
         }}
-        onBlur={handleBlur}
+        onFocus={() => {
+          if (results.length > 0) setIsOpen(true);
+        }}
         placeholder={placeholder}
       />
+      
+      {isLoading && (
+        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+        </div>
+      )}
+      
       {isOpen && results.length > 0 && (
-        <div className="absolute z-10 bg-white shadow rounded w-full text-black border max-h-60 overflow-y-auto">
-          {results.map(vehicle => (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+          {results.map((vehicle) => (
             <div
               key={vehicle.id}
-              className="px-3 py-2 cursor-pointer hover:bg-gray-100 border-b border-gray-100 last:border-b-0"
               onClick={() => handleSelect(vehicle)}
+              className="px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0"
             >
-              <div className="font-medium">{vehicle.licence_plate || 'No Plate'}</div>
-              <div className="text-sm text-gray-600">
-                {vehicle.make} {vehicle.model} {vehicle.year}
-                {vehicle.description && ` - ${vehicle.description}`}
-              </div>
+              <div className="font-medium text-gray-900">{vehicle.displayName}</div>
+              {vehicle.associatedName && (
+                <div className="text-sm text-gray-600">{vehicle.associatedName}</div>
+              )}
+              {vehicle.vin && (
+                <div className="text-sm text-gray-500">VIN: {vehicle.vin}</div>
+              )}
             </div>
           ))}
         </div>

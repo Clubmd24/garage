@@ -1,76 +1,110 @@
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 
-export default function ClientAutocomplete({ value, onChange, onSelect }) {
+export default function ClientAutocomplete({ 
+  value, 
+  onChange, 
+  onSelect,
+  placeholder = "Search by client name or email"
+}) {
   const [term, setTerm] = useState(value || '');
   const [results, setResults] = useState([]);
-  const [showAdd, setShowAdd] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (value !== undefined) setTerm(value);
   }, [value]);
 
   useEffect(() => {
-    if (!term) {
+    if (!term || term.length < 1) {
       setResults([]);
-      setShowAdd(false);
+      setIsOpen(false);
       return;
     }
+
+    setIsLoading(true);
     let cancel = false;
+
+    // Search for clients
     fetch(`/api/clients?q=${encodeURIComponent(term)}`)
-      .then(r => (r.ok ? r.json() : []))
-      .then(data => {
+      .then(r => r.ok ? r.json() : [])
+      .then(clients => {
         if (cancel) return;
-        setResults(data);
-        setShowAdd(data.length === 0);
+        
+        // Format results to show client name and their vehicles
+        const formattedResults = clients.map(client => {
+          const clientName = `${client.first_name || ''} ${client.last_name || ''}`.trim();
+          return {
+            id: client.id,
+            displayName: clientName,
+            email: client.email,
+            phone: client.mobile || client.landline,
+            data: client
+          };
+        });
+        
+        setResults(formattedResults);
+        setIsOpen(formattedResults.length > 0);
       })
       .catch(() => {
         if (cancel) return;
         setResults([]);
-        setShowAdd(true);
+        setIsOpen(false);
+      })
+      .finally(() => {
+        if (!cancel) setIsLoading(false);
       });
+
     return () => {
       cancel = true;
     };
   }, [term]);
 
+  const handleSelect = (client) => {
+    onSelect && onSelect(client);
+    setTerm(client.displayName);
+    setIsOpen(false);
+  };
+
   return (
     <div className="relative">
       <input
-        className="input w-full"
+        type="text"
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         value={term}
-        onChange={e => {
+        onChange={(e) => {
           setTerm(e.target.value);
           onChange && onChange(e.target.value);
         }}
-        placeholder="Client name or email"
+        onFocus={() => {
+          if (results.length > 0) setIsOpen(true);
+        }}
+        placeholder={placeholder}
       />
-      {term && (results.length > 0 || showAdd) && (
-        <div className="absolute z-10 bg-white shadow rounded w-full text-black">
-          {results.map(c => (
+      
+      {isLoading && (
+        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+        </div>
+      )}
+      
+      {isOpen && results.length > 0 && (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+          {results.map((client) => (
             <div
-              key={c.id}
-              className="px-2 py-1 cursor-pointer hover:bg-gray-200"
-              onClick={() => {
-                onSelect && onSelect(c);
-                const name = `${c.first_name || ''} ${c.last_name || ''}`.trim();
-                if (value === undefined) {
-                  setTerm('');
-                } else {
-                  setTerm(name);
-                }
-                setResults([]);
-                setShowAdd(false);
-              }}
+              key={client.id}
+              onClick={() => handleSelect(client)}
+              className="px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0"
             >
-              {(c.first_name || '') + ' ' + (c.last_name || '')}
+              <div className="font-medium text-gray-900">{client.displayName}</div>
+              {client.email && (
+                <div className="text-sm text-gray-600">{client.email}</div>
+              )}
+              {client.phone && (
+                <div className="text-sm text-gray-500">{client.phone}</div>
+              )}
             </div>
           ))}
-          {showAdd && (
-            <Link href="/office/clients/new" className="block px-2 py-1 hover:bg-gray-200">
-              Add Client
-            </Link>
-          )}
         </div>
       )}
     </div>
