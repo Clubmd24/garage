@@ -25,7 +25,12 @@ export default function FromAD360Button({
   const [showManufacturerFilter, setShowManufacturerFilter] = useState(false);
 
   const executeAD360Workflow = async () => {
+    console.log('=== executeAD360Workflow START ===');
+    console.log('Function called with vehicleId:', vehicleId);
+    console.log('Function called with tenantId:', tenantId);
+    
     if (!vehicleId) {
+      console.log('No vehicleId, setting error and returning');
       setError('Please select a vehicle first');
       return;
     }
@@ -502,9 +507,17 @@ export default function FromAD360Button({
         type="button"
         onClick={() => {
           console.log('🔍 From AD360 button clicked!');
+          console.log('Button click event fired');
           console.log('Vehicle ID:', vehicleId);
           console.log('Tenant ID:', tenantId);
-          executeAD360Workflow();
+          console.log('About to call executeAD360Workflow...');
+          
+          try {
+            executeAD360Workflow();
+            console.log('executeAD360Workflow called successfully');
+          } catch (error) {
+            console.error('Error calling executeAD360Workflow:', error);
+          }
         }}
         disabled={isLoading || !vehicleId}
         className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
