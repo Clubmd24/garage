@@ -34,8 +34,48 @@ export default function FromAD360Button({
     setIsLoading(true);
     setError(null);
     setWorkflowStep('Starting AD360 workflow...');
-
+    
+    // Immediate visual feedback
+    setWorkflowStep('Button clicked! Starting AD360 workflow...');
+    
     try {
+      const response = await fetch('/api/integrations/ad360/workflow', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          step: 'start',
+          vehicleId: vehicleId,
+          tenantId: tenantId
+        })
+      });
+
+      console.log('AD360 workflow response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('AD360 workflow failed:', response.status, errorText);
+        setError(`AD360 workflow failed: ${response.status} - ${errorText}`);
+        setWorkflowStep('Workflow failed - check console for details');
+        setIsLoading(false);
+        return;
+      }
+
+      const data = await response.json();
+      console.log('AD360 workflow response data:', data);
+      
+      if (data.error) {
+        console.error('AD360 workflow error:', data.error);
+        setError(`AD360 workflow error: ${data.error}`);
+        setWorkflowStep('Workflow error - check console for details');
+        setIsLoading(false);
+        return;
+      }
+
+      // Continue with the workflow...
+      setWorkflowStep('Workflow started successfully! Loading parts...');
+      
       // Step 1: Select distributor
       setWorkflowStep('Selecting distributor (AD Vicente)...');
       const distributorResponse = await fetch('/api/integrations/ad360/workflow', {
@@ -458,27 +498,20 @@ export default function FromAD360Button({
       
       <button
         type="button"
-        onClick={executeAD360Workflow}
+        onClick={() => {
+          console.log('🔍 From AD360 button clicked!');
+          console.log('Vehicle ID:', vehicleId);
+          console.log('Tenant ID:', tenantId);
+          executeAD360Workflow();
+        }}
         disabled={isLoading || !vehicleId}
         className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
           isLoading || !vehicleId
             ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-            : 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 hover:border-blue-300'
+            : 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700 hover:border-blue-700'
         }`}
       >
-        {isLoading ? (
-          <span className="flex items-center">
-            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            {workflowStep || 'Executing AD360 workflow...'}
-          </span>
-        ) : (
-          <span className="flex items-center">
-            🔍 From AD360
-          </span>
-        )}
+        {isLoading ? 'Loading...' : '🔍 From AD360'}
       </button>
       
       {error && (
