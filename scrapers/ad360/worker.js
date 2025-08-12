@@ -2,6 +2,69 @@ import { chromium } from 'playwright';
 import { loadSession } from './sessionStore.js';
 import { normalizeItems } from './normalize.js';
 
+export async function fetchVehicleVariants(tenantId, supplierId, vin, reg) {
+  const browser = await chromium.launch({ headless: true });
+  const ctx = await browser.newContext();
+  const page = await ctx.newPage();
+
+  const sess = await loadSession(tenantId, supplierId);
+  if (!sess?.cookies) { await browser.close(); throw new Error('NEEDS_RELINK'); }
+  await ctx.addCookies(sess.cookies);
+
+  await page.goto('https://connect.ad360.es', { waitUntil: 'domcontentloaded' });
+  
+  // Detect if we're redirected to login screen
+  const currentUrl = page.url();
+  if (currentUrl.includes('login') || currentUrl.includes('auth') || currentUrl.includes('signin')) {
+    throw new Error('NEEDS_RELINK');
+  }
+  
+  // Check for login form elements that might indicate we're not logged in
+  const loginForm = await page.$('form[action*="login"], form[action*="auth"], input[name="username"], input[name="password"]');
+  if (loginForm) {
+    throw new Error('NEEDS_RELINK');
+  }
+
+  // Navigate to vehicle search page
+  await page.goto('https://connect.ad360.es/vehicle', { waitUntil: 'domcontentloaded' });
+  
+  // Wait for the vehicle identification modal to appear
+  await page.waitForSelector('input[placeholder*="Matrícula"], input[placeholder*="License"], input[placeholder*="Plate"]', { timeout: 10000 });
+  
+  // Fill in the license plate
+  const plateInput = await page.$('input[placeholder*="Matrícula"], input[placeholder*="License"], input[placeholder*="Plate"]');
+  if (plateInput && reg) {
+    await plateInput.fill(reg);
+    
+    // Wait for variants to load
+    await page.waitForTimeout(2000);
+    
+    // Extract vehicle variants from the table
+    const variants = await page.$$eval('table tbody tr', (rows) => {
+      return rows.map(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length < 7) return null;
+        
+        return {
+          make: cells[0]?.textContent?.trim() || '',
+          model: cells[1]?.textContent?.trim() || '',
+          version: cells[2]?.textContent?.trim() || '',
+          power: cells[3]?.textContent?.trim() || '',
+          kw: cells[4]?.textContent?.trim() || '',
+          engine: cells[5]?.textContent?.trim() || '',
+          years: cells[6]?.textContent?.trim() || ''
+        };
+      }).filter(Boolean);
+    });
+    
+    await browser.close();
+    return variants;
+  }
+  
+  await browser.close();
+  throw new Error('Could not find license plate input field');
+}
+
 export async function fetchPartsForVehicle(tenantId, supplierId, vin, reg) {
   const browser = await chromium.launch({ headless: true });
   const ctx = await browser.newContext();

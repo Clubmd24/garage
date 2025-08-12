@@ -10,9 +10,7 @@ export default function FromAD360Button({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [workflowStep, setWorkflowStep] = useState('');
-  const [departments, setDepartments] = useState([]);
-  const [items, setItems] = useState([]);
-  const [selectedDepartment, setSelectedDepartment] = useState('');
+  // Removed unused state variables for departments
   const [ad360Mode, setAd360Mode] = useState(false);
   
   // New state for vehicle variant selection
@@ -50,20 +48,17 @@ export default function FromAD360Button({
       
       console.log('Vehicle data for AD360:', vehicle);
 
-      // Start with vehicle search to get variants
-      setWorkflowStep('Searching for vehicle variants...');
-      const response = await fetch('/api/integrations/ad360/workflow', {
+      // Start with vehicle search to get variants from AD360
+      setWorkflowStep('Searching for vehicle variants in AD360...');
+      const response = await fetch('/api/integrations/ad360/vehicle-variants', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          action: 'search_vehicle',
           vehicleId: vehicleId,
           tenantId: tenantId,
           supplierId: 7, // AD360 supplier ID
-          vin: vehicle.vin_number,
-          reg: vehicle.licence_plate
         })
       });
 
@@ -89,27 +84,18 @@ export default function FromAD360Button({
         return;
       }
 
-      // Handle the workflow result
-      if (data.status === 'success') {
-        if (data.action === 'search_vehicle') {
-          // Vehicle search completed, show variant selection
-          if (data.variants && data.variants.length > 0) {
-            setVehicleVariants(data.variants);
-            setShowVariantSelection(true);
-            setWorkflowStep(`Found ${data.variants.length} vehicle variants. Please select the correct one.`);
-          } else {
-            // No variants found, continue with workflow
-            setWorkflowStep('No variants found, continuing with workflow...');
-            await continueWorkflow(vehicle);
-          }
-          setIsLoading(false);
-        } else if (data.action === 'select_distributor') {
-          // Continue with next steps
-          setWorkflowStep('Distributor selected, continuing workflow...');
-          await continueWorkflow(vehicle);
-        }
+      // Handle the vehicle variants response
+      if (data.variants && data.variants.length > 0) {
+        // Vehicle variants found, show selection
+        setVehicleVariants(data.variants);
+        setShowVariantSelection(true);
+        setWorkflowStep(`Found ${data.variants.length} vehicle variants in AD360. Please select the correct one.`);
+        setIsLoading(false);
       } else {
-        throw new Error('Workflow failed with unknown status');
+        // No variants found, show error
+        setError('No vehicle variants found in AD360 for this license plate');
+        setWorkflowStep('No variants found - check license plate or try again');
+        setIsLoading(false);
       }
 
     } catch (error) {
@@ -184,93 +170,50 @@ export default function FromAD360Button({
     if (!variant) return;
 
     try {
-      // Step 5: Get parts departments
-      setWorkflowStep('Loading parts departments...');
-      const departmentsResponse = await fetch('/api/integrations/ad360/workflow', {
+      // Now that we have the selected variant, fetch parts for this vehicle
+      setWorkflowStep('Fetching parts for selected vehicle variant...');
+      
+      // Call the fetch-for-vehicle API to get parts
+      const partsResponse = await fetch('/api/integrations/ad360/fetch-for-vehicle', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tenantId,
           supplierId: 7,
-          action: 'get_parts_departments',
-          variantId: variant.id
+          vehicleId: vehicleId
         })
       });
 
-      if (!departmentsResponse.ok) {
-        throw new Error('Failed to get parts departments');
+      if (!partsResponse.ok) {
+        throw new Error('Failed to fetch parts for selected variant');
       }
 
-      const departmentsData = await departmentsResponse.json();
-      setDepartments(departmentsData.departments);
-      setWorkflowStep('Parts departments loaded. Select a department to view parts.');
-      setTimeout(() => {
+      const partsData = await partsResponse.json();
+      
+      if (partsData.items && partsData.items.length > 0) {
+        // Parts loaded successfully
+        setWorkflowStep(`Successfully loaded ${partsData.items.length} parts for ${variant.make} ${variant.model} ${variant.version}`);
+        
+        // Notify parent component with the loaded parts
+        if (onItemsLoaded) {
+          console.log('Calling onItemsLoaded with parts:', partsData.items);
+          onItemsLoaded(partsData.items);
+        }
+        
+        // Set AD360 mode to show parts
         setAd360Mode(true);
-      }, 500);
+      } else {
+        setWorkflowStep('No parts found for this vehicle variant. Please try a different variant or check the vehicle details.');
+      }
 
     } catch (error) {
       console.error('Continue workflow error:', error);
-      setError('Failed to continue AD360 workflow. Please try again.');
+      setError('Failed to fetch parts for selected variant. Please try again.');
     }
   };
 
-  const loadDepartmentParts = async (department) => {
-    if (!department) return;
-
-    setIsLoading(true);
-    setError(null);
-    setWorkflowStep(`Loading parts from ${department} department...`);
-
-    try {
-      const response = await fetch('/api/integrations/ad360/workflow', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tenantId,
-          supplierId: 7,
-          action: 'get_department_parts',
-          department
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to load department parts');
-      }
-
-      const data = await response.json();
-      setItems(data.parts);
-      setSelectedDepartment(department);
-      
-      // Extract manufacturers from the loaded parts
-      if (data.manufacturers && data.manufacturers.length > 0) {
-        setManufacturers(data.manufacturers);
-        setSelectedManufacturers(data.manufacturers); // Start with all manufacturers selected
-        setShowManufacturerFilter(true);
-      }
-      
-      setWorkflowStep(`Loaded ${data.parts.length} parts from ${department} department`);
-      
-      // Notify parent component with the loaded parts
-      if (onItemsLoaded) {
-        console.log('Calling onItemsLoaded with parts:', data.parts);
-        onItemsLoaded(data.parts);
-      }
-      
-      // If we have parts, show a success message
-      if (data.parts.length > 0) {
-        console.log('Successfully loaded parts:', data.parts.length);
-        setWorkflowStep(`Successfully loaded ${data.parts.length} parts from ${department} department. Parts are now available in the dropdown below.`);
-      } else {
-        setWorkflowStep(`No parts found in ${department} department. Try selecting a different department.`);
-      }
-
-    } catch (error) {
-      console.error('Department parts error:', error);
-      setError('Failed to load department parts. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Department selection is no longer needed since we fetch all parts directly
+  // after variant selection
 
   const handleRefresh = () => {
     executeAD360Workflow();
@@ -366,43 +309,7 @@ export default function FromAD360Button({
     }
   };
 
-  if (ad360Mode && departments.length > 0) {
-    return (
-      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <h3 className="text-lg font-semibold !text-blue-900 mb-3" style={{color: '#1E3A8A'}}>Select AD360 Department</h3>
-        <p className="text-sm !text-blue-700 mb-4" style={{color: '#1D4ED8'}}>
-          {workflowStep || `Found ${departments.length} departments. Please select one to view parts.`}
-        </p>
-        
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {departments.map((dept) => (
-            <button
-              key={dept.id}
-              onClick={() => handleDepartmentSelect(dept.id)}
-              disabled={isLoading}
-              className="p-3 bg-white border border-blue-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-colors text-left"
-            >
-              <div className="font-medium !text-blue-900" style={{color: '#1E3A8A'}}>{dept.name}</div>
-              <div className="text-xs !text-blue-600 mt-1" style={{color: '#2563EB'}}>{dept.description}</div>
-              <div className="text-xs !text-blue-500 mt-1" style={{color: '#3B82F6'}}>{dept.partCount || 'Multiple'} parts available</div>
-            </button>
-          ))}
-        </div>
-        
-        {isLoading && (
-          <div className="mt-4 text-center">
-            <div className="inline-flex items-center px-4 py-2 bg-blue-100 !text-blue-700 rounded-lg" style={{color: '#1D4ED8'}}>
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 !text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style={{color: '#3B82F6'}}>
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Loading parts...
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
+  // Department selection removed - we now fetch all parts directly after variant selection
 
   // Show parts list when AD360 items are available
   if (ad360Mode && ad360Items.length > 0) {
@@ -600,15 +507,10 @@ export default function FromAD360Button({
                   <div className="text-sm !text-gray-600" style={{color: '#4B5563'}}>
                     {variant.version} • {variant.engine} • {variant.years}
                   </div>
-                  {variant.description && (
-                    <div className="text-xs !text-gray-500 mt-1" style={{color: '#6B7280'}}>
-                      {variant.description}
-                    </div>
-                  )}
                 </div>
-                <div className="text-right text-sm !text-gray-600" style={{color: '#4B5563'}}>
+                <div className="text-right text-sm !text-gray-600" style={{color: '#4B7280'}}>
                   <div>{variant.power}</div>
-                  <div>{variant.displacement}</div>
+                  <div>{variant.kw}</div>
                 </div>
               </div>
             </button>
