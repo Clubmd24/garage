@@ -47,7 +47,9 @@ export default function FromAD360Button({
         body: JSON.stringify({
           step: 'start',
           vehicleId: vehicleId,
-          tenantId: tenantId
+          tenantId: tenantId,
+          supplierId: 1, // AD360 supplier ID
+          action: 'select_distributor' // Start with distributor selection
         })
       });
 
