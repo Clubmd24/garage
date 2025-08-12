@@ -339,7 +339,7 @@ export default function NewQuotationPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-900">New Quotation</h1>
+            <h1 className="text-3xl font-bold !text-gray-900" style={{color: '#111827'}}>New Quotation</h1>
             <button
               onClick={() => router.push('/office/quotations')}
               className="px-4 py-2 text-gray-600 hover:text-gray-800"
@@ -538,7 +538,7 @@ export default function NewQuotationPage() {
 
             {/* Defect Description */}
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <h2 className="text-xl font-semibold mb-4">Work Description</h2>
+              <h2 className="text-xl font-semibold mb-4 !text-gray-900" style={{color: '#111827'}}>Work Description</h2>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Defect Description
@@ -571,7 +571,7 @@ export default function NewQuotationPage() {
               {/* AD360 Integration */}
               {form.vehicle_id && (
                 <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <h3 className="text-lg font-semibold text-blue-800 mb-3">AD360 Parts Integration</h3>
+                  <h3 className="text-lg font-semibold !text-blue-800 mb-3" style={{color: '#1E40AF'}}>AD360 Parts Integration</h3>
                   <div className="text-sm text-gray-600 mb-2">
                     Debug: Vehicle ID = {form.vehicle_id}, Vehicle Display = {selectedVehicleDisplay}
                   </div>
@@ -595,18 +595,18 @@ export default function NewQuotationPage() {
                   {ad360Items.length > 0 && (
                     <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
                       <p className="text-sm text-green-700">
-                        <strong>✅ AD360 Parts Loaded:</strong> {ad360Items.length} parts available
+                        <strong className="!text-gray-900" style={{color: '#111827'}}>✅ AD360 Parts Loaded:</strong> {ad360Items.length} parts available
                       </p>
-                      <p className="text-xs text-green-600 mt-1">
-                        Parts should now be available in the dropdown below. If not visible, check ad360Mode.
-                      </p>
+                                              <p className="text-xs !text-green-600 mt-1" style={{color: '#059669'}}>
+                          Parts should now be available in the dropdown below. If not visible, check ad360Mode.
+                        </p>
                     </div>
                   )}
                   
                   {/* Mode Toggle */}
                   {ad360Items.length > 0 && (
                     <div className="mt-3 flex items-center gap-2">
-                      <span className="text-sm text-gray-600">Parts Source:</span>
+                      <span className="text-sm !text-gray-600" style={{color: '#4B5563'}}>Parts Source:</span>
                       <button
                         type="button"
                         onClick={() => setAd360Mode(false)}
@@ -635,7 +635,7 @@ export default function NewQuotationPage() {
               )}
               
               {/* Item Headers */}
-              <div className="flex gap-2 mb-2 font-semibold text-sm">
+              <div className="flex gap-2 mb-2 font-semibold text-sm !text-gray-900" style={{color: '#111827'}}>
                 <div className="flex-1 min-w-0">Part #</div>
                 <div className="flex-2 min-w-0">Description</div>
                 <div className="w-16 text-center">Qty</div>
@@ -770,23 +770,23 @@ export default function NewQuotationPage() {
 
             {/* Summary */}
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <h2 className="text-xl font-semibold mb-4">Summary</h2>
+              <h2 className="text-xl font-semibold mb-4 !text-gray-900" style={{color: '#111827'}}>Summary</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Total Cost</label>
-                  <div className="text-lg font-semibold text-gray-900">{formatEuro(totalCost)}</div>
+                  <label className="block text-sm font-medium !text-gray-700" style={{color: '#374151'}}>Total Cost</label>
+                  <div className="text-lg font-semibold !text-gray-900" style={{color: '#111827'}}>{formatEuro(totalCost)}</div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Total Price</label>
-                  <div className="text-lg font-semibold text-gray-900">{formatEuro(total)}</div>
+                  <label className="block text-sm font-medium !text-gray-700" style={{color: '#374151'}}>Total Price</label>
+                  <div className="text-lg font-semibold !text-gray-900" style={{color: '#111827'}}>{formatEuro(total)}</div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Global Markup</label>
-                  <div className="text-lg font-semibold text-gray-900">{markupPercent.toFixed(2)}%</div>
+                  <label className="block text-sm font-medium !text-gray-700" style={{color: '#374151'}}>Global Markup</label>
+                  <div className="text-lg font-semibold !text-gray-900" style={{color: '#111827'}}>{markupPercent.toFixed(2)}%</div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Expected Profit</label>
-                  <div className="text-lg font-semibold text-green-600">{formatEuro(profit)}</div>
+                  <label className="block text-sm font-medium !text-gray-700" style={{color: '#374151'}}>Expected Profit</label>
+                  <div className="text-lg font-semibold !text-green-600" style={{color: '#059669'}}>{formatEuro(profit)}</div>
                 </div>
               </div>
             </div>
