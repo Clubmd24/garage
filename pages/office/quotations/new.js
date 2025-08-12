@@ -572,10 +572,10 @@ export default function NewQuotationPage() {
               {form.vehicle_id && (
                 <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                   <h3 className="text-lg font-semibold !text-blue-800 mb-3" style={{color: '#1E40AF'}}>AD360 Parts Integration</h3>
-                  <div className="text-sm text-gray-600 mb-2">
+                  <div className="text-sm !text-gray-600 mb-2" style={{color: '#4B5563'}}>
                     Debug: Vehicle ID = {form.vehicle_id}, Vehicle Display = {selectedVehicleDisplay}
                   </div>
-                  <div className="text-sm text-gray-600 mb-2">
+                  <div className="text-sm !text-gray-600 mb-2" style={{color: '#4B5563'}}>
                     Debug: ad360Mode = {ad360Mode ? 'true' : 'false'}, ad360Items.length = {ad360Items.length}
                   </div>
                   <FromAD360Button
@@ -612,8 +612,8 @@ export default function NewQuotationPage() {
                         onClick={() => setAd360Mode(false)}
                         className={`px-3 py-1 text-sm rounded border ${
                           !ad360Mode 
-                            ? 'bg-blue-100 text-blue-700 border-blue-300' 
-                            : 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200'
+                            ? 'bg-blue-100 !text-blue-700 border-blue-300' 
+                            : 'bg-gray-100 !text-gray-600 border-gray-300 hover:bg-gray-200'
                         }`}
                       >
                         Internal Parts
@@ -623,8 +623,8 @@ export default function NewQuotationPage() {
                         onClick={() => setAd360Mode(true)}
                         className={`px-3 py-1 text-sm rounded border ${
                           ad360Mode 
-                            ? 'bg-green-100 text-green-700 border-green-300' 
-                            : 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200'
+                            ? 'bg-green-100 !text-green-700 border-green-300' 
+                            : 'bg-gray-100 !text-gray-600 border-gray-300 hover:bg-gray-200'
                         }`}
                       >
                         AD360 Parts
