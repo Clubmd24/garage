@@ -28,38 +28,46 @@ export default function FromAD360Button({
     console.log('=== executeAD360Workflow START ===');
     console.log('Function called with vehicleId:', vehicleId);
     console.log('Function called with tenantId:', tenantId);
-    
+
     if (!vehicleId) {
       console.log('No vehicleId, setting error and returning');
       setError('Please select a vehicle first');
       return;
     }
 
-    console.log('Starting AD360 workflow for vehicle:', vehicleId);
     setIsLoading(true);
     setError(null);
     setWorkflowStep('Starting AD360 workflow...');
-    
-    // Immediate visual feedback
-    setWorkflowStep('Button clicked! Starting AD360 workflow...');
-    
+
     try {
+      // Get vehicle info first
+      const vehicleResponse = await fetch(`/api/vehicles/${vehicleId}`);
+      if (!vehicleResponse.ok) {
+        throw new Error('Failed to get vehicle information');
+      }
+      const vehicle = await vehicleResponse.json();
+      
+      console.log('Vehicle data for AD360:', vehicle);
+
+      // Execute complete AD360 workflow in one call
+      setWorkflowStep('Executing AD360 workflow...');
       const response = await fetch('/api/integrations/ad360/workflow', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          step: 'start',
+          step: 'complete_workflow',
           vehicleId: vehicleId,
           tenantId: tenantId,
-          supplierId: 7, // AD360 supplier ID (not 1)
-          action: 'select_distributor' // Start with distributor selection
+          supplierId: 7, // AD360 supplier ID
+          vin: vehicle.vin_number,
+          reg: vehicle.licence_plate
         })
       });
 
       console.log('AD360 workflow response status:', response.status);
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error('AD360 workflow failed:', response.status, errorText);
@@ -71,7 +79,7 @@ export default function FromAD360Button({
 
       const data = await response.json();
       console.log('AD360 workflow response data:', data);
-      
+
       if (data.error) {
         console.error('AD360 workflow error:', data.error);
         setError(`AD360 workflow error: ${data.error}`);
@@ -80,82 +88,36 @@ export default function FromAD360Button({
         return;
       }
 
-      // Continue with the workflow...
-      setWorkflowStep('Workflow started successfully! Loading parts...');
-      
-      // Step 1: Select distributor
-      setWorkflowStep('Selecting distributor (AD Vicente)...');
-      const distributorResponse = await fetch('/api/integrations/ad360/workflow', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tenantId,
-          supplierId: 7, // AD360 supplier ID
-          action: 'select_distributor'
-        })
-      });
-
-      if (!distributorResponse.ok) {
-        throw new Error('Failed to select distributor');
-      }
-
-      // Step 2: Navigate to REPLACEMENT tab
-      setWorkflowStep('Navigating to REPLACEMENT tab...');
-      const tabResponse = await fetch('/api/integrations/ad360/workflow', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tenantId,
-          supplierId: 7,
-          action: 'navigate_tab'
-        })
-      });
-
-      if (!tabResponse.ok) {
-        throw new Error('Failed to navigate to REPLACEMENT tab');
-      }
-
-      // Step 3: Get vehicle info for search
-      const vehicleResponse = await fetch(`/api/vehicles/${vehicleId}`);
-      if (!vehicleResponse.ok) {
-        throw new Error('Failed to get vehicle information');
-      }
-      const vehicle = await vehicleResponse.json();
-
-      // Step 4: Search for vehicle
-      setWorkflowStep('Searching for vehicle...');
-      const searchResponse = await fetch('/api/integrations/ad360/workflow', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tenantId,
-          supplierId: 7,
-          action: 'search_vehicle',
-          vin: vehicle.vin_number,
-          reg: vehicle.licence_plate
-        })
-      });
-      if (!searchResponse.ok) { throw new Error('Failed to search for vehicle'); }
-
-      const searchData = await searchResponse.json();
-      
-      // Check if we have multiple vehicle variants
-      if (searchData.variants && searchData.variants.length > 1) {
-        setVehicleVariants(searchData.variants);
-        setShowVariantSelection(true);
-        setWorkflowStep('Multiple vehicle variants found. Please select the correct one.');
-        return; // Stop here until user selects variant
-      } else if (searchData.variants && searchData.variants.length === 1) {
-        // Only one variant, auto-select it
-        setSelectedVariant(searchData.variants[0]);
+      // Handle the workflow result
+      if (data.status === 'success') {
+        if (data.action === 'complete_workflow') {
+          // Workflow completed, parts should be available
+          setWorkflowStep(`AD360 workflow completed! Found ${data.partsCount || 0} parts.`);
+          
+          // Use the parts data from the API response
+          if (data.parts && data.parts.length > 0) {
+            console.log('AD360 parts received from API:', data.parts);
+            
+            // Call the onItemsLoaded callback to populate the quote
+            if (onItemsLoaded) {
+              console.log('Calling onItemsLoaded with AD360 parts data');
+              onItemsLoaded(data.parts);
+            }
+            
+            setWorkflowStep(`✅ Successfully loaded ${data.parts.length} parts from AD360!`);
+          } else {
+            setWorkflowStep('AD360 workflow completed but no parts found.');
+          }
+          
+          setIsLoading(false);
+        } else if (data.action === 'select_distributor') {
+          // Continue with next steps
+          setWorkflowStep('Distributor selected, continuing workflow...');
+          await continueWorkflow(vehicle);
+        }
       } else {
-        throw new Error('No vehicle variants found');
+        throw new Error('Workflow failed with unknown status');
       }
-
-      // Continue with the selected variant
-      await setTimeout(() => {
-                continueWithSelectedVariant();
-              }, 100);
 
     } catch (error) {
       console.error('AD360 workflow error:', error);
@@ -165,6 +127,63 @@ export default function FromAD360Button({
       }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const continueWorkflow = async (vehicle) => {
+    try {
+      // Continue with the remaining workflow steps
+      setWorkflowStep('Navigating to REPLACEMENT tab...');
+      
+      const tabResponse = await fetch('/api/integrations/ad360/workflow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          step: 'continue_workflow',
+          tenantId,
+          supplierId: 7,
+          action: 'navigate_tab',
+          vehicleId: vehicleId
+        })
+      });
+
+      if (!tabResponse.ok) {
+        throw new Error('Failed to navigate to REPLACEMENT tab');
+      }
+
+      setWorkflowStep('Searching for vehicle...');
+      
+      const searchResponse = await fetch('/api/integrations/ad360/workflow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          step: 'continue_workflow',
+          tenantId,
+          supplierId: 7,
+          action: 'search_vehicle',
+          vehicleId: vehicleId,
+          vin: vehicle.vin_number,
+          reg: vehicle.licence_plate
+        })
+      });
+
+      if (!searchResponse.ok) {
+        throw new Error('Failed to search for vehicle');
+      }
+
+      const searchData = await searchResponse.json();
+      
+      if (searchData.variants && searchData.variants.length > 0) {
+        // Auto-select first variant for now
+        setSelectedVariant(searchData.variants[0]);
+        await continueWithSelectedVariant(searchData.variants[0]);
+      } else {
+        throw new Error('No vehicle variants found');
+      }
+
+    } catch (error) {
+      console.error('Continue workflow error:', error);
+      setError('Failed to continue AD360 workflow');
     }
   };
 
@@ -262,6 +281,42 @@ export default function FromAD360Button({
 
   const handleRefresh = () => {
     executeAD360Workflow();
+  };
+
+  const generateMockParts = (vehicle) => {
+    // Generate realistic mock parts based on the vehicle
+    const parts = [
+      {
+        id: 'part-1',
+        partNumber: 'AD360-001',
+        description: 'Brake Pads - Front',
+        price: { amount: 45.99, currency: 'EUR' },
+        manufacturer: 'AD360',
+        category: 'Brakes',
+        compatibility: vehicle.make + ' ' + vehicle.model
+      },
+      {
+        id: 'part-2', 
+        partNumber: 'AD360-002',
+        description: 'Oil Filter',
+        price: { amount: 12.50, currency: 'EUR' },
+        manufacturer: 'AD360',
+        category: 'Engine',
+        compatibility: vehicle.make + ' ' + vehicle.model
+      },
+      {
+        id: 'part-3',
+        partNumber: 'AD360-003', 
+        description: 'Air Filter',
+        price: { amount: 18.75, currency: 'EUR' },
+        manufacturer: 'AD360',
+        category: 'Engine',
+        compatibility: vehicle.make + ' ' + vehicle.model
+      }
+    ];
+    
+    console.log('Generated mock parts:', parts);
+    return parts;
   };
 
   if (ad360Mode && departments.length > 0) {
