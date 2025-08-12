@@ -575,6 +575,9 @@ export default function NewQuotationPage() {
                   <div className="text-sm text-gray-600 mb-2">
                     Debug: Vehicle ID = {form.vehicle_id}, Vehicle Display = {selectedVehicleDisplay}
                   </div>
+                  <div className="text-sm text-gray-600 mb-2">
+                    Debug: ad360Mode = {ad360Mode ? 'true' : 'false'}, ad360Items.length = {ad360Items.length}
+                  </div>
                   <FromAD360Button
                     vehicleId={form.vehicle_id}
                     tenantId={1}
@@ -587,6 +590,18 @@ export default function NewQuotationPage() {
                       setError(`AD360 Error: ${error}`);
                     }}
                   />
+                  
+                  {/* Debug Info for Parts Display */}
+                  {ad360Items.length > 0 && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-700">
+                        <strong>✅ AD360 Parts Loaded:</strong> {ad360Items.length} parts available
+                      </p>
+                      <p className="text-xs text-green-600 mt-1">
+                        Parts should now be available in the dropdown below. If not visible, check ad360Mode.
+                      </p>
+                    </div>
+                  )}
                   
                   {/* Mode Toggle */}
                   {ad360Items.length > 0 && (
