@@ -25,20 +25,36 @@ export default function ClientAutocomplete({
     setIsLoading(true);
     let cancel = false;
 
-    // Search for clients
-    fetch(`/api/clients?q=${encodeURIComponent(term)}`)
-      .then(r => r.ok ? r.json() : [])
-      .then(clients => {
+    // Search for clients and their vehicles
+    Promise.all([
+      fetch(`/api/clients?q=${encodeURIComponent(term)}`).then(r => r.ok ? r.json() : []),
+      fetch(`/api/vehicles?q=${encodeURIComponent(term)}`).then(r => r.ok ? r.json() : [])
+    ])
+      .then(([clients, vehicles]) => {
         if (cancel) return;
+        
+        // Group vehicles by client
+        const clientVehicles = {};
+        vehicles.forEach(vehicle => {
+          if (vehicle.customer_id) {
+            if (!clientVehicles[vehicle.customer_id]) {
+              clientVehicles[vehicle.customer_id] = [];
+            }
+            clientVehicles[vehicle.customer_id].push(vehicle);
+          }
+        });
         
         // Format results to show client name and their vehicles
         const formattedResults = clients.map(client => {
           const clientName = `${client.first_name || ''} ${client.last_name || ''}`.trim();
+          const clientVehiclesList = clientVehicles[client.id] || [];
+          
           return {
             id: client.id,
             displayName: clientName,
             email: client.email,
             phone: client.mobile || client.landline,
+            vehicles: clientVehiclesList,
             data: client
           };
         });
@@ -61,6 +77,7 @@ export default function ClientAutocomplete({
   }, [term]);
 
   const handleSelect = (client) => {
+    console.log('Client selected:', client); // Debug log
     onSelect && onSelect(client);
     setTerm(client.displayName);
     setIsOpen(false);
@@ -70,7 +87,7 @@ export default function ClientAutocomplete({
     <div className="relative">
       <input
         type="text"
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500 bg-white"
         value={term}
         onChange={(e) => {
           setTerm(e.target.value);
@@ -102,6 +119,11 @@ export default function ClientAutocomplete({
               )}
               {client.phone && (
                 <div className="text-sm text-gray-500">{client.phone}</div>
+              )}
+              {client.vehicles && client.vehicles.length > 0 && (
+                <div className="text-xs text-blue-600 mt-1">
+                  Vehicles: {client.vehicles.map(v => v.licence_plate || 'No Plate').join(', ')}
+                </div>
               )}
             </div>
           ))}

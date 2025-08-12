@@ -138,7 +138,8 @@ export default function NewQuotationPage() {
   };
 
   const handleClientSelect = (client) => {
-    setClientName(`${client.first_name || ''} ${client.last_name || ''}`.trim());
+    console.log('handleClientSelect called with:', client); // Debug log
+    setClientName(client.displayName || `${client.first_name || ''} ${client.last_name || ''}`.trim());
     setForm(f => ({ ...f, customer_id: client.id, fleet_id: '' }));
     setMode('client');
     
@@ -418,7 +419,7 @@ export default function NewQuotationPage() {
                     Customer Ref #
                   </label>
                   <input
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500 bg-white"
                     value={form.customer_ref}
                     onChange={e =>
                       setForm(f => ({ ...f, customer_ref: e.target.value }))
@@ -431,7 +432,7 @@ export default function NewQuotationPage() {
                     PO Number
                   </label>
                   <input
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500 bg-white"
                     value={form.po_number}
                     onChange={e =>
                       setForm(f => ({ ...f, po_number: e.target.value }))
@@ -450,7 +451,7 @@ export default function NewQuotationPage() {
                   Defect Description
                 </label>
                 <textarea
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500 bg-white"
                   rows={4}
                   value={form.defect_description}
                   onChange={e =>
@@ -596,7 +597,7 @@ export default function NewQuotationPage() {
                   <div className="w-16">
                     <input
                       type="number"
-                      className="w-full px-2 py-1 text-center border border-gray-300 rounded text-sm"
+                      className="w-full px-2 py-1 text-center border border-gray-300 rounded text-sm text-gray-900 bg-white"
                       value={it.qty}
                       onChange={e => changeItem(i, 'qty', e.target.value)}
                       placeholder="1"
@@ -607,7 +608,7 @@ export default function NewQuotationPage() {
                   <div className="w-24">
                     <input
                       type="number"
-                      className="w-full px-2 py-1 text-center border border-gray-300 rounded text-sm"
+                      className="w-full px-2 py-1 text-center border border-gray-300 rounded text-sm text-gray-900 bg-white"
                       value={it.unit_cost}
                       onChange={e => changeItem(i, 'unit_cost', e.target.value)}
                       placeholder="0.00"
@@ -618,7 +619,7 @@ export default function NewQuotationPage() {
                   <div className="w-24">
                     <input
                       type="number"
-                      className="w-full px-2 py-1 text-center border border-gray-300 rounded text-sm"
+                      className="w-full px-2 py-1 text-center border border-gray-300 rounded text-sm text-gray-900 bg-white"
                       value={it.markup}
                       onChange={e => changeItem(i, 'markup', e.target.value)}
                       placeholder="0"
