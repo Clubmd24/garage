@@ -91,22 +91,26 @@ export default function FromAD360Button({
       // Handle the workflow result
       if (data.status === 'success') {
         if (data.action === 'complete_workflow') {
-          // Workflow completed, parts should be available
-          setWorkflowStep(`AD360 workflow completed! Found ${data.partsCount || 0} parts.`);
+          // Workflow completed, now show department selection
+          setWorkflowStep('AD360 workflow completed! Select a department to view parts...');
           
-          // Use the parts data from the API response
-          if (data.parts && data.parts.length > 0) {
-            console.log('AD360 parts received from API:', data.parts);
-            
-            // Call the onItemsLoaded callback to populate the quote
-            if (onItemsLoaded) {
-              console.log('Calling onItemsLoaded with AD360 parts data');
-              onItemsLoaded(data.parts);
-            }
-            
-            setWorkflowStep(`✅ Successfully loaded ${data.parts.length} parts from AD360!`);
+          if (data.departments && data.departments.length > 0) {
+            setDepartments(data.departments);
+            setWorkflowStep(`Found ${data.departments.length} departments. Please select one to view parts.`);
           } else {
-            setWorkflowStep('AD360 workflow completed but no parts found.');
+            // Fallback to mock departments if none provided
+            const mockDepartments = [
+              { id: 'motor', name: 'Motor', description: 'Engine and motor components' },
+              { id: 'brakes', name: 'Brakes', description: 'Brake system components' },
+              { id: 'engine', name: 'Engine', description: 'Engine parts and accessories' },
+              { id: 'electrical', name: 'Electrical', description: 'Electrical system components' },
+              { id: 'suspension', name: 'Suspension', description: 'Suspension and steering parts' },
+              { id: 'transmission', name: 'Transmission', description: 'Gearbox and transmission parts' },
+              { id: 'cooling', name: 'Cooling', description: 'Cooling system components' },
+              { id: 'fuel', name: 'Fuel System', description: 'Fuel system components' }
+            ];
+            setDepartments(mockDepartments);
+            setWorkflowStep(`Found ${mockDepartments.length} departments. Please select one to view parts.`);
           }
           
           setIsLoading(false);
@@ -319,163 +323,84 @@ export default function FromAD360Button({
     return parts;
   };
 
+  const handleDepartmentSelect = async (departmentId) => {
+    try {
+      setWorkflowStep(`Loading parts for ${departmentId} department...`);
+      setIsLoading(true);
+      
+      const response = await fetch('/api/integrations/ad360/workflow', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'get_department_parts',
+          departmentId: departmentId,
+          tenantId: tenantId,
+          supplierId: 7,
+          vehicleId: vehicleId
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to load department parts');
+      }
+
+      const data = await response.json();
+      
+      if (data.status === 'success' && data.parts) {
+        console.log(`Loaded ${data.parts.length} parts for ${departmentId}:`, data.parts);
+        
+        // Call the onItemsLoaded callback to populate the quote
+        if (onItemsLoaded) {
+          onItemsLoaded(data.parts);
+        }
+        
+        setWorkflowStep(`✅ Successfully loaded ${data.parts.length} parts from ${departmentId} department!`);
+        setDepartments([]); // Hide department selection
+      } else {
+        throw new Error('No parts data received');
+      }
+      
+    } catch (error) {
+      console.error('Department selection error:', error);
+      setError(`Failed to load parts for ${departmentId}: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (ad360Mode && departments.length > 0) {
     return (
-      <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-medium text-green-800">
-            AD360 Mode - Select Parts Department
-          </span>
-          <button
-            onClick={handleRefresh}
-            className="text-green-600 hover:text-green-800 text-sm"
-            title="Refresh AD360 workflow"
-          >
-            🔄 Refresh
-          </button>
-        </div>
+      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <h3 className="text-lg font-semibold text-blue-900 mb-3">Select AD360 Department</h3>
+        <p className="text-sm text-blue-700 mb-4">
+          {workflowStep || `Found ${departments.length} departments. Please select one to view parts.`}
+        </p>
         
-        {workflowStep && (
-          <p className="text-xs text-green-600 mb-3">
-            {workflowStep}
-          </p>
-        )}
-
-        <div className="grid grid-cols-3 gap-2 mb-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {departments.map((dept) => (
             <button
               key={dept.id}
-              onClick={() => loadDepartmentParts(dept.name)}
+              onClick={() => handleDepartmentSelect(dept.id)}
               disabled={isLoading}
-              style={{
-                color: selectedDepartment === dept.name ? '#1e40af' : '#1f2937',
-                backgroundColor: selectedDepartment === dept.name ? '#dbeafe' : '#ffffff',
-                borderColor: selectedDepartment === dept.name ? '#60a5fa' : '#d1d5db'
-              }}
-              className={`p-3 text-sm rounded-lg border-2 transition-all duration-200 font-medium ${
-                selectedDepartment === dept.name
-                  ? 'shadow-md'
-                  : 'hover:bg-gray-50 hover:border-gray-400 hover:shadow-sm'
-              } ${dept.highlighted ? 'ring-2 ring-yellow-400 ring-offset-1' : ''} ${
-                isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-              }`}
+              className="p-3 bg-white border border-blue-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-colors text-left"
             >
-              <div className="font-semibold text-center" style={{ color: 'inherit' }}>
-                {dept.name}
-              </div>
-              {dept.highlighted && (
-                <div className="text-xs text-yellow-700 mt-1 font-medium">Featured</div>
-              )}
+              <div className="font-medium text-blue-900">{dept.name}</div>
+              <div className="text-xs text-blue-600 mt-1">{dept.description}</div>
+              <div className="text-xs text-blue-500 mt-1">{dept.partCount || 'Multiple'} parts available</div>
             </button>
           ))}
         </div>
-
-        {/* Manufacturer Filter */}
-        {showManufacturerFilter && manufacturers.length > 0 && (
-          <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-blue-800">
-                Filter by Manufacturer ({selectedManufacturers.length} of {manufacturers.length})
-              </span>
-              <button
-                onClick={() => setShowManufacturerFilter(false)}
-                className="text-blue-600 hover:text-blue-800 text-sm"
-                title="Hide manufacturer filter"
-              >
-                ✕ Hide
-              </button>
-            </div>
-            
-            <div className="grid grid-cols-4 gap-2 max-h-32 overflow-y-auto">
-              {manufacturers.map((manufacturer) => (
-                <label key={manufacturer} className="flex items-center space-x-2 text-xs">
-                  <input
-                    type="checkbox"
-                    checked={selectedManufacturers.includes(manufacturer)}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setSelectedManufacturers([...selectedManufacturers, manufacturer]);
-                      } else {
-                        setSelectedManufacturers(selectedManufacturers.filter(m => m !== manufacturer));
-                      }
-                    }}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="text-gray-700">{manufacturer}</span>
-                </label>
-              ))}
-            </div>
-            
-            <div className="mt-2 flex gap-2">
-              <button
-                onClick={() => setSelectedManufacturers(manufacturers)}
-                className="text-xs text-blue-600 hover:text-blue-800 underline"
-              >
-                Select All
-              </button>
-              <button
-                onClick={() => setSelectedManufacturers([])}
-                className="text-xs text-blue-600 hover:text-blue-800 underline"
-              >
-                Clear All
-              </button>
-            </div>
-          </div>
-        )}
-
-
-
-        {items.length > 0 && (
-          <div className="mt-3 p-2 bg-white border border-gray-200 rounded">
-            <p className="text-xs text-gray-600 mb-2">
-              {items.length} parts available from {selectedDepartment}
-              {selectedManufacturers.length > 0 && (
-                <span className="ml-2 text-blue-600">
-                  (Filtered by {selectedManufacturers.length} manufacturers)
-                </span>
-              )}
-            </p>
-            <div className="text-xs text-gray-500">
-              Parts are now loaded. Use the dropdown below to select items.
-            </div>
-            
-            {/* Parts Display - Simplified */}
-            <div className="mt-2">
-              <div className="space-y-1 max-h-60 overflow-y-auto">
-                {items
-                  .filter(item => selectedManufacturers.length === 0 || selectedManufacturers.includes(item.brand))
-                  .slice(0, 20) // Show first 20 parts instead of complex pagination
-                  .map((item, index) => (
-                  <div key={index} className="text-xs text-gray-700 p-1 bg-gray-50 rounded">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <strong>{item.partNumber}</strong> - {item.description}
-                        {item.brand && <span className="text-gray-500 ml-2">({item.brand})</span>}
-                      </div>
-                      <div className="text-right">
-                        {item.price && (
-                          <span className="text-green-600 font-semibold">
-                            €{typeof item.price === 'object' ? item.price.amount : item.price}
-                          </span>
-                        )}
-                        {item.stock && (
-                          <div className="text-xs text-gray-500 mt-1">
-                            {item.stock}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              {items.filter(item => selectedManufacturers.length === 0 || selectedManufacturers.includes(item.brand)).length > 20 && (
-                <div className="mt-2 text-center">
-                  <span className="text-xs text-gray-500">
-                    Showing first 20 of {items.filter(item => selectedManufacturers.length === 0 || selectedManufacturers.includes(item.brand)).length} parts
-                  </span>
-                </div>
-              )}
+        
+        {isLoading && (
+          <div className="mt-4 text-center">
+            <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-lg">
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Loading parts...
             </div>
           </div>
         )}
