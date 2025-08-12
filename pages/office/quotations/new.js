@@ -178,6 +178,11 @@ export default function NewQuotationPage() {
       if (client.vehicles.length === 1) {
         // Auto-populate if client has only one vehicle
         const vehicle = client.vehicles[0];
+        console.log('Auto-populating vehicle:', vehicle);
+        console.log('Vehicle ID:', vehicle.id);
+        console.log('Vehicle license plate:', vehicle.licence_plate);
+        console.log('Vehicle make/model:', vehicle.make, vehicle.model);
+        
         setSelectedVehicleDisplay(`${vehicle.licence_plate || 'No Plate'} - ${vehicle.make} ${vehicle.model}`);
         setForm(f => ({ ...f, vehicle_id: vehicle.id }));
         console.log('Auto-populated vehicle:', vehicle);
@@ -567,6 +572,9 @@ export default function NewQuotationPage() {
               {form.vehicle_id && (
                 <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                   <h3 className="text-lg font-semibold text-blue-800 mb-3">AD360 Parts Integration</h3>
+                  <div className="text-sm text-gray-600 mb-2">
+                    Debug: Vehicle ID = {form.vehicle_id}, Vehicle Display = {selectedVehicleDisplay}
+                  </div>
                   <FromAD360Button
                     vehicleId={form.vehicle_id}
                     tenantId={1}

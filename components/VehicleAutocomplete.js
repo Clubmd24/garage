@@ -18,11 +18,14 @@ export default function VehicleAutocomplete({
       setTerm(value);
       // Close dropdown when value is set externally
       setIsOpen(false);
+      // Clear results when value is set externally to prevent dropdown from showing
+      setResults([]);
     }
   }, [value, term]);
 
   useEffect(() => {
-    if (!term || term.length < 1) {
+    // Don't search if the term is exactly the same as the value (selected vehicle)
+    if (!term || term.length < 1 || term === value) {
       setResults([]);
       setIsOpen(false);
       return;
@@ -87,7 +90,7 @@ export default function VehicleAutocomplete({
     return () => {
       cancel = true;
     };
-  }, [term, customerId, fleetId]);
+  }, [term, customerId, fleetId, value]);
 
   const handleSelect = (vehicle) => {
     onSelect && onSelect(vehicle);
