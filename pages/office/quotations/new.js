@@ -357,7 +357,7 @@ export default function NewQuotationPage() {
           <form onSubmit={submit} className="space-y-6">
             {/* Client & Vehicle Section */}
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <h2 className="text-xl font-semibold mb-4">Client & Vehicle</h2>
+              <h2 className="text-xl font-semibold mb-4 !text-gray-900" style={{color: '#111827'}}>Client & Vehicle</h2>
               
               {/* Mode Toggle */}
               <div className="flex space-x-4 mb-4">
@@ -505,7 +505,7 @@ export default function NewQuotationPage() {
 
             {/* Customer Reference & PO Number */}
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <h2 className="text-xl font-semibold mb-4">Reference Information</h2>
+              <h2 className="text-xl font-semibold mb-4 !text-gray-900" style={{color: '#111827'}}>Reference Information</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -558,7 +558,7 @@ export default function NewQuotationPage() {
             {/* Item Details */}
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">Item Details</h2>
+                <h2 className="text-xl font-semibold !text-gray-900" style={{color: '#111827'}}>Item Details</h2>
                 <button
                   type="button"
                   onClick={addItem}
