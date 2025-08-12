@@ -57,7 +57,7 @@ export default function FromAD360Button({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          step: 'complete_workflow',
+          action: 'complete_workflow',
           vehicleId: vehicleId,
           tenantId: tenantId,
           supplierId: 7, // AD360 supplier ID
@@ -139,7 +139,7 @@ export default function FromAD360Button({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          step: 'continue_workflow',
+          action: 'continue_workflow',
           tenantId,
           supplierId: 7,
           action: 'navigate_tab',
@@ -157,7 +157,7 @@ export default function FromAD360Button({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          step: 'continue_workflow',
+          action: 'continue_workflow',
           tenantId,
           supplierId: 7,
           action: 'search_vehicle',
