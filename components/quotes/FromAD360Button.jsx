@@ -449,7 +449,7 @@ export default function FromAD360Button({
                   }}
                   className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
-                <span className="text-gray-700">{manufacturer}</span>
+                <span className="!text-gray-700" style={{color: '#374151'}}>{manufacturer}</span>
               </label>
             ))}
           </div>
@@ -457,13 +457,15 @@ export default function FromAD360Button({
           <div className="mt-2 flex gap-2">
             <button
               onClick={() => setSelectedManufacturers(manufacturers)}
-              className="text-xs text-blue-600 hover:text-blue-800 underline"
+              className="text-xs !text-blue-600 hover:!text-blue-800 underline"
+              style={{color: '#2563EB'}}
             >
               Select All
             </button>
             <button
               onClick={() => setSelectedManufacturers([])}
-              className="text-xs text-blue-600 hover:text-blue-800 underline"
+              className="text-xs !text-blue-600 hover:!text-blue-800 underline"
+              style={{color: '#2563EB'}}
             >
               Clear All
             </button>
@@ -486,11 +488,11 @@ export default function FromAD360Button({
         {/* Parts List Display */}
         <div className="mt-4">
           <h4 className="text-sm font-medium !text-gray-800 mb-3" style={{color: '#1F2937'}}>
-            Available Parts ({items.length})
+            Available Parts ({items.filter(item => selectedManufacturers.length === 0 || selectedManufacturers.includes(item.brand || item.manufacturer)).length})
           </h4>
           <div className="grid grid-cols-1 gap-2 max-h-96 overflow-y-auto">
             {items
-              .filter(item => selectedManufacturers.includes(item.brand || item.manufacturer))
+              .filter(item => selectedManufacturers.length === 0 || selectedManufacturers.includes(item.brand || item.manufacturer))
               .map((item, index) => (
                 <div 
                   key={item.id || index}
@@ -544,7 +546,7 @@ export default function FromAD360Button({
     return (
       <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-medium text-blue-800">
+          <span className="text-sm font-medium !text-blue-800" style={{color: '#1E40AF'}}>
             AD360 - Select Vehicle Variant
           </span>
           <button
@@ -553,7 +555,7 @@ export default function FromAD360Button({
               setVehicleVariants([]);
               setWorkflowStep('');
             }}
-            className="text-blue-600 hover:text-blue-800 text-sm"
+            className="!text-blue-600 hover:!text-blue-800 text-sm"
             title="Cancel variant selection"
           >
             ✕ Cancel

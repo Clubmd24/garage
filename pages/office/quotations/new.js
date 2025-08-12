@@ -594,10 +594,10 @@ export default function NewQuotationPage() {
                   {/* Debug Info for Parts Display */}
                   {ad360Items.length > 0 && (
                     <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                      <p className="text-sm text-green-700">
+                                            <p className="text-sm !text-green-700" style={{color: '#059669'}}>
                         <strong className="!text-gray-900" style={{color: '#111827'}}>✅ AD360 Parts Loaded:</strong> {ad360Items.length} parts available
                       </p>
-                                              <p className="text-xs !text-green-600 mt-1" style={{color: '#059669'}}>
+                      <p className="text-xs !text-green-600 mt-1" style={{color: '#059669'}}>
                           Parts should now be available in the dropdown below. If not visible, check ad360Mode.
                         </p>
                     </div>
