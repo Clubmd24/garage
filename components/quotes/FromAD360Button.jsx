@@ -488,11 +488,14 @@ export default function FromAD360Button({
         {/* Parts List Display */}
         <div className="mt-4">
           <h4 className="text-sm font-medium !text-gray-800 mb-3" style={{color: '#1F2937'}}>
-            Available Parts ({items.filter(item => selectedManufacturers.length === 0 || selectedManufacturers.includes(item.brand || item.manufacturer)).length})
+            Available Parts ({items.length})
           </h4>
+          {/* Debug info */}
+          <div className="text-xs !text-gray-500 mb-2" style={{color: '#6B7280'}}>
+            Debug: {items.length} items, {manufacturers.length} manufacturers, {selectedManufacturers.length} selected
+          </div>
           <div className="grid grid-cols-1 gap-2 max-h-96 overflow-y-auto">
             {items
-              .filter(item => selectedManufacturers.length === 0 || selectedManufacturers.includes(item.brand || item.manufacturer))
               .map((item, index) => (
                 <div 
                   key={item.id || index}
