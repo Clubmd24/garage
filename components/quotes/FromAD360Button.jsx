@@ -496,6 +496,59 @@ export default function FromAD360Button({
             )}
           </div>
         </div>
+        
+        {/* Parts List Display */}
+        <div className="mt-4">
+          <h4 className="text-sm font-medium text-gray-800 mb-3">
+            Available Parts ({ad360Items.length})
+          </h4>
+          <div className="grid grid-cols-1 gap-2 max-h-96 overflow-y-auto">
+            {ad360Items
+              .filter(item => selectedManufacturers.includes(item.brand || item.manufacturer))
+              .map((item, index) => (
+                <div 
+                  key={item.id || index}
+                  className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
+                  onClick={() => {
+                    if (onItemsLoaded) {
+                      onItemsLoaded([item]);
+                    }
+                  }}
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center">
+                        <span className="text-xs text-gray-500 font-mono">
+                          {item.manufacturer?.substring(0, 2) || 'AD'}
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                            {item.partNumber}
+                          </span>
+                                                   <span className="text-xs text-gray-500">
+                           {item.brand || item.manufacturer}
+                         </span>
+                        </div>
+                        <p className="text-sm text-gray-800 mt-1">
+                          {item.description}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-semibold text-green-600">
+                      €{item.price?.amount || item.price || '0.00'}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {item.category}
+                    </div>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -598,7 +651,7 @@ export default function FromAD360Button({
             : 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700 hover:border-blue-700'
         }`}
       >
-        {isLoading ? 'Loading...' : '🔍 From AD360'}
+        {isLoading ? 'Loading...' : '�� From AD360'}
       </button>
       
       {error && (
