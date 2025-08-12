@@ -74,7 +74,7 @@ export default function ClientVehicleAutocomplete({
                   clientName: clientName,
                   clientId: clientId,
                   vehicleId: vehicle.id,
-                  vehicleDisplay: `${vehicle.licence_plate || 'No Plate'} - ${vehicle.make} ${vehicle.model} ${vehicle.year}`,
+                  vehicleDisplay: `${vehicle.licence_plate || 'No Plate'} - ${vehicle.make} ${vehicle.model}`,
                   email: client.email,
                   phone: client.phone,
                   clientData: client,
@@ -103,7 +103,7 @@ export default function ClientVehicleAutocomplete({
               combinedResults.push({
                 type: 'vehicle',
                 id: vehicle.id,
-                displayName: `${vehicle.licence_plate || 'No Plate'} - ${vehicle.make} ${vehicle.model} ${vehicle.year}`,
+                displayName: `${vehicle.licence_plate || 'No Plate'} - ${vehicle.make} ${vehicle.model}`,
                 clientName: clientName,
                 clientId: vehicle.customer_id,
                 fleetId: vehicle.fleet_id,
@@ -132,7 +132,7 @@ export default function ClientVehicleAutocomplete({
                   fleetName: fleetName,
                   fleetId: fleetId,
                   vehicleId: vehicle.id,
-                  vehicleDisplay: `${vehicle.licence_plate || 'No Plate'} - ${vehicle.make} ${vehicle.model} ${vehicle.year}`,
+                  vehicleDisplay: `${vehicle.licence_plate || 'No Plate'} - ${vehicle.make} ${vehicle.model}`,
                   email: fleet.email_1 || fleet.email_2,
                   phone: fleet.contact_number_1 || fleet.contact_number_2,
                   fleetData: fleet,
@@ -158,7 +158,7 @@ export default function ClientVehicleAutocomplete({
               combinedResults.push({
                 type: 'vehicle',
                 id: vehicle.id,
-                displayName: `${vehicle.licence_plate || 'No Plate'} - ${vehicle.make} ${vehicle.model} ${vehicle.year}`,
+                displayName: `${vehicle.licence_plate || 'No Plate'} - ${vehicle.make} ${vehicle.model}`,
                 clientId: vehicle.customer_id,
                 fleetId: vehicle.fleet_id,
                 data: vehicle
