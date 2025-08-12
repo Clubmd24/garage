@@ -48,7 +48,7 @@ export default function FromAD360Button({
           step: 'start',
           vehicleId: vehicleId,
           tenantId: tenantId,
-          supplierId: 1, // AD360 supplier ID
+          supplierId: 7, // AD360 supplier ID (not 1)
           action: 'select_distributor' // Start with distributor selection
         })
       });
