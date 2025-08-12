@@ -350,48 +350,48 @@ async function handleGetDepartmentParts(res, session, tenantId, supplierId, depa
   try {
     console.log('AD360 Get Department Parts:', { departmentId, vin, reg, supplierId, tenantId });
     
-    // Generate realistic parts for each department
+    // Generate realistic parts for each department with multiple manufacturers
     const mockParts = {
       motor: [
-        { id: 'motor-1', partNumber: 'AD360-M001', description: 'Electric Motor - 12V', price: { amount: 89.99, currency: 'EUR' }, manufacturer: 'AD360', category: 'Motor', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'motor-2', partNumber: 'AD360-M002', description: 'Starter Motor', price: { amount: 156.50, currency: 'EUR' }, manufacturer: 'AD360', category: 'Motor', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'motor-3', partNumber: 'AD360-M003', description: 'Wiper Motor', price: { amount: 67.25, currency: 'EUR' }, manufacturer: 'AD360', category: 'Motor', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'motor-4', partNumber: 'AD360-M004', description: 'Window Motor - Front Left', price: { amount: 78.99, currency: 'EUR' }, manufacturer: 'AD360', category: 'Motor', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'motor-5', partNumber: 'AD360-M005', description: 'Window Motor - Front Right', price: { amount: 78.99, currency: 'EUR' }, manufacturer: 'AD360', category: 'Motor', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'motor-6', partNumber: 'AD360-M006', description: 'Mirror Motor - Left', price: { amount: 45.50, currency: 'EUR' }, manufacturer: 'AD360', category: 'Motor', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'motor-7', partNumber: 'AD360-M007', description: 'Mirror Motor - Right', price: { amount: 45.50, currency: 'EUR' }, manufacturer: 'AD360', category: 'Motor', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'motor-8', partNumber: 'AD360-M008', description: 'Seat Motor - Driver', price: { amount: 123.75, currency: 'EUR' }, manufacturer: 'AD360', category: 'Motor', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'motor-9', partNumber: 'AD360-M009', description: 'Seat Motor - Passenger', price: { amount: 123.75, currency: 'EUR' }, manufacturer: 'AD360', category: 'Motor', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'motor-10', partNumber: 'AD360-M010', description: 'Sunroof Motor', price: { amount: 189.99, currency: 'EUR' }, manufacturer: 'AD360', category: 'Motor', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'motor-11', partNumber: 'AD360-M011', description: 'Fuel Pump Motor', price: { amount: 234.50, currency: 'EUR' }, manufacturer: 'AD360', category: 'Motor', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'motor-12', partNumber: 'AD360-M012', description: 'Cooling Fan Motor', price: { amount: 98.25, currency: 'EUR' }, manufacturer: 'AD360', category: 'Motor', compatibility: `${reg || 'Vehicle'} - Compatible Parts` }
+        { id: 'motor-1', partNumber: 'AD360-M001', description: 'Electric Motor - 12V', price: { amount: 89.99, currency: 'EUR' }, manufacturer: 'BOSCH', brand: 'BOSCH', category: 'Motor', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'motor-2', partNumber: 'AD360-M002', description: 'Starter Motor', price: { amount: 156.50, currency: 'EUR' }, manufacturer: 'Valeo', brand: 'Valeo', category: 'Motor', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'motor-3', partNumber: 'AD360-M003', description: 'Wiper Motor', price: { amount: 67.25, currency: 'EUR' }, manufacturer: 'BOSCH', brand: 'BOSCH', category: 'Motor', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'motor-4', partNumber: 'AD360-M004', description: 'Window Motor - Front Left', price: { amount: 78.99, currency: 'EUR' }, manufacturer: 'FEBI BILSTEIN', brand: 'FEBI BILSTEIN', category: 'Motor', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'motor-5', partNumber: 'AD360-M005', description: 'Window Motor - Front Right', price: { amount: 78.99, currency: 'EUR' }, manufacturer: 'FEBI BILSTEIN', brand: 'FEBI BILSTEIN', category: 'Motor', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'motor-6', partNumber: 'AD360-M006', description: 'Mirror Motor - Left', price: { amount: 45.50, currency: 'EUR' }, manufacturer: 'HELLA', brand: 'HELLA', category: 'Motor', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'motor-7', partNumber: 'AD360-M007', description: 'Mirror Motor - Right', price: { amount: 45.50, currency: 'EUR' }, manufacturer: 'HELLA', brand: 'HELLA', category: 'Motor', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'motor-8', partNumber: 'AD360-M008', description: 'Seat Motor - Driver', price: { amount: 123.75, currency: 'EUR' }, manufacturer: 'BLUE PRINT', brand: 'BLUE PRINT', category: 'Motor', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'motor-9', partNumber: 'AD360-M009', description: 'Seat Motor - Passenger', price: { amount: 123.75, currency: 'EUR' }, manufacturer: 'BLUE PRINT', brand: 'BLUE PRINT', category: 'Motor', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'motor-10', partNumber: 'AD360-M010', description: 'Sunroof Motor', price: { amount: 189.99, currency: 'EUR' }, manufacturer: 'AJUSA', brand: 'AJUSA', category: 'Motor', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'motor-11', partNumber: 'AD360-M011', description: 'Fuel Pump Motor', price: { amount: 234.50, currency: 'EUR' }, manufacturer: 'DELPHI', brand: 'DELPHI', category: 'Motor', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'motor-12', partNumber: 'AD360-M012', description: 'Cooling Fan Motor', price: { amount: 98.25, currency: 'EUR' }, manufacturer: 'MEYLE', brand: 'MEYLE', category: 'Motor', compatibility: `${reg || 'Vehicle'} - Compatible Parts` }
       ],
       brakes: [
-        { id: 'brakes-1', partNumber: 'AD360-B001', description: 'Brake Pads - Front', price: { amount: 45.99, currency: 'EUR' }, manufacturer: 'AD360', category: 'Brakes', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'brakes-2', partNumber: 'AD360-B002', description: 'Brake Pads - Rear', price: { amount: 38.50, currency: 'EUR' }, manufacturer: 'AD360', category: 'Brakes', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'brakes-3', partNumber: 'AD360-B003', description: 'Brake Discs - Front', price: { amount: 67.25, currency: 'EUR' }, manufacturer: 'AD360', category: 'Brakes', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'brakes-4', partNumber: 'AD360-B004', description: 'Brake Discs - Rear', price: { amount: 58.99, currency: 'EUR' }, manufacturer: 'AD360', category: 'Brakes', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'brakes-5', partNumber: 'AD360-B005', description: 'Brake Fluid', price: { amount: 8.50, currency: 'EUR' }, manufacturer: 'AD360', category: 'Brakes', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'brakes-6', partNumber: 'AD360-B006', description: 'Brake Calipers - Front', price: { amount: 89.75, currency: 'EUR' }, manufacturer: 'AD360', category: 'Brakes', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'brakes-7', partNumber: 'AD360-B007', description: 'Brake Calipers - Rear', price: { amount: 76.25, currency: 'EUR' }, manufacturer: 'AD360', category: 'Brakes', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'brakes-8', partNumber: 'AD360-B008', description: 'Brake Hoses', price: { amount: 23.99, currency: 'EUR' }, manufacturer: 'AD360', category: 'Brakes', compatibility: `${reg || 'Vehicle'} - Compatible Parts` }
+        { id: 'brakes-1', partNumber: 'AD360-B001', description: 'Brake Pads - Front', price: { amount: 45.99, currency: 'EUR' }, manufacturer: 'BOSCH', brand: 'BOSCH', category: 'Brakes', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'brakes-2', partNumber: 'AD360-B002', description: 'Brake Pads - Rear', price: { amount: 38.50, currency: 'EUR' }, manufacturer: 'BOSCH', brand: 'BOSCH', category: 'Brakes', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'brakes-3', partNumber: 'AD360-B003', description: 'Brake Discs - Front', price: { amount: 67.25, currency: 'EUR' }, manufacturer: 'FEBI BILSTEIN', brand: 'FEBI BILSTEIN', category: 'Brakes', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'brakes-4', partNumber: 'AD360-B004', description: 'Brake Discs - Rear', price: { amount: 58.99, currency: 'EUR' }, manufacturer: 'FEBI BILSTEIN', brand: 'FEBI BILSTEIN', category: 'Brakes', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'brakes-5', partNumber: 'AD360-B005', description: 'Brake Fluid', price: { amount: 8.50, currency: 'EUR' }, manufacturer: 'Castrol', brand: 'Castrol', category: 'Brakes', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'brakes-6', partNumber: 'AD360-B006', description: 'Brake Calipers - Front', price: { amount: 89.75, currency: 'EUR' }, manufacturer: 'AJUSA', brand: 'AJUSA', category: 'Brakes', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'brakes-7', partNumber: 'AD360-B007', description: 'Brake Calipers - Rear', price: { amount: 76.25, currency: 'EUR' }, manufacturer: 'AJUSA', brand: 'AJUSA', category: 'Brakes', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'brakes-8', partNumber: 'AD360-B008', description: 'Brake Hoses', price: { amount: 23.99, currency: 'EUR' }, manufacturer: 'BLUE PRINT', brand: 'BLUE PRINT', category: 'Brakes', compatibility: `${reg || 'Vehicle'} - Compatible Parts` }
       ],
       engine: [
-        { id: 'engine-1', partNumber: 'AD360-E001', description: 'Oil Filter', price: { amount: 12.50, currency: 'EUR' }, manufacturer: 'AD360', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'engine-2', partNumber: 'AD360-E002', description: 'Air Filter', price: { amount: 18.75, currency: 'EUR' }, manufacturer: 'AD360', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'engine-3', partNumber: 'AD360-E003', description: 'Fuel Filter', price: { amount: 15.99, currency: 'EUR' }, manufacturer: 'AD360', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'engine-4', partNumber: 'AD360-E004', description: 'Spark Plugs (Set of 4)', price: { amount: 32.99, currency: 'EUR' }, manufacturer: 'AD360', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'engine-5', partNumber: 'AD360-E005', description: 'Ignition Coils (Set of 4)', price: { amount: 89.50, currency: 'EUR' }, manufacturer: 'AD360', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'engine-6', partNumber: 'AD360-E006', description: 'Timing Belt', price: { amount: 67.25, currency: 'EUR' }, manufacturer: 'AD360', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'engine-7', partNumber: 'AD360-E007', description: 'Timing Belt Tensioner', price: { amount: 45.99, currency: 'EUR' }, manufacturer: 'AD360', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'engine-8', partNumber: 'AD360-E008', description: 'Camshaft Position Sensor', price: { amount: 78.50, currency: 'EUR' }, manufacturer: 'AD360', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'engine-9', partNumber: 'AD360-E009', description: 'Crankshaft Position Sensor', price: { amount: 82.25, currency: 'EUR' }, manufacturer: 'AD360', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'engine-10', partNumber: 'AD360-E010', description: 'Mass Air Flow Sensor', price: { amount: 156.99, currency: 'EUR' }, manufacturer: 'AD360', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'engine-11', partNumber: 'AD360-E011', description: 'Oxygen Sensor', price: { amount: 89.75, currency: 'EUR' }, manufacturer: 'AD360', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'engine-12', partNumber: 'AD360-E012', description: 'Throttle Position Sensor', price: { amount: 67.50, currency: 'EUR' }, manufacturer: 'AD360', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'engine-13', partNumber: 'AD360-E013', description: 'Idle Air Control Valve', price: { amount: 123.25, currency: 'EUR' }, manufacturer: 'AD360', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'engine-14', partNumber: 'AD360-E014', description: 'PCV Valve', price: { amount: 18.99, currency: 'EUR' }, manufacturer: 'AD360', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
-        { id: 'engine-15', partNumber: 'AD360-E015', description: 'EGR Valve', price: { amount: 189.50, currency: 'EUR' }, manufacturer: 'AD360', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` }
+        { id: 'engine-1', partNumber: 'AD360-E001', description: 'Oil Filter', price: { amount: 12.50, currency: 'EUR' }, manufacturer: 'MANN FILTER', brand: 'MANN FILTER', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'engine-2', partNumber: 'AD360-E002', description: 'Air Filter', price: { amount: 18.75, currency: 'EUR' }, manufacturer: 'MANN FILTER', brand: 'MANN FILTER', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'engine-3', partNumber: 'AD360-E003', description: 'Fuel Filter', price: { amount: 15.99, currency: 'EUR' }, manufacturer: 'MANN FILTER', brand: 'MANN FILTER', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'engine-4', partNumber: 'AD360-E004', description: 'Spark Plugs (Set of 4)', price: { amount: 32.99, currency: 'EUR' }, manufacturer: 'NGK', brand: 'NGK', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'engine-5', partNumber: 'AD360-E005', description: 'Ignition Coils (Set of 4)', price: { amount: 89.50, currency: 'EUR' }, manufacturer: 'NGK', brand: 'NGK', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'engine-6', partNumber: 'AD360-E006', description: 'Timing Belt', price: { amount: 67.25, currency: 'EUR' }, manufacturer: 'Gates', brand: 'Gates', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'engine-7', partNumber: 'AD360-E007', description: 'Timing Belt Tensioner', price: { amount: 45.99, currency: 'EUR' }, manufacturer: 'Gates', brand: 'Gates', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'engine-8', partNumber: 'AD360-E008', description: 'Camshaft Position Sensor', price: { amount: 78.50, currency: 'EUR' }, manufacturer: 'BOSCH', brand: 'BOSCH', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'engine-9', partNumber: 'AD360-E009', description: 'Crankshaft Position Sensor', price: { amount: 82.25, currency: 'EUR' }, manufacturer: 'BOSCH', brand: 'BOSCH', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'engine-10', partNumber: 'AD360-E010', description: 'Mass Air Flow Sensor', price: { amount: 156.99, currency: 'EUR' }, manufacturer: 'BOSCH', brand: 'BOSCH', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'engine-11', partNumber: 'AD360-E011', description: 'Oxygen Sensor', price: { amount: 89.75, currency: 'EUR' }, manufacturer: 'BOSCH', brand: 'BOSCH', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'engine-12', partNumber: 'AD360-E012', description: 'Throttle Position Sensor', price: { amount: 67.50, currency: 'EUR' }, manufacturer: 'BOSCH', brand: 'BOSCH', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'engine-13', partNumber: 'AD360-E013', description: 'Idle Air Control Valve', price: { amount: 123.25, currency: 'EUR' }, manufacturer: 'PIERBURG', brand: 'PIERBURG', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'engine-14', partNumber: 'AD360-E014', description: 'PCV Valve', price: { amount: 18.99, currency: 'EUR' }, manufacturer: 'PIERBURG', brand: 'PIERBURG', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` },
+        { id: 'engine-15', partNumber: 'AD360-E015', description: 'EGR Valve', price: { amount: 189.50, currency: 'EUR' }, manufacturer: 'PIERBURG', brand: 'PIERBURG', category: 'Engine', compatibility: `${reg || 'Vehicle'} - Compatible Parts` }
       ]
     };
     
@@ -409,12 +409,16 @@ async function handleGetDepartmentParts(res, session, tenantId, supplierId, depa
       })]
     );
 
+    // Extract unique manufacturers for filtering
+    const manufacturers = [...new Set(parts.map(p => p.brand))];
+
     return res.status(200).json({
       status: 'success',
       action: 'get_department_parts',
       departmentId,
       parts,
       partCount: parts.length,
+      manufacturers: manufacturers,
       message: `${parts.length} parts from ${departmentId} department retrieved successfully`
     });
     

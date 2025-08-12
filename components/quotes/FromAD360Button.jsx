@@ -353,6 +353,12 @@ export default function FromAD360Button({
       if (data.status === 'success' && data.parts) {
         console.log(`Loaded ${data.parts.length} parts for ${departmentId}:`, data.parts);
         
+        // Set manufacturers for filtering
+        if (data.manufacturers && data.manufacturers.length > 0) {
+          setManufacturers(data.manufacturers);
+          setSelectedManufacturers(data.manufacturers); // Start with all selected
+        }
+        
         // Call the onItemsLoaded callback to populate the quote
         if (onItemsLoaded) {
           onItemsLoaded(data.parts);
@@ -360,6 +366,7 @@ export default function FromAD360Button({
         
         setWorkflowStep(`✅ Successfully loaded ${data.parts.length} parts from ${departmentId} department!`);
         setDepartments([]); // Hide department selection
+        setShowManufacturerFilter(true); // Show manufacturer filter
       } else {
         throw new Error('No parts data received');
       }
@@ -406,6 +413,89 @@ export default function FromAD360Button({
             </div>
           </div>
         )}
+      </div>
+    );
+  }
+
+  // Show manufacturer filter when parts are loaded
+  if (ad360Mode && showManufacturerFilter && manufacturers.length > 0) {
+    return (
+      <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-sm font-medium text-green-800">
+            AD360 Parts Loaded - Filter by Manufacturer
+          </span>
+          <button
+            onClick={() => setShowManufacturerFilter(false)}
+            className="text-green-600 hover:text-green-800 text-sm"
+            title="Hide manufacturer filter"
+          >
+            ✕ Hide
+          </button>
+        </div>
+        
+        {workflowStep && (
+          <p className="text-xs text-green-600 mb-3">
+            {workflowStep}
+          </p>
+        )}
+
+        {/* Manufacturer Filter */}
+        <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-blue-800">
+              Filter by Manufacturer ({selectedManufacturers.length} of {manufacturers.length})
+            </span>
+          </div>
+          
+          <div className="grid grid-cols-4 gap-2 max-h-32 overflow-y-auto">
+            {manufacturers.map((manufacturer) => (
+              <label key={manufacturer} className="flex items-center space-x-2 text-xs">
+                <input
+                  type="checkbox"
+                  checked={selectedManufacturers.includes(manufacturer)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedManufacturers([...selectedManufacturers, manufacturer]);
+                    } else {
+                      setSelectedManufacturers(selectedManufacturers.filter(m => m !== manufacturer));
+                    }
+                  }}
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-gray-700">{manufacturer}</span>
+              </label>
+            ))}
+          </div>
+          
+          <div className="mt-2 flex gap-2">
+            <button
+              onClick={() => setSelectedManufacturers(manufacturers)}
+              className="text-xs text-blue-600 hover:text-blue-800 underline"
+            >
+              Select All
+            </button>
+            <button
+              onClick={() => setSelectedManufacturers([])}
+              className="text-xs text-blue-600 hover:text-blue-800 underline"
+            >
+              Clear All
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-3 p-2 bg-white border border-gray-200 rounded">
+          <p className="text-xs text-gray-600 mb-2">
+            Parts are now loaded and filtered. Use the dropdown below to select items.
+          </p>
+          <div className="text-xs text-gray-500">
+            {selectedManufacturers.length > 0 && (
+              <span className="text-blue-600">
+                Showing parts from {selectedManufacturers.length} manufacturers
+              </span>
+            )}
+          </div>
+        </div>
       </div>
     );
   }
