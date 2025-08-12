@@ -500,10 +500,10 @@ export default function FromAD360Button({
         {/* Parts List Display */}
         <div className="mt-4">
           <h4 className="text-sm font-medium text-gray-800 mb-3">
-            Available Parts ({ad360Items.length})
+            Available Parts ({items.length})
           </h4>
           <div className="grid grid-cols-1 gap-2 max-h-96 overflow-y-auto">
-            {ad360Items
+            {items
               .filter(item => selectedManufacturers.includes(item.brand || item.manufacturer))
               .map((item, index) => (
                 <div 
