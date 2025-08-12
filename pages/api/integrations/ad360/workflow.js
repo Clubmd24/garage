@@ -138,33 +138,73 @@ async function handleTabNavigation(res, session, tenantId, supplierId) {
 async function handleVehicleSearch(res, session, tenantId, supplierId, vin, reg) {
   try {
     // In production, this would use Playwright to search for vehicle
-    // For now, return mock vehicle variants based on the AD360 screenshot
+    // For now, return mock vehicle variants based on the actual vehicle data
     
-    // Mock vehicle variants based on the BMW 1 series example from AD360
-    const variants = [
-      {
-        id: 'bmw-1-f20-116d-1',
-        make: 'BMW',
-        model: '1 (F20)',
-        version: '116 d',
-        power: '116cv',
-        displacement: '85kw',
-        engine: '1995cc N47 D20 C',
-        years: '07/2011 a 02/2015',
-        description: 'First generation BMW 1 Series (F20) with 116d diesel engine'
-      },
-      {
-        id: 'bmw-1-f21-116d-2',
-        make: 'BMW',
-        model: '1 (F21)',
-        version: '116 d',
-        power: '116cv',
-        displacement: '85kw',
-        engine: '1995cc N47 D20 C',
-        years: '07/2012 a 02/2015',
-        description: 'First generation BMW 1 Series (F21) with 116d diesel engine'
+    console.log('AD360 Vehicle Search:', { vin, reg, supplierId, tenantId });
+    
+    // Generate vehicle variants based on the actual vehicle data
+    // This simulates what AD360 would return for the specific vehicle
+    let variants = [];
+    
+    if (reg) {
+      // Extract make and model from license plate or use the registration
+      const regUpper = reg.toUpperCase();
+      
+      // Generate variants based on the vehicle registration
+      // In a real implementation, this would come from AD360's database
+      variants = [
+        {
+          id: `${regUpper.toLowerCase().replace(/[^a-z0-9]/g, '')}-variant-1`,
+          make: 'Vehicle', // This would be the actual make from AD360
+          model: regUpper, // Use registration as model identifier
+          version: 'Standard',
+          power: 'Unknown',
+          displacement: 'Unknown',
+          engine: 'Unknown',
+          years: 'Current',
+          description: `Vehicle variant for ${regUpper}`,
+          registration: regUpper,
+          vin: vin || 'Unknown'
+        }
+      ];
+      
+      // If we have a VIN, add more specific variant
+      if (vin) {
+        variants.push({
+          id: `${regUpper.toLowerCase().replace(/[^a-z0-9]/g, '')}-variant-2`,
+          make: 'Vehicle',
+          model: `${regUpper} (VIN: ${vin.substring(0, 8)}...)`,
+          version: 'VIN Specific',
+          power: 'Unknown',
+          displacement: 'Unknown',
+          engine: 'Unknown',
+          years: 'Current',
+          description: `VIN-specific variant for ${regUpper}`,
+          registration: regUpper,
+          vin: vin
+        });
       }
-    ];
+    } else if (vin) {
+      // Fallback to VIN-only search
+      variants = [
+        {
+          id: `vin-${vin.substring(0, 8).toLowerCase()}-variant-1`,
+          make: 'Vehicle',
+          model: `VIN: ${vin.substring(0, 8)}...`,
+          version: 'VIN Based',
+          power: 'Unknown',
+          displacement: 'Unknown',
+          engine: 'Unknown',
+          years: 'Current',
+          description: `VIN-based variant for ${vin.substring(0, 8)}...`,
+          registration: 'Unknown',
+          vin: vin
+        }
+      ];
+    } else {
+      // No vehicle data provided
+      throw new Error('No vehicle registration or VIN provided');
+    }
     
     // Write audit event
     await pool.query(
@@ -175,7 +215,8 @@ async function handleVehicleSearch(res, session, tenantId, supplierId, vin, reg)
         success: true,
         vin,
         reg,
-        variantCount: variants.length
+        variantCount: variants.length,
+        variants: variants
       })]
     );
 
@@ -185,7 +226,7 @@ async function handleVehicleSearch(res, session, tenantId, supplierId, vin, reg)
       vin,
       reg,
       variants,
-      message: `Found ${variants.length} vehicle variant(s)`
+      message: `Found ${variants.length} vehicle variant(s) for ${reg || vin}`
     });
   } catch (error) {
     throw error;
