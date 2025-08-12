@@ -4,7 +4,8 @@ export default function FromAD360Button({
   vehicleId, 
   tenantId = 1, // Default tenant ID - should be passed from parent
   onItemsLoaded, 
-  onError 
+  onError,
+  ad360Items = [] // Receive AD360 items from parent
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -403,13 +404,20 @@ export default function FromAD360Button({
     );
   }
 
-  // Show manufacturer filter when parts are loaded
-  if (ad360Mode && showManufacturerFilter && manufacturers.length > 0) {
+  // Show parts list when AD360 items are available
+  if (ad360Mode && ad360Items.length > 0) {
+    // Extract manufacturers from items if not already set
+    if (manufacturers.length === 0) {
+      const uniqueManufacturers = [...new Set(ad360Items.map(item => item.brand || item.manufacturer).filter(Boolean))];
+      setManufacturers(uniqueManufacturers);
+      setSelectedManufacturers(uniqueManufacturers); // Start with all selected
+    }
+    
     return (
       <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm font-medium !text-green-800" style={{color: '#166534'}}>
-            AD360 Parts Loaded - Filter by Manufacturer
+            AD360 Parts Loaded - {ad360Items.length} Parts Available
           </span>
           <button
             onClick={() => setShowManufacturerFilter(false)}
@@ -426,8 +434,9 @@ export default function FromAD360Button({
           </p>
         )}
 
-        {/* Manufacturer Filter */}
-        <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+        {/* Manufacturer Filter - Only show when manufacturers are available */}
+        {manufacturers.length > 0 && (
+          <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium !text-blue-800" style={{color: '#1E40AF'}}>
               Filter by Manufacturer ({selectedManufacturers.length} of {manufacturers.length})
@@ -471,6 +480,7 @@ export default function FromAD360Button({
             </button>
           </div>
         </div>
+        )}
 
         <div className="mt-3 p-2 bg-white border border-gray-200 rounded">
           <p className="text-xs !text-gray-600 mb-2" style={{color: '#4B5563'}}>
@@ -488,14 +498,14 @@ export default function FromAD360Button({
         {/* Parts List Display */}
         <div className="mt-4">
           <h4 className="text-sm font-medium !text-gray-800 mb-3" style={{color: '#1F2937'}}>
-            Available Parts ({items.length})
+            Available Parts ({ad360Items.length})
           </h4>
           {/* Debug info */}
           <div className="text-xs !text-gray-500 mb-2" style={{color: '#6B7280'}}>
-            Debug: {items.length} items, {manufacturers.length} manufacturers, {selectedManufacturers.length} selected
+            Debug: {ad360Items.length} items, {manufacturers.length} manufacturers, {selectedManufacturers.length} selected
           </div>
           <div className="grid grid-cols-1 gap-2 max-h-96 overflow-y-auto">
-            {items
+            {ad360Items
               .map((item, index) => (
                 <div 
                   key={item.id || index}

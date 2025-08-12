@@ -581,6 +581,7 @@ export default function NewQuotationPage() {
                   <FromAD360Button
                     vehicleId={form.vehicle_id}
                     tenantId={1}
+                    ad360Items={ad360Items}
                     onItemsLoaded={(ad360Items) => {
                       console.log('AD360 items loaded:', ad360Items);
                       setAd360Items(ad360Items);
