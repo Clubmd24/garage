@@ -101,14 +101,14 @@ export default function FromAD360Button({
           } else {
             // Fallback to mock departments if none provided
             const mockDepartments = [
-              { id: 'motor', name: 'Motor', description: 'Engine and motor components' },
-              { id: 'brakes', name: 'Brakes', description: 'Brake system components' },
-              { id: 'engine', name: 'Engine', description: 'Engine parts and accessories' },
-              { id: 'electrical', name: 'Electrical', description: 'Electrical system components' },
-              { id: 'suspension', name: 'Suspension', description: 'Suspension and steering parts' },
-              { id: 'transmission', name: 'Transmission', description: 'Gearbox and transmission parts' },
-              { id: 'cooling', name: 'Cooling', description: 'Cooling system components' },
-              { id: 'fuel', name: 'Fuel System', description: 'Fuel system components' }
+              { id: 'motor', name: 'Motor', description: 'Engine and motor components', partCount: 108 },
+              { id: 'brakes', name: 'Brakes', description: 'Brake system components', partCount: 85 },
+              { id: 'engine', name: 'Engine', description: 'Engine parts and accessories', partCount: 156 },
+              { id: 'electrical', name: 'Electrical', description: 'Electrical system components', partCount: 92 },
+              { id: 'suspension', name: 'Suspension', description: 'Suspension and steering parts', partCount: 78 },
+              { id: 'transmission', name: 'Transmission', description: 'Gearbox and transmission parts', partCount: 64 },
+              { id: 'cooling', name: 'Cooling', description: 'Cooling system components', partCount: 53 },
+              { id: 'fuel', name: 'Fuel System', description: 'Fuel system components', partCount: 47 }
             ];
             setDepartments(mockDepartments);
             setAd360Mode(true); // Set ad360Mode to true to show department selection
