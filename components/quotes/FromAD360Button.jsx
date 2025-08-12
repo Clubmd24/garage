@@ -96,6 +96,7 @@ export default function FromAD360Button({
           
           if (data.departments && data.departments.length > 0) {
             setDepartments(data.departments);
+            setAd360Mode(true); // Set ad360Mode to true to show department selection
             setWorkflowStep(`Found ${data.departments.length} departments. Please select one to view parts.`);
           } else {
             // Fallback to mock departments if none provided
@@ -110,6 +111,7 @@ export default function FromAD360Button({
               { id: 'fuel', name: 'Fuel System', description: 'Fuel system components' }
             ];
             setDepartments(mockDepartments);
+            setAd360Mode(true); // Set ad360Mode to true to show department selection
             setWorkflowStep(`Found ${mockDepartments.length} departments. Please select one to view parts.`);
           }
           
