@@ -30,6 +30,7 @@ export default function FromAD360Button({
       return;
     }
 
+    console.log('Starting AD360 workflow for vehicle:', vehicleId);
     setIsLoading(true);
     setError(null);
     setWorkflowStep('Starting AD360 workflow...');
@@ -192,11 +193,13 @@ export default function FromAD360Button({
       
       // Notify parent component with the loaded parts
       if (onItemsLoaded) {
+        console.log('Calling onItemsLoaded with parts:', data.parts);
         onItemsLoaded(data.parts);
       }
       
       // If we have parts, show a success message
       if (data.parts.length > 0) {
+        console.log('Successfully loaded parts:', data.parts.length);
         setWorkflowStep(`Successfully loaded ${data.parts.length} parts from ${department} department. Parts are now available in the dropdown below.`);
       } else {
         setWorkflowStep(`No parts found in ${department} department. Try selecting a different department.`);
@@ -444,6 +447,15 @@ export default function FromAD360Button({
 
   return (
     <div className="mb-4">
+      <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+        <p className="text-sm text-blue-700 mb-2">
+          <strong>Step 1:</strong> Click the button below to start AD360 parts lookup
+        </p>
+        <p className="text-xs text-blue-600">
+          This will search AD360 for parts compatible with your selected vehicle
+        </p>
+      </div>
+      
       <button
         type="button"
         onClick={executeAD360Workflow}
