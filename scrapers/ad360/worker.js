@@ -1,4 +1,4 @@
-import { chromium } from 'playwright';
+import { chromium, chromium as chromiumBrowser } from 'playwright';
 import { loadSession } from './sessionStore.js';
 import { normalizeItems } from './normalize.js';
 import { execSync } from 'child_process';
@@ -14,11 +14,11 @@ function checkBrowserAvailability() {
     const isHeroku = process.env.DYNO || process.env.HEROKU_APP_NAME;
     console.log('Environment:', isHeroku ? 'Heroku' : 'Local');
     
-    // Check common Playwright paths
+    // Check common Playwright paths - prioritize regular chromium over headless shell
     const possiblePaths = [
       '/app/.cache/ms-playwright/chromium-1181/chrome-linux/chrome',
-      '/app/.cache/ms-playwright/chromium_headless_shell-1181/chrome-linux/headless_shell',
       '/app/.cache/ms-playwright/chromium-1181/chrome-linux/chromium',
+      '/app/.cache/ms-playwright/chromium_headless_shell-1181/chrome-linux/headless_shell',
       process.env.PLAYWRIGHT_BROWSERS_PATH ? join(process.env.PLAYWRIGHT_BROWSERS_PATH, 'chromium-1181/chrome-linux/chrome') : null
     ].filter(Boolean);
     
@@ -63,11 +63,11 @@ export async function fetchVehicleVariants(tenantId, supplierId, vin, reg) {
   let browser;
   
   try {
-    // Try to launch with explicit executable path if we found one
+    // Try to launch with explicit executable path if we found one - FIRST FUNCTION
     if (browserPath) {
       try {
         console.log('Trying to launch with explicit path:', browserPath);
-        browser = await chromium.launch({ 
+        browser = await chromiumBrowser.launch({ 
           headless: true,
           executablePath: browserPath,
           args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
@@ -75,19 +75,30 @@ export async function fetchVehicleVariants(tenantId, supplierId, vin, reg) {
         console.log('Browser launched successfully with explicit path');
       } catch (pathError) {
         console.log('Failed to launch with explicit path, trying default:', pathError.message);
-        browser = await chromium.launch({ 
+        browser = await chromiumBrowser.launch({ 
           headless: true,
           args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
         });
         console.log('Browser launched successfully with default path');
       }
     } else {
-      // Try default launch
-      browser = await chromium.launch({ 
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-      });
-      console.log('Browser launched successfully with default path');
+      // Try default launch - FIRST FUNCTION
+      try {
+        browser = await chromiumBrowser.launch({ 
+          headless: true,
+          args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+        });
+        console.log('Browser launched successfully with default path');
+      } catch (defaultError) {
+        console.log('Default launch failed, trying system chromium:', defaultError.message);
+        // Try to use system chromium as last resort
+        browser = await chromiumBrowser.launch({ 
+          headless: true,
+          executablePath: '/usr/bin/chromium-browser',
+          args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+        });
+        console.log('Browser launched successfully with system chromium');
+      }
     }
     
     const ctx = await browser.newContext();
@@ -193,7 +204,7 @@ export async function fetchPartsForVehicle(tenantId, supplierId, vin, reg) {
     if (browserPath) {
       try {
         console.log('Trying to launch with explicit path:', browserPath);
-        browser = await chromium.launch({ 
+        browser = await chromiumBrowser.launch({ 
           headless: true,
           executablePath: browserPath,
           args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
@@ -201,19 +212,30 @@ export async function fetchPartsForVehicle(tenantId, supplierId, vin, reg) {
         console.log('Browser launched successfully with explicit path');
       } catch (pathError) {
         console.log('Failed to launch with explicit path, trying default:', pathError.message);
-        browser = await chromium.launch({ 
+        browser = await chromiumBrowser.launch({ 
           headless: true,
           args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
         });
         console.log('Browser launched successfully with default path');
       }
     } else {
-      // Try default launch
-      browser = await chromium.launch({ 
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-      });
-      console.log('Browser launched successfully with default path');
+      // Try default launch - SECOND FUNCTION
+      try {
+        browser = await chromiumBrowser.launch({ 
+          headless: true,
+          args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+        });
+        console.log('Browser launched successfully with default path');
+      } catch (defaultError) {
+        console.log('Default launch failed, trying system chromium:', defaultError.message);
+        // Try to use system chromium as last resort
+        browser = await chromiumBrowser.launch({ 
+          headless: true,
+          executablePath: '/usr/bin/chromium-browser',
+          args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+        });
+        console.log('Browser launched successfully with system chromium');
+      }
     }
     
     const ctx = await browser.newContext();
