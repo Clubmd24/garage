@@ -23,10 +23,18 @@ function getBrowserPath() {
         console.log('Puppeteer cache contents:', contents);
         
         // Look for Chrome in Puppeteer cache
-        const chromePath = `${puppeteerCacheDir}/chrome-linux64/chrome`;
-        if (existsSync(chromePath)) {
-          console.log('Found Chrome in Puppeteer cache:', chromePath);
-          return chromePath;
+        // Check multiple possible paths based on the actual installation
+        const possibleChromePaths = [
+          `${puppeteerCacheDir}/chrome-linux64/chrome`,
+          `${puppeteerCacheDir}/chrome/linux-139.0.7258.66/chrome-linux64/chrome`,
+          `${puppeteerCacheDir}/chrome/linux-139.0.7258.66/chrome-linux64/chromium`
+        ];
+        
+        for (const chromePath of possibleChromePaths) {
+          if (existsSync(chromePath)) {
+            console.log('Found Chrome in Puppeteer cache:', chromePath);
+            return chromePath;
+          }
         }
       } catch (lsError) {
         console.log('Could not list Puppeteer cache contents:', lsError.message);
