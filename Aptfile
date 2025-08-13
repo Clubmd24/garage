@@ -26,4 +26,10 @@ libasound2t64
 
 # System (essential for browser)
 libnss3
-libcups2 
+libcups2
+
+# Additional essential dependencies for Playwright
+libatk1.0-0t64
+libatk-bridge2.0-0t64
+libxkbcommon0
+libatspi2.0-0t64 
