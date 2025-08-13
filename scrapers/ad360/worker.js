@@ -47,14 +47,24 @@ export async function fetchVehicleVariants(tenantId, supplierId, vin, reg) {
     // In production, this would be: const searchResponse = await makeAD360Request('/vehicles/search', {...});
     console.log('🔄 Simulating AD360 API call for license plate:', reg);
     
-    // Simulate API response based on the actual vehicle data
-    const vehicleInfo = reg ? reg.split(' ').slice(1).join(' ') : 'Unknown';
-    const make = vehicleInfo.includes('BMW') ? 'BMW' : 
-                 vehicleInfo.includes('HONDA') ? 'HONDA' : 
-                 vehicleInfo.includes('TOYOTA') ? 'TOYOTA' : 'Unknown';
-    const model = vehicleInfo.includes('116D') ? '116D' : 
-                  vehicleInfo.includes('CRV') ? 'CRV' : 
-                  vehicleInfo.includes('YARIS') ? 'YARIS' : 'Unknown';
+         // Simulate API response based on the actual vehicle data
+     // Extract make and model from the license plate search
+     const vehicleInfo = reg ? reg.split(' ').slice(1).join(' ') : 'Unknown';
+     
+     // Try to extract make and model from the vehicle info
+     // For OPEL ANTARA, the info would be "OPEL ANTARA"
+     const parts = vehicleInfo.split(' ');
+     let make = 'Unknown';
+     let model = 'Unknown';
+     
+     if (parts.length >= 2) {
+       make = parts[0]; // First part is usually the make (OPEL)
+       model = parts.slice(1).join(' '); // Rest is the model (ANTARA)
+     } else if (parts.length === 1) {
+       make = parts[0];
+     }
+     
+     console.log('🔍 Extracted vehicle info:', { vehicleInfo, make, model });
     
     const searchResponse = {
       vehicles: [
@@ -111,12 +121,20 @@ export async function fetchVehicleVariants(tenantId, supplierId, vin, reg) {
      
      // Extract make and model from the license plate search
      const vehicleInfo = reg ? reg.split(' ').slice(1).join(' ') : 'Unknown';
-     const make = vehicleInfo.includes('BMW') ? 'BMW' : 
-                  vehicleInfo.includes('HONDA') ? 'HONDA' : 
-                  vehicleInfo.includes('TOYOTA') ? 'TOYOTA' : 'Unknown';
-     const model = vehicleInfo.includes('116D') ? '116D' : 
-                   vehicleInfo.includes('CRV') ? 'CRV' : 
-                   vehicleInfo.includes('YARIS') ? 'YARIS' : 'Unknown';
+     
+     // Try to extract make and model from the vehicle info
+     const parts = vehicleInfo.split(' ');
+     let make = 'Unknown';
+     let model = 'Unknown';
+     
+     if (parts.length >= 2) {
+       make = parts[0]; // First part is usually the make (OPEL)
+       model = parts.slice(1).join(' '); // Rest is the model (ANTARA)
+     } else if (parts.length === 1) {
+       make = parts[0];
+     }
+     
+     console.log('🔍 Fallback: Extracted vehicle info:', { vehicleInfo, make, model });
      
      return [
        {
