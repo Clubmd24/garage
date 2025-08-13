@@ -326,10 +326,53 @@ export async function fetchPartsForVehicle(tenantId, supplierId, vehicleVariantI
   console.log('🚀 REAL AD360 SCRAPING: Starting fetchPartsForVehicle...');
   console.log('📋 Parameters:', { tenantId, supplierId, vehicleVariantId, category });
   
-  const browser = await chromium.launch({ 
-    headless: true,
-    executablePath: '/app/.cache/ms-playwright/chromium-1181/chrome-linux/chrome'
-  });
+  // Try multiple browser launch strategies
+  let browser;
+  try {
+    // Strategy 1: Let Playwright find Chromium automatically
+    console.log('🔍 Strategy 1: Letting Playwright find Chromium automatically...');
+    browser = await chromium.launch({ headless: true });
+    console.log('✅ Strategy 1 successful');
+  } catch (error) {
+    console.log('❌ Strategy 1 failed:', error.message);
+    
+    try {
+      // Strategy 2: Try system Chromium
+      console.log('🔍 Strategy 2: Trying system Chromium...');
+      browser = await chromium.launch({ 
+        headless: true,
+        executablePath: '/usr/bin/chromium-browser'
+      });
+      console.log('✅ Strategy 2 successful');
+    } catch (error2) {
+      console.log('❌ Strategy 2 failed:', error2.message);
+      
+      try {
+        // Strategy 3: Try Google Chrome
+        console.log('🔍 Strategy 3: Trying Google Chrome...');
+        browser = await chromium.launch({ 
+          headless: true,
+          executablePath: '/usr/bin/google-chrome-stable'
+        });
+        console.log('✅ Strategy 3 successful');
+      } catch (error3) {
+        console.log('❌ Strategy 3 failed:', error3.message);
+        
+        // Strategy 4: Try the exact path from Heroku logs
+        console.log('🔍 Strategy 4: Trying exact Heroku path...');
+        browser = await chromium.launch({ 
+          headless: true,
+          executablePath: '/app/.cache/ms-playwright/chromium-1181/chrome-linux/chrome'
+        });
+        console.log('✅ Strategy 4 successful');
+      }
+    }
+  }
+  
+  if (!browser) {
+    throw new Error('All browser launch strategies failed');
+  }
+  
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
 
@@ -569,10 +612,53 @@ export async function searchParts(tenantId, supplierId, query, vehicleVariantId 
 export async function getCategories(tenantId, supplierId) {
   console.log('🚀 REAL AD360 SCRAPING: Starting getCategories...');
   
-  const browser = await chromium.launch({ 
-    headless: true,
-    executablePath: '/app/.cache/ms-playwright/chromium-1181/chrome-linux/chrome'
-  });
+  // Try multiple browser launch strategies
+  let browser;
+  try {
+    // Strategy 1: Let Playwright find Chromium automatically
+    console.log('🔍 Strategy 1: Letting Playwright find Chromium automatically...');
+    browser = await chromium.launch({ headless: true });
+    console.log('✅ Strategy 1 successful');
+  } catch (error) {
+    console.log('❌ Strategy 1 failed:', error.message);
+    
+    try {
+      // Strategy 2: Try system Chromium
+      console.log('🔍 Strategy 2: Trying system Chromium...');
+      browser = await chromium.launch({ 
+        headless: true,
+        executablePath: '/usr/bin/chromium-browser'
+      });
+      console.log('✅ Strategy 2 successful');
+    } catch (error2) {
+      console.log('❌ Strategy 2 failed:', error2.message);
+      
+      try {
+        // Strategy 3: Try Google Chrome
+        console.log('🔍 Strategy 3: Trying Google Chrome...');
+        browser = await chromium.launch({ 
+          headless: true,
+          executablePath: '/usr/bin/google-chrome-stable'
+        });
+        console.log('✅ Strategy 3 successful');
+      } catch (error3) {
+        console.log('❌ Strategy 3 failed:', error3.message);
+        
+        // Strategy 4: Try the exact path from Heroku logs
+        console.log('🔍 Strategy 4: Trying exact Heroku path...');
+        browser = await chromium.launch({ 
+          headless: true,
+          executablePath: '/app/.cache/ms-playwright/chromium-1181/chrome-linux/chrome'
+        });
+        console.log('✅ Strategy 4 successful');
+      }
+    }
+  }
+  
+  if (!browser) {
+    throw new Error('All browser launch strategies failed');
+  }
+  
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
 
@@ -636,14 +722,57 @@ export async function getCategories(tenantId, supplierId) {
 export async function checkAD360Health() {
   console.log('🚀 REAL AD360 SCRAPING: Starting health check...');
 
+  // Try multiple browser launch strategies
+  let browser;
   try {
-    const browser = await chromium.launch({ 
-      headless: true,
-      executablePath: '/app/.cache/ms-playwright/chromium-1181/chrome-linux/chrome'
-    });
-    const ctx = await browser.newContext();
-    const page = await ctx.newPage();
+    // Strategy 1: Let Playwright find Chromium automatically
+    console.log('🔍 Strategy 1: Letting Playwright find Chromium automatically...');
+    browser = await chromium.launch({ headless: true });
+    console.log('✅ Strategy 1 successful');
+  } catch (error) {
+    console.log('❌ Strategy 1 failed:', error.message);
+    
+    try {
+      // Strategy 2: Try system Chromium
+      console.log('🔍 Strategy 2: Trying system Chromium...');
+      browser = await chromium.launch({ 
+        headless: true,
+        executablePath: '/usr/bin/chromium-browser'
+      });
+      console.log('✅ Strategy 2 successful');
+    } catch (error2) {
+      console.log('❌ Strategy 2 failed:', error2.message);
+      
+      try {
+        // Strategy 3: Try Google Chrome
+        console.log('🔍 Strategy 3: Trying Google Chrome...');
+        browser = await chromium.launch({ 
+          headless: true,
+          executablePath: '/usr/bin/google-chrome-stable'
+        });
+        console.log('✅ Strategy 3 successful');
+      } catch (error3) {
+        console.log('❌ Strategy 3 failed:', error3.message);
+        
+        // Strategy 4: Try the exact path from Heroku logs
+        console.log('🔍 Strategy 4: Trying exact Heroku path...');
+        browser = await chromium.launch({ 
+          headless: true,
+          executablePath: '/app/.cache/ms-playwright/chromium-1181/chrome-linux/chrome'
+        });
+        console.log('✅ Strategy 4 successful');
+      }
+    }
+  }
+  
+  if (!browser) {
+    throw new Error('All browser launch strategies failed');
+  }
+  
+  const ctx = await browser.newContext();
+  const page = await ctx.newPage();
 
+  try {
     // Try to access AD360 site
     await page.goto('https://connect.ad360.es', { waitUntil: 'domcontentloaded', timeout: 10000 });
     
