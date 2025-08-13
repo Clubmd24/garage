@@ -2,247 +2,101 @@ import puppeteer from 'puppeteer';
 import { loadSession } from './sessionStore.js';
 import { normalizeItems } from './normalize.js';
 
-// Debug Puppeteer import
-console.log('Puppeteer import type:', typeof puppeteer);
-console.log('Puppeteer constructor:', puppeteer.constructor.name);
-
-// Function to get the best available browser path
-function getBrowserPath() {
-  console.log('Getting browser path...');
-  
-  try {
-    const { execSync } = require('child_process');
-    const { existsSync } = require('fs');
-    
-    // Check Puppeteer cache first
-    const puppeteerCacheDir = '/app/.cache/puppeteer';
-    if (existsSync(puppeteerCacheDir)) {
-      console.log('Puppeteer cache directory exists');
-      try {
-        const contents = execSync(`ls -la ${puppeteerCacheDir}`, { encoding: 'utf8' });
-        console.log('Puppeteer cache contents:', contents);
-        
-        // Look for Chrome in Puppeteer cache
-        // Check multiple possible paths based on the actual installation
-        const possibleChromePaths = [
-          `${puppeteerCacheDir}/chrome-linux64/chrome`,
-          `${puppeteerCacheDir}/chrome/linux-139.0.7258.66/chrome-linux64/chrome`,
-          `${puppeteerCacheDir}/chrome/linux-139.0.7258.66/chrome-linux64/chromium`
-        ];
-        
-        // Also try to find any chrome executable in the cache directory
-        try {
-          const findResult = execSync(`find ${puppeteerCacheDir} -name "chrome" -type f 2>/dev/null`, { encoding: 'utf8' });
-          const foundPaths = findResult.trim().split('\n').filter(Boolean);
-          console.log('Found Chrome executables with find:', foundPaths);
-          
-          // Add found paths to our search
-          possibleChromePaths.push(...foundPaths);
-        } catch (findError) {
-          console.log('Find command failed:', findError.message);
-        }
-        
-        for (const chromePath of possibleChromePaths) {
-          if (existsSync(chromePath)) {
-            console.log('Found Chrome in Puppeteer cache:', chromePath);
-            return chromePath;
-          }
-        }
-      } catch (lsError) {
-        console.log('Could not list Puppeteer cache contents:', lsError.message);
-      }
-    }
-    
-    // Check Playwright cache as fallback
-    const playwrightCacheDir = '/app/.cache/ms-playwright';
-    if (existsSync(playwrightCacheDir)) {
-      console.log('Playwright cache directory exists');
-      try {
-        const contents = execSync(`ls -la ${playwrightCacheDir}`, { encoding: 'utf8' });
-        console.log('Playwright cache contents:', contents);
-        
-        // Look for Chrome in Playwright cache
-        const chromePaths = [
-          '/app/.cache/ms-playwright/chromium-1181/chrome-linux/chrome',
-          '/app/.cache/ms-playwright/chromium-1181/chrome-linux/chromium'
-        ];
-        
-        for (const path of chromePaths) {
-          if (existsSync(path)) {
-            console.log('Found Chrome in Playwright cache:', path);
-            return path;
-          }
-        }
-      } catch (lsError) {
-        console.log('Could not list Playwright cache contents:', lsError.message);
-      }
-    }
-    
-    // Check environment variable
-    if (process.env.PUPPETEER_EXECUTABLE_PATH) {
-      console.log('Using PUPPETEER_EXECUTABLE_PATH:', process.env.PUPPETEER_EXECUTABLE_PATH);
-      return process.env.PUPPETEER_EXECUTABLE_PATH;
-    }
-    
-    console.log('No explicit browser path found, will use Puppeteer default');
-    return null;
-  } catch (error) {
-    console.error('Error getting browser path:', error);
-    return null;
-  }
-}
-
-// Function to launch browser with multiple fallback strategies
+// Simple, bulletproof browser launch function
 async function launchBrowser() {
-  console.log('Launching browser...');
+  console.log('🚀 Launching browser with bulletproof approach...');
   
-  const browserPath = getBrowserPath();
-  const launchOptions = {
-    headless: true,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-gpu',
-      '--no-first-run',
-      '--no-zygote',
-      '--single-process',
-      '--disable-extensions',
-      '--disable-plugins',
-      '--disable-images',
-      '--disable-javascript',
-      '--disable-web-security'
-    ]
-  };
-  
-  if (browserPath) {
-    console.log('Trying with explicit path:', browserPath);
-    launchOptions.executablePath = browserPath;
-  }
-  
-  let browser;
-  let lastError;
-  
-  // Strategy 1: Try with explicit path
-  if (browserPath) {
+  try {
+    // Strategy 1: Simple launch with minimal options
+    console.log('Trying simple launch...');
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process'
+      ]
+    });
+    
+    console.log('✅ Browser launched successfully!');
+    return browser;
+    
+  } catch (error) {
+    console.error('❌ Simple launch failed:', error.message);
+    
+    // Strategy 2: Force download and launch
     try {
-      console.log('Strategy 1: Launching with explicit path...');
-      browser = await puppeteer.launch(launchOptions);
-      console.log('✅ Browser launched successfully with explicit path');
+      console.log('🔄 Forcing Chrome download and launch...');
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage'
+        ],
+        product: 'chrome'
+      });
+      
+      console.log('✅ Browser launched successfully with forced download!');
       return browser;
-    } catch (error) {
-      console.log('❌ Strategy 1 failed:', error.message);
-      lastError = error;
+      
+    } catch (downloadError) {
+      console.error('❌ Forced download failed:', downloadError.message);
+      throw new Error(`All browser launch strategies failed: ${downloadError.message}`);
     }
   }
-  
-  // Strategy 2: Try without explicit path
-  try {
-    console.log('Strategy 2: Launching without explicit path...');
-    delete launchOptions.executablePath;
-    browser = await puppeteer.launch(launchOptions);
-    console.log('✅ Browser launched successfully without explicit path');
-    return browser;
-  } catch (error) {
-    console.log('❌ Strategy 2 failed:', error.message);
-    lastError = error;
-  }
-  
-  // Strategy 3: Try with minimal options
-  try {
-    console.log('Strategy 3: Launching with minimal options...');
-    browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    console.log('✅ Browser launched successfully with minimal options');
-    return browser;
-  } catch (error) {
-    console.log('❌ Strategy 3 failed:', error.message);
-    lastError = error;
-  }
-  
-  // Strategy 4: Try with chromium product
-  try {
-    console.log('Strategy 4: Trying with chromium product...');
-    browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      product: 'chromium'
-    });
-    console.log('✅ Browser launched successfully with chromium product');
-    return browser;
-  } catch (error) {
-    console.log('❌ Strategy 4 failed:', error.message);
-    lastError = error;
-  }
-  
-  // Strategy 5: Try to force download and launch
-  try {
-    console.log('Strategy 5: Forcing browser download and launch...');
-    browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      product: 'chrome'
-    });
-    console.log('✅ Browser launched successfully with forced download');
-    return browser;
-  } catch (error) {
-    console.log('❌ Strategy 5 failed:', error.message);
-    lastError = error;
-  }
-  
-  // All strategies failed
-  throw new Error(`All browser launch strategies failed. Last error: ${lastError?.message}`);
 }
 
 export async function fetchVehicleVariants(tenantId, supplierId, vin, reg) {
-  console.log('Starting fetchVehicleVariants with enhanced Puppeteer...');
+  console.log('🚀 Starting fetchVehicleVariants...');
   let browser;
   
   try {
     browser = await launchBrowser();
-    console.log('Browser launched, creating page...');
+    console.log('📄 Creating new page...');
     
     const page = await browser.newPage();
-    console.log('New page created');
+    console.log('🌐 Navigating to AD360...');
     
     // Navigate to AD360
-    console.log('Navigating to AD360...');
     await page.goto('https://www.ad360.es/#/recambio', { 
       waitUntil: 'domcontentloaded',
       timeout: 30000 
     });
-    console.log('Page loaded');
+    console.log('✅ Page loaded');
     
     // Wait for the CMA button and click it
-    console.log('Waiting for CMA button...');
+    console.log('🔍 Waiting for CMA button...');
     await page.waitForSelector('div.cma', { timeout: 10000 });
     await page.click('div.cma');
-    console.log('CMA button clicked');
+    console.log('✅ CMA button clicked');
     
     // Wait for the license plate input field
-    console.log('Waiting for license plate input...');
+    console.log('🔍 Waiting for license plate input...');
     await page.waitForSelector('#sv-mat', { timeout: 10000 });
     const plateInput = await page.$('#sv-mat');
     
     // Fill in the license plate
-    console.log('Filling license plate:', reg);
+    console.log('📝 Filling license plate:', reg);
     await plateInput.type(reg);
-    console.log('License plate filled');
+    console.log('✅ License plate filled');
     
     // Click the search button
-    console.log('Clicking search button...');
+    console.log('🔍 Clicking search button...');
     await page.click('#sv div.modal-footer > button');
-    console.log('Search button clicked');
+    console.log('✅ Search button clicked');
     
     // Wait for results table
-    console.log('Waiting for results table...');
+    console.log('🔍 Waiting for results table...');
     await page.waitForSelector('#mat table tbody tr', { timeout: 10000 });
-    console.log('Results table loaded');
+    console.log('✅ Results table loaded');
     
     // Extract vehicle variants
-    console.log('Extracting vehicle variants...');
+    console.log('📊 Extracting vehicle variants...');
     const variants = await page.evaluate(() => {
       const rows = document.querySelectorAll('#mat table tbody tr');
       return Array.from(rows).map(row => {
@@ -275,77 +129,76 @@ export async function fetchVehicleVariants(tenantId, supplierId, vin, reg) {
       }).filter(Boolean);
     });
     
-    console.log('Extracted variants:', variants);
+    console.log('✅ Extracted variants:', variants);
     return variants;
     
   } catch (error) {
-    console.error('Error in fetchVehicleVariants:', error);
+    console.error('❌ Error in fetchVehicleVariants:', error);
     throw error;
   } finally {
     if (browser) {
       try {
         await browser.close();
-        console.log('Browser closed successfully');
+        console.log('🔒 Browser closed successfully');
       } catch (closeError) {
-        console.error('Error closing browser:', closeError);
+        console.error('❌ Error closing browser:', closeError);
       }
     }
   }
 }
 
 export async function fetchPartsForVehicle(tenantId, supplierId, vin, reg) {
-  console.log('Starting fetchPartsForVehicle with enhanced Puppeteer...');
+  console.log('🚀 Starting fetchPartsForVehicle...');
   let browser;
   
   try {
     browser = await launchBrowser();
-    console.log('Browser launched, creating page...');
+    console.log('📄 Creating new page...');
     
     const page = await browser.newPage();
-    console.log('New page created');
+    console.log('🌐 Navigating to AD360 search...');
     
     // Navigate to AD360 search
-    console.log('Navigating to AD360 search...');
-    await page.goto('https://www.ad360.es/#/search', { 
+    await page.goto('https://www.ad360.es/#/search', {
       waitUntil: 'domcontentloaded',
-      timeout: 30000 
+      timeout: 30000
     });
-    console.log('Search page loaded');
+    console.log('✅ Search page loaded');
     
-    // Wait for search form and fill in vehicle details
-    console.log('Waiting for search form...');
+    // Wait for search form
+    console.log('🔍 Waiting for search form...');
     await page.waitForSelector('input[placeholder*="Matrícula"]', { timeout: 10000 });
     
-    // Fill in license plate
-    console.log('Filling license plate:', reg);
+    // Fill license plate
+    console.log('📝 Filling license plate:', reg);
     await page.type('input[placeholder*="Matrícula"]', reg);
-    console.log('License plate filled');
+    console.log('✅ License plate filled');
     
-    // Fill in VIN if available
+    // Fill VIN if available
     if (vin) {
-      console.log('Filling VIN:', vin);
+      console.log('📝 Filling VIN:', vin);
       const vinInput = await page.$('input[placeholder*="VIN"]');
       if (vinInput) {
         await vinInput.type(vin);
-        console.log('VIN filled');
+        console.log('✅ VIN filled');
       }
     }
     
     // Click search button
-    console.log('Clicking search button...');
+    console.log('🔍 Clicking search button...');
     const searchButton = await page.$('button[type="submit"], button:contains("Buscar")');
     if (searchButton) {
       await searchButton.click();
-      console.log('Search button clicked');
+      console.log('✅ Search button clicked');
     }
     
-    // Wait for results
-    console.log('Waiting for search results...');
+    // Wait for search results
+    console.log('🔍 Waiting for search results...');
     await page.waitForSelector('.search-results, .parts-list, table', { timeout: 15000 });
-    console.log('Search results loaded');
+    console.log('✅ Search results loaded');
     
     // Extract parts data
-    console.log('Extracting parts data...');
+    console.log('📊 Extracting parts data...');
     const parts = await page.evaluate(() => {
       const partElements = document.querySelectorAll('.part-item, .search-result, tr[data-part]');
       return Array.from(partElements).map(part => {
@@ -364,25 +217,49 @@ export async function fetchPartsForVehicle(tenantId, supplierId, vin, reg) {
       });
     });
     
-    console.log('Extracted parts:', parts);
-    
-    // Normalize the parts data
+    console.log('✅ Extracted parts:', parts);
     const normalizedParts = normalizeItems(parts);
-    console.log('Normalized parts:', normalizedParts);
+    console.log('✅ Normalized parts:', normalizedParts);
     
     return normalizedParts;
     
   } catch (error) {
-    console.error('Error in fetchPartsForVehicle:', error);
+    console.error('❌ Error in fetchPartsForVehicle:', error);
     throw error;
   } finally {
     if (browser) {
       try {
         await browser.close();
-        console.log('Browser closed successfully');
+        console.log('🔒 Browser closed successfully');
       } catch (closeError) {
-        console.error('Error closing browser:', closeError);
+        console.error('❌ Error closing browser:', closeError);
       }
     }
+  }
+}
+
+// Keep existing functions for compatibility
+export async function executeAD360Workflow(tenantId, supplierId, action, additionalData = {}) {
+  console.log('🚀 Executing AD360 workflow...');
+  
+  try {
+    const session = await loadSession(tenantId, supplierId);
+    if (!session) {
+      throw new Error('No active AD360 session found');
+    }
+    
+    // Implementation depends on the action
+    switch (action) {
+      case 'search_vehicle':
+        return await fetchVehicleVariants(tenantId, supplierId, additionalData.vin, additionalData.reg);
+      case 'fetch_parts':
+        return await fetchPartsForVehicle(tenantId, supplierId, additionalData.vin, additionalData.reg);
+      default:
+        throw new Error(`Unknown action: ${action}`);
+    }
+    
+  } catch (error) {
+    console.error('❌ AD360 workflow error:', error);
+    throw error;
   }
 }
