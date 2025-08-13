@@ -90,14 +90,8 @@ export async function fetchVehicleVariants(tenantId, supplierId, vin, reg) {
         });
         console.log('Browser launched successfully with default path');
       } catch (defaultError) {
-        console.log('Default launch failed, trying system chromium:', defaultError.message);
-        // Try to use system chromium as last resort
-        browser = await chromiumBrowser.launch({ 
-          headless: true,
-          executablePath: '/usr/bin/chromium-browser',
-          args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-        });
-        console.log('Browser launched successfully with system chromium');
+        console.log('Default launch failed:', defaultError.message);
+        throw new Error(`Failed to launch browser: ${defaultError.message}`);
       }
     }
     
@@ -227,14 +221,8 @@ export async function fetchPartsForVehicle(tenantId, supplierId, vin, reg) {
         });
         console.log('Browser launched successfully with default path');
       } catch (defaultError) {
-        console.log('Default launch failed, trying system chromium:', defaultError.message);
-        // Try to use system chromium as last resort
-        browser = await chromiumBrowser.launch({ 
-          headless: true,
-          executablePath: '/usr/bin/chromium-browser',
-          args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-        });
-        console.log('Browser launched successfully with system chromium');
+        console.log('Default launch failed:', defaultError.message);
+        throw new Error(`Failed to launch browser: ${defaultError.message}`);
       }
     }
     
