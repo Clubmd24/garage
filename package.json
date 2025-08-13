@@ -13,9 +13,7 @@
     "migrate": "node scripts/migrate.js",
     "lint": "next lint",
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
-    "install-design-system": "node install-design-system.js",
-    "postinstall": "npx playwright install chromium",
-    "heroku-postbuild": "npx playwright install chromium"
+    "install-design-system": "node install-design-system.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.270.0",
@@ -40,7 +38,6 @@
     "pdfjs-dist": "^4.10.38",
     "pdfkit": "^0.13.0",
     "pino": "^8.17.0",
-    "playwright": "1.54.2",
     "react": "18.x",
     "react-big-calendar": "^1.19.4",
     "react-dnd": "^16.0.1",
