@@ -43,38 +43,20 @@ export async function fetchVehicleVariants(tenantId, supplierId, vin, reg) {
     // Step 1: Send license plate to AD360 and get variants back
     console.log('🔍 Step 1: Sending license plate to AD360:', reg);
     
-    // For now, we'll simulate the AD360 API response
-    // In production, this would be: const response = await makeAD360Request('/vehicles/variants', { licensePlate: reg });
-    console.log('🔄 Simulating AD360 API call for license plate:', reg);
+    // Make real API call to AD360 with the actual license plate from the quote
+    const response = await makeAD360Request('/vehicles/variants', { 
+      method: 'POST',
+      body: JSON.stringify({ 
+        licensePlate: reg 
+      })
+    });
     
-    // Simulate AD360's response with variants
-    const searchResponse = {
-      variants: [
-        {
-          id: 'opel-antara-2.0',
-          description: 'OPEL ANTARA 2.0L CDTI',
-          engine: '2.0L',
-          fuel: 'Diesel',
-          transmission: 'Manual',
-          year: '2019'
-        },
-        {
-          id: 'opel-antara-1.6',
-          description: 'OPEL ANTARA 1.6L CDTI',
-          engine: '1.6L',
-          fuel: 'Diesel',
-          transmission: 'Manual',
-          year: '2019'
-        }
-      ]
-    };
-    
-    console.log('✅ AD360 variants response:', searchResponse);
+    console.log('✅ AD360 API response received:', response);
     
     // Step 2: Return the variants exactly as AD360 sent them
-    if (searchResponse.variants && searchResponse.variants.length > 0) {
-      console.log('✅ Vehicle variants extracted:', searchResponse.variants);
-      return searchResponse.variants;
+    if (response.variants && response.variants.length > 0) {
+      console.log('✅ Vehicle variants extracted:', response.variants);
+      return response.variants;
     } else {
       console.log('⚠️ No vehicle variants found for license plate:', reg);
       return [];
@@ -82,28 +64,7 @@ export async function fetchVehicleVariants(tenantId, supplierId, vin, reg) {
     
   } catch (error) {
     console.error('❌ NEW AD360 API: fetchVehicleVariants failed:', error.message);
-    
-         // Fallback: Return mock data exactly as AD360 would
-     console.log('🔄 Using fallback mock data as AD360 would provide...');
-     
-     return [
-       {
-         id: 'opel-antara-2.0',
-         description: 'OPEL ANTARA 2.0L CDTI',
-         engine: '2.0L',
-         fuel: 'Diesel',
-         transmission: 'Manual',
-         year: '2019'
-       },
-       {
-         id: 'opel-antara-1.6',
-         description: 'OPEL ANTARA 1.6L CDTI',
-         engine: '1.6L',
-         fuel: 'Diesel',
-         transmission: 'Manual',
-         year: '2019'
-       }
-     ];
+    throw error; // Re-throw the error so the frontend knows the API call failed
   }
 }
 
