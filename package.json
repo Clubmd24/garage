@@ -14,7 +14,7 @@
     "lint": "next lint",
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "install-design-system": "node install-design-system.js",
-    "postinstall": "npx playwright install chromium"
+    "postinstall": "npx puppeteer browsers install chrome"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.270.0",
@@ -38,7 +38,8 @@
     "pdfjs-dist": "^4.10.38",
     "pdfkit": "^0.13.0",
     "pino": "^8.17.0",
-    "playwright": "^1.50.0",
+
+    "puppeteer": "24.16.1",
     "react": "18.x",
     "react-big-calendar": "^1.19.4",
     "react-dnd": "^16.0.1",
