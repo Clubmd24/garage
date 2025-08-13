@@ -14,7 +14,7 @@
     "lint": "next lint",
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "install-design-system": "node install-design-system.js",
-    "postinstall": "npx puppeteer install"
+    "postinstall": "npx puppeteer browsers install chrome"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.270.0",
