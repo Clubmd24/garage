@@ -5,6 +5,11 @@ import { execSync } from 'child_process';
 import { existsSync } from 'fs';
 import { join } from 'path';
 
+// Debug Playwright import
+console.log('Playwright chromium import type:', typeof chromium);
+console.log('Playwright chromium constructor:', chromium.constructor.name);
+console.log('Playwright chromium prototype chain:', Object.getPrototypeOf(chromium)?.constructor?.name);
+
 // Function to check what browsers are available
 function checkBrowserAvailability() {
   console.log('Checking browser availability...');
@@ -13,6 +18,9 @@ function checkBrowserAvailability() {
     // Check if we're on Heroku
     const isHeroku = process.env.DYNO || process.env.HEROKU_APP_NAME;
     console.log('Environment:', isHeroku ? 'Heroku' : 'Local');
+    console.log('Node version:', process.version);
+    console.log('Playwright version:', process.env.PLAYWRIGHT_VERSION || 'unknown');
+    console.log('NODE_ENV:', process.env.NODE_ENV);
     
     // Check common Playwright paths - ONLY regular chromium, NO headless shell
     const possiblePaths = [
@@ -67,10 +75,15 @@ export async function fetchVehicleVariants(tenantId, supplierId, vin, reg) {
       try {
         console.log('Trying to launch with explicit path:', browserPath);
         console.log('Launching with explicit path, browser type:', typeof chromium, 'browser name:', chromium.name || 'unknown', '- FIRST FUNCTION');
+        console.log('Chromium object keys:', Object.keys(chromium));
+        console.log('Chromium prototype:', Object.getPrototypeOf(chromium));
+        
+        // Force the use of the specific executable path
         browser = await chromium.launch({ 
           headless: true,
           executablePath: browserPath,
-          args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+          args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+          channel: 'chrome' // Force Chrome channel
         });
         console.log('Browser launched successfully with explicit path');
       } catch (pathError) {
