@@ -37,21 +37,18 @@ export default async function handler(req, res) {
 
     // Check cache (30 minute TTL for variants)
     const cacheTTL = 30 * 60; // 30 minutes in seconds
-    const [cacheRows] = await pool.query(
-      'SELECT payload, fetched_at FROM ad360_cache WHERE tenant_id = ? AND supplier_id = ? AND vehicle_key = ? AND fetched_at > DATE_SUB(NOW(), INTERVAL ? SECOND)',
-      [tenantId, supplierId, vehicleKey, cacheTTL]
+    
+    // TEMPORARILY DISABLE CACHE TO FORCE FRESH DATA
+    // TODO: Re-enable cache after confirming new data works
+    console.log('🔄 TEMPORARILY DISABLED CACHE - forcing fresh AD360 API call');
+    
+    // Clear any existing cache for this vehicle to force fresh data
+    await pool.query(
+      'DELETE FROM ad360_cache WHERE tenant_id = ? AND supplier_id = ? AND vehicle_key = ?',
+      [tenantId, supplierId, vehicleKey]
     );
-
-    if (cacheRows.length > 0) {
-      const cached = cacheRows[0];
-      return res.status(200).json({
-        vehicleKey,
-        variants: JSON.parse(cached.payload),
-        fetchedAt: cached.fetched_at,
-        ttlSeconds: cacheTTL,
-        cached: true
-      });
-    }
+    
+    console.log('🗑️ Cleared cached data for vehicle:', vehicleKey);
 
     // Fetch vehicle variants from AD360
     try {
