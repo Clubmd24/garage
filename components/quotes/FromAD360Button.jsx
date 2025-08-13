@@ -312,7 +312,7 @@ export default function FromAD360Button({
   // Department selection removed - we now fetch all parts directly after variant selection
 
   // Show parts list when AD360 items are available
-  if (ad360Mode && ad360Items.length > 0) {
+  if (ad360Mode && ad360Items && ad360Items.length > 0) {
     // Extract manufacturers from items if not already set
     if (manufacturers.length === 0) {
       const uniqueManufacturers = [...new Set(ad360Items.map(item => item.brand || item.manufacturer).filter(Boolean))];
@@ -405,14 +405,14 @@ export default function FromAD360Button({
         {/* Parts List Display */}
         <div className="mt-4">
           <h4 className="text-sm font-medium !text-gray-800 mb-3" style={{color: '#1F2937'}}>
-            Available Parts ({ad360Items.length})
+            Available Parts ({ad360Items ? ad360Items.length : 0})
           </h4>
           {/* Debug info */}
           <div className="text-xs !text-gray-500 mb-2" style={{color: '#6B7280'}}>
-            Debug: {ad360Items.length} items, {manufacturers.length} manufacturers, {selectedManufacturers.length} selected
+            Debug: {ad360Items ? ad360Items.length : 0} items, {manufacturers.length} manufacturers, {selectedManufacturers.length} selected
           </div>
           <div className="grid grid-cols-1 gap-2 max-h-96 overflow-y-auto">
-            {ad360Items
+            {ad360Items && ad360Items
               .map((item, index) => (
                 <div 
                   key={item.id || index}
