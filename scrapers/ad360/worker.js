@@ -30,6 +30,18 @@ function getBrowserPath() {
           `${puppeteerCacheDir}/chrome/linux-139.0.7258.66/chrome-linux64/chromium`
         ];
         
+        // Also try to find any chrome executable in the cache directory
+        try {
+          const findResult = execSync(`find ${puppeteerCacheDir} -name "chrome" -type f 2>/dev/null`, { encoding: 'utf8' });
+          const foundPaths = findResult.trim().split('\n').filter(Boolean);
+          console.log('Found Chrome executables with find:', foundPaths);
+          
+          // Add found paths to our search
+          possibleChromePaths.push(...foundPaths);
+        } catch (findError) {
+          console.log('Find command failed:', findError.message);
+        }
+        
         for (const chromePath of possibleChromePaths) {
           if (existsSync(chromePath)) {
             console.log('Found Chrome in Puppeteer cache:', chromePath);
@@ -150,9 +162,24 @@ async function launchBrowser() {
     lastError = error;
   }
   
-  // Strategy 4: Try to force download and launch
+  // Strategy 4: Try with chromium product
   try {
-    console.log('Strategy 4: Forcing browser download and launch...');
+    console.log('Strategy 4: Trying with chromium product...');
+    browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      product: 'chromium'
+    });
+    console.log('✅ Browser launched successfully with chromium product');
+    return browser;
+  } catch (error) {
+    console.log('❌ Strategy 4 failed:', error.message);
+    lastError = error;
+  }
+  
+  // Strategy 5: Try to force download and launch
+  try {
+    console.log('Strategy 5: Forcing browser download and launch...');
     browser = await puppeteer.launch({
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
@@ -161,7 +188,7 @@ async function launchBrowser() {
     console.log('✅ Browser launched successfully with forced download');
     return browser;
   } catch (error) {
-    console.log('❌ Strategy 4 failed:', error.message);
+    console.log('❌ Strategy 5 failed:', error.message);
     lastError = error;
   }
   
