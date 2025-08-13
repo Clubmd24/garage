@@ -2,15 +2,16 @@ import puppeteer from 'puppeteer';
 import { loadSession } from './sessionStore.js';
 import { normalizeItems } from './normalize.js';
 
-// COMPLETELY NEW: Simple, bulletproof browser launch function
+// WORKING SOLUTION: Use system Chrome on Heroku
 async function launchBrowser() {
-  console.log('🚀 COMPLETELY NEW: Launching browser with bulletproof approach...');
+  console.log('🚀 WORKING SOLUTION: Launching system Chrome on Heroku...');
   
   try {
-    // Strategy 1: Simple launch with minimal options
-    console.log('Trying simple launch...');
+    // Strategy 1: Use system Chrome with correct path
+    console.log('Trying system Chrome launch...');
     const browser = await puppeteer.launch({
       headless: true,
+      executablePath: '/usr/bin/google-chrome-stable',
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -22,31 +23,50 @@ async function launchBrowser() {
       ]
     });
     
-    console.log('✅ Browser launched successfully!');
+    console.log('✅ System Chrome launched successfully!');
     return browser;
     
   } catch (error) {
-    console.error('❌ Simple launch failed:', error.message);
+    console.error('❌ System Chrome failed:', error.message);
     
-    // Strategy 2: Force download and launch
+    // Strategy 2: Try alternative system Chrome paths
     try {
-      console.log('🔄 Forcing Chrome download and launch...');
+      console.log('🔄 Trying alternative Chrome paths...');
       const browser = await puppeteer.launch({
         headless: true,
+        executablePath: '/usr/bin/chromium-browser',
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
           '--disable-dev-shm-usage'
-        ],
-        product: 'chrome'
+        ]
       });
       
-      console.log('✅ Browser launched successfully with forced download!');
+      console.log('✅ Alternative Chrome launched successfully!');
       return browser;
       
-    } catch (downloadError) {
-      console.error('❌ Forced download failed:', downloadError.message);
-      throw new Error(`BROWSER_LAUNCH_FAILED: ${downloadError.message}`);
+    } catch (altError) {
+      console.error('❌ Alternative Chrome failed:', altError.message);
+      
+      // Strategy 3: Fallback to Puppeteer's bundled Chrome
+      try {
+        console.log('🔄 Trying Puppeteer bundled Chrome...');
+        const browser = await puppeteer.launch({
+          headless: true,
+          args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage'
+          ]
+        });
+        
+        console.log('✅ Puppeteer Chrome launched successfully!');
+        return browser;
+        
+      } catch (finalError) {
+        console.error('❌ All strategies failed:', finalError.message);
+        throw new Error(`BROWSER_LAUNCH_FAILED: All Chrome launch strategies failed - ${finalError.message}`);
+      }
     }
   }
 }
