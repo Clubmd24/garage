@@ -10,10 +10,53 @@ export async function fetchVehicleVariants(tenantId, supplierId, vin, reg) {
   console.log('🚀 REAL AD360 SCRAPING: Starting fetchVehicleVariants...');
   console.log('📋 Parameters:', { tenantId, supplierId, vin, reg });
   
-  const browser = await chromium.launch({ 
-    headless: true,
-    executablePath: '/app/.cache/ms-playwright/chromium-1181/chrome-linux/chrome'
-  });
+  // Try multiple browser launch strategies
+  let browser;
+  try {
+    // Strategy 1: Let Playwright find Chromium automatically
+    console.log('🔍 Strategy 1: Letting Playwright find Chromium automatically...');
+    browser = await chromium.launch({ headless: true });
+    console.log('✅ Strategy 1 successful');
+  } catch (error) {
+    console.log('❌ Strategy 1 failed:', error.message);
+    
+    try {
+      // Strategy 2: Try system Chromium
+      console.log('🔍 Strategy 2: Trying system Chromium...');
+      browser = await chromium.launch({ 
+        headless: true,
+        executablePath: '/usr/bin/chromium-browser'
+      });
+      console.log('✅ Strategy 2 successful');
+    } catch (error2) {
+      console.log('❌ Strategy 2 failed:', error2.message);
+      
+      try {
+        // Strategy 3: Try Google Chrome
+        console.log('🔍 Strategy 3: Trying Google Chrome...');
+        browser = await chromium.launch({ 
+          headless: true,
+          executablePath: '/usr/bin/google-chrome-stable'
+        });
+        console.log('✅ Strategy 3 successful');
+      } catch (error3) {
+        console.log('❌ Strategy 3 failed:', error3.message);
+        
+        // Strategy 4: Try the exact path from Heroku logs
+        console.log('🔍 Strategy 4: Trying exact Heroku path...');
+        browser = await chromium.launch({ 
+          headless: true,
+          executablePath: '/app/.cache/ms-playwright/chromium-1181/chrome-linux/chrome'
+        });
+        console.log('✅ Strategy 4 successful');
+      }
+    }
+  }
+  
+  if (!browser) {
+    throw new Error('All browser launch strategies failed');
+  }
+  
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
 
