@@ -10,7 +10,10 @@ export async function fetchVehicleVariants(tenantId, supplierId, vin, reg) {
   console.log('🚀 REAL AD360 SCRAPING: Starting fetchVehicleVariants...');
   console.log('📋 Parameters:', { tenantId, supplierId, vin, reg });
   
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({ 
+    headless: true,
+    executablePath: '/app/.cache/ms-playwright/chromium-1181/chrome-linux/chrome'
+  });
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
 
@@ -280,7 +283,10 @@ export async function fetchPartsForVehicle(tenantId, supplierId, vehicleVariantI
   console.log('🚀 REAL AD360 SCRAPING: Starting fetchPartsForVehicle...');
   console.log('📋 Parameters:', { tenantId, supplierId, vehicleVariantId, category });
   
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({ 
+    headless: true,
+    executablePath: '/app/.cache/ms-playwright/chromium-1181/chrome-linux/chrome'
+  });
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
 
@@ -520,7 +526,10 @@ export async function searchParts(tenantId, supplierId, query, vehicleVariantId 
 export async function getCategories(tenantId, supplierId) {
   console.log('🚀 REAL AD360 SCRAPING: Starting getCategories...');
   
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({ 
+    headless: true,
+    executablePath: '/app/.cache/ms-playwright/chromium-1181/chrome-linux/chrome'
+  });
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
 
@@ -585,7 +594,10 @@ export async function checkAD360Health() {
   console.log('🚀 REAL AD360 SCRAPING: Starting health check...');
 
   try {
-    const browser = await chromium.launch({ headless: true });
+    const browser = await chromium.launch({ 
+      headless: true,
+      executablePath: '/app/.cache/ms-playwright/chromium-1181/chrome-linux/chrome'
+    });
     const ctx = await browser.newContext();
     const page = await ctx.newPage();
 
