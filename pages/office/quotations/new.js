@@ -20,8 +20,7 @@ import PartAutocomplete from '../../../components/PartAutocomplete';
 import DescriptionAutocomplete from '../../../components/DescriptionAutocomplete';
 import ClientAutocomplete from '../../../components/ClientAutocomplete';
 import VehicleAutocomplete from '../../../components/VehicleAutocomplete';
-import FromAD360Button from '../../../components/quotes/FromAD360Button';
-import AD360Autocomplete from '../../../components/quotes/AD360Autocomplete';
+
 
 export default function NewQuotationPage() {
   const router = useRouter();
@@ -41,8 +40,7 @@ export default function NewQuotationPage() {
   const [items, setItems] = useState([emptyItem]);
   const [error, setError] = useState(null);
   const [vehicleError, setVehicleError] = useState(null);
-  const [ad360Items, setAd360Items] = useState([]);
-  const [ad360Mode, setAd360Mode] = useState(false);
+
   const [clientVehicles, setClientVehicles] = useState([]); // Add this state
   const SAVE_KEY = 'quote_draft';
 
@@ -568,72 +566,7 @@ export default function NewQuotationPage() {
                 </button>
               </div>
               
-              {/* AD360 Integration */}
-              {form.vehicle_id && (
-                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <h3 className="text-lg font-semibold !text-blue-800 mb-3" style={{color: '#1E40AF'}}>AD360 Parts Integration</h3>
-                  <div className="text-sm !text-gray-600 mb-2" style={{color: '#4B5563'}}>
-                    Debug: Vehicle ID = {form.vehicle_id}, Vehicle Display = {selectedVehicleDisplay}
-                  </div>
-                  <div className="text-sm !text-gray-600 mb-2" style={{color: '#4B5563'}}>
-                    Debug: ad360Mode = {ad360Mode ? 'true' : 'false'}, ad360Items.length = {ad360Items.length}
-                  </div>
-                  <FromAD360Button
-                    vehicleId={form.vehicle_id}
-                    tenantId={1}
-                    ad360Items={ad360Items}
-                    onItemsLoaded={(ad360Items) => {
-                      console.log('AD360 items loaded:', ad360Items);
-                      setAd360Items(ad360Items);
-                      setAd360Mode(true);
-                    }}
-                    onError={(error) => {
-                      setError(`AD360 Error: ${error}`);
-                    }}
-                  />
-                  
-                  {/* Debug Info for Parts Display */}
-                  {ad360Items.length > 0 && (
-                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                                            <p className="text-sm !text-green-700" style={{color: '#059669'}}>
-                        <strong className="!text-gray-900" style={{color: '#111827'}}>✅ AD360 Parts Loaded:</strong> {ad360Items.length} parts available
-                      </p>
-                      <p className="text-xs !text-green-600 mt-1" style={{color: '#059669'}}>
-                          Parts should now be available in the dropdown below. If not visible, check ad360Mode.
-                        </p>
-                    </div>
-                  )}
-                  
-                  {/* Mode Toggle */}
-                  {ad360Items.length > 0 && (
-                    <div className="mt-3 flex items-center gap-2">
-                      <span className="text-sm !text-gray-600" style={{color: '#4B5563'}}>Parts Source:</span>
-                      <button
-                        type="button"
-                        onClick={() => setAd360Mode(false)}
-                        className={`px-3 py-1 text-sm rounded border ${
-                          !ad360Mode 
-                            ? 'bg-blue-100 !text-blue-700 border-blue-300' 
-                            : 'bg-gray-100 !text-gray-600 border-gray-300 hover:bg-gray-200'
-                        }`}
-                      >
-                        Internal Parts
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setAd360Mode(true)}
-                        className={`px-3 py-1 text-sm rounded border ${
-                          ad360Mode 
-                            ? 'bg-green-100 !text-green-700 border-green-300' 
-                            : 'bg-gray-100 !text-gray-600 border-gray-300 hover:bg-gray-200'
-                        }`}
-                      >
-                        AD360 Parts
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
+
               
               {/* Item Headers */}
               <div className="flex gap-2 mb-2 font-semibold text-sm !text-gray-900" style={{color: '#111827'}}>
@@ -651,47 +584,19 @@ export default function NewQuotationPage() {
               {items.map((it, i) => (
                 <div key={i} className="flex gap-2 mb-2">
                   <div className="flex-1 min-w-0">
-                    {ad360Mode && ad360Items.length > 0 ? (
-                                             <AD360Autocomplete
-                         value={it.part_number}
-                         onChange={v => changeItem(i, 'part_number', v)}
-                         onSelect={item => {
-                           console.log('AD360 item selected:', item);
-                           // AD360 internal reference number maps to our part_number field
-                           const partNumber = item.partNumber || item.internalReference || '';
-                           const unitCost = typeof item.price === 'object' ? item.price.amount : item.price;
-                           console.log('Unit cost from AD360:', unitCost);
-                           
-                           changeItem(i, 'part_number', partNumber);
-                           changeItem(i, 'part_id', '');
-                           changeItem(i, 'description', item.description || '');
-                           changeItem(i, 'unit_cost', unitCost || 0);
-                           
-                           if (!it.qty) changeItem(i, 'qty', '1');
-                           if (!it.markup) changeItem(i, 'markup', '0');
-                           
-                           setTimeout(() => {
-                             changeItem(i, 'unit_cost', unitCost || 0);
-                           }, 100);
-                         }}
-                         items={ad360Items}
-                         placeholder="Search AD360 parts..."
-                       />
-                    ) : (
-                      <PartAutocomplete
-                        value={it.part_number}
-                        onChange={v => changeItem(i, 'part_number', v)}
-                        onSelect={part => {
-                          changeItem(i, 'part_id', part.id);
-                          changeItem(i, 'part_number', part.part_number);
-                          changeItem(i, 'description', part.description);
-                          changeItem(i, 'unit_cost', part.unit_cost || 0);
-                          if (!it.qty) changeItem(i, 'qty', '1');
-                          if (!it.markup) changeItem(i, 'markup', '0');
-                        }}
-                        placeholder="Search parts..."
-                      />
-                    )}
+                    <PartAutocomplete
+                      value={it.part_number}
+                      onChange={v => changeItem(i, 'part_number', v)}
+                      onSelect={part => {
+                        changeItem(i, 'part_id', part.id);
+                        changeItem(i, 'part_number', part.part_number);
+                        changeItem(i, 'description', part.description);
+                        changeItem(i, 'unit_cost', part.unit_cost || 0);
+                        if (!it.qty) changeItem(i, 'qty', '1');
+                        if (!it.markup) changeItem(i, 'markup', '0');
+                      }}
+                      placeholder="Search parts..."
+                    />
                   </div>
                   <div className="flex-2 min-w-0">
                     <DescriptionAutocomplete
