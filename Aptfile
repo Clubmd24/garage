@@ -1,20 +1,14 @@
-# Essential Playwright system dependencies for Heroku
-# These packages are required for Chromium to run properly
+# Minimal Playwright system dependencies for Heroku
+# Only essential packages to reduce slug size and improve loading speed
 
-# Core graphics and display libraries
-libgudev-1.0-0
-libevdev2
-libgles2
+# Core graphics (essential for Chromium)
+libgbm1
+libdrm2
+libdrm-common
 
-# X11 and display server libraries
+# X11 core (essential for display)
 libx11-6
-libx11-xcb1
 libxcb1
-libxcb-dri3-0
-libxcb-present0
-libxcb-randr0
-libxcb-sync1
-libxcb-xfixes0
 libxcomposite1
 libxcursor1
 libxdamage1
@@ -22,49 +16,14 @@ libxext6
 libxfixes3
 libxi6
 libxinerama1
-libxkbcommon0
 libxrandr2
 libxrender1
 libxshmfence1
 libxtst6
 
-# Graphics and rendering libraries
-libgbm1
-libdrm2
-libdrm-amdgpu1
-libdrm-common
-libdrm-intel1
-mesa-libgallium
-
-# Audio libraries
+# Audio (essential for media)
 libasound2t64
-alsa-topology-conf
-alsa-ucm-conf
 
-# GTK and UI libraries
-libgtk-3-0
-libgtk-3-bin
-libgtk-3-common
-libgdk-pixbuf-2.0-0
-libpango-1.0-0
-libpangocairo-1.0-0
-libcairo2
-libcairo-gobject2
-
-# System libraries
+# System (essential for browser)
 libnss3
-libcups2
-libpciaccess0
-libsensors5
-libsensors-config
-
-# Additional dependencies
-libllvm19
-libkmod2
-libsystemd-shared
-libpam-systemd
-libnss-systemd
-libwayland-client0
-libwayland-cursor0
-libwayland-egl1
-libwayland-server0 
+libcups2 
