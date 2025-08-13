@@ -2,9 +2,9 @@ import puppeteer from 'puppeteer';
 import { loadSession } from './sessionStore.js';
 import { normalizeItems } from './normalize.js';
 
-// Simple, bulletproof browser launch function
+// Simple, bulletproof browser launch function - UPDATED
 async function launchBrowser() {
-  console.log('🚀 Launching browser with bulletproof approach...');
+  console.log('🚀 Launching browser with bulletproof approach - UPDATED...');
   
   try {
     // Strategy 1: Simple launch with minimal options
