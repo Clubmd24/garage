@@ -7,11 +7,10 @@ async function launchBrowser() {
   console.log('🚀 FORCE RESTART: Launching system Chrome on Heroku with cache clearing...');
   
   try {
-    // Strategy 1: Use Puppeteer's installed Chrome
-    console.log('🔍 Trying Puppeteer installed Chrome...');
+    // Strategy 1: Let Puppeteer find Chrome automatically
+    console.log('🔍 Letting Puppeteer find Chrome automatically...');
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath: '/app/.cache/puppeteer/chrome/linux-139.0.7258.66/chrome-linux64/chrome',
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -24,7 +23,7 @@ async function launchBrowser() {
     });
     
     console.log('✅ Puppeteer Chrome launched successfully!');
-    return browser
+    return browser;
     
   } catch (error) {
     console.error('❌ System Chrome failed:', error.message);
