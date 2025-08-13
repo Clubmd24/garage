@@ -18,42 +18,60 @@ function checkBrowserAvailability() {
     console.log('Puppeteer version:', process.env.PUPPETEER_VERSION || 'unknown');
     console.log('NODE_ENV:', process.env.NODE_ENV);
     
-    // Check common Puppeteer paths
-    const possiblePaths = [
-      '/app/.cache/ms-playwright/chromium-1181/chrome-linux/chrome',
-      '/app/.cache/ms-playwright/chromium-1181/chrome-linux/chromium',
-      process.env.PUPPETEER_EXECUTABLE_PATH || null
-    ].filter(Boolean);
+    // Check Puppeteer's default cache directory
+    const { execSync } = require('child_process');
+    const { existsSync } = require('fs');
     
-    console.log('Possible browser paths:', possiblePaths);
-    
-    // List contents of Playwright cache directory for debugging
-    try {
-      const { execSync } = require('child_process');
-      const { existsSync } = require('fs');
-      
-      const playwrightCacheDir = '/app/.cache/ms-playwright';
-      if (existsSync(playwrightCacheDir)) {
-        console.log('Playwright cache directory exists, listing contents:');
-        try {
-          const contents = execSync(`ls -la ${playwrightCacheDir}`, { encoding: 'utf8' });
-          console.log('Cache contents:', contents);
-        } catch (lsError) {
-          console.log('Could not list cache contents:', lsError.message);
+    // Check Puppeteer cache directory
+    const puppeteerCacheDir = '/app/.cache/puppeteer';
+    if (existsSync(puppeteerCacheDir)) {
+      console.log('Puppeteer cache directory exists, listing contents:');
+      try {
+        const contents = execSync(`ls -la ${puppeteerCacheDir}`, { encoding: 'utf8' });
+        console.log('Cache contents:', contents);
+        
+        // Look for Chrome executable in Puppeteer cache
+        const chromePath = `${puppeteerCacheDir}/chrome-linux64/chrome`;
+        if (existsSync(chromePath)) {
+          console.log('Found Chrome in Puppeteer cache:', chromePath);
+          return chromePath;
         }
-      } else {
-        console.log('Playwright cache directory does not exist');
+      } catch (lsError) {
+        console.log('Could not list cache contents:', lsError.message);
       }
-    } catch (importError) {
-      console.log('Could not import fs/child_process for directory listing');
+    } else {
+      console.log('Puppeteer cache directory does not exist');
     }
     
-    // Return the first valid path found
-    for (const path of possiblePaths) {
-      if (existsSync(path)) {
-        console.log('Found valid browser path:', path);
-        return path;
+    // Check Playwright cache as fallback
+    const playwrightCacheDir = '/app/.cache/ms-playwright';
+    if (existsSync(playwrightCacheDir)) {
+      console.log('Playwright cache directory exists, checking for Chrome:');
+      try {
+        const contents = execSync(`ls -la ${playwrightCacheDir}`, { encoding: 'utf8' });
+        console.log('Playwright cache contents:', contents);
+        
+        // Look for Chrome in Playwright cache
+        const chromePaths = [
+          '/app/.cache/ms-playwright/chromium-1181/chrome-linux/chrome',
+          '/app/.cache/ms-playwright/chromium-1181/chrome-linux/chromium'
+        ];
+        
+        for (const path of chromePaths) {
+          if (existsSync(path)) {
+            console.log('Found Chrome in Playwright cache:', path);
+            return path;
+          }
+        }
+      } catch (lsError) {
+        console.log('Could not list Playwright cache contents:', lsError.message);
       }
+    }
+    
+    // Check environment variable
+    if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+      console.log('Using PUPPETEER_EXECUTABLE_PATH:', process.env.PUPPETEER_EXECUTABLE_PATH);
+      return process.env.PUPPETEER_EXECUTABLE_PATH;
     }
     
     console.log('No valid browser path found, will use default Puppeteer launch');
@@ -87,11 +105,28 @@ export async function fetchVehicleVariants(tenantId, supplierId, vin, reg) {
     if (browserPath) {
       console.log('Trying to launch with explicit path:', browserPath);
       launchOptions.executablePath = browserPath;
+    } else {
+      console.log('No explicit path found, using Puppeteer default browser');
     }
     
     console.log('Launching Puppeteer with options:', launchOptions);
-    browser = await puppeteer.launch(launchOptions);
-    console.log('Puppeteer browser launched successfully');
+    
+    try {
+      browser = await puppeteer.launch(launchOptions);
+      console.log('Puppeteer browser launched successfully');
+    } catch (launchError) {
+      console.log('Failed to launch with current options:', launchError.message);
+      
+      // Try without explicit path as fallback
+      if (browserPath) {
+        console.log('Retrying without explicit path...');
+        delete launchOptions.executablePath;
+        browser = await puppeteer.launch(launchOptions);
+        console.log('Puppeteer browser launched successfully without explicit path');
+      } else {
+        throw launchError;
+      }
+    }
     
     const page = await browser.newPage();
     console.log('New page created');
@@ -205,11 +240,28 @@ export async function fetchPartsForVehicle(tenantId, supplierId, vin, reg) {
     if (browserPath) {
       console.log('Using explicit browser path:', browserPath);
       launchOptions.executablePath = browserPath;
+    } else {
+      console.log('No explicit path found, using Puppeteer default browser');
     }
     
     console.log('Launching Puppeteer with options:', launchOptions);
-    browser = await puppeteer.launch(launchOptions);
-    console.log('Puppeteer browser launched successfully');
+    
+    try {
+      browser = await puppeteer.launch(launchOptions);
+      console.log('Puppeteer browser launched successfully');
+    } catch (launchError) {
+      console.log('Failed to launch with current options:', launchError.message);
+      
+      // Try without explicit path as fallback
+      if (browserPath) {
+        console.log('Retrying without explicit path...');
+        delete launchOptions.executablePath;
+        browser = await puppeteer.launch(launchOptions);
+        console.log('Puppeteer browser launched successfully without explicit path');
+      } else {
+        throw launchError;
+      }
+    }
     
     const page = await browser.newPage();
     console.log('New page created');
