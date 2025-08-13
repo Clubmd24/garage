@@ -1,11 +1,10 @@
-# Playwright system dependencies for Heroku
+# Essential Playwright system dependencies for Heroku
 # These packages are required for Chromium to run properly
 
 # Core graphics and display libraries
 libgudev-1.0-0
 libevdev2
 libgles2
-libx264-dev
 
 # X11 and display server libraries
 libx11-6
@@ -38,8 +37,7 @@ libdrm-intel1
 mesa-libgallium
 
 # Audio libraries
-libasound2
-libasound2-data
+libasound2t64
 alsa-topology-conf
 alsa-ucm-conf
 
@@ -69,8 +67,4 @@ libnss-systemd
 libwayland-client0
 libwayland-cursor0
 libwayland-egl1
-libwayland-server0
-
-# Build tools and headers (for compatibility)
-build-essential
-pkg-config 
+libwayland-server0 
