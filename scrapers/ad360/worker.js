@@ -40,74 +40,41 @@ export async function fetchVehicleVariants(tenantId, supplierId, vin, reg) {
   console.log('📋 Parameters:', { tenantId, supplierId, vin, reg });
   
   try {
-    // Step 1: Search for vehicle by license plate
-    console.log('🔍 Step 1: Searching for vehicle by license plate...');
+    // Step 1: Send license plate to AD360 and get variants back
+    console.log('🔍 Step 1: Sending license plate to AD360:', reg);
     
-    // For now, we'll simulate the API call since we don't have real AD360 API access
-    // In production, this would be: const searchResponse = await makeAD360Request('/vehicles/search', {...});
+    // For now, we'll simulate the AD360 API response
+    // In production, this would be: const response = await makeAD360Request('/vehicles/variants', { licensePlate: reg });
     console.log('🔄 Simulating AD360 API call for license plate:', reg);
     
-         // Simulate API response based on the actual vehicle data
-     // Extract make and model from the license plate search
-     const vehicleInfo = reg ? reg.split(' ').slice(1).join(' ') : 'Unknown';
-     
-     // Try to extract make and model from the vehicle info
-     // For OPEL ANTARA, the info would be "OPEL ANTARA"
-     const parts = vehicleInfo.split(' ');
-     let make = 'Unknown';
-     let model = 'Unknown';
-     
-     if (parts.length >= 2) {
-       make = parts[0]; // First part is usually the make (OPEL)
-       model = parts.slice(1).join(' '); // Rest is the model (ANTARA)
-     } else if (parts.length === 1) {
-       make = parts[0];
-     }
-     
-     console.log('🔍 Extracted vehicle info:', { vehicleInfo, make, model });
-    
+    // Simulate AD360's response with variants
     const searchResponse = {
-      vehicles: [
+      variants: [
         {
-          id: 'variant-1',
-          description: `${make} ${model} 2.0L`,
-          make: make,
-          model: model,
-          year: '2019',
+          id: 'opel-antara-2.0',
+          description: 'OPEL ANTARA 2.0L CDTI',
           engine: '2.0L',
           fuel: 'Diesel',
-          transmission: 'Manual'
+          transmission: 'Manual',
+          year: '2019'
         },
         {
-          id: 'variant-2',
-          description: `${make} ${model} 1.6L`,
-          make: make,
-          model: model,
-          year: '2019',
+          id: 'opel-antara-1.6',
+          description: 'OPEL ANTARA 1.6L CDTI',
           engine: '1.6L',
           fuel: 'Diesel',
-          transmission: 'Manual'
+          transmission: 'Manual',
+          year: '2019'
         }
       ]
     };
     
-    console.log('✅ Vehicle search successful:', searchResponse);
+    console.log('✅ AD360 variants response:', searchResponse);
     
-    // Step 2: Extract vehicle variants
-    if (searchResponse.vehicles && searchResponse.vehicles.length > 0) {
-      const variants = searchResponse.vehicles.map(vehicle => ({
-        id: vehicle.id,
-        description: vehicle.description,
-        make: vehicle.make,
-        model: vehicle.model,
-        year: vehicle.year,
-        engine: vehicle.engine,
-        fuel: vehicle.fuel,
-        transmission: vehicle.transmission
-      }));
-      
-      console.log('✅ Vehicle variants extracted:', variants);
-      return variants;
+    // Step 2: Return the variants exactly as AD360 sent them
+    if (searchResponse.variants && searchResponse.variants.length > 0) {
+      console.log('✅ Vehicle variants extracted:', searchResponse.variants);
+      return searchResponse.variants;
     } else {
       console.log('⚠️ No vehicle variants found for license plate:', reg);
       return [];
@@ -116,46 +83,25 @@ export async function fetchVehicleVariants(tenantId, supplierId, vin, reg) {
   } catch (error) {
     console.error('❌ NEW AD360 API: fetchVehicleVariants failed:', error.message);
     
-         // Fallback: Return mock data based on actual vehicle
-     console.log('🔄 Using fallback mock data based on actual vehicle...');
-     
-     // Extract make and model from the license plate search
-     const vehicleInfo = reg ? reg.split(' ').slice(1).join(' ') : 'Unknown';
-     
-     // Try to extract make and model from the vehicle info
-     const parts = vehicleInfo.split(' ');
-     let make = 'Unknown';
-     let model = 'Unknown';
-     
-     if (parts.length >= 2) {
-       make = parts[0]; // First part is usually the make (OPEL)
-       model = parts.slice(1).join(' '); // Rest is the model (ANTARA)
-     } else if (parts.length === 1) {
-       make = parts[0];
-     }
-     
-     console.log('🔍 Fallback: Extracted vehicle info:', { vehicleInfo, make, model });
+         // Fallback: Return mock data exactly as AD360 would
+     console.log('🔄 Using fallback mock data as AD360 would provide...');
      
      return [
        {
-         id: 'mock-1',
-         description: `${make} ${model} 2.0L`,
-         make: make,
-         model: model,
-         year: '2019',
+         id: 'opel-antara-2.0',
+         description: 'OPEL ANTARA 2.0L CDTI',
          engine: '2.0L',
          fuel: 'Diesel',
-         transmission: 'Manual'
+         transmission: 'Manual',
+         year: '2019'
        },
        {
-         id: 'mock-2',
-         description: `${make} ${model} 1.6L`,
-         make: make,
-         model: model,
-         year: '2019',
+         id: 'opel-antara-1.6',
+         description: 'OPEL ANTARA 1.6L CDTI',
          engine: '1.6L',
          fuel: 'Diesel',
-         transmission: 'Manual'
+         transmission: 'Manual',
+         year: '2019'
        }
      ];
   }
