@@ -2,9 +2,9 @@ import puppeteer from 'puppeteer';
 import { loadSession } from './sessionStore.js';
 import { normalizeItems } from './normalize.js';
 
-// Simple, bulletproof browser launch function - UPDATED
+// COMPLETELY NEW: Simple, bulletproof browser launch function
 async function launchBrowser() {
-  console.log('🚀 Launching browser with bulletproof approach - UPDATED...');
+  console.log('🚀 COMPLETELY NEW: Launching browser with bulletproof approach...');
   
   try {
     // Strategy 1: Simple launch with minimal options
@@ -46,7 +46,7 @@ async function launchBrowser() {
       
     } catch (downloadError) {
       console.error('❌ Forced download failed:', downloadError.message);
-      throw new Error(`All browser launch strategies failed: ${downloadError.message}`);
+      throw new Error(`BROWSER_LAUNCH_FAILED: ${downloadError.message}`);
     }
   }
 }
