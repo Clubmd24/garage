@@ -13,7 +13,8 @@
     "migrate": "node scripts/migrate.js",
     "lint": "next lint",
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
-    "install-design-system": "node install-design-system.js"
+    "install-design-system": "node install-design-system.js",
+    "postinstall": "npx playwright install chromium"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.270.0",

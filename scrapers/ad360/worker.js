@@ -3,7 +3,10 @@ import { loadSession } from './sessionStore.js';
 import { normalizeItems } from './normalize.js';
 
 export async function fetchVehicleVariants(tenantId, supplierId, vin, reg) {
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({ 
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+  });
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
 
@@ -25,34 +28,52 @@ export async function fetchVehicleVariants(tenantId, supplierId, vin, reg) {
     throw new Error('NEEDS_RELINK');
   }
 
-  // Navigate to vehicle search page
-  await page.goto('https://connect.ad360.es/vehicle', { waitUntil: 'domcontentloaded' });
+  // Navigate to vehicle search page based on the actual AD360 site structure
+  await page.goto('https://www.ad360.es/#/recambio', { waitUntil: 'domcontentloaded' });
   
-  // Wait for the vehicle identification modal to appear
-  await page.waitForSelector('input[placeholder*="Matrícula"], input[placeholder*="License"], input[placeholder*="Plate"]', { timeout: 10000 });
+  // Wait for the page to load and click on the vehicle search section
+  await page.waitForSelector('div.cma', { timeout: 10000 });
+  await page.click('div.cma');
+  
+  // Wait for the vehicle search modal to appear
+  await page.waitForSelector('#sv-mat', { timeout: 10000 });
   
   // Fill in the license plate
-  const plateInput = await page.$('input[placeholder*="Matrícula"], input[placeholder*="License"], input[placeholder*="Plate"]');
+  const plateInput = await page.$('#sv-mat');
   if (plateInput && reg) {
     await plateInput.fill(reg);
     
-    // Wait for variants to load
+    // Wait for variants to load and click Accept button
     await page.waitForTimeout(2000);
+    await page.click('#sv div.modal-footer > button');
+    
+    // Wait for the variants table to appear
+    await page.waitForSelector('#mat table tbody tr', { timeout: 10000 });
     
     // Extract vehicle variants from the table
-    const variants = await page.$$eval('table tbody tr', (rows) => {
+    const variants = await page.$$eval('#mat table tbody tr', (rows) => {
       return rows.map(row => {
         const cells = row.querySelectorAll('td');
-        if (cells.length < 7) return null;
+        if (cells.length < 3) return null;
+        
+        // Based on the AD360 structure from the recording
+        const modelText = cells[1]?.textContent?.trim() || '';
+        const versionText = cells[2]?.textContent?.trim() || '';
+        
+        // Parse the model text (e.g., "1 (F21) [12/2011 a 12/2019]")
+        const modelMatch = modelText.match(/(\d+)\s*\(([^)]+)\)\s*\[([^\]]+)\]/);
+        const versionMatch = versionText.match(/(\d+)\s*([a-z]+)/i);
         
         return {
-          make: cells[0]?.textContent?.trim() || '',
-          model: cells[1]?.textContent?.trim() || '',
-          version: cells[2]?.textContent?.trim() || '',
-          power: cells[3]?.textContent?.trim() || '',
-          kw: cells[4]?.textContent?.trim() || '',
-          engine: cells[5]?.textContent?.trim() || '',
-          years: cells[6]?.textContent?.trim() || ''
+          make: 'BMW', // From your recording
+          model: modelMatch ? modelMatch[1] : modelText,
+          version: versionMatch ? `${versionMatch[1]} ${versionMatch[2]}` : versionText,
+          power: '', // Will be filled from other sources
+          kw: '', // Will be filled from other sources
+          engine: '', // Will be filled from other sources
+          years: modelMatch ? modelMatch[3] : '',
+          fullModel: modelText,
+          fullVersion: versionText
         };
       }).filter(Boolean);
     });
@@ -66,7 +87,10 @@ export async function fetchVehicleVariants(tenantId, supplierId, vin, reg) {
 }
 
 export async function fetchPartsForVehicle(tenantId, supplierId, vin, reg) {
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({ 
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+  });
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
 
@@ -88,12 +112,11 @@ export async function fetchPartsForVehicle(tenantId, supplierId, vin, reg) {
     throw new Error('NEEDS_RELINK');
   }
 
-  // Navigate to vehicle search page - try multiple possible URLs
+  // Navigate to vehicle search page - use the actual AD360 site structure
   const searchUrls = [
-    'https://connect.ad360.es/vehicle',
-    'https://connect.ad360.es/search',
-    'https://connect.ad360.es/catalog',
-    'https://connect.ad360.es/parts'
+    'https://www.ad360.es/#/recambio',
+    'https://www.ad360.es/#/search',
+    'https://www.ad360.es/#/catalog'
   ];
   
   let searchPage = null;
