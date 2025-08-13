@@ -2,9 +2,9 @@ import puppeteer from 'puppeteer';
 import { loadSession } from './sessionStore.js';
 import { normalizeItems } from './normalize.js';
 
-// WORKING SOLUTION: Use system Chrome on Heroku
+// FORCE RESTART: Use system Chrome on Heroku with cache clearing
 async function launchBrowser() {
-  console.log('🚀 WORKING SOLUTION: Launching system Chrome on Heroku...');
+  console.log('🚀 FORCE RESTART: Launching system Chrome on Heroku with cache clearing...');
   
   try {
     // Strategy 1: Use system Chrome with correct path
@@ -65,7 +65,7 @@ async function launchBrowser() {
         
       } catch (finalError) {
         console.error('❌ All strategies failed:', finalError.message);
-        throw new Error(`BROWSER_LAUNCH_FAILED: All Chrome launch strategies failed - ${finalError.message}`);
+        throw new Error(`FORCE_RESTART_FAILED: All Chrome launch strategies failed - ${finalError.message}`);
       }
     }
   }
