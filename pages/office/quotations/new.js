@@ -336,14 +336,18 @@ export default function NewQuotationPage() {
     <OfficeLayout>
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold !text-gray-900" style={{color: '#111827'}}>New Quotation</h1>
+          <div className="mb-6">
             <button
+              type="button"
               onClick={() => router.push('/office/quotations')}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 transition-colors"
             >
-              ← Back to Quotes
+              <span className="mr-1">←</span>
+              Back to Quotes
             </button>
+            <h1 className="mt-2 text-3xl font-bold !text-gray-900" style={{color: '#111827'}}>
+              New Quotation
+            </h1>
           </div>
 
           {error && (
@@ -712,27 +716,29 @@ export default function NewQuotationPage() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex justify-end space-x-4">
-              <button
-                type="button"
-                onClick={clearForm}
-                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Clear Form
-              </button>
-              <button
-                type="button"
-                onClick={() => router.push('/office/quotations')}
-                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Create Quote
-              </button>
+            <div className="flex justify-end">
+              <div className="inline-flex gap-3">
+                <button
+                  type="button"
+                  onClick={clearForm}
+                  className="px-5 py-2.5 rounded-md border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 shadow-sm transition-colors"
+                >
+                  Clear Form
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.push('/office/quotations')}
+                  className="px-5 py-2.5 rounded-md border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 shadow-sm transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-colors"
+                >
+                  Create Quote
+                </button>
+              </div>
             </div>
           </form>
         </div>
