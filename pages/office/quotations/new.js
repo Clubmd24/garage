@@ -592,8 +592,18 @@ export default function NewQuotationPage() {
                         changeItem(i, 'part_number', part.part_number);
                         changeItem(i, 'description', part.description);
                         changeItem(i, 'unit_cost', part.unit_cost || 0);
+                        
+                        // Auto-populate markup and price if available from part
+                        if (part.markup_percentage) {
+                          changeItem(i, 'markup', part.markup_percentage);
+                        } else if (part.unit_sale_price && part.unit_cost) {
+                          const markup = ((part.unit_sale_price - part.unit_cost) / part.unit_cost) * 100;
+                          changeItem(i, 'markup', markup.toFixed(2));
+                        } else if (!it.markup) {
+                          changeItem(i, 'markup', '0');
+                        }
+                        
                         if (!it.qty) changeItem(i, 'qty', '1');
-                        if (!it.markup) changeItem(i, 'markup', '0');
                       }}
                       placeholder="Search parts..."
                     />
@@ -605,8 +615,18 @@ export default function NewQuotationPage() {
                       onSelect={desc => {
                         changeItem(i, 'description', desc.description);
                         changeItem(i, 'unit_cost', desc.unit_cost || 0);
+                        
+                        // Auto-populate markup if available from description
+                        if (desc.markup_percentage) {
+                          changeItem(i, 'markup', desc.markup_percentage);
+                        } else if (desc.unit_sale_price && desc.unit_cost) {
+                          const markup = ((desc.unit_sale_price - desc.unit_cost) / desc.unit_cost) * 100;
+                          changeItem(i, 'markup', markup.toFixed(2));
+                        } else if (!it.markup) {
+                          changeItem(i, 'markup', '0');
+                        }
+                        
                         if (!it.qty) changeItem(i, 'qty', '1');
-                        if (!it.markup) changeItem(i, 'markup', '0');
                       }}
                       placeholder="Description"
                     />

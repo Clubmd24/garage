@@ -8,11 +8,13 @@ async function handler(req, res) {
       return res.status(200).json(parts);
     }
     if (req.method === 'POST') {
-      const { part_number, description, unit_cost, supplier_id, category_id } = req.body || {};
+      const { part_number, description, unit_cost, unit_sale_price, markup_percentage, supplier_id, category_id } = req.body || {};
       const newPart = await createPart({
         part_number,
         description,
         unit_cost,
+        unit_sale_price,
+        markup_percentage,
         supplier_id,
         category_id,
       });

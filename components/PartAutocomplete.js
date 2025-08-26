@@ -7,6 +7,8 @@ export default function PartAutocomplete({
   onSelect,
   description,
   unit_cost,
+  unit_sale_price,
+  markup_percentage,
 }) {
   const [term, setTerm] = useState(value || '');
   const [results, setResults] = useState([]);
@@ -51,6 +53,10 @@ export default function PartAutocomplete({
     if (description) params.append('description', description);
     if (unit_cost !== undefined && unit_cost !== '')
       params.append('unit_cost', unit_cost);
+    if (unit_sale_price !== undefined && unit_sale_price !== '')
+      params.append('unit_sale_price', unit_sale_price);
+    if (markup_percentage !== undefined && markup_percentage !== '')
+      params.append('markup_percentage', markup_percentage);
     params.append('redirect', '/office/quotations/new');
     router.push(`/office/parts/new?${params.toString()}`);
   };

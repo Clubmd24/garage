@@ -361,6 +361,14 @@ useEffect(() => {
                   changeItem(i, 'part_id', p.id);
                   changeItem(i, 'description', p.description || '');
                   changeItem(i, 'unit_cost', p.unit_cost || 0);
+                  
+                  // Auto-populate markup if available from part
+                  if (p.markup_percentage) {
+                    changeItem(i, 'markup', p.markup_percentage);
+                  } else if (p.unit_sale_price && p.unit_cost) {
+                    const markup = ((p.unit_sale_price - p.unit_cost) / p.unit_cost) * 100;
+                    changeItem(i, 'markup', markup.toFixed(2));
+                  }
                 }}
               />
               <input
