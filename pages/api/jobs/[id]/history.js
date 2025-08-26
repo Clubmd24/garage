@@ -45,8 +45,9 @@ async function handler(req, res) {
 
     // 1. Get quote creation info
     const [[quote]] = await pool.query(
-      `SELECT q.id, q.created_ts
+      `SELECT q.id, q.created_ts, q.created_by, u.username as created_by_name
        FROM quotes q
+       LEFT JOIN users u ON q.created_by = u.id
        WHERE q.job_id = ?`,
       [id]
     );
@@ -58,6 +59,7 @@ async function handler(req, res) {
         description: 'Quote created',
         details: {
           quote_id: quote.id,
+          created_by: quote.created_by_name || 'Unknown',
           created_date: quote.created_ts
         }
       });
@@ -86,9 +88,11 @@ async function handler(req, res) {
 
     // 3. Get engineer assignments
     const [assignments] = await pool.query(
-      `SELECT ja.id, ja.assigned_at, u.username as engineer_name
+      `SELECT ja.id, ja.assigned_at, ja.assigned_by, 
+              u.username as engineer_name, assigned_by_user.username as assigned_by_name
        FROM job_assignments ja
        JOIN users u ON ja.user_id = u.id
+       LEFT JOIN users assigned_by_user ON ja.assigned_by = assigned_by_user.id
        WHERE ja.job_id = ?
        ORDER BY ja.assigned_at DESC`,
       [id]
@@ -101,6 +105,7 @@ async function handler(req, res) {
         description: `Engineer ${assignment.engineer_name} assigned`,
         details: {
           engineer_name: assignment.engineer_name,
+          assigned_by: assignment.assigned_by_name || 'Unknown',
           assigned_date: assignment.assigned_at
         }
       });

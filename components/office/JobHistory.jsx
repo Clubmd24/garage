@@ -101,20 +101,9 @@ export default function JobHistory({ jobId }) {
                     
                     {item.type === 'status_change' && (
                       <div>
-                        <div className="flex items-center space-x-2">
-                          <span className={`px-2 py-1 rounded text-xs text-white ${getStatusColor(item.details.old_status)}`}>
-                            {item.details.old_status}
-                          </span>
-                          <span>→</span>
-                          <span className={`px-2 py-1 rounded text-xs text-white ${getStatusColor(item.details.new_status)}`}>
-                            {item.details.new_status}
-                          </span>
-                        </div>
-                        {item.details.changed_by && (
-                          <p className="mt-1">Changed by: {item.details.changed_by}</p>
-                        )}
-                        {item.details.notes && (
-                          <p className="mt-1 italic">"{item.details.notes}"</p>
+                        <p><strong>Action:</strong> {item.details.action}</p>
+                        {item.details.changed_date && (
+                          <p><strong>Date:</strong> {formatDate(item.details.changed_date)}</p>
                         )}
                       </div>
                     )}
