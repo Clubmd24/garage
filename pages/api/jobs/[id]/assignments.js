@@ -26,8 +26,6 @@ async function handler(req, res) {
            ja.job_id,
            ja.user_id,
            ja.assigned_at,
-           u.first_name,
-           u.last_name,
            u.username
          FROM job_assignments ja
          JOIN users u ON ja.user_id = u.id
