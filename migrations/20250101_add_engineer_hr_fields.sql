@@ -17,33 +17,5 @@ ALTER TABLE users ADD COLUMN department VARCHAR(100);
 -- Create index on employee_id for quick lookups
 CREATE INDEX idx_users_employee_id ON users(employee_id);
 
--- Create a function to generate unique employee IDs
-DELIMITER //
-CREATE FUNCTION generate_employee_id() RETURNS VARCHAR(20)
-READS SQL DATA
-DETERMINISTIC
-BEGIN
-    DECLARE new_id VARCHAR(20);
-    DECLARE counter INT DEFAULT 1;
-    
-    REPEAT
-        SET new_id = CONCAT('EMP', LPAD(counter, 6, '0'));
-        SET counter = counter + 1;
-    UNTIL NOT EXISTS (SELECT 1 FROM users WHERE employee_id = new_id)
-    END REPEAT;
-    
-    RETURN new_id;
-END //
-DELIMITER ;
-
--- Create a trigger to auto-generate employee_id for new users
-DELIMITER //
-CREATE TRIGGER before_insert_users
-BEFORE INSERT ON users
-FOR EACH ROW
-BEGIN
-    IF NEW.employee_id IS NULL THEN
-        SET NEW.employee_id = generate_employee_id();
-    END IF;
-END //
-DELIMITER ;
+-- Note: Employee ID generation will be handled in the application code
+-- to avoid MariaDB compatibility issues with functions and triggers

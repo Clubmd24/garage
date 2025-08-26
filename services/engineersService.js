@@ -32,12 +32,23 @@ export async function createEngineer({ username, email, password, first_name, su
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
+    
+    // Generate unique employee ID
+    let employeeId;
+    let counter = 1;
+    do {
+      employeeId = `EMP${counter.toString().padStart(6, '0')}`;
+      const [existing] = await conn.query('SELECT id FROM users WHERE employee_id = ?', [employeeId]);
+      if (existing.length === 0) break;
+      counter++;
+    } while (true);
+    
     const hashed = await hashPassword(password);
     const [{ insertId }] = await conn.query(
-      `INSERT INTO users (username, email, password_hash, first_name, surname, hourly_rate, 
+      `INSERT INTO users (username, email, password_hash, employee_id, first_name, surname, hourly_rate, 
                          street_address, post_code, ni_tie_number, contact_phone, date_of_birth, 
-                         job_title, department) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [username, email || null, hashed, first_name || null, surname || null, hourly_rate || null, 
+                         job_title, department) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [username, email || null, hashed, employeeId, first_name || null, surname || null, hourly_rate || null, 
        street_address || null, post_code || null, ni_tie_number || null, contact_phone || null, 
        date_of_birth || null, job_title || null, department || null]
     );
@@ -52,7 +63,7 @@ export async function createEngineer({ username, email, password, first_name, su
       );
     }
     await conn.commit();
-    return { id: insertId, username, email: email || null, first_name, surname, hourly_rate, job_title, department };
+    return { id: insertId, username, email: email || null, employee_id: employeeId, first_name, surname, hourly_rate, job_title, department };
   } catch (err) {
     await conn.rollback();
     throw err;
