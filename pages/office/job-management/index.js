@@ -388,11 +388,12 @@ export default function JobManagementPage() {
                     <select
                       value={forms[job.id]?.engineer_id || ''}
                       onChange={e => change(job.id, 'engineer_id', e.target.value)}
-                      className="input text-sm text-gray-900 bg-white border-gray-300"
+                      className="input text-sm"
+                      style={{ color: '#ffffff' }}
                     >
                       <option value="">Select Engineer</option>
                       {engineers.map(eng => (
-                        <option key={eng.id} value={eng.id} className="text-gray-900">
+                        <option key={eng.id} value={eng.id} style={{ color: '#ffffff', backgroundColor: '#1e293b' }}>
                           {eng.first_name} {eng.last_name}
                         </option>
                       ))}
@@ -403,7 +404,8 @@ export default function JobManagementPage() {
                       placeholder="Scheduled Start"
                       value={forms[job.id]?.scheduled_start || ''}
                       onChange={e => change(job.id, 'scheduled_start', e.target.value)}
-                      className="input text-sm text-gray-900 bg-white border-gray-300"
+                      className="input text-sm"
+                      style={{ color: '#ffffff' }}
                     />
                     
                     <input
@@ -411,7 +413,8 @@ export default function JobManagementPage() {
                       placeholder="Duration (minutes)"
                       value={forms[job.id]?.duration || ''}
                       onChange={e => change(job.id, 'duration', e.target.value)}
-                      className="input text-sm text-gray-900 bg-white border-gray-300"
+                      className="input text-sm"
+                      style={{ color: '#ffffff' }}
                     />
                     
                     <button
