@@ -76,8 +76,10 @@ export default function JobManagementPage() {
       
       try {
         const engs = await fetchEngineers();
+        console.log('Loaded engineers:', engs);
         setEngineers(engs);
-      } catch {
+      } catch (err) {
+        console.error('Failed to load engineers:', err);
         setEngineers([]);
       }
       
@@ -391,10 +393,10 @@ export default function JobManagementPage() {
                       className="input text-sm"
                       style={{ color: '#ffffff' }}
                     >
-                      <option value="">Select Engineer</option>
+                      <option value="">Select Engineer ({engineers.length} available)</option>
                       {engineers.map(eng => (
                         <option key={eng.id} value={eng.id} style={{ color: '#ffffff', backgroundColor: '#1e293b' }}>
-                          {eng.first_name} {eng.last_name}
+                          {eng.username}
                         </option>
                       ))}
                     </select>
