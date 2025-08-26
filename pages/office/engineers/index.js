@@ -58,31 +58,52 @@ const EngineersPage = () => {
                 key={e.id}
                 className="item-card border-2 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow duration-200"
               >
-                {/* Header: Engineer name */}
+                {/* Header: Engineer name and Employee ID */}
                 <div className="flex items-start justify-between mb-2">
-                  <h2 className="font-semibold text-black dark:text-white text-lg break-words pr-2">
-                    {e.username}
-                  </h2>
+                  <div className="flex-1">
+                    <h2 className="font-semibold text-black dark:text-white text-lg break-words pr-2">
+                      {e.username}
+                    </h2>
+                    {e.employee_id && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        ID: {e.employee_id}
+                      </p>
+                    )}
+                  </div>
                   <span className="ml-2 whitespace-nowrap text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-800 border border-green-300 dark:border-green-700 text-green-700 dark:text-green-300">
                     Active
                   </span>
                 </div>
 
-                {/* Email */}
+                {/* Name and Email */}
+                {(e.first_name || e.surname) && (
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                    {e.first_name} {e.surname}
+                  </p>
+                )}
                 {e.email && (
                   <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
                     {e.email}
                   </p>
                 )}
 
-                {/* Role and Status badges */}
+                {/* Employment Information */}
                 <div className="mb-4 space-y-2">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 border border-blue-300 dark:border-blue-700">
-                    Role: Mechanic
-                  </span>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border border-green-300 dark:border-green-700">
-                    Status: Available
-                  </span>
+                  {e.job_title && (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 border border-blue-300 dark:border-blue-700">
+                      {e.job_title}
+                    </span>
+                  )}
+                  {e.department && (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 border border-purple-300 dark:border-purple-700">
+                      {e.department}
+                    </span>
+                  )}
+                  {e.hourly_rate && (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 border border-yellow-300 dark:border-yellow-700">
+                      €{Number(e.hourly_rate).toFixed(2)}/hr
+                    </span>
+                  )}
                 </div>
 
                 {/* Actions */}

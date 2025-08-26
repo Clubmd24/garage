@@ -117,16 +117,14 @@ export default function PartsPage() {
                 key={p.id}
                 className="item-card border-2 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow duration-200"
               >
-                {/* Header: Part number */}
+                {/* Header: Engineer name */}
                 <div className="flex items-start justify-between mb-2">
                   <h2 className="font-semibold text-black dark:text-white text-lg break-words pr-2">
-                    {p.part_number}
+                    {e.username}
                   </h2>
-                  {p.unit_cost != null && (
-                    <span className="ml-2 whitespace-nowrap text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300">
-                      Cost: €{Number(p.unit_cost || 0).toFixed(2)}
-                    </span>
-                  )}
+                  <span className="ml-2 whitespace-nowrap text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-800 border border-green-300 dark:border-green-700 text-green-700 dark:text-green-300">
+                    Active
+                  </span>
                 </div>
 
                 {/* Description */}
