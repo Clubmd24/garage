@@ -345,7 +345,7 @@ export default function NewQuotationPage() {
               <span className="mr-1">←</span>
               Back to Quotes
             </button>
-            <h1 className="mt-2 text-3xl font-bold !text-gray-900" style={{color: '#111827'}}>
+            <h1 className="mt-2 text-3xl font-bold text-white" style={{color: '#ffffff'}}>
               New Quotation
             </h1>
           </div>
