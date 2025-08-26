@@ -570,8 +570,8 @@ export default function NewQuotationPage() {
               
               {/* Item Headers */}
               <div className="flex gap-2 mb-2 font-semibold text-sm !text-gray-900" style={{color: '#111827'}}>
-                <div className="flex-1 min-w-0">Part #</div>
-                <div className="flex-2 min-w-0">Description</div>
+                <div className="w-32 min-w-0">Part #</div>
+                <div className="flex-1 min-w-0">Description</div>
                 <div className="w-16 text-center">Qty</div>
                 <div className="w-24 text-center">Unit Cost</div>
                 <div className="w-24 text-center">Markup %</div>
@@ -583,7 +583,7 @@ export default function NewQuotationPage() {
               {/* Item Rows */}
               {items.map((it, i) => (
                 <div key={i} className="flex gap-2 mb-2">
-                  <div className="flex-1 min-w-0">
+                  <div className="w-32 min-w-0">
                     <PartAutocomplete
                       value={it.part_number}
                       onChange={v => changeItem(i, 'part_number', v)}
@@ -605,10 +605,10 @@ export default function NewQuotationPage() {
                         
                         if (!it.qty) changeItem(i, 'qty', '1');
                       }}
-                      placeholder="Search parts..."
+                      placeholder="Part #"
                     />
                   </div>
-                  <div className="flex-2 min-w-0">
+                  <div className="flex-1 min-w-0">
                     <DescriptionAutocomplete
                       value={it.description}
                       onChange={v => changeItem(i, 'description', v)}
@@ -665,20 +665,14 @@ export default function NewQuotationPage() {
                     />
                   </div>
                   <div className="w-24">
-                    <input
-                      type="number"
-                      className="w-full px-2 py-1 text-center border border-gray-300 rounded text-sm bg-gray-50"
-                      value={it.price ? formatEuro(it.price) : '€0.00'}
-                      readOnly
-                    />
+                    <div className="w-full px-2 py-1 text-center border border-gray-300 rounded text-sm bg-gray-50 text-gray-900 flex items-center justify-center">
+                      {it.price ? formatEuro(it.price) : '€0.00'}
+                    </div>
                   </div>
                   <div className="w-24">
-                    <input
-                      type="number"
-                      className="w-full px-2 py-1 text-center border border-gray-300 rounded text-sm bg-gray-50"
-                      value={it.price && it.qty ? formatEuro(it.price * it.qty) : '€0.00'}
-                      readOnly
-                    />
+                    <div className="w-full px-2 py-1 text-center border border-gray-300 rounded text-sm bg-gray-50 text-gray-900 flex items-center justify-center">
+                      {it.price && it.qty ? formatEuro(it.price * it.qty) : '€0.00'}
+                    </div>
                   </div>
                   <div className="w-20 flex justify-center">
                     <button
