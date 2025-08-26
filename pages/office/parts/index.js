@@ -5,19 +5,23 @@ import OfficeLayout from '../../../components/OfficeLayout';
 export default function PartsPage() {
   const [parts, setParts] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
 
   const load = () => {
     setLoading(true);
     Promise.all([
       fetch('/api/parts').then(r => (r.ok ? r.json() : Promise.reject())),
       fetch('/api/suppliers').then(r => (r.ok ? r.json() : Promise.reject())),
+      fetch('/api/categories').then(r => (r.ok ? r.json() : Promise.reject())),
     ])
-      .then(([p, s]) => {
+      .then(([p, s, c]) => {
         setParts(p);
         setSuppliers(s);
+        setCategories(c);
       })
       .catch(() => setError('Failed to load parts'))
       .finally(() => setLoading(false));
@@ -31,12 +35,15 @@ export default function PartsPage() {
     load();
   };
 
-  const filtered = parts.filter(p =>
-    p.part_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (p.description || '').toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filtered = parts.filter(p => {
+    const matchesSearch = p.part_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         (p.description || '').toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = !categoryFilter || p.category_id == categoryFilter;
+    return matchesSearch && matchesCategory;
+  });
 
   const supplierName = id => suppliers.find(s => s.id === id)?.name || '';
+  const categoryName = id => categories.find(c => c.id === id)?.name || '';
 
   return (
     <OfficeLayout>
@@ -54,13 +61,54 @@ export default function PartsPage() {
         <p>Loading…</p>
       ) : (
         <>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Search parts by number or description…"
-            className="input mb-6 w-full max-w-xl"
-          />
+          {/* Filters */}
+          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            {/* Category Filter */}
+            <select
+              value={categoryFilter}
+              onChange={e => setCategoryFilter(e.target.value)}
+              className="input text-sm min-w-[200px]"
+              style={{ color: '#ffffff' }}
+            >
+              <option value="">All Categories</option>
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.id} style={{ color: '#ffffff', backgroundColor: '#1e293b' }}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+            
+            {/* Search Input */}
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search parts by number or description…"
+              className="input flex-1 max-w-xl"
+            />
+            
+            {/* Clear Filters Button */}
+            {(searchQuery || categoryFilter) && (
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setCategoryFilter('');
+                }}
+                className="button-secondary text-sm px-4 py-2"
+              >
+                Clear Filters
+              </button>
+            )}
+          </div>
+          
+          {/* Filter Summary */}
+          {(searchQuery || categoryFilter) && (
+            <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+              Showing {filtered.length} of {parts.length} parts
+              {categoryFilter && ` in category "${categoryName(categoryFilter)}"`}
+              {searchQuery && ` matching "${searchQuery}"`}
+            </div>
+          )}
 
           {/* Parts Grid - tile layout like Clients page */}
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -88,11 +136,16 @@ export default function PartsPage() {
                   </p>
                 )}
 
-                {/* Supplier badge */}
-                <div className="mb-4">
+                {/* Supplier and Category badges */}
+                <div className="mb-4 space-y-2">
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 border border-blue-300 dark:border-blue-700">
                     Supplier: {supplierName(p.supplier_id) || '—'}
                   </span>
+                  {p.category_id && (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border border-green-300 dark:border-green-700">
+                      Category: {categoryName(p.category_id)}
+                    </span>
+                  )}
                 </div>
 
                 {/* Pricing summary if present */}
