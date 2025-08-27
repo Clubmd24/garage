@@ -175,9 +175,6 @@ export default function ShiftManager({ currentWeek, engineers }) {
 
   const getEmployeeName = (employeeId) => {
     const engineer = engineers.find(e => e.id === employeeId);
-    if (engineer?.first_name && engineer?.last_name) {
-      return `${engineer.first_name} ${engineer.last_name}`;
-    }
     return engineer?.username || 'Unknown';
   };
 
@@ -284,10 +281,7 @@ export default function ShiftManager({ currentWeek, engineers }) {
                   <option value="">Select Employee</option>
                   {engineers.map((engineer) => (
                     <option key={engineer.id} value={engineer.id}>
-                      {engineer.first_name && engineer.last_name 
-                        ? `${engineer.first_name} ${engineer.last_name}`
-                        : engineer.username
-                      }
+                      {engineer.username}
                     </option>
                   ))}
                 </select>

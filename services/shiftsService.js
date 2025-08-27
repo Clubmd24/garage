@@ -4,7 +4,7 @@ export async function getAllShifts() {
   try {
     const [rows] = await pool.query(
       `SELECT s.id, s.employee_id, s.start_time, s.end_time,
-              u.username, u.first_name, u.last_name, u.employee_id as employee_number
+              u.username, u.email
        FROM shifts s
        JOIN users u ON s.employee_id = u.id
        ORDER BY s.start_time DESC`
@@ -20,7 +20,7 @@ export async function getShiftsByEmployee(employeeId) {
   try {
     const [rows] = await pool.query(
       `SELECT s.id, s.employee_id, s.start_time, s.end_time,
-              u.username, u.first_name, u.last_name, u.employee_id as employee_number
+              u.username, u.email
        FROM shifts s
        JOIN users u ON s.employee_id = u.id
        WHERE s.employee_id = ?
@@ -37,7 +37,7 @@ export async function getShiftsByEmployee(employeeId) {
 export async function getShiftsInRange(startDate, endDate, employeeId = null) {
   try {
     let query = `SELECT s.id, s.employee_id, s.start_time, s.end_time,
-                        u.username, u.first_name, u.last_name, u.employee_id as employee_number
+                        u.username, u.email
                  FROM shifts s
                  JOIN users u ON s.employee_id = u.id
                  WHERE s.start_time >= ? AND s.start_time <= ?`;
@@ -141,11 +141,11 @@ export async function getWeeklyRota(weekStart) {
     
     const [rows] = await pool.query(
       `SELECT s.id, s.employee_id, s.start_time, s.end_time,
-              u.username, u.first_name, u.last_name, u.employee_id as employee_number
+              u.username, u.email
        FROM shifts s
        JOIN users u ON s.employee_id = u.id
        WHERE s.start_time >= ? AND s.start_time < ?
-       ORDER BY s.start_time ASC, u.first_name ASC`,
+       ORDER BY s.start_time ASC, u.username ASC`,
       [weekStart, weekEnd]
     );
     

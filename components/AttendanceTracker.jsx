@@ -161,13 +161,10 @@ export default function AttendanceTracker({ currentWeek, engineers }) {
                     }`}></div>
                     <div>
                       <div className="font-medium text-gray-900 dark:text-white">
-                        {engineer.first_name && engineer.last_name 
-                          ? `${engineer.first_name} ${engineer.last_name}`
-                          : engineer.username
-                        }
+                        {engineer.username}
                       </div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {clockedIn ? 'Present' : 'Not Present'}
+                        {engineer.email}
                       </div>
                     </div>
                   </div>
@@ -254,16 +251,11 @@ export default function AttendanceTracker({ currentWeek, engineers }) {
                         </div>
                         <div>
                           <div className="font-medium">
-                            {engineer.first_name && engineer.last_name 
-                              ? `${engineer.first_name} ${engineer.last_name}`
-                              : engineer.username
-                            }
+                            {engineer.username}
                           </div>
-                          {engineer.employee_id && (
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
-                              ID: {engineer.employee_id}
-                            </div>
-                          )}
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {engineer.email}
+                          </div>
                         </div>
                       </div>
                     </td>
