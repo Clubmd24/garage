@@ -252,6 +252,12 @@ export default function OfficeLayout({ children }) {
                 </Link>
               </li>
               <li>
+                <Link href="/office/jobs" className="nav-link-modern">
+                  <ArrowIcon />
+                  Job Pipeline Hub
+                </Link>
+              </li>
+              <li>
                 <Link href="/office/quotations" className="nav-link-modern">
                   <ArrowIcon />
                   Open Quotes

@@ -174,6 +174,80 @@ export default function JobViewPage() {
     <OfficeLayout>
       {job && (
         <>
+          {/* PIPELINE OVERVIEW */}
+          <div className="max-w-5xl mx-auto mb-6">
+            <Card>
+              <h3 className="text-xl font-semibold mb-4">Pipeline Overview</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Quote Stage */}
+                <div className="text-center p-4 border rounded-lg">
+                  <div className="text-2xl mb-2">📋</div>
+                  <h4 className="font-medium mb-2">Quote</h4>
+                  {job.quote ? (
+                    <div className="space-y-1 text-sm">
+                      <p>Quote #{job.quote.id}</p>
+                      <p className="text-gray-600">{job.quote.status}</p>
+                      <p className="text-green-600 font-medium">€{Number(job.quote.total_amount || 0).toFixed(2)}</p>
+                      <a
+                        href={`/api/quotes/${job.quote.id}/pdf`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block text-blue-600 hover:underline text-xs"
+                      >
+                        View PDF
+                      </a>
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-sm">No quote linked</p>
+                  )}
+                </div>
+
+                {/* Job Stage */}
+                <div className="text-center p-4 border rounded-lg bg-blue-50">
+                  <div className="text-2xl mb-2">🔧</div>
+                  <h4 className="font-medium mb-2">Job</h4>
+                  <div className="space-y-1 text-sm">
+                    <p>Job #{job.id}</p>
+                    <p className="text-blue-600 font-medium">{job.status}</p>
+                    <p className="text-gray-600">Current Stage</p>
+                  </div>
+                </div>
+
+                {/* Invoice Stage */}
+                <div className="text-center p-4 border rounded-lg">
+                  <div className="text-2xl mb-2">💰</div>
+                  <h4 className="font-medium mb-2">Invoice</h4>
+                  {job.invoice_id ? (
+                    <div className="space-y-1 text-sm">
+                      <p>Invoice #{job.invoice_id}</p>
+                      <p className="text-green-600 font-medium">Created</p>
+                      <a
+                        href={`/api/invoices/${job.invoice_id}/pdf`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block text-blue-600 hover:underline text-xs"
+                      >
+                        View PDF
+                      </a>
+                    </div>
+                  ) : job.status === 'ready_for_completion' ? (
+                    <div className="space-y-1 text-sm">
+                      <p className="text-gray-500">Ready to invoice</p>
+                      <Link
+                        href={`/office/invoices/new?job_id=${job.id}`}
+                        className="inline-block text-blue-600 hover:underline text-xs"
+                      >
+                        Create Invoice
+                      </Link>
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-sm">Not ready yet</p>
+                  )}
+                </div>
+              </div>
+            </Card>
+          </div>
+
           <SectionGrid>
             {/* SUMMARY */}
             <Card>
