@@ -43,93 +43,125 @@ async function handler(req, res) {
     
     const history = [];
 
-    // 1. Get quote creation info
-    const [[quote]] = await pool.query(
-      `SELECT q.id, q.created_ts, q.created_by, u.username as created_by_name
-       FROM quotes q
-       LEFT JOIN users u ON q.created_by = u.id
-       WHERE q.job_id = ?`,
-      [id]
-    );
-    
-    if (quote) {
-      history.push({
-        type: 'quote_created',
-        timestamp: quote.created_ts,
-        description: 'Quote created',
-        details: {
-          quote_id: quote.id,
-          created_by: quote.created_by_name || 'Unknown',
-          created_date: quote.created_ts
-        }
-      });
-    }
-
-    // 2. Get job status changes from job_work_logs
-    const [statusLogs] = await pool.query(
-      `SELECT jwl.id, jwl.ts, jwl.action
-       FROM job_work_logs jwl
-       WHERE jwl.job_id = ?
-       ORDER BY jwl.ts DESC`,
-      [id]
-    );
-
-    statusLogs.forEach(log => {
-      history.push({
-        type: 'status_change',
-        timestamp: log.ts,
-        description: `Status changed: ${log.action}`,
-        details: {
-          action: log.action,
-          changed_date: log.ts
-        }
-      });
-    });
-
-    // 3. Get engineer assignments
-    const [assignments] = await pool.query(
-      `SELECT ja.id, ja.assigned_at, ja.assigned_by, 
-              u.username as engineer_name, assigned_by_user.username as assigned_by_name
-       FROM job_assignments ja
-       JOIN users u ON ja.user_id = u.id
-       LEFT JOIN users assigned_by_user ON ja.assigned_by = assigned_by_user.id
-       WHERE ja.job_id = ?
-       ORDER BY ja.assigned_at DESC`,
-      [id]
-    );
-
-    assignments.forEach(assignment => {
-      history.push({
-        type: 'engineer_assigned',
-        timestamp: assignment.assigned_at,
-        description: `Engineer ${assignment.engineer_name} assigned`,
-        details: {
-          engineer_name: assignment.engineer_name,
-          assigned_by: assignment.assigned_by_name || 'Unknown',
-          assigned_date: assignment.assigned_at
-        }
-      });
-    });
-
-    // 4. Get job creation (if no quote exists)
-    if (!quote) {
-      const [[job]] = await pool.query(
-        `SELECT j.created_at
-         FROM jobs j
-         WHERE j.id = ?`,
+    try {
+      // 1. Get quote creation info
+      const [[quote]] = await pool.query(
+        `SELECT q.id, q.created_ts, q.created_by, u.username as created_by_name
+         FROM quotes q
+         LEFT JOIN users u ON q.created_by = u.id
+         WHERE q.job_id = ?`,
         [id]
       );
       
-      if (job) {
+      if (quote) {
         history.push({
-          type: 'job_created',
-          timestamp: job.created_at,
-          description: 'Job created',
+          type: 'quote_created',
+          timestamp: quote.created_ts,
+          description: 'Quote created',
           details: {
-            created_date: job.created_at
+            quote_id: quote.id,
+            created_by: quote.created_by_name || 'Unknown',
+            created_date: quote.created_ts
           }
         });
       }
+    } catch (quoteErr) {
+      console.log('Quote query failed (table might not exist):', quoteErr.message);
+      // Continue without quote data
+    }
+
+    try {
+      // 2. Get job status changes from job_work_logs
+      const [statusLogs] = await pool.query(
+        `SELECT jwl.id, jwl.ts, jwl.action
+         FROM job_work_logs jwl
+         WHERE jwl.job_id = ?
+         ORDER BY jwl.ts DESC`,
+        [id]
+      );
+
+      statusLogs.forEach(log => {
+        history.push({
+          type: 'status_change',
+          timestamp: log.ts,
+          description: `Status changed: ${log.action}`,
+          details: {
+            action: log.action,
+            changed_date: log.ts
+          }
+        });
+      });
+    } catch (statusErr) {
+      console.log('Status logs query failed (table might not exist):', statusErr.message);
+      // Continue without status logs
+    }
+
+    try {
+      // 3. Get engineer assignments
+      const [assignments] = await pool.query(
+        `SELECT ja.id, ja.assigned_at, ja.assigned_by, 
+                u.username as engineer_name, assigned_by_user.username as assigned_by_name
+         FROM job_assignments ja
+         JOIN users u ON ja.user_id = u.id
+         LEFT JOIN users assigned_by_user ON ja.assigned_by = assigned_by_user.id
+         WHERE ja.job_id = ?
+         ORDER BY ja.assigned_at DESC`,
+        [id]
+      );
+
+      assignments.forEach(assignment => {
+        history.push({
+          type: 'engineer_assigned',
+          timestamp: assignment.assigned_at,
+          description: `Engineer ${assignment.engineer_name} assigned`,
+          details: {
+            engineer_name: assignment.engineer_name,
+            assigned_by: assignment.assigned_by_name || 'Unknown',
+            assigned_date: assignment.assigned_at
+          }
+        });
+      });
+    } catch (assignmentErr) {
+      console.log('Assignments query failed (table might not exist):', assignmentErr.message);
+      // Continue without assignment data
+    }
+
+    // 4. Get job creation (if no quote exists)
+    if (!quote) {
+      try {
+        const [[job]] = await pool.query(
+          `SELECT j.created_at
+           FROM jobs j
+           WHERE j.id = ?`,
+          [id]
+        );
+        
+        if (job) {
+          history.push({
+            type: 'job_created',
+            timestamp: job.created_at,
+            description: 'Job created',
+            details: {
+              created_date: job.created_at
+            }
+          });
+        }
+      } catch (jobErr) {
+        console.log('Job creation query failed:', jobErr.message);
+        // Continue without job creation data
+      }
+    }
+
+    // If no history was found, add a basic entry
+    if (history.length === 0) {
+      history.push({
+        type: 'no_history',
+        timestamp: new Date().toISOString(),
+        description: 'No history available for this job',
+        details: {
+          message: 'This job was created before detailed history tracking was implemented'
+        }
+      });
     }
 
     // Sort all history by timestamp (newest first)
