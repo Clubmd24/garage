@@ -270,6 +270,12 @@ export default function OfficeLayout({ children }) {
                 </Link>
               </li>
               <li>
+                <Link href="/office/staff-rota" className="nav-link-modern">
+                  <ArrowIcon />
+                  Staff Rota
+                </Link>
+              </li>
+              <li>
                 <Link href="/office/live-screen" className="nav-link-modern">
                   <ArrowIcon />
                   Workshop Live
