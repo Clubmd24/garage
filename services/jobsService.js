@@ -6,18 +6,26 @@ import { getQuoteItems } from './quoteItemsService.js';
 
 export async function getAllJobs(status) {
   const base =
-    'SELECT id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay, created_at FROM jobs';
+    `SELECT j.id, j.customer_id, j.vehicle_id, j.scheduled_start, j.scheduled_end, j.status, j.bay, j.created_at,
+            c.first_name, c.last_name, c.email,
+            v.licence_plate, v.make, v.model, v.color
+     FROM jobs j
+     LEFT JOIN clients c ON j.customer_id = c.id
+     LEFT JOIN vehicles v ON j.vehicle_id = v.id`;
   const [rows] = status
-    ? await pool.query(`${base} WHERE status=? ORDER BY id`, [status])
-    : await pool.query(`${base} ORDER BY id`);
+    ? await pool.query(`${base} WHERE j.status=? ORDER BY j.id`, [status])
+    : await pool.query(`${base} ORDER BY j.id`);
   return rows;
 }
 
 export async function getJobsByFleet(fleet_id, status) {
   const base =
-    `SELECT j.id, j.customer_id, j.vehicle_id, j.scheduled_start, j.scheduled_end, j.status, j.bay, j.created_at
+    `SELECT j.id, j.customer_id, j.vehicle_id, j.scheduled_start, j.scheduled_end, j.status, j.bay, j.created_at,
+            c.first_name, c.last_name, c.email,
+            v.licence_plate, v.make, v.model, v.color
        FROM jobs j
        JOIN vehicles v ON j.vehicle_id = v.id
+       LEFT JOIN clients c ON j.customer_id = c.id
       WHERE v.fleet_id=?`;
   const [rows] = status
     ? await pool.query(`${base} AND j.status=? ORDER BY j.id`, [fleet_id, status])
@@ -27,18 +35,28 @@ export async function getJobsByFleet(fleet_id, status) {
 
 export async function getJobsByCustomer(customer_id, status) {
   const base =
-    `SELECT id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay, created_at
-       FROM jobs WHERE customer_id=?`;
+    `SELECT j.id, j.customer_id, j.vehicle_id, j.scheduled_start, j.scheduled_end, j.status, j.bay, j.created_at,
+            c.first_name, c.last_name, c.email,
+            v.licence_plate, v.make, v.model, v.color
+       FROM jobs j
+       LEFT JOIN clients c ON j.customer_id = c.id
+       LEFT JOIN vehicles v ON j.vehicle_id = v.id
+       WHERE j.customer_id=?`;
   const [rows] = status
-    ? await pool.query(`${base} AND status=? ORDER BY id`, [customer_id, status])
-    : await pool.query(`${base} ORDER BY id`, [customer_id]);
+    ? await pool.query(`${base} AND j.status=? ORDER BY j.id`, [customer_id, status])
+    : await pool.query(`${base} ORDER BY j.id`, [customer_id]);
   return rows;
 }
 
 export async function getJobById(id) {
   const [[row]] = await pool.query(
-    `SELECT id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay, created_at, notes
-       FROM jobs WHERE id=?`,
+    `SELECT j.id, j.customer_id, j.vehicle_id, j.scheduled_start, j.scheduled_end, j.status, j.bay, j.created_at, j.notes,
+            c.first_name, c.last_name, c.email,
+            v.licence_plate, v.make, v.model, v.color
+       FROM jobs j
+       LEFT JOIN clients c ON j.customer_id = c.id
+       LEFT JOIN vehicles v ON j.vehicle_id = v.id
+       WHERE j.id=?`,
     [id]
   );
   return row || null;

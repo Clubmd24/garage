@@ -5,17 +5,30 @@ import { getQuoteItems } from './quoteItemsService.js';
 
 export async function getAllInvoices() {
   const [rows] = await pool.query(
-    `SELECT id, job_id, customer_id, amount, due_date, status, terms, created_ts
-       FROM invoices ORDER BY id`
+    `SELECT i.id, i.job_id, i.customer_id, i.amount, i.due_date, i.status, i.terms, i.created_ts,
+            c.first_name, c.last_name, c.email,
+            v.licence_plate, v.make, v.model, v.color
+       FROM invoices i
+       LEFT JOIN clients c ON i.customer_id = c.id
+       LEFT JOIN vehicles v ON i.job_id = v.id
+       LEFT JOIN jobs j ON i.job_id = j.id AND j.vehicle_id = v.id
+       ORDER BY i.id`
   );
   return rows;
 }
 
 export async function getInvoicesByCustomer(customer_id, status) {
-  const base = `SELECT id, job_id, customer_id, amount, due_date, status, terms, created_ts FROM invoices WHERE customer_id=?`;
+  const base = `SELECT i.id, i.job_id, i.customer_id, i.amount, i.due_date, i.status, i.terms, i.created_ts,
+                       c.first_name, c.last_name, c.email,
+                       v.licence_plate, v.make, v.model, v.color
+                FROM invoices i
+                LEFT JOIN clients c ON i.customer_id = c.id
+                LEFT JOIN vehicles v ON i.job_id = v.id
+                LEFT JOIN jobs j ON i.job_id = j.id AND j.vehicle_id = v.id
+                WHERE i.customer_id=?`;
   const [rows] = status
-    ? await pool.query(`${base} AND status=? ORDER BY id`, [customer_id, status])
-    : await pool.query(`${base} ORDER BY id`, [customer_id]);
+    ? await pool.query(`${base} AND i.status=? ORDER BY i.id`, [customer_id, status])
+    : await pool.query(`${base} ORDER BY i.id`, [customer_id]);
   return rows;
 }
 
