@@ -308,7 +308,8 @@ export default function EposPage() {
         setSuppliers(s);
         const norm = p.map(x=>({ ...x, unit_cost: Number(x.unit_cost)||0 }));
         setProducts(norm);
-        if(c.length) setSelectedCategory(c[0].id);
+        // Default to "all" category to show all products initially
+        setSelectedCategory('all');
       })
       .catch(()=>setError("Failed to load"))
       .finally(()=>setLoading(false));
@@ -408,7 +409,14 @@ export default function EposPage() {
 
   // Filter products
   const visibleProducts = products
-    .filter(p => selectedCategory ? p.category_id === selectedCategory : true)
+    .filter(p => {
+      // Handle "all" category - show all products
+      if (selectedCategory === 'all') return true;
+      // Handle specific category selection
+      if (selectedCategory) return p.category_id === selectedCategory;
+      // Default: show all products
+      return true;
+    })
     .filter(p => {
       // Safely handle null/undefined descriptions
       if (!p.description) return false;
@@ -485,6 +493,19 @@ export default function EposPage() {
             {/* Enhanced Categories Section */}
             <SectionCard title="Categories" className="mb-6">
               <div className="flex flex-wrap gap-3">
+                {/* All Products Button */}
+                <button
+                  onClick={()=>setSelectedCategory('all')}
+                  className={`px-6 py-3 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg ${
+                    selectedCategory === 'all'
+                      ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-2xl scale-105'
+                      : 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 hover:from-gray-200 hover:to-gray-300 hover:shadow-xl'
+                  }`}
+                >
+                  🌟 All Products
+                </button>
+                
+                {/* Category Buttons */}
                 {categories.map(cat=>(
                   <button
                     key={cat.id}
@@ -520,7 +541,7 @@ export default function EposPage() {
 
             {/* Enhanced Products Section - Hide when in quick sale mode */}
             {!quickSale && (
-              <SectionCard title={`Products (${visibleProducts.length})`}>
+              <SectionCard title={`${selectedCategory === 'all' ? 'All Products' : 'Products'} (${visibleProducts.length})`}>
               {loading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {Array.from({length:6}).map((_,i)=>(
