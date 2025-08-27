@@ -91,16 +91,16 @@ function ProductCard({ product, onAddToCart, suppliers }) {
           <div className="p-4">
             <div className="flex items-center justify-between mb-3">
               <div className="text-2xl font-bold text-green-600">
-                €{salePrice?.toFixed(2) || '0.00'}
+                €{(salePrice && typeof salePrice === 'number' ? salePrice.toFixed(2) : '0.00')}
               </div>
-              {product.unit_cost && product.unit_sale_price && (
+              {product.unit_cost && typeof product.unit_cost === 'number' && product.unit_sale_price && typeof product.unit_sale_price === 'number' && (
                 <div className="text-sm text-gray-500">
                   Cost: €{product.unit_cost.toFixed(2)}
                 </div>
               )}
             </div>
             
-            {product.markup_percentage && (
+            {product.markup_percentage && typeof product.markup_percentage === 'number' && (
               <div className="text-sm text-gray-600 mb-3">
                 Markup: <span className="font-semibold text-blue-600">{product.markup_percentage}%</span>
               </div>
@@ -120,6 +120,79 @@ function ProductCard({ product, onAddToCart, suppliers }) {
           </div>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+// Quick Sale Product Entry Component
+function QuickSaleProductEntry({ onAddToCart }) {
+  const [description, setDescription] = useState('');
+  const [price, setPrice] = useState('');
+  const [partNumber, setPartNumber] = useState('');
+
+  const handleAdd = () => {
+    if (!description || !price) return;
+    
+    onAddToCart({
+      part_id: `quick_${Date.now()}`, // Generate unique ID for quick sale items
+      description: description,
+      price: parseFloat(price),
+      part_number: partNumber || 'QUICK SALE',
+      isQuickSale: true
+    });
+    
+    // Clear form
+    setDescription('');
+    setPrice('');
+    setPartNumber('');
+  };
+
+  return (
+    <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-xl border-2 border-yellow-200">
+      <h3 className="font-bold text-lg text-yellow-800 mb-3">🚀 Quick Sale - Manual Entry</h3>
+      
+      <div className="space-y-3">
+        <div>
+          <label className="block text-sm font-medium text-yellow-700 mb-1">Product Description *</label>
+          <Input
+            placeholder="e.g., Lamp, Oil Change, etc."
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full bg-white border-2 border-yellow-300 focus:border-yellow-500 rounded-lg"
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-yellow-700 mb-1">Part Number (Optional)</label>
+          <Input
+            placeholder="e.g., LAMP001, OIL001"
+            value={partNumber}
+            onChange={(e) => setPartNumber(e.target.value)}
+            className="w-full bg-white border-2 border-yellow-300 focus:border-yellow-500 rounded-lg"
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-yellow-700 mb-1">Sale Price (€) *</label>
+          <Input
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="0.00"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            className="w-full bg-white border-2 border-yellow-300 focus:border-yellow-500 rounded-lg"
+          />
+        </div>
+        
+        <Button
+          onClick={handleAdd}
+          disabled={!description || !price}
+          className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold py-3 rounded-lg transform hover:scale-105 transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          ➕ Add to Cart
+        </Button>
+      </div>
     </div>
   );
 }
@@ -153,7 +226,7 @@ function useCart(initial = []) {
   };
   const clear = () => setItems([]);
   const total = useMemo(
-    () => items.reduce((sum, it) => sum + it.price * it.quantity, 0),
+    () => items.reduce((sum, it) => sum + ((it.price && typeof it.price === 'number' ? it.price : 0) * it.quantity), 0),
     [items]
   );
   return { items, add, updateQty, clear, total };
@@ -294,7 +367,20 @@ export default function EposPage() {
     const saleRes = await fetch("/api/epos/sales",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({ session_id:session.id, customer_id:custId, vehicle_id:vehId, payment_type:paymentType, total_amount:total, items:cartItems.map(i=>({part_id:i.part_id, qty:i.quantity, unit_price:i.price})) })
+      body:JSON.stringify({ 
+        session_id:session.id, 
+        customer_id:custId, 
+        vehicle_id:vehId, 
+        payment_type:paymentType, 
+        total_amount:total, 
+        items:cartItems.map(i=>({
+          part_id:i.isQuickSale ? null : i.part_id, 
+          qty:i.quantity, 
+          unit_price:i.price,
+          description: i.description,
+          part_number: i.part_number
+        })) 
+      })
     });
     const sale = await saleRes.json();
     const invoice = await createInvoice({
@@ -415,6 +501,13 @@ export default function EposPage() {
               </div>
             </SectionCard>
 
+            {/* Quick Sale Section - Only show when quickSale is enabled */}
+            {quickSale && (
+              <div className="mb-6">
+                <QuickSaleProductEntry onAddToCart={addToCart} />
+              </div>
+            )}
+
             {/* Enhanced Search */}
             <div className="mb-6">
               <Input
@@ -425,8 +518,9 @@ export default function EposPage() {
               />
             </div>
 
-            {/* Enhanced Products Section */}
-            <SectionCard title={`Products (${visibleProducts.length})`}>
+            {/* Enhanced Products Section - Hide when in quick sale mode */}
+            {!quickSale && (
+              <SectionCard title={`Products (${visibleProducts.length})`}>
               {loading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {Array.from({length:6}).map((_,i)=>(
@@ -450,7 +544,8 @@ export default function EposPage() {
                   ))}
                 </div>
               )}
-            </SectionCard>
+              </SectionCard>
+            )}
           </div>
 
           {/* Right pane - Enhanced Cart and Payment */}
@@ -473,8 +568,8 @@ export default function EposPage() {
                           )}
                         </div>
                         <div className="text-right">
-                          <div className="text-sm text-gray-600">€{item.price.toFixed(2)}</div>
-                          <div className="font-bold text-lg text-green-600">€{(item.price*item.quantity).toFixed(2)}</div>
+                          <div className="text-sm text-gray-600">€{(item.price && typeof item.price === 'number' ? item.price.toFixed(2) : '0.00')}</div>
+                          <div className="font-bold text-lg text-green-600">€{((item.price && typeof item.price === 'number' ? item.price : 0) * item.quantity).toFixed(2)}</div>
                         </div>
                       </div>
                       
@@ -518,7 +613,7 @@ export default function EposPage() {
               <div className="space-y-4 text-black">
                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
                   <span className="text-lg font-medium">Subtotal</span>
-                  <span className="text-lg font-bold">€{total.toFixed(2)}</span>
+                  <span className="text-lg font-bold">€{(total && typeof total === 'number' ? total.toFixed(2) : '0.00')}</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
                   <span className="text-lg font-medium">Tax</span>
@@ -526,7 +621,7 @@ export default function EposPage() {
                 </div>
                 <div className="flex justify-between items-center py-3 bg-gradient-to-r from-blue-50 to-blue-100 px-4 rounded-lg">
                   <span className="text-xl font-bold text-blue-800">Total</span>
-                  <span className="text-2xl font-bold text-blue-800">€{total.toFixed(2)}</span>
+                  <span className="text-2xl font-bold text-blue-800">€{(total && typeof total === 'number' ? total.toFixed(2) : '0.00')}</span>
                 </div>
                 <Button 
                   className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-4 text-lg rounded-xl shadow-2xl transform hover:scale-105 transition-all duration-200" 
