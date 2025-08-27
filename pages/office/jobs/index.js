@@ -13,7 +13,6 @@ export default function JobsPipelinePage() {
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('all'); // all, quotes, active, completed, invoices
   const [searchQuery, setSearchQuery] = useState('');
-  const [expandedItems, setExpandedItems] = useState(new Set());
 
   useEffect(() => {
     async function load() {
@@ -189,16 +188,6 @@ export default function JobsPipelinePage() {
     return icons[type] || '📄';
   };
 
-  const toggleExpanded = (itemId) => {
-    const newExpanded = new Set(expandedItems);
-    if (newExpanded.has(itemId)) {
-      newExpanded.delete(itemId);
-    } else {
-      newExpanded.add(itemId);
-    }
-    setExpandedItems(newExpanded);
-  };
-
   if (loading) return (
     <OfficeLayout>
       <div className="text-center py-8">
@@ -286,212 +275,125 @@ export default function JobsPipelinePage() {
         </div>
 
         {/* Pipeline List */}
-        <div className="space-y-2">
-          {filteredData.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500 dark:text-gray-400">No items found matching your criteria</p>
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+          {/* Table Header */}
+          <div className="bg-gray-50 dark:bg-gray-700 px-6 py-3 border-b border-gray-200 dark:border-gray-600">
+            <div className="grid grid-cols-12 gap-4 text-sm font-medium text-gray-500 dark:text-gray-400">
+              <div className="col-span-1">Type</div>
+              <div className="col-span-2">ID</div>
+              <div className="col-span-3">Client</div>
+              <div className="col-span-3">Vehicle</div>
+              <div className="col-span-2">Status</div>
+              <div className="col-span-1">Amount</div>
             </div>
-          ) : (
-            filteredData.map((item) => (
-              <div
-                key={item.id}
-                className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
-              >
-                {/* Compact List Item Header */}
-                <div 
-                  className="p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150"
-                  onClick={() => toggleExpanded(item.id)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="text-xl">{getTypeIcon(item.type)}</div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white">
-                          {item.stage}
-                        </h3>
-                        <div className="text-sm text-gray-500 dark:text-gray-400 space-x-4">
-                          <span>ID: {item.data.id}</span>
-                          <span>Created: {new Date(item.created).toLocaleDateString()}</span>
-                          {item.client && (
-                            <span>Client: {item.client.first_name} {item.client.last_name}</span>
-                          )}
-                          {item.vehicle && (
-                            <span>Vehicle: {item.vehicle.licence_plate} - {item.vehicle.make} {item.vehicle.model}</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center space-x-3">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium text-white ${getStatusColor(item.status)}`}>
-                        {item.status.replace('_', ' ').toUpperCase()}
-                      </span>
-                      {item.amount && (
-                        <span className="text-lg font-semibold text-gray-900 dark:text-white">
-                          €{Number(item.amount).toFixed(2)}
-                        </span>
-                      )}
-                      <div className="text-gray-400">
-                        {expandedItems.has(item.id) ? '▼' : '▶'}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+          </div>
 
-                {/* Expanded Details */}
-                {expandedItems.has(item.id) && (
-                  <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Left Column - Details */}
-                      <div className="space-y-4">
-                        <div>
-                          <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Details</h4>
-                          <div className="bg-white dark:bg-gray-800 p-3 rounded border">
-                            <p><strong>Type:</strong> {item.type.toUpperCase()}</p>
-                            <p><strong>Status:</strong> {item.status.replace('_', ' ').toUpperCase()}</p>
-                            <p><strong>Created:</strong> {new Date(item.created).toLocaleString()}</p>
-                            {item.amount && <p><strong>Amount:</strong> €{Number(item.amount).toFixed(2)}</p>}
-                          </div>
-                        </div>
-
-                        {item.client && (
-                          <div>
-                            <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Client Information</h4>
-                            <div className="bg-white dark:bg-gray-800 p-3 rounded border">
-                              <p><strong>Name:</strong> {item.client.first_name} {item.client.last_name}</p>
-                              {item.client.email && <p><strong>Email:</strong> {item.client.email}</p>}
-                              {item.client.mobile && <p><strong>Mobile:</strong> {item.client.mobile}</p>}
-                              {item.client.street_address && <p><strong>Address:</strong> {item.client.street_address}</p>}
-                            </div>
-                          </div>
-                        )}
-
-                        {item.vehicle && (
-                          <div>
-                            <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Vehicle Information</h4>
-                            <div className="bg-white dark:bg-gray-800 p-3 rounded border">
-                              <p><strong>Plate:</strong> {item.vehicle.licence_plate}</p>
-                              <p><strong>Make:</strong> {item.vehicle.make}</p>
-                              <p><strong>Model:</strong> {item.vehicle.model}</p>
-                              {item.vehicle.color && <p><strong>Color:</strong> {item.vehicle.color}</p>}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Right Column - Actions & Links */}
-                      <div className="space-y-4">
-                        <div>
-                          <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Quick Actions</h4>
-                          <div className="space-y-2">
-                            {/* View Details */}
-                            {item.type === 'quote' && (
-                              <Link
-                                href={`/office/quotations/${item.data.id}/edit`}
-                                className="block w-full text-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-                              >
-                                View Quote Details
-                              </Link>
-                            )}
-                            
-                            {item.type === 'job' && (
-                              <Link
-                                href={`/office/jobs/${item.data.id}`}
-                                className="block w-full text-center px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
-                              >
-                                View Job Details
-                              </Link>
-                            )}
-                            
-                            {item.type === 'completed' && (
-                              <Link
-                                href={`/office/jobs/${item.data.id}`}
-                                className="block w-full text-center px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
-                              >
-                                View Job Details
-                              </Link>
-                            )}
-                            
-                            {item.type === 'invoice' && (
-                              <Link
-                                href={`/office/invoices/${item.data.id}`}
-                                className="block w-full text-center px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors"
-                              >
-                                View Invoice Details
-                              </Link>
-                            )}
-                          </div>
-                        </div>
-
-                        <div>
-                          <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Documents</h4>
-                          <div className="space-y-2">
-                            {/* PDF Downloads */}
-                            {item.type === 'quote' && (
-                              <a
-                                href={`/api/quotes/${item.data.id}/pdf`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="block w-full text-center px-4 py-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded transition-colors dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600"
-                              >
-                                📄 Download Quote PDF
-                              </a>
-                            )}
-                            
-                            {item.type === 'completed' && item.invoices && item.invoices.length > 0 && (
-                              <a
-                                href={`/api/invoices/${item.invoices[0].id}/pdf`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="block w-full text-center px-4 py-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded transition-colors dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600"
-                              >
-                                💰 Download Invoice PDF
-                              </a>
-                            )}
-                            
-                            {item.type === 'invoice' && (
-                              <a
-                                href={`/api/invoices/${item.data.id}/pdf`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="block w-full text-center px-4 py-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded transition-colors dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600"
-                              >
-                                💰 Download Invoice PDF
-                              </a>
-                            )}
-                          </div>
-                        </div>
-
-                        <div>
-                          <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Pipeline Actions</h4>
-                          <div className="space-y-2">
-                            {/* Pipeline Navigation */}
-                            {item.type === 'quote' && (
-                              <Link
-                                href={`/office/jobs/new?quote_id=${item.data.id}`}
-                                className="block w-full text-center px-4 py-2 border border-blue-300 text-blue-700 bg-blue-50 hover:bg-blue-100 rounded transition-colors dark:bg-blue-900/20 dark:border-blue-700 dark:text-blue-300 dark:hover:bg-blue-900/40"
-                              >
-                                ➡️ Create Job from Quote
-                              </Link>
-                            )}
-                            
-                            {item.type === 'job' && item.status === 'ready_for_completion' && (
-                              <Link
-                                href={`/office/invoices/new?job_id=${item.data.id}`}
-                                className="block w-full text-center px-4 py-2 border border-green-300 text-green-700 bg-green-50 hover:bg-green-100 rounded transition-colors dark:bg-green-900/20 dark:border-green-700 dark:text-green-300 dark:hover:bg-green-900/40"
-                              >
-                                ➡️ Create Invoice from Job
-                              </Link>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
+          {/* Table Body */}
+          <div className="divide-y divide-gray-200 dark:divide-gray-600">
+            {filteredData.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500 dark:text-gray-400">No items found matching your criteria</p>
               </div>
-            ))
-          )}
+            ) : (
+              filteredData.map((item) => (
+                <Link
+                  key={item.id}
+                  href={
+                    item.type === 'quote' ? `/office/quotations/${item.data.id}/edit` :
+                    item.type === 'job' || item.type === 'completed' ? `/office/jobs/${item.data.id}` :
+                    item.type === 'invoice' ? `/office/invoices/${item.data.id}` :
+                    '#'
+                  }
+                  className="block hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150"
+                >
+                  <div className="px-6 py-4">
+                    <div className="grid grid-cols-12 gap-4 items-center">
+                      {/* Type Icon */}
+                      <div className="col-span-1">
+                        <div className="text-xl">{getTypeIcon(item.type)}</div>
+                      </div>
+
+                      {/* ID */}
+                      <div className="col-span-2">
+                        <div className="font-medium text-gray-900 dark:text-white">
+                          {item.type === 'quote' ? `Q${item.data.id}` :
+                           item.type === 'job' || item.type === 'completed' ? `J${item.data.id}` :
+                           item.type === 'invoice' ? `I${item.data.id}` : item.data.id}
+                        </div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                          {new Date(item.created).toLocaleDateString()}
+                        </div>
+                      </div>
+
+                      {/* Client */}
+                      <div className="col-span-3">
+                        <div className="font-medium text-gray-900 dark:text-white">
+                          {item.client ? `${item.client.first_name} ${item.client.last_name}` : 'N/A'}
+                        </div>
+                        {item.client?.email && (
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            {item.client.email}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Vehicle */}
+                      <div className="col-span-3">
+                        <div className="font-medium text-gray-900 dark:text-white">
+                          {item.vehicle ? item.vehicle.licence_plate : 'N/A'}
+                        </div>
+                        {item.vehicle && (
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            {item.vehicle.make} {item.vehicle.model}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Status */}
+                      <div className="col-span-2">
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full text-white ${getStatusColor(item.status)}`}>
+                          {item.status.replace('_', ' ').toUpperCase()}
+                        </span>
+                      </div>
+
+                      {/* Amount */}
+                      <div className="col-span-1 text-right">
+                        {item.amount ? (
+                          <div className="font-medium text-gray-900 dark:text-white">
+                            €{Number(item.amount).toFixed(2)}
+                          </div>
+                        ) : (
+                          <div className="text-gray-400">-</div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Link
+            href="/office/quotations/new"
+            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            📋 New Quote
+          </Link>
+          <Link
+            href="/office/jobs/new"
+            className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          >
+            🔧 New Job
+          </Link>
+          <Link
+            href="/office/invoices/new"
+            className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+          >
+            💰 New Invoice
+          </Link>
         </div>
       </div>
     </OfficeLayout>
