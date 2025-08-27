@@ -1,126 +1,166 @@
 import pool from '../lib/db.js';
 
 export async function getAllShifts() {
-  const [rows] = await pool.query(
-    `SELECT s.id, s.employee_id, s.start_time, s.end_time,
-            u.username, u.first_name, u.last_name, u.employee_id as employee_number
-     FROM shifts s
-     JOIN users u ON s.employee_id = u.id
-     ORDER BY s.start_time DESC`
-  );
-  return rows;
+  try {
+    const [rows] = await pool.query(
+      `SELECT s.id, s.employee_id, s.start_time, s.end_time,
+              u.username, u.first_name, u.last_name, u.employee_id as employee_number
+       FROM shifts s
+       JOIN users u ON s.employee_id = u.id
+       ORDER BY s.start_time DESC`
+    );
+    return rows || [];
+  } catch (error) {
+    console.error('Error in getAllShifts:', error);
+    return [];
+  }
 }
 
 export async function getShiftsByEmployee(employeeId) {
-  const [rows] = await pool.query(
-    `SELECT s.id, s.employee_id, s.start_time, s.end_time,
-            u.username, u.first_name, u.last_name, u.employee_id as employee_number
-     FROM shifts s
-     JOIN users u ON s.employee_id = u.id
-     WHERE s.employee_id = ?
-     ORDER BY s.start_time DESC`,
-    [employeeId]
-  );
-  return rows;
+  try {
+    const [rows] = await pool.query(
+      `SELECT s.id, s.employee_id, s.start_time, s.end_time,
+              u.username, u.first_name, u.last_name, u.employee_id as employee_number
+       FROM shifts s
+       JOIN users u ON s.employee_id = u.id
+       WHERE s.employee_id = ?
+       ORDER BY s.start_time DESC`,
+      [employeeId]
+    );
+    return rows || [];
+  } catch (error) {
+    console.error('Error in getShiftsByEmployee:', error);
+    return [];
+  }
 }
 
 export async function getShiftsInRange(startDate, endDate, employeeId = null) {
-  let query = `SELECT s.id, s.employee_id, s.start_time, s.end_time,
-                      u.username, u.first_name, u.last_name, u.employee_id as employee_number
-               FROM shifts s
-               JOIN users u ON s.employee_id = u.id
-               WHERE s.start_time >= ? AND s.start_time <= ?`;
-  
-  const params = [startDate, endDate];
-  
-  if (employeeId) {
-    query += ' AND s.employee_id = ?';
-    params.push(employeeId);
+  try {
+    let query = `SELECT s.id, s.employee_id, s.start_time, s.end_time,
+                        u.username, u.first_name, u.last_name, u.employee_id as employee_number
+                 FROM shifts s
+                 JOIN users u ON s.employee_id = u.id
+                 WHERE s.start_time >= ? AND s.start_time <= ?`;
+    
+    const params = [startDate, endDate];
+    
+    if (employeeId) {
+      query += ' AND s.employee_id = ?';
+      params.push(employeeId);
+    }
+    
+    query += ' ORDER BY s.start_time ASC';
+    
+    const [rows] = await pool.query(query, params);
+    return rows || [];
+  } catch (error) {
+    console.error('Error in getShiftsInRange:', error);
+    return [];
   }
-  
-  query += ' ORDER BY s.start_time ASC';
-  
-  const [rows] = await pool.query(query, params);
-  return rows;
 }
 
 export async function createShift(shiftData) {
-  const { employee_id, start_time, end_time } = shiftData;
-  
-  const [result] = await pool.query(
-    `INSERT INTO shifts (employee_id, start_time, end_time)
-     VALUES (?, ?, ?)`,
-    [employee_id, start_time, end_time]
-  );
-  
-  return { id: result.insertId, employee_id, start_time, end_time };
+  try {
+    const { employee_id, start_time, end_time } = shiftData;
+    
+    const [result] = await pool.query(
+      `INSERT INTO shifts (employee_id, start_time, end_time)
+       VALUES (?, ?, ?)`,
+      [employee_id, start_time, end_time]
+    );
+    
+    return { id: result.insertId, employee_id, start_time, end_time };
+  } catch (error) {
+    console.error('Error in createShift:', error);
+    throw error;
+  }
 }
 
 export async function updateShift(id, shiftData) {
-  const { employee_id, start_time, end_time } = shiftData;
-  
-  await pool.query(
-    `UPDATE shifts 
-     SET employee_id = ?, start_time = ?, end_time = ?
-     WHERE id = ?`,
-    [employee_id, start_time, end_time, id]
-  );
-  
-  return { id, employee_id, start_time, end_time };
+  try {
+    const { employee_id, start_time, end_time } = shiftData;
+    
+    await pool.query(
+      `UPDATE shifts 
+       SET employee_id = ?, start_time = ?, end_time = ?
+       WHERE id = ?`,
+      [employee_id, start_time, end_time, id]
+    );
+    
+    return { id, employee_id, start_time, end_time };
+  } catch (error) {
+    console.error('Error in updateShift:', error);
+    throw error;
+  }
 }
 
 export async function deleteShift(id) {
-  await pool.query('DELETE FROM shifts WHERE id = ?', [id]);
-  return { id };
+  try {
+    await pool.query('DELETE FROM shifts WHERE id = ?', [id]);
+    return { id };
+  } catch (error) {
+    console.error('Error in deleteShift:', error);
+    throw error;
+  }
 }
 
 export async function getWeeklyRota(weekStart) {
-  // Calculate week end (7 days from start)
-  const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekEnd.getDate() + 7);
-  
-  const [rows] = await pool.query(
-    `SELECT s.id, s.employee_id, s.start_time, s.end_time,
-            u.username, u.first_name, u.last_name, u.employee_id as employee_number
-     FROM shifts s
-     JOIN users u ON s.employee_id = u.id
-     WHERE s.start_time >= ? AND s.start_time < ?
-     ORDER BY s.start_time ASC, u.first_name ASC`,
-    [weekStart, weekEnd]
-  );
-  
-  return rows;
+  try {
+    // Calculate week end (7 days from start)
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 7);
+    
+    const [rows] = await pool.query(
+      `SELECT s.id, s.employee_id, s.start_time, s.end_time,
+              u.username, u.first_name, u.last_name, u.employee_id as employee_number
+       FROM shifts s
+       JOIN users u ON s.employee_id = u.id
+       WHERE s.start_time >= ? AND s.start_time < ?
+       ORDER BY s.start_time ASC, u.first_name ASC`,
+      [weekStart, weekEnd]
+    );
+    
+    return rows || [];
+  } catch (error) {
+    console.error('Error in getWeeklyRota:', error);
+    return [];
+  }
 }
 
 export async function duplicateWeeklyRota(sourceWeekStart, targetWeekStart) {
-  // Get all shifts from source week
-  const sourceWeekEnd = new Date(sourceWeekStart);
-  sourceWeekEnd.setDate(sourceWeekEnd.getDate() + 7);
-  
-  const [sourceShifts] = await pool.query(
-    'SELECT employee_id, start_time, end_time FROM shifts WHERE start_time >= ? AND start_time < ?',
-    [sourceWeekStart, sourceWeekEnd]
-  );
-  
-  // Calculate the difference in days between source and target weeks
-  const daysDiff = Math.floor((new Date(targetWeekStart) - new Date(sourceWeekStart)) / (1000 * 60 * 60 * 24));
-  
-  // Create new shifts for target week
-  const newShifts = [];
-  for (const shift of sourceShifts) {
-    const newStartTime = new Date(shift.start_time);
-    newStartTime.setDate(newStartTime.getDate() + daysDiff);
+  try {
+    // Get all shifts from source week
+    const sourceWeekEnd = new Date(sourceWeekStart);
+    sourceWeekEnd.setDate(sourceWeekEnd.getDate() + 7);
     
-    const newEndTime = new Date(shift.end_time);
-    newEndTime.setDate(newEndTime.getDate() + daysDiff);
-    
-    const [result] = await pool.query(
-      'INSERT INTO shifts (employee_id, start_time, end_time) VALUES (?, ?, ?)',
-      [shift.employee_id, newStartTime, newEndTime]
+    const [sourceShifts] = await pool.query(
+      'SELECT employee_id, start_time, end_time FROM shifts WHERE start_time >= ? AND start_time < ?',
+      [sourceWeekStart, sourceWeekEnd]
     );
     
-    newShifts.push({ id: result.insertId, employee_id: shift.employee_id, start_time: newStartTime, end_time: newEndTime });
+    // Calculate the difference in days between source and target weeks
+    const daysDiff = Math.floor((new Date(targetWeekStart) - new Date(sourceWeekStart)) / (1000 * 60 * 60 * 24));
+    
+    // Create new shifts for target week
+    const newShifts = [];
+    for (const shift of sourceShifts) {
+      const newStartTime = new Date(shift.start_time);
+      newStartTime.setDate(newStartTime.getDate() + daysDiff);
+      
+      const newEndTime = new Date(shift.end_time);
+      newEndTime.setDate(newEndTime.getDate() + daysDiff);
+      
+      const [result] = await pool.query(
+        'INSERT INTO shifts (employee_id, start_time, end_time) VALUES (?, ?, ?)',
+        [shift.employee_id, newStartTime, newEndTime]
+      );
+      
+      newShifts.push({ id: result.insertId, employee_id: shift.employee_id, start_time: newStartTime, end_time: newEndTime });
+    }
+    
+    return newShifts;
+  } catch (error) {
+    console.error('Error in duplicateWeeklyRota:', error);
+    throw error;
   }
-  
-  return newShifts;
 }

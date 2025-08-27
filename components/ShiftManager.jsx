@@ -24,7 +24,20 @@ export default function ShiftManager({ currentWeek, engineers }) {
       const weekEnd = addDays(weekStart, 7);
       
       const response = await fetch(`/api/shifts?start_date=${weekStart.toISOString()}&end_date=${weekEnd.toISOString()}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
+      
+      // Ensure data is an array
+      if (!Array.isArray(data)) {
+        console.error('Expected array from API, got:', typeof data, data);
+        setShifts([]);
+        return;
+      }
+      
       setShifts(data);
     } catch (error) {
       console.error('Error loading shifts:', error);

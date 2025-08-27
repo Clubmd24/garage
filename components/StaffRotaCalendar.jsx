@@ -16,7 +16,20 @@ export default function StaffRotaCalendar({ currentWeek, engineers }) {
     try {
       const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 }); // Monday start
       const response = await fetch(`/api/shifts?week_start=${weekStart.toISOString()}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
+      
+      // Ensure data is an array
+      if (!Array.isArray(data)) {
+        console.error('Expected array from API, got:', typeof data, data);
+        setShifts([]);
+        return;
+      }
+      
       setShifts(data);
     } catch (error) {
       console.error('Error loading shifts:', error);

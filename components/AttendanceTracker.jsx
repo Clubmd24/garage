@@ -16,18 +16,26 @@ export default function AttendanceTracker({ currentWeek, engineers }) {
     try {
       // Load current attendance (who's clocked in)
       const currentResponse = await fetch('/api/attendance?current=true');
+      if (!currentResponse.ok) {
+        throw new Error(`Current attendance HTTP error! status: ${currentResponse.status}`);
+      }
       const currentData = await currentResponse.json();
-      setCurrentAttendance(currentData);
+      setCurrentAttendance(Array.isArray(currentData) ? currentData : []);
 
       // Load weekly attendance
       const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 });
       const weekEnd = addDays(weekStart, 7);
       
       const weeklyResponse = await fetch(`/api/attendance?start_date=${weekStart.toISOString()}&end_date=${weekEnd.toISOString()}`);
+      if (!weeklyResponse.ok) {
+        throw new Error(`Weekly attendance HTTP error! status: ${weeklyResponse.status}`);
+      }
       const weeklyData = await weeklyResponse.json();
-      setWeeklyAttendance(weeklyData);
+      setWeeklyAttendance(Array.isArray(weeklyData) ? weeklyData : []);
     } catch (error) {
       console.error('Error loading attendance:', error);
+      setCurrentAttendance([]);
+      setWeeklyAttendance([]);
     } finally {
       setLoading(false);
     }
