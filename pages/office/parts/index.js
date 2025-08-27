@@ -117,21 +117,29 @@ export default function PartsPage() {
                 key={p.id}
                 className="item-card border-2 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow duration-200"
               >
-                {/* Header: Engineer name */}
+                {/* Header: Part number and name */}
                 <div className="flex items-start justify-between mb-2">
                   <h2 className="font-semibold text-black dark:text-white text-lg break-words pr-2">
-                    {e.username}
+                    {p.part_number || 'No Part Number'}
                   </h2>
-                  <span className="ml-2 whitespace-nowrap text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-800 border border-green-300 dark:border-green-700 text-green-700 dark:text-green-300">
-                    Active
+                  <span className="ml-2 whitespace-nowrap text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-800 border border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300">
+                    Part
                   </span>
                 </div>
 
-                {/* Description */}
+                {/* Part Name/Description */}
                 {p.description && (
                   <p className="text-sm text-gray-700 dark:text-gray-300 mb-3 line-clamp-3">
                     {p.description}
                   </p>
+                )}
+                
+                {/* Unit Cost if available */}
+                {p.unit_cost != null && (
+                  <div className="mb-3 p-2 rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm">
+                    <div className="text-gray-500 dark:text-gray-400">Unit Cost</div>
+                    <div className="font-medium text-gray-900 dark:text-gray-100">€{Number(p.unit_cost || 0).toFixed(2)}</div>
+                  </div>
                 )}
 
                 {/* Supplier and Category badges */}
