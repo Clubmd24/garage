@@ -256,8 +256,14 @@ export default function EposPage() {
 
   // Filter products
   const visibleProducts = products
-    .filter(p => p.category_id === selectedCategory)
-    .filter(p => p.description.toLowerCase().includes(searchTerm.toLowerCase()));
+    .filter(p => selectedCategory ? p.category_id === selectedCategory : true)
+    .filter(p => {
+      // Safely handle null/undefined descriptions
+      if (!p.description) return false;
+      // Safely handle null/undefined search terms
+      if (!searchTerm) return true;
+      return p.description.toLowerCase().includes(searchTerm.toLowerCase());
+    });
 
   return (
     <div className="bg-gray-100 bg-opacity-50 p-4 min-h-screen">
