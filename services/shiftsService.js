@@ -61,17 +61,46 @@ export async function getShiftsInRange(startDate, endDate, employeeId = null) {
 
 export async function createShift(shiftData) {
   try {
+    console.log('createShift called with data:', shiftData);
+    
     const { employee_id, start_time, end_time } = shiftData;
     
+    console.log('Extracted values:', { employee_id, start_time, end_time });
+    console.log('Data types:', { 
+      employee_id: typeof employee_id, 
+      start_time: typeof start_time, 
+      end_time: typeof end_time 
+    });
+    
+    // Validate data types
+    if (typeof employee_id !== 'number' || isNaN(employee_id)) {
+      throw new Error(`Invalid employee_id: ${employee_id} (type: ${typeof employee_id})`);
+    }
+    
+    if (typeof start_time !== 'string') {
+      throw new Error(`Invalid start_time: ${start_time} (type: ${typeof start_time})`);
+    }
+    
+    if (typeof end_time !== 'string') {
+      throw new Error(`Invalid end_time: ${end_time} (type: ${typeof end_time})`);
+    }
+    
+    console.log('Executing database query...');
     const [result] = await pool.query(
       `INSERT INTO shifts (employee_id, start_time, end_time)
        VALUES (?, ?, ?)`,
       [employee_id, start_time, end_time]
     );
     
-    return { id: result.insertId, employee_id, start_time, end_time };
+    console.log('Database query result:', result);
+    
+    const newShift = { id: result.insertId, employee_id, start_time, end_time };
+    console.log('Returning new shift:', newShift);
+    
+    return newShift;
   } catch (error) {
     console.error('Error in createShift:', error);
+    console.error('Error stack:', error.stack);
     throw error;
   }
 }

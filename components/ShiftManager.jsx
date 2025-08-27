@@ -51,11 +51,15 @@ export default function ShiftManager({ currentWeek, engineers }) {
     e.preventDefault();
     
     try {
+      console.log('Form data before submission:', formData);
+      
       const shiftData = {
         employee_id: parseInt(formData.employee_id),
         start_time: `${formData.date}T${formData.start_time}:00`,
         end_time: `${formData.date}T${formData.end_time}:00`
       };
+
+      console.log('Shift data to be sent:', shiftData);
 
       const response = await fetch('/api/shifts', {
         method: 'POST',
@@ -63,17 +67,29 @@ export default function ShiftManager({ currentWeek, engineers }) {
         body: JSON.stringify(shiftData)
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+
       if (response.ok) {
+        const result = await response.json();
+        console.log('Shift created successfully:', result);
+        
         setShowShiftForm(false);
         setFormData({ employee_id: '', start_time: '', end_time: '', date: '' });
-        loadShifts();
+        
+        // Reload shifts to show the new one
+        await loadShifts();
+        
+        // Show success message
+        alert('Shift created successfully!');
       } else {
         const error = await response.json();
-        alert(error.error || 'Failed to create shift');
+        console.error('Server error response:', error);
+        alert(`Failed to create shift: ${error.error || error.details || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error creating shift:', error);
-      alert('Failed to create shift');
+      alert(`Failed to create shift: ${error.message}`);
     }
   };
 

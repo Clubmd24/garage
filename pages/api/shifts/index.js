@@ -47,12 +47,36 @@ async function handler(req, res) {
   if (req.method === 'POST') {
     try {
       const shiftData = req.body;
-      console.log('Creating shift with data:', shiftData);
+      console.log('Received shift creation request with data:', shiftData);
+      console.log('Request headers:', req.headers);
+      
+      // Validate required fields
+      if (!shiftData.employee_id || !shiftData.start_time || !shiftData.end_time) {
+        console.error('Missing required fields:', { 
+          hasEmployeeId: !!shiftData.employee_id, 
+          hasStartTime: !!shiftData.start_time, 
+          hasEndTime: !!shiftData.end_time 
+        });
+        return res.status(400).json({ 
+          error: 'Missing required fields', 
+          details: 'employee_id, start_time, and end_time are required',
+          received: shiftData
+        });
+      }
+      
+      console.log('Creating shift with validated data:', shiftData);
       const newShift = await service.createShift(shiftData);
+      console.log('Shift created successfully:', newShift);
+      
       return res.status(201).json(newShift);
     } catch (error) {
       console.error('Error creating shift:', error);
-      return res.status(500).json({ error: 'Failed to create shift', details: error.message });
+      console.error('Error stack:', error.stack);
+      return res.status(500).json({ 
+        error: 'Failed to create shift', 
+        details: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
     }
   }
   
