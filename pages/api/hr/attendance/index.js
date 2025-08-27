@@ -3,11 +3,11 @@ import apiHandler from '../../../../lib/apiHandler.js';
 
 async function handler(req, res) {
   if (req.method === 'GET') {
-    const records = await service.listAttendance();
+    const records = await service.getAllAttendanceRecords();
     return res.status(200).json(records);
   }
   if (req.method === 'POST') {
-    const created = await service.createAttendance(req.body || {});
+    const created = await service.createAttendanceRecord(req.body || {});
     return res.status(201).json(created);
   }
   res.setHeader('Allow', ['GET','POST']);

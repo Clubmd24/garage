@@ -3,7 +3,7 @@ import apiHandler from '../../../../lib/apiHandler.js';
 
 async function handler(req, res) {
   if (req.method === 'GET') {
-    const shifts = await service.listShifts();
+    const shifts = await service.getAllShifts();
     return res.status(200).json(shifts);
   }
   if (req.method === 'POST') {
