@@ -152,19 +152,30 @@ export async function createInvoiceFromQuote(quoteId, { amount, due_date, status
   // Copy quote items to invoice items
   const quoteItems = await getQuoteItems(quoteId);
   
+  console.log(`Creating invoice ${invoice.id} from quote ${quoteId} with ${quoteItems.length} items`);
+  
   for (const item of quoteItems) {
+    // Ensure we have valid data for each field with proper fallbacks
+    const description = item.description || item.partNumber || 'Service Item';
+    const qty = item.qty || 1;
+    const unitPrice = item.unit_price || item.unit_cost || 0;
+    
+    console.log(`Processing item: description="${description}", qty=${qty}, unitPrice=${unitPrice}`);
+    
     await pool.query(
       `INSERT INTO invoice_items 
         (invoice_id, description, qty, unit_price)
        VALUES (?, ?, ?, ?)`,
       [
         invoice.id,
-        item.description,
-        item.qty,
-        item.unit_price,
+        description,
+        qty,
+        unitPrice,
       ]
     );
   }
+  
+  console.log(`Successfully created invoice ${invoice.id} with ${quoteItems.length} items`);
 
   return invoice;
 }
