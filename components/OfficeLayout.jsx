@@ -321,6 +321,12 @@ export default function OfficeLayout({ children }) {
                   Suppliers
                 </Link>
               </li>
+              <li>
+                <Link href="/office/suppliers/credit-management" className="nav-link-modern">
+                  <ArrowIcon />
+                  Supplier Credit
+                </Link>
+              </li>
             </ul>
           </div>
           
