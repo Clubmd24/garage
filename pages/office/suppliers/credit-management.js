@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { OfficeLayout } from '../../../components/OfficeLayout.jsx';
+import OfficeLayout from '../../../components/OfficeLayout.jsx';
 import { format } from 'date-fns';
 
 export default function SupplierCreditManagementPage() {
