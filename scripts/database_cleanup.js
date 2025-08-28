@@ -30,12 +30,15 @@ const UNUSED_TABLES = [
   'notification_logs', 'notifications', 'payroll_entries', 'payslips',
   'performance', 'pricing_plans', 'quiz_questions', 'reminders',
   'sessions', 'sick_leaves', 'standard_sections', 'standards',
-  'stock_levels', 'stock_transactions', 'task_files', 'virtual_titles'
+  'stock_levels', 'stock_transactions', 'task_files', 'virtual_titles',
+  // Additional tables identified as safe to remove by foreign key analysis
+  'customers', 'roles', 'documents', 'pos_sale_items', 'pos_sales',
+  'holiday_requests', 'attendance_records', 'shifts'
 ];
 
 // Tables that are DUPLICATES or BACKUPS
 const DUPLICATE_TABLES = [
-  'customers', 'roles', 'documents', 'clients_bkp', 'vehicles_bkp'
+  'clients_bkp', 'vehicles_bkp'
 ];
 
 // Tables that need REVIEW (partially implemented features)
