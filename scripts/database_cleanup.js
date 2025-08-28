@@ -293,5 +293,17 @@ async function executeCleanup() {
 
 // Run if called directly
 if (import.meta.url === `file://${process.argv[1]}`) {
-  main();
+  // Check if we want to run cleanup directly
+  if (process.argv.includes('--cleanup')) {
+    console.log('🚀 Running cleanup directly...');
+    executeCleanup().then(() => {
+      console.log('✅ Cleanup completed!');
+      process.exit(0);
+    }).catch((error) => {
+      console.error('❌ Cleanup failed:', error);
+      process.exit(1);
+    });
+  } else {
+    main();
+  }
 }
