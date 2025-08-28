@@ -1,4 +1,4 @@
--- Safe Database Cleanup Migration
+-- Safe Database Cleanup Migration v2
 -- This version handles foreign key constraints and only removes truly unused tables
 -- Run this after reviewing the analysis
 

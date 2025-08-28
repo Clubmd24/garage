@@ -1,8 +1,9 @@
--- Database Cleanup Migration
--- Remove unused tables and optimize remaining ones
--- This will clean up tables created by various AI assistants that aren't being used
+-- Safe Database Cleanup Migration
+-- This version handles foreign key constraints and only removes truly unused tables
+-- Run this after reviewing the analysis
 
--- Phase 1: Remove obviously unused development/testing tables
+-- Phase 1: Remove development/testing tables (usually safe)
+-- These are typically isolated and don't have foreign key relationships
 DROP TABLE IF EXISTS `dev_ai_agents`;
 DROP TABLE IF EXISTS `dev_ai_conversations`;
 DROP TABLE IF EXISTS `dev_ai_messages`;
@@ -12,7 +13,8 @@ DROP TABLE IF EXISTS `dev_projects`;
 DROP TABLE IF EXISTS `dev_tasks`;
 DROP TABLE IF EXISTS `dev_threads`;
 
--- Phase 2: Remove unimplemented feature tables
+-- Phase 2: Remove isolated unimplemented feature tables
+-- These tables are typically standalone with no foreign key relationships
 DROP TABLE IF EXISTS `cameras`;
 DROP TABLE IF EXISTS `chat_rooms`;
 DROP TABLE IF EXISTS `checklist_logs`;
@@ -30,8 +32,6 @@ DROP TABLE IF EXISTS `medical_certificates`;
 DROP TABLE IF EXISTS `messages`;
 DROP TABLE IF EXISTS `notification_logs`;
 DROP TABLE IF EXISTS `notifications`;
-DROP TABLE IF EXISTS `payroll_entries`;
-DROP TABLE IF EXISTS `payslips`;
 DROP TABLE IF EXISTS `performance`;
 DROP TABLE IF EXISTS `pricing_plans`;
 DROP TABLE IF EXISTS `quiz_questions`;
@@ -45,45 +45,32 @@ DROP TABLE IF EXISTS `stock_transactions`;
 DROP TABLE IF EXISTS `task_files`;
 DROP TABLE IF EXISTS `virtual_titles`;
 
--- Phase 3: Remove duplicate/unused tables
-DROP TABLE IF EXISTS `customers`; -- Duplicate of clients
-DROP TABLE IF EXISTS `roles`; -- Duplicate of user_roles
-DROP TABLE IF EXISTS `documents`; -- Generic documents not used
-DROP TABLE IF EXISTS `clients_bkp`; -- Backup table
-DROP TABLE IF EXISTS `vehicles_bkp`; -- Backup table
+-- Phase 3: Remove backup tables (safe)
+DROP TABLE IF EXISTS `clients_bkp`;
+DROP TABLE IF EXISTS `vehicles_bkp`;
 
--- Phase 4: Remove EPOS tables if not fully implemented
--- Comment these out if you're actively using EPOS
--- DROP TABLE IF EXISTS `pos_sale_items`;
--- DROP TABLE IF EXISTS `pos_sales`;
--- DROP TABLE IF EXISTS `pos_sessions`;
-
--- Phase 5: Remove HR tables if not using those features
--- Comment these out if you're actively using HR features
--- DROP TABLE IF EXISTS `holiday_requests`;
--- DROP TABLE IF EXISTS `attendance_records`;
--- DROP TABLE IF EXISTS `shifts`;
-
--- Phase 6: Clean up orphaned foreign keys and indexes
--- This will be handled automatically by MySQL when tables are dropped
-
--- Phase 7: Optimize remaining tables
--- Add missing indexes for better performance
+-- Phase 4: Add performance indexes to remaining tables
 CREATE INDEX IF NOT EXISTS `idx_jobs_status_date` ON `jobs`(`status`, `created_at`);
 CREATE INDEX IF NOT EXISTS `idx_quotes_status_date` ON `quotes`(`status`, `created_at`);
 CREATE INDEX IF NOT EXISTS `idx_invoices_status_date` ON `invoices`(`status`, `created_at`);
 CREATE INDEX IF NOT EXISTS `idx_parts_supplier_category` ON `parts`(`supplier_id`, `category_id`);
 CREATE INDEX IF NOT EXISTS `idx_vehicles_customer_fleet` ON `vehicles`(`customer_id`, `fleet_id`);
 
--- Phase 8: Clean up any remaining orphaned data
--- Remove any records that reference deleted tables
-DELETE FROM `user_roles` WHERE `role_id` NOT IN (SELECT `id` FROM `user_roles`);
-
--- Phase 9: Update schema_migrations to reflect cleanup
+-- Phase 5: Update schema_migrations to reflect cleanup
 INSERT INTO `schema_migrations` (`version`, `description`, `executed_at`) 
-VALUES ('20260116_cleanup_unused_tables', 'Removed unused tables and optimized schema', NOW())
+VALUES ('20260116_cleanup_unused_tables_safe', 'Safely removed unused development and isolated tables', NOW())
 ON DUPLICATE KEY UPDATE `executed_at` = NOW();
 
--- Phase 10: Verify cleanup
--- This will show remaining tables
--- SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() ORDER BY TABLE_NAME;
+-- Note: The following tables were NOT removed due to potential foreign key constraints:
+-- - customers (may be referenced by other tables)
+-- - roles (may be referenced by user_roles)
+-- - documents (may be referenced by other tables)
+-- - payroll_entries (may be referenced by HR system)
+-- - payslips (may be referenced by HR system)
+-- - pos_sale_items, pos_sales, pos_sessions (EPOS system - review if using)
+-- - holiday_requests, attendance_records, shifts (HR system - review if using)
+
+-- To remove the remaining tables, you'll need to:
+-- 1. Check for foreign key references
+-- 2. Either remove the references first, or keep the tables
+-- 3. Run additional cleanup migrations as needed
