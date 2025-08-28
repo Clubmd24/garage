@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import OfficeLayout from '../../../components/OfficeLayout.jsx';
-import { format } from 'date-fns';
+
+// Simple date formatting function
+const formatDate = (date) => {
+  const d = new Date(date);
+  return d.toISOString().split('T')[0];
+};
 
 export default function SupplierCreditManagementPage() {
   const [suppliers, setSuppliers] = useState([]);
@@ -297,7 +302,7 @@ export default function SupplierCreditManagementPage() {
 function PaymentModal({ supplier, onClose, onSubmit }) {
   const [formData, setFormData] = useState({
     payment_amount: '',
-    payment_date: format(new Date(), 'yyyy-MM-dd'),
+    payment_date: formatDate(new Date()),
     payment_method: 'bank_transfer',
     reference_number: '',
     description: ''
