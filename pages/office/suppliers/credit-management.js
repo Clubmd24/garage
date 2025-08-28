@@ -25,15 +25,37 @@ export default function SupplierCreditManagementPage() {
       
       // Load suppliers with credit info
       const suppliersResponse = await fetch('/api/suppliers/credit');
+      if (!suppliersResponse.ok) {
+        throw new Error(`Failed to load suppliers: ${suppliersResponse.status}`);
+      }
       const suppliersData = await suppliersResponse.json();
-      setSuppliers(suppliersData);
+      
+      // Ensure suppliers data is an array and has valid structure
+      if (Array.isArray(suppliersData)) {
+        setSuppliers(suppliersData);
+      } else {
+        console.error('Suppliers data is not an array:', suppliersData);
+        setSuppliers([]);
+      }
       
       // Load credit summary
       const summaryResponse = await fetch('/api/suppliers/credit?summary=true');
+      if (!summaryResponse.ok) {
+        throw new Error(`Failed to load summary: ${summaryResponse.status}`);
+      }
       const summaryData = await summaryResponse.json();
-      setCreditSummary(summaryData);
+      
+      // Ensure summary data has valid structure
+      if (summaryData && typeof summaryData === 'object') {
+        setCreditSummary(summaryData);
+      } else {
+        console.error('Summary data is not valid:', summaryData);
+        setCreditSummary(null);
+      }
     } catch (error) {
       console.error('Error loading supplier credit data:', error);
+      setSuppliers([]);
+      setCreditSummary(null);
     } finally {
       setLoading(false);
     }
@@ -215,62 +237,78 @@ export default function SupplierCreditManagementPage() {
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {suppliers.map((supplier) => (
-                  <tr key={supplier.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {supplier.name}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          ID: {supplier.id}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900 dark:text-white">
-                        {supplier.credit_limit ? `€${supplier.credit_limit.toFixed(2)}` : 'No Limit'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900 dark:text-white">
-                        €{supplier.current_credit_balance?.toFixed(2) || '0.00'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900 dark:text-white">
-                        {supplier.credit_limit ? `€${supplier.available_credit?.toFixed(2) || '0.00'}` : 'N/A'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getCreditStatusColor(supplier.credit_status)}`}>
-                        {supplier.credit_status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => {
-                            setSelectedSupplier(supplier);
-                            setShowPaymentModal(true);
-                          }}
-                          className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
-                        >
-                          Record Payment
-                        </button>
-                        <button
-                          onClick={() => {
-                            setSelectedSupplier(supplier);
-                            setShowLimitModal(true);
-                          }}
-                          className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
-                        >
-                          Set Limit
-                        </button>
-                      </div>
+                {Array.isArray(suppliers) && suppliers.length > 0 ? (
+                  suppliers.map((supplier) => {
+                    // Ensure supplier has required properties
+                    if (!supplier || typeof supplier !== 'object') {
+                      console.error('Invalid supplier data:', supplier);
+                      return null;
+                    }
+                    
+                    return (
+                      <tr key={supplier.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div>
+                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                              {supplier.name || 'Unknown Supplier'}
+                            </div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                              ID: {supplier.id || 'N/A'}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900 dark:text-white">
+                            {supplier.credit_limit ? `€${Number(supplier.credit_limit).toFixed(2)}` : 'No Limit'}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900 dark:text-white">
+                            €{supplier.current_credit_balance ? Number(supplier.current_credit_balance).toFixed(2) : '0.00'}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900 dark:text-white">
+                            {supplier.credit_limit ? `€${supplier.available_credit ? Number(supplier.available_credit).toFixed(2) : '0.00'}` : 'N/A'}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getCreditStatusColor(supplier.credit_status)}`}>
+                            {supplier.credit_status || 'Unknown'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => {
+                                setSelectedSupplier(supplier);
+                                setShowPaymentModal(true);
+                              }}
+                              className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                            >
+                              Record Payment
+                            </button>
+                            <button
+                              onClick={() => {
+                                setSelectedSupplier(supplier);
+                                setShowLimitModal(true);
+                              }}
+                              className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
+                            >
+                              Set Limit
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan="6" className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                      {suppliers.length === 0 ? 'No suppliers found' : 'Loading suppliers...'}
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
