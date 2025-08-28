@@ -10,7 +10,6 @@
     "dev": "next dev",
     "build": "next build --no-lint",
     "start": "next start",
-    // "migrate": "node scripts/migrate.js",
     "lint": "next lint",
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "install-design-system": "node install-design-system.js"
