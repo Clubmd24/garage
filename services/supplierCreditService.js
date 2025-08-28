@@ -187,7 +187,7 @@ export async function getSupplierPaymentHistory(supplierId, limit = 50) {
 // Calculate credit usage from existing sales data
 export async function calculateExistingCreditUsage() {
   try {
-    // Get all parts sold through quotes and invoices
+    // Get all parts sold through quotes only (since invoice_items don't have part_id)
     const [rows] = await pool.query(
       `SELECT 
         p.supplier_id,
@@ -198,19 +198,6 @@ export async function calculateExistingCreditUsage() {
         qi.id as source_id
        FROM parts p
        JOIN quote_items qi ON p.id = qi.part_id
-       WHERE p.supplier_id IS NOT NULL
-       
-       UNION ALL
-       
-       SELECT 
-        p.supplier_id,
-        p.unit_cost,
-        COALESCE(ii.qty, 1) as quantity,
-        (p.unit_cost * COALESCE(ii.qty, 1)) as total_cost,
-        'invoice' as source_type,
-        ii.id as source_id
-       FROM parts p
-       JOIN invoice_items ii ON p.id = ii.part_id
        WHERE p.supplier_id IS NOT NULL`
     );
     
@@ -234,7 +221,12 @@ export async function calculateExistingCreditUsage() {
       );
     }
     
-    return { success: true, message: 'Existing credit usage calculated and updated' };
+    return { 
+      success: true, 
+      message: 'Existing credit usage calculated and updated from quotes',
+      suppliers_updated: Object.keys(supplierUsage).length,
+      total_usage: Object.values(supplierUsage).reduce((sum, usage) => sum + usage, 0)
+    };
   } catch (error) {
     console.error('Error calculating existing credit usage:', error);
     throw error;
