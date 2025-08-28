@@ -304,18 +304,14 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       process.exit(1);
     });
   } else {
-    main();
+    // Auto-run cleanup if this script is executed directly
+    console.log('🚀 Auto-running cleanup...');
+    executeCleanup().then(() => {
+      console.log('✅ Cleanup completed!');
+      process.exit(0);
+    }).catch((error) => {
+      console.error('❌ Cleanup failed:', error);
+      process.exit(1);
+    });
   }
-}
-
-// Auto-run cleanup if this script is executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  console.log('🚀 Auto-running cleanup...');
-  executeCleanup().then(() => {
-    console.log('✅ Cleanup completed!');
-    process.exit(0);
-  }).catch((error) => {
-    console.error('❌ Cleanup failed:', error);
-    process.exit(1);
-  });
 }
