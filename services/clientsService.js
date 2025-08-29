@@ -9,7 +9,7 @@ export async function searchClients(query) {
     ? await pool.query(
         `SELECT c.id, c.first_name, c.last_name, c.email, c.mobile, c.landline, c.nie_number,
                 c.street_address, c.town, c.province, c.post_code,
-                c.garage_name, c.vehicle_reg, c.pin,
+                c.garage_name, c.vehicle_reg, c.pin, c.client_type, c.fleet_id,
                 GROUP_CONCAT(DISTINCT v.licence_plate ORDER BY v.licence_plate SEPARATOR ', ') as licence_plates,
                 GROUP_CONCAT(DISTINCT v.make ORDER BY v.make SEPARATOR ', ') as makes,
                 GROUP_CONCAT(DISTINCT v.model ORDER BY v.model SEPARATOR ', ') as models,
@@ -20,16 +20,16 @@ export async function searchClients(query) {
       LEFT JOIN vehicles v ON v.client_id = c.id
           WHERE c.first_name LIKE ? OR c.last_name LIKE ? OR c.email LIKE ?
           GROUP BY c.id
-          ORDER BY c.first_name, c.last_name
+          ORDER BY c.client_type DESC, c.first_name, c.last_name
           LIMIT 20`,
         [q, q, q]
       )
     : await pool.query(
         `SELECT c.id, c.first_name, c.last_name, c.email, c.mobile, c.landline, c.nie_number,
                 c.street_address, c.town, c.province, c.post_code,
-                c.garage_name, c.vehicle_reg, c.pin,
+                c.garage_name, c.vehicle_reg, c.pin, c.client_type, c.fleet_id,
                 GROUP_CONCAT(DISTINCT v.licence_plate ORDER BY v.licence_plate SEPARATOR ', ') as licence_plates,
-                GROUP_CONCAT(DISTINCT v.make ORDER BY v.model SEPARATOR ', ') as makes,
+                GROUP_CONCAT(DISTINCT v.make ORDER BY v.make SEPARATOR ', ') as makes,
                 GROUP_CONCAT(DISTINCT v.model ORDER BY v.model SEPARATOR ', ') as models,
                 MAX(CASE WHEN v.fleet_id IS NOT NULL AND v.fleet_id != 2 THEN 1 ELSE 0 END) as has_fleet_vehicles,
                 MAX(CASE WHEN v.fleet_id = 2 THEN 1 ELSE 0 END) as has_local_vehicles,
@@ -37,7 +37,7 @@ export async function searchClients(query) {
            FROM clients c
       LEFT JOIN vehicles v ON v.client_id = c.id
           GROUP BY c.id
-          ORDER BY c.first_name, c.last_name
+          ORDER BY c.client_type DESC, c.first_name, c.last_name
           LIMIT 20`
       );
   return rows;
@@ -47,8 +47,8 @@ export async function getAllClients() {
   const [rows] = await pool.query(
     `SELECT id, first_name, last_name, email, mobile, landline, nie_number,
             street_address, town, province, post_code,
-            garage_name, vehicle_reg, pin
-       FROM clients ORDER BY id`
+            garage_name, vehicle_reg, pin, client_type, fleet_id
+       FROM clients ORDER BY client_type DESC, first_name, last_name`
   );
   return rows;
 }
@@ -57,7 +57,7 @@ export async function getClientById(id) {
   const [[row]] = await pool.query(
     `SELECT id, first_name, last_name, email, mobile, landline, nie_number,
             street_address, town, province, post_code,
-            garage_name, vehicle_reg, pin
+            garage_name, vehicle_reg, pin, client_type, fleet_id
        FROM clients WHERE id=?`,
     [id]
   );
@@ -229,6 +229,7 @@ export async function getClientsWithVehicleDetails() {
     `SELECT c.id, c.first_name, c.last_name, c.email, c.mobile,
             c.landline, c.nie_number, c.street_address, c.town,
             c.province, c.post_code, c.garage_name, c.vehicle_reg, c.pin,
+            c.client_type, c.fleet_id,
             GROUP_CONCAT(DISTINCT v.licence_plate ORDER BY v.licence_plate SEPARATOR ', ') as licence_plates,
             GROUP_CONCAT(DISTINCT v.make ORDER BY v.make SEPARATOR ', ') as makes,
             GROUP_CONCAT(DISTINCT v.model ORDER BY v.model SEPARATOR ', ') as models,
@@ -238,7 +239,7 @@ export async function getClientsWithVehicleDetails() {
        FROM clients c
   LEFT JOIN vehicles v ON v.client_id = c.id
    GROUP BY c.id
-   ORDER BY c.first_name, c.last_name`
+   ORDER BY c.client_type DESC, c.first_name, c.last_name`
   );
   return rows;
 }

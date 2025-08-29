@@ -37,10 +37,10 @@ const ClientsPage = () => {
   };
 
   const filteredClients = clients.filter(c => {
-    // Apply tab filtering
-    if (activeTab === 'fleet' && !c.has_fleet_vehicles) return false;
-    if (activeTab === 'local' && !c.has_local_vehicles) return false;
-    if (activeTab === 'no-vehicles' && !c.has_no_vehicles) return false;
+    // Apply tab filtering using new client_type field
+    if (activeTab === 'fleet' && c.client_type !== 'fleet') return false;
+    if (activeTab === 'local' && c.client_type !== 'local') return false;
+    if (activeTab === 'no-vehicles' && c.client_type !== 'no-vehicles') return false;
     
     // Apply fleet filtering
     if (
@@ -62,6 +62,10 @@ const ClientsPage = () => {
   });
 
   const getClientType = (client) => {
+    // Use the new client_type field if available, fallback to vehicle-based logic
+    if (client.client_type) {
+      return client.client_type;
+    }
     if (client.has_fleet_vehicles) return 'fleet';
     if (client.has_local_vehicles) return 'local';
     if (client.has_no_vehicles) return 'no-vehicles';
@@ -147,7 +151,7 @@ const ClientsPage = () => {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
                 }`}
               >
-                Fleet Clients ({clients.filter(c => c.has_fleet_vehicles).length})
+                Fleet Clients ({clients.filter(c => c.client_type === 'fleet').length})
               </button>
               <button
                 onClick={() => setActiveTab('local')}
@@ -157,7 +161,7 @@ const ClientsPage = () => {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
                 }`}
               >
-                Local/Individual Clients ({clients.filter(c => c.has_local_vehicles).length})
+                Local/Individual Clients ({clients.filter(c => c.client_type === 'local').length})
               </button>
               <button
                 onClick={() => setActiveTab('no-vehicles')}
