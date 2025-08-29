@@ -5,13 +5,9 @@ async function handler(req, res) {
   const { id } = req.query;
   try {
     if (req.method === 'GET') {
-      const job = await (
-        service.getJobFull
-          ? service.getJobFull(id)
-          : service.getJobDetails
-          ? service.getJobDetails(id)
-          : service.getJobById(id)
-      );
+      const job = await service.getJobDetails
+        ? service.getJobDetails(id)
+        : null;
       if (!job) return res.status(404).json({ error: 'Not Found' });
       return res.status(200).json(job);
     }

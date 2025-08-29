@@ -1,4 +1,4 @@
-import { assignUser, updateJob, getJobDetails, getJobFull } from '../../../../services/jobsService.js';
+import { assignUser, updateJob, getJobDetails } from '../../../../services/jobsService.js';
 import apiHandler from '../../../../lib/apiHandler.js';
 import { getTokenFromReq } from '../../../../lib/auth.js';
 import pool from '../../../../lib/db.js';
@@ -56,7 +56,7 @@ async function handler(req, res) {
       }
       
       // Return full job details including quote and defect description
-      const job = await getJobFull(id);
+      const job = await getJobDetails(id);
       return res.status(200).json(job);
     }
     res.setHeader('Allow', ['POST']);
