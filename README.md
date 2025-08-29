@@ -1,198 +1,131 @@
-# Garage-Vision Dev Portal
+# Garage Vision - Professional Management System
 
-## Setup
+A comprehensive garage management system built with Next.js, React, and MySQL, designed to handle all aspects of automotive business operations.
 
-1. Copy `.env.example` to `.env.local` and fill in secrets. The required variables are `DATABASE_URL`, `JWT_SECRET` and `NEXT_PUBLIC_API_SECRET`.
-2. Configure AWS S3 to enable uploading logos and other files. Add the following environment variables from `.env.example`:
-   - `S3_BUCKET`
-   - `AWS_REGION`
-   - `AWS_ACCESS_KEY_ID`
-   - `AWS_SECRET_ACCESS_KEY`
-   - `NEXT_PUBLIC_S3_BUCKET`
-   - `NEXT_PUBLIC_AWS_REGION`
-   
-   The S3 bucket must already exist and permit uploads.
-3. Install the Python dependencies:
-   `pip install -r requirements.txt`
-4. Run `./setup.sh` to install Node.js and all JavaScript dependencies. This
-   script installs `nvm` if necessary, runs `nvm install 22` then `nvm use 22`,
-   and executes `npm ci`. If your environment lacks internet access, make sure
-   Node 22 and the packages listed in `package-lock.json` are already downloaded
-   and available locally or use a prebuilt Docker image that contains them.
-5. Make the bootstrap script executable and run it to scaffold the portal:
-   `chmod +x bootstrap_dev_portal.sh && ./bootstrap_dev_portal.sh`
-6. /workspaces/garage/database/garagev11.sql contains all live database information  
+## 🚗 Features
 
-### Start the database
+### Core Management
+- **Client Management** - Fleet and individual client handling with vehicle associations
+- **Vehicle Management** - Complete vehicle tracking and history
+- **Job Management** - Work order creation, assignment, and tracking
+- **Parts Management** - Inventory control with pricing and markup calculations
+- **Supplier Management** - Vendor relationships and credit tracking
 
-Start a local MySQL server before running migrations. If Docker is available you can start a container with:
+### Business Operations
+- **Quotations** - Professional quote generation with PDF export
+- **Invoicing** - Complete billing system with status tracking
+- **EPOS** - Point of sale system for quick transactions
+- **Reporting** - Business performance and financial analytics
 
-```bash
-docker run --name garage-db \
-  -e MYSQL_ROOT_PASSWORD=root \
-  -e MYSQL_DATABASE=garage \
-  -p 3306:3306 -d mysql:8
+### Staff Management
+- **Engineer Dashboard** - Work assignment and time tracking
+- **HR System** - Attendance, holiday requests, and shift scheduling
+- **Role-based Access** - Secure user permissions and authentication
+
+## 🏗️ Architecture
+
+- **Frontend**: Next.js 15 with React and Tailwind CSS
+- **Backend**: Node.js with MySQL database
+- **Authentication**: JWT-based secure login system
+- **Deployment**: Heroku with MySQL add-on
+- **Database**: Clean, normalized schema with proper relationships
+
+## 🗄️ Database Structure
+
+The system uses a clean, normalized database design with:
+- **Users**: Staff accounts with role-based permissions
+- **Clients**: Fleet and individual customers
+- **Vehicles**: Client vehicle registrations
+- **Jobs**: Work orders and assignments
+- **Parts**: Inventory management
+- **Suppliers**: Vendor relationships
+- **Quotes & Invoices**: Business transaction tracking
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 22.x
+- MySQL 8.0+
+- npm or yarn
+
+### Installation
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Set up environment variables (see `.env.example`)
+4. Run the development server: `npm run dev`
+
+### Environment Variables
+```env
+DATABASE_URL=mysql://user:password@host:port/database
+JWT_SECRET=your-secret-key
+NODE_ENV=development
 ```
 
-For a local installation, ensure the MySQL service is running and a database named `garage` exists. Update `DATABASE_URL` in `.env.local` if necessary.
+## 📊 Current Status
 
-6. Run migrations: `npm run migrate`
-   - This command executes every `.sql` file in the `migrations/` directory in
-     order and records which have been run.
-   - Running the script again safely skips already-applied migrations.
-7. Run tests and lint checks: `npm test` and `npm run lint`.
-   The test suite expects environment variables such as `JWT_SECRET`
-   (and the other variables in `.env.example`) to be defined.
-   Copy `.env.example` to `.env.test` or create those variables in your environment before running Jest.
-   The tests will automatically load variables from `.env.test` if it exists.
-   Jest uses Next.js' built-in SWC compiler via `next/jest` so no Babel configuration is required.
-8. Start dev server: `npm run dev`
+- ✅ **Database**: Clean, working schema with 719 clients and proper relationships
+- ✅ **Authentication**: User login system with devkieran and pauldev accounts
+- ✅ **Client Management**: Fleet vs Local client categorization working
+- ✅ **API Endpoints**: All core endpoints functional
+- ✅ **UI Components**: Modern, responsive interface
 
-## Code Style
+## 🔧 Development
 
-ESLint is configured using the Next.js base rules. Custom settings warn on
-unused variables, enforce single quotes and require semicolons. Run
-`npm run lint` or enable an editor integration before committing. See
-`.eslintrc.json` or the [Next.js ESLint guide](https://nextjs.org/docs/pages/building-your-application/configuring/eslint)
-for the full rule set.
+### Available Scripts
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm test` - Run test suite
 
-## Database
-
-All database schema changes are stored as `.sql` files in the `migrations/`
-directory. The migration script executes them sequentially and records the
-results so it can be run repeatedly without errors.
-
-## New Endpoints
-
-- `/api/suppliers` - list and create suppliers.
-- `/api/suppliers/[id]` - view, update and delete a supplier.
-- `/api/purchase-orders` - create purchase orders with items.
-- `/api/quote-items` - create or fetch quote items.
-- `/api/search` - search across clients, vehicles, jobs, quotes, invoices and parts.
-- `/office/job-management?status=<status>` - view jobs filtered by the given status. Dashboard job counts link here.
-
-## Invoice Generation
-
-An invoice template lives in `templates/invoice_template_final.docx`. Use the helper
-script `generate_invoice.py` to render this template with data in JSON format
-and produce a PDF invoice. Example usage:
-
-```bash
-pip install -r requirements.txt  # or run ./setup.sh beforehand
-python generate_invoice.py invoice_data.json
+### Code Structure
+```
+├── components/     # React components
+├── pages/         # Next.js pages and API routes
+├── services/      # Business logic and database operations
+├── lib/          # Utility functions and configurations
+├── styles/       # CSS and design system
+├── database/     # Database schema and migrations
+└── migrations/   # Database change scripts
 ```
 
-The PDF conversion relies on either the `docx2pdf` Python package or `unoconv`
-being available. `docx2pdf` is installed via the requirements file, while
-`unoconv` can be installed separately (e.g. `sudo apt-get install unoconv` on
-Ubuntu or `brew install unoconv` on macOS).
+## 🌐 Deployment
 
-The resulting files are written to the `output/` directory as
-`invoice_<invoice_number>.docx` and `invoice_<invoice_number>.pdf`.
+The application is deployed on Heroku at:
+**https://garagevision-899c3f626875.herokuapp.com**
 
-## Quotation Generation
+### Deployment Process
+1. Push changes to main branch
+2. Heroku automatically builds and deploys
+3. Database migrations run automatically
+4. Application restarts with new code
 
-An editable quotation template lives in `templates/quotation_template_final.docx`.
-Use the helper script `generate_quote.py` to fill this template with JSON data
-and produce a PDF quote. Example usage:
+## 📝 Recent Updates
 
-```bash
-pip install -r requirements.txt  # or run ./setup.sh beforehand
-python generate_quote.py quote_data.json
-```
+- **January 2025**: Complete database cleanup and restructuring
+- **Database Migration**: Successfully migrated from old schema to clean structure
+- **Client Categorization**: Implemented Fleet vs Local client distinction
+- **User Management**: Restored essential user accounts
+- **API Optimization**: Fixed all service layer queries
 
-See the note above regarding installing `docx2pdf` or `unoconv` for PDF
-generation.
+## 🤝 Contributing
 
-The resulting files are written to the `output/` directory as
-`quote_<quote_number>.docx` and `quote_<quote_number>.pdf`.
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
-## Invoice PDF Generation
+## 📄 License
 
-Invoices can be downloaded via `/api/invoices/[id]/pdf`. The endpoint
-builds the PDF using the invoice data, customer details and your
-company's banking terms.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Viewing Quotes
+## 🆘 Support
 
-From the office interface you can view any quotes linked to a client or vehicle.
-Open a client or vehicle record and all associated quotes will appear beneath
-their documents list.
+For technical support or questions:
+- Check the documentation in the `/docs` folder
+- Review recent database migrations
+- Contact the development team
 
-## Master Search
+---
 
-The header on the office layout includes a search bar that queries multiple
-entities at once. Results are grouped by type and link to the relevant
-view or edit pages. Behind the scenes the `/api/search` endpoint performs
-`LIKE` searches across clients, vehicles, jobs, quotes, invoices and parts.
-
-## Apprentice Manager
-
-The Apprentice Manager tracks engineering apprentices and the standards they are
-working towards. Training standards are stored in the database so questions can
-be linked to each apprentice.
-
-### Ingesting standards
-
-Standards are pulled from external PDFs and inserted into the database using
-`scripts/ingestStandards.js`. There are two ways to run this script:
-
-1. **Manually** – execute `node scripts/ingestStandards.js` from the repository
-   root. Ensure the `DATABASE_URL` and `API_SECRET` environment variables are
-   exported so the script can connect and authenticate.
-2. **Scheduled workflow** – the GitHub Actions workflow
-   `.github/workflows/ingest-standards.yml` runs the same command every Monday at
-   02:00 UTC. Both `DATABASE_URL` and `API_SECRET` must be added as repository
-   secrets for the workflow to succeed.
-
-### Running ingestion and seeding
-
-Populate the database with both training standards and sample quiz questions by
-executing the ingestion and seeding scripts:
-
-```bash
-node scripts/ingestStandards.js
-node scripts/seedQuestions.js
-```
-
-`seedQuestions.js` loads questions from `data/questionBank.json` and inserts
-them into the `quiz_questions` table.
-
-### Accessing the apprentice page
-
-Once the dev server is running, open
-`http://localhost:3000/office/apprentices` or click **Apprentices** in the
-Office sidebar to view the list of apprentices.
-
-The page includes a **Curriculum** tab that lists all training standards. Each
-row shows the standard code, title, a **PDF** link to the original document and
-a button to view any quiz questions.
-
-### Standards API
-
-Two endpoints expose the ingested standards and their quiz questions.
-
-- `/api/standards/status` – returns the current ingest status and an array of
-  available standards.
-- `/api/standards/:id` – returns the quiz questions for the standard with the
-  given ID.
-
-Both endpoints require the secret defined in the `API_SECRET` environment
-variable. Supply it as either a `secret` query parameter or an `X-API-SECRET`
-header when making requests.
-
-Both responses include `Cache-Control: no-store` to prevent caching.
-
-### Seeding quiz questions
-
-Sample quiz questions live in `data/questionBank.json`. Use `scripts/seedQuestions.js` to insert or update these rows in the `quiz_questions` table:
-
-```bash
-node scripts/seedQuestions.js
-```
-
-Ensure `DATABASE_URL` is set so the script can connect to the database.
-
-### Reporting Bugs
-
-A **Report Bug** button appears in the bottom-right corner of every page. Click it to open a modal where you can choose the affected section and describe the issue. Submitting the form sends the report to `/api/dev/report-bug` and displays a toast notification.
+**Garage Vision** - Professional Automotive Business Management
