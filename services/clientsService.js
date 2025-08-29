@@ -17,7 +17,7 @@ export async function searchClients(query) {
                 MAX(CASE WHEN v.fleet_id = 2 THEN 1 ELSE 0 END) as has_local_vehicles,
                 MAX(CASE WHEN v.id IS NULL THEN 1 ELSE 0 END) as has_no_vehicles
            FROM clients c
-      LEFT JOIN vehicles v ON v.customer_id = c.id
+      LEFT JOIN vehicles v ON v.client_id = c.id
           WHERE c.first_name LIKE ? OR c.last_name LIKE ? OR c.email LIKE ?
           GROUP BY c.id
           ORDER BY c.first_name, c.last_name
@@ -29,13 +29,13 @@ export async function searchClients(query) {
                 c.street_address, c.town, c.province, c.post_code,
                 c.garage_name, c.vehicle_reg, c.pin,
                 GROUP_CONCAT(DISTINCT v.licence_plate ORDER BY v.licence_plate SEPARATOR ', ') as licence_plates,
-                GROUP_CONCAT(DISTINCT v.make ORDER BY v.make SEPARATOR ', ') as makes,
+                GROUP_CONCAT(DISTINCT v.make ORDER BY v.model SEPARATOR ', ') as makes,
                 GROUP_CONCAT(DISTINCT v.model ORDER BY v.model SEPARATOR ', ') as models,
                 MAX(CASE WHEN v.fleet_id IS NOT NULL AND v.fleet_id != 2 THEN 1 ELSE 0 END) as has_fleet_vehicles,
                 MAX(CASE WHEN v.fleet_id = 2 THEN 1 ELSE 0 END) as has_local_vehicles,
                 MAX(CASE WHEN v.id IS NULL THEN 1 ELSE 0 END) as has_no_vehicles
            FROM clients c
-      LEFT JOIN vehicles v ON v.customer_id = c.id
+      LEFT JOIN vehicles v ON v.client_id = c.id
           GROUP BY c.id
           ORDER BY c.first_name, c.last_name
           LIMIT 20`
@@ -217,7 +217,7 @@ export async function getClientsWithVehicles() {
             v.licence_plate, v.make, v.model, v.color, v.company_vehicle_id,
             v.fleet_id, f.company_name
        FROM clients c
-  LEFT JOIN vehicles v ON v.customer_id = c.id
+  LEFT JOIN vehicles v ON v.client_id = c.id
   LEFT JOIN fleets f ON v.fleet_id = f.id
    ORDER BY c.id, v.id`
   );
@@ -236,7 +236,7 @@ export async function getClientsWithVehicleDetails() {
             MAX(CASE WHEN v.fleet_id = 2 THEN 1 ELSE 0 END) as has_local_vehicles,
             MAX(CASE WHEN v.id IS NULL THEN 1 ELSE 0 END) as has_no_vehicles
        FROM clients c
-  LEFT JOIN vehicles v ON v.customer_id = c.id
+  LEFT JOIN vehicles v ON v.client_id = c.id
    GROUP BY c.id
    ORDER BY c.first_name, c.last_name`
   );

@@ -3,7 +3,7 @@ import { getSettings } from './companySettingsService.js';
 
 export async function getAllFleets() {
   const [rows] = await pool.query(
-    `SELECT id, company_name, garage_name, account_rep, payment_terms,
+    `SELECT id, company_name, garage_name, name, contact_person, email, phone, address, postcode,
             street_address, contact_number_1, contact_number_2,
             email_1, email_2, credit_limit, tax_number,
             contact_name_1, contact_name_2
@@ -15,13 +15,13 @@ export async function getAllFleets() {
 export async function searchFleets(query) {
   const searchTerm = `%${query}%`;
   const [rows] = await pool.query(
-    `SELECT id, company_name, garage_name, account_rep, payment_terms,
+    `SELECT id, company_name, garage_name, name, contact_person, email, phone, address, postcode,
             street_address, contact_number_1, contact_number_2,
             email_1, email_2, credit_limit, tax_number,
             contact_name_1, contact_name_2
        FROM fleets 
        WHERE company_name LIKE ? OR garage_name LIKE ? OR contact_name_1 LIKE ? OR contact_name_2 LIKE ?
-       ORDER BY company_name`
+       ORDER BY company_name`,
     [searchTerm, searchTerm, searchTerm, searchTerm]
   );
   return rows;
@@ -29,7 +29,7 @@ export async function searchFleets(query) {
 
 export async function getFleetById(id) {
   const [[row]] = await pool.query(
-    `SELECT id, company_name, garage_name, account_rep, payment_terms,
+    `SELECT id, company_name, garage_name, name, contact_person, email, phone, address, postcode,
             street_address, contact_number_1, contact_number_2,
             email_1, email_2, credit_limit, tax_number,
             contact_name_1, contact_name_2, pin
