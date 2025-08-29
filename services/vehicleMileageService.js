@@ -1,4 +1,4 @@
-import pool from '../lib/db-local.js';
+import pool from '../lib/db.js';
 
 export async function addMileage({ vehicle_id, mileage, recorded_at }) {
   const [{ insertId }] = await pool.query(

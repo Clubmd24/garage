@@ -1,4 +1,4 @@
-import pool from '../lib/db-local.js';
+import pool from '../lib/db.js';
 
 export async function getAllApprentices() {
   const [rows] = await pool.query(

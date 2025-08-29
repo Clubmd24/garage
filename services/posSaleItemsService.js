@@ -1,4 +1,4 @@
-import pool from '../lib/db-local.js';
+import pool from '../lib/db.js';
 
 export async function addSaleItem({ sale_id, part_id, qty, unit_price }) {
   const [{ insertId }] = await pool.query(

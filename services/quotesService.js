@@ -1,4 +1,4 @@
-import pool from "../lib/db-local.js";
+import pool from "../lib/db.js";
 export async function getAllQuotes() {
   const [rows] = await pool.query(
     `SELECT 

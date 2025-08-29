@@ -1,4 +1,4 @@
-import pool from '../lib/db-local.js';
+import pool from '../lib/db.js';
 
 export async function getAllVehicles(customer_id, fleet_id) {
   const base = `SELECT v.id, v.licence_plate, v.make, v.model, v.color,

@@ -1,4 +1,4 @@
-import pool from '../lib/db-local.js';
+import pool from '../lib/db.js';
 
 export async function getFinanceReport(start, end) {
   const [[row]] = await pool.query(

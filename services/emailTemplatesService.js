@@ -1,4 +1,4 @@
-import pool from '../lib/db-local.js';
+import pool from '../lib/db.js';
 
 export async function listTemplates() {
   const [rows] = await pool.query('SELECT id, name, subject, body, type FROM email_templates ORDER BY id');

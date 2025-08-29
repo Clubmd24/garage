@@ -1,4 +1,4 @@
-import pool from '../lib/db-local.js';
+import pool from '../lib/db.js';
 import { hashPassword } from '../lib/auth.js';
 import { randomBytes } from 'crypto';
 import { getSettings } from './companySettingsService.js';

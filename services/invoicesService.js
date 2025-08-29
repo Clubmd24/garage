@@ -1,4 +1,4 @@
-import pool from '../lib/db-local.js';
+import pool from '../lib/db.js';
 import { invoiceStatusExists } from './invoiceStatusesService.js';
 export async function getAllInvoices() {
   const [rows] = await pool.query(
