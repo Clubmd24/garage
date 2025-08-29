@@ -255,34 +255,17 @@ export async function listActiveJobsForEngineer(user_id, status) {
 
 export async function getJobsForDate(date) {
   const [rows] = await pool.query(
-    `SELECT j.id, v.licence_plate, v.make, v.model,
-            GROUP_CONCAT(u.username ORDER BY u.username SEPARATOR ', ') AS engineers,
-            j.status_id, j.created_at as scheduled_start, NULL as scheduled_end,
-            q.defect_description,
-            c.first_name, c.last_name, c.garage_name
+    `SELECT j.id, j.client_id, j.vehicle_id, j.created_at as scheduled_start, NULL as scheduled_end, j.status_id, NULL as bay, j.created_at,
+            c.first_name, c.last_name, c.mobile,
+            v.licence_plate, v.make, v.model, v.color
        FROM jobs j
-       JOIN vehicles v ON j.vehicle_id = v.id
-  LEFT JOIN clients c ON j.client_id = c.id
-  LEFT JOIN job_assignments ja ON j.id = ja.job_id
-  LEFT JOIN users u ON ja.user_id = u.id
-  LEFT JOIN (
-        SELECT q1.job_id, q1.defect_description
-          FROM quotes q1
-          JOIN (
-            SELECT job_id, MAX(revision) AS rev FROM quotes GROUP BY job_id
-          ) q2 ON q1.job_id = q2.job_id AND q1.revision = q2.rev
-  ) q ON q.job_id = j.id
-      WHERE DATE(j.created_at as scheduled_start)=?
-   GROUP BY j.id
+       LEFT JOIN clients c ON j.client_id = c.id
+       LEFT JOIN vehicles v ON j.vehicle_id = v.id
+      WHERE DATE(j.created_at) = ?
    ORDER BY j.id`,
     [date]
   );
-  
-  // Map garage_name to company_name for backward compatibility
-  return rows.map(row => ({
-    ...row,
-    company_name: row.garage_name
-  }));
+  return rows;
 }
 
 export async function getJobsInRange(start, end, engineer_id, status) {
@@ -293,8 +276,7 @@ export async function getJobsInRange(start, end, engineer_id, status) {
     params.push(engineer_id);
   }
   params.push(start, end);
-  let where =
-    '(j.created_at as scheduled_start>=? AND NULL as scheduled_end<=?) OR j.created_at as scheduled_start IS NULL OR NULL as scheduled_end IS NULL';
+  let where = 'j.created_at >= ? AND j.created_at <= ?';
   if (status) {
     where += ' AND j.status_id=?';
     params.push(status);
@@ -309,7 +291,7 @@ export async function getJobsInRange(start, end, engineer_id, status) {
        ${join}
       WHERE ${where}
    GROUP BY j.id
-   ORDER BY j.created_at as scheduled_start`,
+   ORDER BY j.created_at`,
     params
   );
   return rows.map(r => ({
@@ -339,37 +321,5 @@ export async function getJobDetails(id) {
     [id]
   );
   job.assignments = assignments;
-  return job;
-}
-
-export async function getJobFull(id) {
-  const job = await getJobDetails(id);
-  if (!job) return null;
-  if (job.vehicle_id) {
-    job.vehicle = await getVehicleById(job.vehicle_id);
-  }
-  if (job.client_id) {
-    const [[clientRow]] = await pool.query(
-      `SELECT id, first_name, last_name, email, garage_name FROM clients WHERE id=?`,
-      [job.client_id]
-    );
-    if (clientRow) {
-      // Map garage_name to company_name for backward compatibility
-      job.client = {
-        ...clientRow,
-        company_name: clientRow.garage_name
-      };
-    } else {
-      job.client = null;
-    }
-  }
-  const [[quoteRow]] = await pool.query(
-    `SELECT id, defect_description, revision FROM quotes WHERE job_id=? ORDER BY revision DESC LIMIT 1`,
-    [id]
-  );
-  if (quoteRow) {
-    const items = await getQuoteItems(quoteRow.id);
-    job.quote = { ...quoteRow, items };
-  }
   return job;
 }
