@@ -7,9 +7,9 @@ export async function searchClients(query) {
   const q = `%${query}%`;
   const [rows] = query
     ? await pool.query(
-        `SELECT c.id, c.first_name, c.last_name, c.email, c.mobile, c.landline, c.nie_number,
+        `SELECT c.id, c.first_name, c.last_name, c.mobile, c.landline, c.nie_number,
                 c.street_address, c.town, c.province, c.post_code,
-                c.garage_name, c.vehicle_reg, c.pin, c.client_type, c.fleet_id,
+                c.garage_name, c.client_type, c.fleet_id,
                 GROUP_CONCAT(DISTINCT v.licence_plate ORDER BY v.licence_plate SEPARATOR ', ') as licence_plates,
                 GROUP_CONCAT(DISTINCT v.make ORDER BY v.make SEPARATOR ', ') as makes,
                 GROUP_CONCAT(DISTINCT v.model ORDER BY v.model SEPARATOR ', ') as models,
@@ -18,16 +18,16 @@ export async function searchClients(query) {
                 MAX(CASE WHEN v.id IS NULL THEN 1 ELSE 0 END) as has_no_vehicles
            FROM clients c
       LEFT JOIN vehicles v ON v.client_id = c.id
-          WHERE c.first_name LIKE ? OR c.last_name LIKE ? OR c.email LIKE ?
+          WHERE c.first_name LIKE ? OR c.last_name LIKE ? OR c.mobile LIKE ?
           GROUP BY c.id
           ORDER BY c.client_type DESC, c.first_name, c.last_name
           LIMIT 20`,
         [q, q, q]
       )
     : await pool.query(
-        `SELECT c.id, c.first_name, c.last_name, c.email, c.mobile, c.landline, c.nie_number,
+        `SELECT c.id, c.first_name, c.last_name, c.mobile, c.landline, c.nie_number,
                 c.street_address, c.town, c.province, c.post_code,
-                c.garage_name, c.vehicle_reg, c.pin, c.client_type, c.fleet_id,
+                c.garage_name, c.client_type, c.fleet_id,
                 GROUP_CONCAT(DISTINCT v.licence_plate ORDER BY v.licence_plate SEPARATOR ', ') as licence_plates,
                 GROUP_CONCAT(DISTINCT v.make ORDER BY v.make SEPARATOR ', ') as makes,
                 GROUP_CONCAT(DISTINCT v.model ORDER BY v.model SEPARATOR ', ') as models,
@@ -45,9 +45,9 @@ export async function searchClients(query) {
 
 export async function getAllClients() {
   const [rows] = await pool.query(
-    `SELECT id, first_name, last_name, email, mobile, landline, nie_number,
+    `SELECT id, first_name, last_name, mobile, landline, nie_number,
             street_address, town, province, post_code,
-            garage_name, vehicle_reg, pin, client_type, fleet_id
+            garage_name, client_type, fleet_id
        FROM clients ORDER BY client_type DESC, first_name, last_name`
   );
   return rows;
@@ -55,9 +55,9 @@ export async function getAllClients() {
 
 export async function getClientById(id) {
   const [[row]] = await pool.query(
-    `SELECT id, first_name, last_name, email, mobile, landline, nie_number,
+    `SELECT id, first_name, last_name, mobile, landline, nie_number,
             street_address, town, province, post_code,
-            garage_name, vehicle_reg, pin, client_type, fleet_id
+            garage_name, client_type, fleet_id
        FROM clients WHERE id=?`,
     [id]
   );
@@ -67,9 +67,7 @@ export async function getClientById(id) {
 export async function createClient({
   first_name,
   last_name,
-  email,
   garage_name,
-  vehicle_reg,
   mobile,
   landline,
   nie_number,
@@ -77,29 +75,21 @@ export async function createClient({
   town,
   province,
   post_code,
-  password,
 }) {
   if (!garage_name) {
     const settings = await getSettings();
     garage_name = settings?.company_name || garage_name;
   }
-  if (!password) {
-    password = randomBytes(12).toString('base64url');
-  }
-  const password_hash = await hashPassword(password);
-  const pin = String(Math.floor(100000 + Math.random() * 900000));
-  const pin_hash = await hashPassword(pin);
+  
   const [{ insertId }] = await pool.query(
     `INSERT INTO clients
-      (first_name, last_name, email, mobile, landline, nie_number,
+      (first_name, last_name, mobile, landline, nie_number,
        street_address, town, province, post_code,
-       garage_name, vehicle_reg, password_hash, pin_hash, pin,
-       must_change_password)
-     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+       garage_name, client_type)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
     [
       first_name,
       last_name,
-      email,
       mobile,
       landline,
       nie_number,
@@ -108,20 +98,14 @@ export async function createClient({
       province,
       post_code,
       garage_name,
-      vehicle_reg,
-      password_hash,
-      pin_hash,
-      pin,
-      0,
+      'local', // Default to local client type
     ]
   );
   return {
     id: insertId,
     first_name,
     last_name,
-    email,
     garage_name,
-    vehicle_reg,
     mobile,
     landline,
     nie_number,
@@ -129,8 +113,6 @@ export async function createClient({
     town,
     province,
     post_code,
-    password,
-    pin,
   };
 }
 
@@ -139,9 +121,7 @@ export async function updateClient(
   {
     first_name,
     last_name,
-    email,
     garage_name,
-    vehicle_reg,
     mobile,
     landline,
     nie_number,
@@ -149,32 +129,30 @@ export async function updateClient(
     town,
     province,
     post_code,
-    password,
   }
 ) {
   if (!garage_name) {
     const settings = await getSettings();
     garage_name = settings?.company_name || garage_name;
   }
-  let sql = `UPDATE clients SET
+  
+  const sql = `UPDATE clients SET
        first_name=?,
        last_name=?,
-       email=?,
        garage_name=?,
-       vehicle_reg=?,
        mobile=?,
        landline=?,
        nie_number=?,
        street_address=?,
        town=?,
        province=?,
-       post_code=?`;
+       post_code=?
+       WHERE id=?`;
+  
   const params = [
     first_name,
     last_name,
-    email,
     garage_name,
-    vehicle_reg,
     mobile,
     landline,
     nie_number,
@@ -182,14 +160,9 @@ export async function updateClient(
     town,
     province,
     post_code,
+    id,
   ];
-  if (password) {
-    const password_hash = await hashPassword(password);
-    sql += ', password_hash=?, must_change_password=0';
-    params.push(password_hash);
-  }
-  sql += ' WHERE id=?';
-  params.push(id);
+  
   await pool.query(sql, params);
   return { ok: true };
 }
@@ -226,10 +199,9 @@ export async function getClientsWithVehicles() {
 
 export async function getClientsWithVehicleDetails() {
   const [rows] = await pool.query(
-    `SELECT c.id, c.first_name, c.last_name, c.email, c.mobile,
+    `SELECT c.id, c.first_name, c.last_name, c.mobile,
             c.landline, c.nie_number, c.street_address, c.town,
-            c.province, c.post_code, c.garage_name, c.vehicle_reg, c.pin,
-            c.client_type, c.fleet_id,
+            c.province, c.post_code, c.garage_name, c.client_type, c.fleet_id,
             GROUP_CONCAT(DISTINCT v.licence_plate ORDER BY v.licence_plate SEPARATOR ', ') as licence_plates,
             GROUP_CONCAT(DISTINCT v.make ORDER BY v.make SEPARATOR ', ') as makes,
             GROUP_CONCAT(DISTINCT v.model ORDER BY v.model SEPARATOR ', ') as models,
