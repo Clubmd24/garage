@@ -37,16 +37,16 @@ const ClientsPage = () => {
   };
 
   const filteredClients = clients.filter(c => {
-    // Apply tab filtering using new client_type field
+    // Apply tab filtering
     if (activeTab === 'fleet' && c.client_type !== 'fleet') return false;
     if (activeTab === 'local' && c.client_type !== 'local') return false;
-    if (activeTab === 'no-vehicles' && c.client_type !== 'no-vehicles') return false;
+    if (activeTab === 'no-vehicles' && !c.has_no_vehicles) return false;
     
     // Apply fleet filtering
     if (
       selectedFleet &&
       !vehicles.some(
-        v => v.customer_id === c.id && String(v.fleet_id) === selectedFleet,
+        v => v.client_id === c.id && String(v.fleet_id) === selectedFleet,
       )
     )
       return false;
@@ -56,7 +56,7 @@ const ClientsPage = () => {
     const name = `${c.first_name || ''} ${c.last_name || ''}`.toLowerCase();
     return (
       name.includes(q) ||
-      (c.email || '').toLowerCase().includes(q) ||
+      (c.mobile || '').toLowerCase().includes(q) ||
       (c.nie_number || '').toLowerCase().includes(q)
     );
   });
@@ -110,7 +110,7 @@ const ClientsPage = () => {
           <div className="mb-6 space-y-4">
             <input
               type="text"
-              placeholder="Search clients by name, email, or NIE number…"
+              placeholder="Search clients by name, mobile, or NIE number…"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="input w-full max-w-md"
