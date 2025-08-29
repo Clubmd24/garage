@@ -1,4 +1,4 @@
-import pool from '../lib/db.js';
+import pool from '../lib/db-local.js';
 
 export async function createJobRequest({ fleet_id, client_id, vehicle_id, description }) {
   const [{ insertId }] = await pool.query(

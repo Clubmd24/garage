@@ -1,39 +1,36 @@
-import pool from '../lib/db.js';
+import pool from '../lib/db-local.js';
 import { invoiceStatusExists } from './invoiceStatusesService.js';
-import { getSettings } from './companySettingsService.js';
-import { getQuoteItems } from './quoteItemsService.js';
-
 export async function getAllInvoices() {
   const [rows] = await pool.query(
-    `SELECT i.id, i.job_id, i.customer_id, i.amount, i.due_date, i.status, i.terms, i.created_ts,
-            c.first_name, c.last_name, c.email,
+    `SELECT i.id, i.job_id, i.client_id, i.total_amount, i.due_date, i.status, i.terms, i.created_at,
+            c.first_name, c.last_name, c.mobile,
             v.licence_plate, v.make, v.model, v.color
        FROM invoices i
-       LEFT JOIN clients c ON i.customer_id = c.id
-       LEFT JOIN vehicles v ON i.job_id = v.id
-       LEFT JOIN jobs j ON i.job_id = j.id AND j.vehicle_id = v.id
+       LEFT JOIN clients c ON i.client_id = c.id
+       LEFT JOIN vehicles v ON i.vehicle_id = v.id
+       LEFT JOIN jobs j ON i.job_id = j.id
        ORDER BY i.id`
   );
   return rows;
 }
 
-export async function getInvoicesByCustomer(customer_id, status) {
-  const base = `SELECT i.id, i.job_id, i.customer_id, i.amount, i.due_date, i.status, i.terms, i.created_ts,
-                       c.first_name, c.last_name, c.email,
+export async function getInvoicesByCustomer(client_id, status) {
+  const base = `SELECT i.id, i.job_id, i.client_id, i.total_amount, i.due_date, i.status, i.terms, i.created_at,
+                       c.first_name, c.last_name, c.mobile,
                        v.licence_plate, v.make, v.model, v.color
                 FROM invoices i
-                LEFT JOIN clients c ON i.customer_id = c.id
+                LEFT JOIN clients c ON i.client_id = c.id
                 LEFT JOIN vehicles v ON i.job_id = v.id
                 LEFT JOIN jobs j ON i.job_id = j.id AND j.vehicle_id = v.id
-                WHERE i.customer_id=?`;
+                WHERE i.client_id=?`;
   const [rows] = status
-    ? await pool.query(`${base} AND i.status=? ORDER BY i.id`, [customer_id, status])
-    : await pool.query(`${base} ORDER BY i.id`, [customer_id]);
+    ? await pool.query(`${base} AND i.status=? ORDER BY i.id`, [client_id, status])
+    : await pool.query(`${base} ORDER BY i.id`, [client_id]);
   return rows;
 }
 
 export async function getInvoicesByFleet(fleet_id, status) {
-  const base = `SELECT i.id, i.job_id, i.customer_id, i.amount, i.due_date, i.status, i.terms, i.created_ts
+  const base = `SELECT i.id, i.job_id, i.client_id, i.total_amount, i.due_date, i.status, i.terms, i.created_at
        FROM invoices i
        JOIN jobs j ON i.job_id=j.id
        JOIN vehicles v ON j.vehicle_id=v.id
@@ -46,7 +43,7 @@ export async function getInvoicesByFleet(fleet_id, status) {
 
 export async function getInvoiceById(id) {
   const [[invoice]] = await pool.query(
-    `SELECT i.id, i.job_id, i.customer_id, i.amount, i.due_date, i.status, i.terms, i.created_ts
+    `SELECT i.id, i.job_id, i.client_id, i.total_amount, i.due_date, i.status, i.terms, i.created_at
        FROM invoices i WHERE i.id=?`,
     [id]
   );
@@ -55,12 +52,12 @@ export async function getInvoiceById(id) {
 
   // Get client details
   let client = null;
-  if (invoice.customer_id) {
+  if (invoice.client_id) {
     const [[clientData]] = await pool.query(
       `SELECT id, first_name, last_name, email, mobile, landline, 
               street_address, town, province, post_code
        FROM clients WHERE id = ?`,
-      [invoice.customer_id]
+      [invoice.client_id]
     );
     client = clientData;
   }
@@ -110,7 +107,7 @@ export async function getInvoiceById(id) {
   };
 }
 
-export async function createInvoice({ id, job_id, customer_id, amount, due_date, status, terms }) {
+export async function createInvoice({ id, job_id, client_id, amount, due_date, status, terms }) {
   if (status && !(await invoiceStatusExists(status))) {
     throw new Error('Invalid invoice status');
   }
@@ -125,19 +122,19 @@ export async function createInvoice({ id, job_id, customer_id, amount, due_date,
     }
     await pool.query(
       `INSERT INTO invoices
-        (id, job_id, customer_id, amount, due_date, status, terms)
+        (id, job_id, client_id, amount, due_date, status, terms)
        VALUES (?,?,?,?,?,?,?)`,
-      [id, job_id || null, customer_id || null, amount || null, due_date || null, status || null, terms || null]
+      [id, job_id || null, client_id || null, amount || null, due_date || null, status || null, terms || null]
     );
-    return { id, job_id, customer_id, amount, due_date, status, terms };
+    return { id, job_id, client_id, amount, due_date, status, terms };
   }
   const [{ insertId }] = await pool.query(
     `INSERT INTO invoices
-      (job_id, customer_id, amount, due_date, status, terms)
+      (job_id, client_id, amount, due_date, status, terms)
      VALUES (?,?,?,?,?,?)`,
-    [job_id || null, customer_id || null, amount || null, due_date || null, status || null, terms || null]
+    [job_id || null, client_id || null, amount || null, due_date || null, status || null, terms || null]
   );
-  return { id: insertId, job_id, customer_id, amount, due_date, status, terms };
+  return { id: insertId, job_id, client_id, amount, due_date, status, terms };
 }
 
 export async function createInvoiceFromQuote(quoteId, { amount, due_date, status, terms }) {
@@ -155,7 +152,7 @@ export async function createInvoiceFromQuote(quoteId, { amount, due_date, status
   const invoice = await createInvoice({
     id: quoteId, // Use quote ID as invoice ID
     job_id: quote.job_id,
-    customer_id: quote.customer_id,
+    client_id: quote.client_id,
     amount: amount || quote.total_amount,
     due_date,
     status: status || 'issued',
@@ -195,7 +192,7 @@ export async function createInvoiceFromQuote(quoteId, { amount, due_date, status
 
 export async function updateInvoice(
   id,
-  { job_id, customer_id, amount, due_date, status, terms }
+  { job_id, client_id, amount, due_date, status, terms }
 ) {
   if (status && !(await invoiceStatusExists(status))) {
     throw new Error('Invalid invoice status');
@@ -203,13 +200,13 @@ export async function updateInvoice(
   await pool.query(
     `UPDATE invoices SET
        job_id=?,
-       customer_id=?,
+       client_id=?,
        amount=?,
        due_date=?,
        status=?,
        terms=?
      WHERE id=?`,
-    [job_id || null, customer_id || null, amount || null, due_date || null, status || null, terms || null, id]
+    [job_id || null, client_id || null, amount || null, due_date || null, status || null, terms || null, id]
   );
   return { ok: true };
 }

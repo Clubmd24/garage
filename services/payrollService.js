@@ -1,4 +1,4 @@
-import pool from '../lib/db.js';
+import pool from '../lib/db-local.js';
 
 export async function listPayrollEntries(employee_id) {
   const base = 'SELECT id, employee_id, amount, pay_date FROM payroll_entries';

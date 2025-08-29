@@ -1,23 +1,18 @@
-import pool from "../lib/db.js";
-import { getSettings } from "./companySettingsService.js";
-
+import pool from "../lib/db-local.js";
 export async function getAllQuotes() {
   const [rows] = await pool.query(
     `SELECT 
        q.id, 
-       q.customer_id, 
+       q.client_id, 
        q.fleet_id, 
        q.job_id, 
        q.revision, 
        q.vehicle_id, 
-       q.fleet_vehicle_id, 
-       q.customer_reference, 
-       q.po_number, 
-       q.defect_description, 
+       q.reference, 
        q.total_amount, 
        q.status, 
        q.terms, 
-       q.created_ts,
+       q.created_at,
        c.first_name,
        c.last_name,
        v.licence_plate,
@@ -25,7 +20,7 @@ export async function getAllQuotes() {
        v.model,
        v.color
      FROM quotes q
-     LEFT JOIN clients c ON q.customer_id = c.id
+     LEFT JOIN clients c ON q.client_id = c.id
      LEFT JOIN vehicles v ON q.vehicle_id = v.id
      ORDER BY q.id`,
   );
@@ -36,19 +31,16 @@ export async function getQuotesByFleet(fleet_id) {
   const [rows] = await pool.query(
     `SELECT 
        q.id, 
-       q.customer_id, 
+       q.client_id, 
        q.fleet_id, 
        q.job_id, 
        q.revision, 
        q.vehicle_id, 
-       q.fleet_vehicle_id, 
-       q.customer_reference, 
-       q.po_number, 
-       q.defect_description, 
+       q.reference, 
        q.total_amount, 
        q.status, 
        q.terms, 
-       q.created_ts,
+       q.created_at,
        c.first_name,
        c.last_name,
        v.licence_plate,
@@ -56,7 +48,7 @@ export async function getQuotesByFleet(fleet_id) {
        v.model,
        v.color
      FROM quotes q
-     LEFT JOIN clients c ON q.customer_id = c.id
+     LEFT JOIN clients c ON q.client_id = c.id
      LEFT JOIN vehicles v ON q.vehicle_id = v.id
      WHERE q.fleet_id=? 
      ORDER BY q.id`,
@@ -65,23 +57,20 @@ export async function getQuotesByFleet(fleet_id) {
   return rows;
 }
 
-export async function getQuotesByCustomer(customer_id) {
+export async function getQuotesByCustomer(client_id) {
   const [rows] = await pool.query(
     `SELECT 
        q.id, 
-       q.customer_id, 
+       q.client_id, 
        q.fleet_id, 
        q.job_id, 
        q.revision, 
        q.vehicle_id, 
-       q.fleet_vehicle_id, 
-       q.customer_reference, 
-       q.po_number, 
-       q.defect_description, 
+       q.reference, 
        q.total_amount, 
        q.status, 
        q.terms, 
-       q.created_ts,
+       q.created_at,
        c.first_name,
        c.last_name,
        v.licence_plate,
@@ -89,11 +78,11 @@ export async function getQuotesByCustomer(customer_id) {
        v.model,
        v.color
      FROM quotes q
-     LEFT JOIN clients c ON q.customer_id = c.id
+     LEFT JOIN clients c ON q.client_id = c.id
      LEFT JOIN vehicles v ON q.vehicle_id = v.id
-     WHERE q.customer_id=? 
+     WHERE q.client_id=? 
      ORDER BY q.id`,
-    [customer_id],
+    [client_id],
   );
   return rows;
 }
@@ -102,19 +91,16 @@ export async function getQuotesByVehicle(vehicle_id) {
   const [rows] = await pool.query(
     `SELECT 
        q.id, 
-       q.customer_id, 
+       q.client_id, 
        q.fleet_id, 
        q.job_id, 
        q.revision, 
        q.vehicle_id, 
-       q.fleet_vehicle_id, 
-       q.customer_reference, 
-       q.po_number, 
-       q.defect_description, 
+       q.reference, 
        q.total_amount, 
        q.status, 
        q.terms, 
-       q.created_ts,
+       q.created_at,
        c.first_name,
        c.last_name,
        v.licence_plate,
@@ -122,7 +108,7 @@ export async function getQuotesByVehicle(vehicle_id) {
        v.model,
        v.color
      FROM quotes q
-     LEFT JOIN clients c ON q.customer_id = c.id
+     LEFT JOIN clients c ON q.client_id = c.id
      LEFT JOIN vehicles v ON q.vehicle_id = v.id
      WHERE q.vehicle_id=? 
      ORDER BY q.id`,
@@ -135,19 +121,16 @@ export async function getQuotesByJob(job_id) {
   const [rows] = await pool.query(
     `SELECT 
        q.id, 
-       q.customer_id, 
+       q.client_id, 
        q.fleet_id, 
        q.job_id, 
        q.revision, 
        q.vehicle_id, 
-       q.fleet_vehicle_id, 
-       q.customer_reference, 
-       q.po_number, 
-       q.defect_description, 
+       q.reference, 
        q.total_amount, 
        q.status, 
        q.terms, 
-       q.created_ts,
+       q.created_at,
        c.first_name,
        c.last_name,
        v.licence_plate,
@@ -155,7 +138,7 @@ export async function getQuotesByJob(job_id) {
        v.model,
        v.color
      FROM quotes q
-     LEFT JOIN clients c ON q.customer_id = c.id
+     LEFT JOIN clients c ON q.client_id = c.id
      LEFT JOIN vehicles v ON q.vehicle_id = v.id
      WHERE q.job_id=? 
      ORDER BY q.id`,
@@ -168,19 +151,16 @@ export async function getQuoteById(id) {
   const [[row]] = await pool.query(
     `SELECT 
        q.id, 
-       q.customer_id, 
+       q.client_id, 
        q.fleet_id, 
        q.job_id, 
        q.revision, 
        q.vehicle_id, 
-       q.fleet_vehicle_id, 
-       q.customer_reference, 
-       q.po_number, 
-       q.defect_description, 
+       q.reference, 
        q.total_amount, 
        q.status, 
        q.terms, 
-       q.created_ts,
+       q.created_at,
        c.first_name,
        c.last_name,
        v.licence_plate,
@@ -188,7 +168,7 @@ export async function getQuoteById(id) {
        v.model,
        v.color
      FROM quotes q
-     LEFT JOIN clients c ON q.customer_id = c.id
+     LEFT JOIN clients c ON q.client_id = c.id
      LEFT JOIN vehicles v ON q.vehicle_id = v.id
      WHERE q.id=?`,
     [id],
@@ -197,7 +177,7 @@ export async function getQuoteById(id) {
 }
 
 export async function createQuote({
-  customer_id,
+  client_id,
   fleet_id,
   job_id,
   vehicle_id,
@@ -241,10 +221,10 @@ export async function createQuote({
 
   const [{ insertId }] = await pool.query(
     `INSERT INTO quotes
-      (customer_id, fleet_id, job_id, revision, vehicle_id, fleet_vehicle_id, customer_reference, po_number, defect_description, total_amount, status, terms)
+      (client_id, fleet_id, job_id, revision, vehicle_id, fleet_vehicle_id, customer_reference, po_number, defect_description, total_amount, status, terms)
      VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
     [
-      customer_id || null,
+      client_id || null,
       fleet_id || null,
       job_id || null,
       revision,
@@ -260,7 +240,7 @@ export async function createQuote({
   );
   return {
     id: insertId,
-    customer_id,
+    client_id,
     fleet_id,
     job_id,
     revision,
@@ -278,7 +258,7 @@ export async function createQuote({
 export async function updateQuote(
   id,
   {
-    customer_id,
+    client_id,
     fleet_id,
     job_id,
     vehicle_id,
@@ -296,7 +276,7 @@ export async function updateQuote(
   if (!existing) throw new Error("Quote not found");
 
   const data = {
-    customer_id: customer_id !== undefined ? customer_id : existing.customer_id,
+    client_id: client_id !== undefined ? client_id : existing.client_id,
     fleet_id: fleet_id !== undefined ? fleet_id : existing.fleet_id,
     job_id: job_id !== undefined ? job_id : existing.job_id,
     vehicle_id: vehicle_id !== undefined ? vehicle_id : existing.vehicle_id,
@@ -334,7 +314,7 @@ export async function updateQuote(
 
   await pool.query(
     `UPDATE quotes SET
-       customer_id=?,
+       client_id=?,
        fleet_id=?,
        job_id=?,
        revision=?,
@@ -348,7 +328,7 @@ export async function updateQuote(
        terms=?
      WHERE id=?`,
     [
-      data.customer_id || null,
+      data.client_id || null,
       data.fleet_id || null,
       data.job_id || null,
       data.revision,

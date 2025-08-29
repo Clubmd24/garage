@@ -1,60 +1,56 @@
-import pool from '../lib/db.js';
+import pool from '../lib/db-local.js';
 import { jobStatusExists } from './jobStatusesService.js';
-import { createInvoice, createInvoiceFromQuote } from './invoicesService.js';
-import { getVehicleById } from './vehiclesService.js';
-import { getQuoteItems } from './quoteItemsService.js';
-
 export async function getAllJobs(status) {
   const base =
-    `SELECT j.id, j.customer_id, j.vehicle_id, j.scheduled_start, j.scheduled_end, j.status, j.bay, j.created_at,
-            c.first_name, c.last_name, c.email,
+    `SELECT j.id, j.client_id, j.vehicle_id, j.created_at as scheduled_start, NULL as scheduled_end, j.status_id, NULL as bay, j.created_at,
+            c.first_name, c.last_name, c.mobile,
             v.licence_plate, v.make, v.model, v.color
      FROM jobs j
-     LEFT JOIN clients c ON j.customer_id = c.id
+     LEFT JOIN clients c ON j.client_id = c.id
      LEFT JOIN vehicles v ON j.vehicle_id = v.id`;
   const [rows] = status
-    ? await pool.query(`${base} WHERE j.status=? ORDER BY j.id`, [status])
+    ? await pool.query(`${base} WHERE j.status_id=? ORDER BY j.id`, [status])
     : await pool.query(`${base} ORDER BY j.id`);
   return rows;
 }
 
 export async function getJobsByFleet(fleet_id, status) {
   const base =
-    `SELECT j.id, j.customer_id, j.vehicle_id, j.scheduled_start, j.scheduled_end, j.status, j.bay, j.created_at,
-            c.first_name, c.last_name, c.email,
+    `SELECT j.id, j.client_id, j.vehicle_id, j.created_at as scheduled_start, NULL as scheduled_end, j.status_id, NULL as bay, j.created_at,
+            c.first_name, c.last_name, c.mobile,
             v.licence_plate, v.make, v.model, v.color
        FROM jobs j
        JOIN vehicles v ON j.vehicle_id = v.id
-       LEFT JOIN clients c ON j.customer_id = c.id
+       LEFT JOIN clients c ON j.client_id = c.id
       WHERE v.fleet_id=?`;
   const [rows] = status
-    ? await pool.query(`${base} AND j.status=? ORDER BY j.id`, [fleet_id, status])
+    ? await pool.query(`${base} AND j.status_id=? ORDER BY j.id`, [fleet_id, status])
     : await pool.query(`${base} ORDER BY j.id`, [fleet_id]);
   return rows;
 }
 
-export async function getJobsByCustomer(customer_id, status) {
+export async function getJobsByCustomer(client_id, status) {
   const base =
-    `SELECT j.id, j.customer_id, j.vehicle_id, j.scheduled_start, j.scheduled_end, j.status, j.bay, j.created_at,
-            c.first_name, c.last_name, c.email,
+    `SELECT j.id, j.client_id, j.vehicle_id, j.created_at as scheduled_start, NULL as scheduled_end, j.status_id, NULL as bay, j.created_at,
+            c.first_name, c.last_name, c.mobile,
             v.licence_plate, v.make, v.model, v.color
        FROM jobs j
-       LEFT JOIN clients c ON j.customer_id = c.id
+       LEFT JOIN clients c ON j.client_id = c.id
        LEFT JOIN vehicles v ON j.vehicle_id = v.id
-       WHERE j.customer_id=?`;
+       WHERE j.client_id=?`;
   const [rows] = status
-    ? await pool.query(`${base} AND j.status=? ORDER BY j.id`, [customer_id, status])
-    : await pool.query(`${base} ORDER BY j.id`, [customer_id]);
+    ? await pool.query(`${base} AND j.status_id=? ORDER BY j.id`, [client_id, status])
+    : await pool.query(`${base} ORDER BY j.id`, [client_id]);
   return rows;
 }
 
 export async function getJobById(id) {
   const [[row]] = await pool.query(
-    `SELECT j.id, j.customer_id, j.vehicle_id, j.scheduled_start, j.scheduled_end, j.status, j.bay, j.created_at, j.notes,
-            c.first_name, c.last_name, c.email,
+    `SELECT j.id, j.client_id, j.vehicle_id, j.created_at as scheduled_start, NULL as scheduled_end, j.status_id, NULL as bay, j.created_at, j.notes,
+            c.first_name, c.last_name, c.mobile,
             v.licence_plate, v.make, v.model, v.color
        FROM jobs j
-       LEFT JOIN clients c ON j.customer_id = c.id
+       LEFT JOIN clients c ON j.client_id = c.id
        LEFT JOIN vehicles v ON j.vehicle_id = v.id
        WHERE j.id=?`,
     [id]
@@ -62,7 +58,7 @@ export async function getJobById(id) {
   return row || null;
 }
 
-export async function createJob({ id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay }) {
+export async function createJob({ id, client_id, vehicle_id, scheduled_start, scheduled_end, status, bay }) {
   let finalStatus = status;
   if (!finalStatus) {
     const [[row]] = await pool.query('SELECT name FROM job_statuses WHERE name="unassigned" LIMIT 1');
@@ -75,19 +71,19 @@ export async function createJob({ id, customer_id, vehicle_id, scheduled_start, 
     }
     await pool.query(
       `INSERT INTO jobs
-        (id, customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay)
+        (id, client_id, vehicle_id, scheduled_start, scheduled_end, status, bay)
        VALUES (?,?,?,?,?,?,?)`,
-      [id, customer_id || null, vehicle_id || null, scheduled_start || null, scheduled_end || null, finalStatus, bay || null]
+      [id, client_id || null, vehicle_id || null, scheduled_start || null, scheduled_end || null, finalStatus, bay || null]
     );
-    return { id, customer_id, vehicle_id, scheduled_start, scheduled_end, status: finalStatus, bay };
+    return { id, client_id, vehicle_id, scheduled_start, scheduled_end, status: finalStatus, bay };
   }
   const [{ insertId }] = await pool.query(
     `INSERT INTO jobs
-      (customer_id, vehicle_id, scheduled_start, scheduled_end, status, bay)
+      (client_id, vehicle_id, scheduled_start, scheduled_end, status, bay)
      VALUES (?,?,?,?,?,?)`,
-    [customer_id || null, vehicle_id || null, scheduled_start || null, scheduled_end || null, finalStatus, bay || null]
+    [client_id || null, vehicle_id || null, scheduled_start || null, scheduled_end || null, finalStatus, bay || null]
   );
-  return { id: insertId, customer_id, vehicle_id, scheduled_start, scheduled_end, status: finalStatus, bay };
+  return { id: insertId, client_id, vehicle_id, scheduled_start, scheduled_end, status: finalStatus, bay };
 }
 
 export async function updateJob(id, data = {}) {
@@ -99,7 +95,7 @@ export async function updateJob(id, data = {}) {
   const fields = [];
   const params = [];
   const allowed = [
-    'customer_id',
+    'client_id',
     'vehicle_id',
     'scheduled_start',
     'scheduled_end',
@@ -159,7 +155,7 @@ export async function updateJob(id, data = {}) {
       // Fallback to simple invoice creation
       const invoice = await createInvoice({ 
         job_id: id, 
-        customer_id: data.customer_id ?? null, 
+        client_id: data.client_id ?? null, 
         status: 'issued' 
       });
       invoice_id = invoice.id;
@@ -187,7 +183,7 @@ export async function updateJob(id, data = {}) {
       // Fallback to simple invoice creation
       const invoice = await createInvoice({ 
         job_id: id, 
-        customer_id: data.customer_id ?? null, 
+        client_id: data.client_id ?? null, 
         status: 'issued' 
       });
       invoice_id = invoice.id;
@@ -241,12 +237,12 @@ export async function listActiveJobsForEngineer(user_id, status) {
   const params = [user_id];
   let where = 'ja.user_id=?';
   if (status) {
-    where += ' AND j.status=?';
+    where += ' AND j.status_id=?';
     params.push(status);
   }
   const [rows] = await pool.query(
-    `SELECT j.id, j.customer_id, j.vehicle_id, j.scheduled_start, j.scheduled_end,
-            j.status, j.bay, j.created_at
+    `SELECT j.id, j.client_id, j.vehicle_id, j.created_at as scheduled_start, NULL as scheduled_end,
+            j.status_id, NULL as bay, j.created_at
        FROM jobs j
       JOIN job_assignments ja ON j.id = ja.job_id
       WHERE ${where}
@@ -261,12 +257,12 @@ export async function getJobsForDate(date) {
   const [rows] = await pool.query(
     `SELECT j.id, v.licence_plate, v.make, v.model,
             GROUP_CONCAT(u.username ORDER BY u.username SEPARATOR ', ') AS engineers,
-            j.status, j.scheduled_start, j.scheduled_end,
+            j.status_id, j.created_at as scheduled_start, NULL as scheduled_end,
             q.defect_description,
             c.first_name, c.last_name, c.garage_name
        FROM jobs j
        JOIN vehicles v ON j.vehicle_id = v.id
-  LEFT JOIN clients c ON j.customer_id = c.id
+  LEFT JOIN clients c ON j.client_id = c.id
   LEFT JOIN job_assignments ja ON j.id = ja.job_id
   LEFT JOIN users u ON ja.user_id = u.id
   LEFT JOIN (
@@ -276,7 +272,7 @@ export async function getJobsForDate(date) {
             SELECT job_id, MAX(revision) AS rev FROM quotes GROUP BY job_id
           ) q2 ON q1.job_id = q2.job_id AND q1.revision = q2.rev
   ) q ON q.job_id = j.id
-      WHERE DATE(j.scheduled_start)=?
+      WHERE DATE(j.created_at as scheduled_start)=?
    GROUP BY j.id
    ORDER BY j.id`,
     [date]
@@ -298,27 +294,27 @@ export async function getJobsInRange(start, end, engineer_id, status) {
   }
   params.push(start, end);
   let where =
-    '(j.scheduled_start>=? AND j.scheduled_end<=?) OR j.scheduled_start IS NULL OR j.scheduled_end IS NULL';
+    '(j.created_at as scheduled_start>=? AND NULL as scheduled_end<=?) OR j.created_at as scheduled_start IS NULL OR NULL as scheduled_end IS NULL';
   if (status) {
-    where += ' AND j.status=?';
+    where += ' AND j.status_id=?';
     params.push(status);
   }
   const [rows] = await pool.query(
-    `SELECT j.id, j.customer_id, j.vehicle_id, v.licence_plate,
-            j.scheduled_start, j.scheduled_end,
-            j.status, j.bay,
+    `SELECT j.id, j.client_id, j.vehicle_id, v.licence_plate,
+            j.created_at as scheduled_start, NULL as scheduled_end,
+            j.status_id, NULL as bay,
             GROUP_CONCAT(ja.user_id) AS engineer_ids
        FROM jobs j
   LEFT JOIN vehicles v ON j.vehicle_id = v.id
        ${join}
       WHERE ${where}
    GROUP BY j.id
-   ORDER BY j.scheduled_start`,
+   ORDER BY j.created_at as scheduled_start`,
     params
   );
   return rows.map(r => ({
     id: r.id,
-    customer_id: r.customer_id,
+    client_id: r.client_id,
     vehicle_id: r.vehicle_id,
     licence_plate: r.licence_plate,
     scheduled_start: r.scheduled_start,
@@ -352,10 +348,10 @@ export async function getJobFull(id) {
   if (job.vehicle_id) {
     job.vehicle = await getVehicleById(job.vehicle_id);
   }
-  if (job.customer_id) {
+  if (job.client_id) {
     const [[clientRow]] = await pool.query(
       `SELECT id, first_name, last_name, email, garage_name FROM clients WHERE id=?`,
-      [job.customer_id]
+      [job.client_id]
     );
     if (clientRow) {
       // Map garage_name to company_name for backward compatibility

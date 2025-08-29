@@ -1,4 +1,4 @@
-import pool from '../lib/db.js';
+import pool from '../lib/db-local.js';
 import { getSettings } from './companySettingsService.js';
 
 export async function getAllFleets() {

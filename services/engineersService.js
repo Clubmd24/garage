@@ -1,4 +1,4 @@
-import pool from '../lib/db.js';
+import pool from '../lib/db-local.js';
 import { hashPassword } from '../lib/auth.js';
 
 export async function getAllEngineers() {

@@ -1,4 +1,4 @@
-import pool from '../lib/db.js';
+import pool from '../lib/db-local.js';
 
 export async function createPurchaseOrder({ job_id, supplier_id, status, items }) {
   if (Array.isArray(items) && items.length > 0) {

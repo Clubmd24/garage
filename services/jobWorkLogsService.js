@@ -1,4 +1,4 @@
-import pool from '../lib/db.js';
+import pool from '../lib/db-local.js';
 
 export async function logStart(job_id) {
   const [{ insertId }] = await pool.query(

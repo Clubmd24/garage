@@ -3,13 +3,13 @@ import apiHandler from '../../../lib/apiHandler.js';
 
 async function handler(req, res) {
     if (req.method === 'GET') {
-      const { fleet_id, customer_id, vehicle_id, job_id } = req.query || {};
+      const { fleet_id, client_id, vehicle_id, job_id } = req.query || {};
       if (fleet_id) {
         const rows = await service.getQuotesByFleet?.(fleet_id) ?? [];
         return res.status(200).json(rows);
       }
-      if (customer_id) {
-        const rows = await service.getQuotesByCustomer?.(customer_id) ?? [];
+      if (client_id) {
+        const rows = await service.getQuotesByCustomer?.(client_id) ?? [];
         return res.status(200).json(rows);
       }
       if (vehicle_id) {
@@ -25,14 +25,14 @@ async function handler(req, res) {
     }
     if (req.method === 'POST') {
       const data = {
-        customer_id: req.body.customer_id,
+        client_id: req.body.client_id,
         fleet_id: req.body.fleet_id,
         job_id: req.body.job_id,
         vehicle_id: req.body.vehicle_id,
-        fleet_vehicle_id: req.body.fleet_vehicle_id,
-        customer_reference: req.body.customer_reference,
-        po_number: req.body.po_number,
-        defect_description: req.body.defect_description,
+        company_vehicle_id: req.body.company_vehicle_id,
+        reference: req.body.reference,
+        purchase_order_number: req.body.purchase_order_number,
+        description: req.body.description,
         total_amount: req.body.total_amount,
         status: req.body.status,
         terms: req.body.terms,

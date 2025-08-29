@@ -3,13 +3,13 @@ import apiHandler from '../../../lib/apiHandler.js';
 
 async function handler(req, res) {
     if (req.method === 'GET') {
-      const { customer_id, fleet_id, status } = req.query || {};
+      const { client_id, fleet_id, status } = req.query || {};
       if (fleet_id) {
         const rows = await service.getInvoicesByFleet?.(fleet_id, status) ?? [];
         return res.status(200).json(rows);
       }
-      if (customer_id) {
-        const rows = await service.getInvoicesByCustomer?.(customer_id, status) ?? [];
+      if (client_id) {
+        const rows = await service.getInvoicesByCustomer?.(client_id, status) ?? [];
         return res.status(200).json(rows);
       }
       const invoices = await service.getAllInvoices();

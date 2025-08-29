@@ -1,4 +1,4 @@
-import pool from '../lib/db.js';
+import pool from '../lib/db-local.js';
 
 export async function getDocuments(entity_type, entity_id) {
   const [rows] = await pool.query(
