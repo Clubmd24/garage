@@ -129,3 +129,23 @@ For technical support or questions:
 ---
 
 **Garage Vision** - Professional Automotive Business Management
+
+
+## Windows desktop installer (.exe)
+
+This project can now produce a Windows installer alongside the web app build.
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Build the desktop installer:
+   ```bash
+   npm run dist:win
+   ```
+
+Output files are written to `dist/` (including an NSIS `.exe` installer).
+
+Notes:
+- The desktop app wraps the same Next.js app in Electron.
+- Production desktop builds start the bundled Next.js standalone server and open it in a native window.
