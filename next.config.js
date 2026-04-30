@@ -5,6 +5,7 @@ const nextConfig = {
     domains: [],  // add any image hostnames here
     unoptimized: true, // for static export compatibility
   },
+  output: 'standalone',
   // Disable static generation for problematic pages
   trailingSlash: false,
   // Enable compression
